@@ -5,6 +5,21 @@ export const dynamic = "force-dynamic";
 
 const mvpModules = [
   {
+    name: "Centro Operacional",
+    description: "Painel de filas, pendencias, tecnicos disponiveis e eventos recentes.",
+    status: "MVP",
+  },
+  {
+    name: "Busca Global",
+    description: "Localizacao rapida de OS, demandas, ativos e tecnicos.",
+    status: "MVP",
+  },
+  {
+    name: "Planejamento",
+    description: "Backlog, execucao, revisao e carga tecnica em visao de quadro.",
+    status: "MVP",
+  },
+  {
     name: "WorkItems",
     description: "Entrada, triagem e priorizacao das demandas antes de virarem OS.",
     status: "MVP",
@@ -30,6 +45,21 @@ const mvpModules = [
     status: "MVP",
   },
   {
+    name: "Event Log",
+    description: "Memoria rastreavel de tudo que muda no fluxo tecnico.",
+    status: "MVP",
+  },
+  {
+    name: "Evidencias",
+    description: "Biblioteca de comprovantes, fotos, documentos e links tecnicos.",
+    status: "MVP",
+  },
+  {
+    name: "Horas",
+    description: "Apontamentos de tempo, produtividade tecnica e esforco por OS.",
+    status: "MVP",
+  },
+  {
     name: "Livro de Turno",
     description: "Consolidacao de ocorrencias, pendencias e passagem de servico.",
     status: "MVP",
@@ -42,11 +72,17 @@ const mvpModules = [
 ];
 
 const moduleLinks: Record<string, string> = {
+  "Centro Operacional": "/operations",
+  "Busca Global": "/search",
+  Planejamento: "/planning",
   WorkItems: "/work-items",
   Ativos: "/assets",
   "Ordens de Servico": "/service-orders",
   Workforce: "/workforce",
   "Revisao Tecnica": "/approvals",
+  "Event Log": "/events",
+  Evidencias: "/evidences",
+  Horas: "/timesheets",
   "Livro de Turno": "/shifts",
   Relatorios: "/reports",
 };

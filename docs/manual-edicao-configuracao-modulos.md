@@ -34,6 +34,11 @@ Use `src/adaptations/secao-tecnica` para a primeira adaptacao:
 O app deve importar `activeAdaptation` de `src/adaptations/active.ts`.
 Componentes e actions nao devem importar `secao-tecnica` diretamente.
 
+Depois que o bootstrap cria os registros no banco, edicoes operacionais de
+labels e descricoes podem ser feitas em `/workspace-config`. Essa tela atualiza
+os catalogos persistidos sem exigir alteracao de codigo para ajustes simples de
+linguagem do cliente.
+
 ## 3. Como criar uma nova adaptacao
 
 1. Crie uma pasta em `src/adaptations/<cliente>`.
@@ -58,6 +63,10 @@ Quando um modulo precisar de uma nova opcao configuravel:
 3. Exponha um helper ou constante no modulo que leia `activeAdaptation`.
 4. Preserve os contratos do modulo.
 5. Documente a configuracao em `docs/modulos`.
+
+Se a mudanca for apenas label ou descricao de uma opcao existente, use
+`/workspace-config`. Se for uma nova chave de configuracao, adicione primeiro na
+adaptacao versionada e deixe o bootstrap criar o registro persistido.
 
 Exemplo:
 

@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -17,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { updateWorkspaceCatalogItem } from "@/modules/workspace-config/actions";
 import { getWorkspaceConfigOverview } from "@/modules/workspace-config/queries";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +34,77 @@ const layerLabels = {
   module: "Modulo",
   adaptation: "Adaptacao",
 } as const;
+
+type EditableCatalogItem = {
+  id: string;
+  key: string;
+  label?: string;
+  name?: string;
+  description?: string | null;
+};
+
+function EditableCatalogCard({
+  catalog,
+  description,
+  items,
+  title,
+}: {
+  catalog: string;
+  description: string;
+  items: EditableCatalogItem[];
+  title: string;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {items.map((item) => (
+          <form
+            action={updateWorkspaceCatalogItem}
+            className="grid gap-3 border p-3 md:grid-cols-[160px_1fr_1fr_auto] md:items-end"
+            key={item.id}
+          >
+            <input name="catalog" type="hidden" value={catalog} />
+            <input name="id" type="hidden" value={item.id} />
+            <div>
+              <p className="font-mono text-xs uppercase text-muted-foreground">
+                Chave
+              </p>
+              <p className="mt-2 truncate text-sm font-medium">{item.key}</p>
+            </div>
+            <label className="block">
+              <span className="text-xs font-medium text-muted-foreground">
+                Nome exibido
+              </span>
+              <Input
+                className="mt-1"
+                defaultValue={item.label ?? item.name ?? item.key}
+                name="label"
+                required
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-medium text-muted-foreground">
+                Descricao
+              </span>
+              <Input
+                className="mt-1"
+                defaultValue={item.description ?? ""}
+                name="description"
+              />
+            </label>
+            <Button type="submit" variant="outline">
+              Salvar
+            </Button>
+          </form>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
 
 export default async function WorkspaceConfigPage() {
   const config = await getWorkspaceConfigOverview();
@@ -125,6 +198,55 @@ export default async function WorkspaceConfigPage() {
               </Table>
             </CardContent>
           </Card>
+
+          <EditableCatalogCard
+            catalog="demandType"
+            description="Tipos usados nos formularios e validacoes de demandas."
+            items={catalogs.demandTypes}
+            title="Tipos de demanda"
+          />
+
+          <EditableCatalogCard
+            catalog="serviceOrderType"
+            description="Classificacoes usadas ao criar uma ordem de servico."
+            items={catalogs.serviceOrderTypes}
+            title="Tipos de OS"
+          />
+
+          <EditableCatalogCard
+            catalog="assetType"
+            description="Familias de ativos disponiveis no cadastro tecnico."
+            items={catalogs.assetTypes}
+            title="Tipos de ativo"
+          />
+
+          <EditableCatalogCard
+            catalog="shiftType"
+            description="Tipos de agenda e escala usados pelo workspace."
+            items={catalogs.shiftTypes}
+            title="Tipos de escala"
+          />
+
+          <EditableCatalogCard
+            catalog="queue"
+            description="Filas operacionais para triagem, supervisao e continuidade."
+            items={catalogs.queues}
+            title="Filas"
+          />
+
+          <EditableCatalogCard
+            catalog="documentTemplate"
+            description="Modelos documentais usados no modulo de documentos."
+            items={catalogs.documentTemplates}
+            title="Templates documentais"
+          />
+
+          <EditableCatalogCard
+            catalog="reportTemplate"
+            description="Modelos usados na geracao de relatorios."
+            items={catalogs.reportTemplates}
+            title="Templates de relatorio"
+          />
         </div>
 
         <aside className="space-y-4">

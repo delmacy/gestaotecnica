@@ -1,6 +1,9 @@
 import { createOperationalReport } from "./actions";
+import { getReportTypeOptions } from "./queries";
 
-export function ReportForm() {
+export async function ReportForm() {
+  const reportTypes = await getReportTypeOptions();
+
   return (
     <form action={createOperationalReport} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <div className="mb-5">
@@ -17,6 +20,21 @@ export function ReportForm() {
           name="title"
           placeholder="Resumo operacional semanal"
         />
+      </label>
+
+      <label className="mt-4 block">
+        <span className="text-sm font-medium text-[#273025]">Modelo</span>
+        <select
+          className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
+          name="type"
+          defaultValue="monthly_operational_summary"
+        >
+          {reportTypes.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
       </label>
 
       <button

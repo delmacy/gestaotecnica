@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { getAssetCriticalityLabel, getAssetStatusLabel } from "./constants";
+import {
+  getAssetCriticalityLabel,
+  getAssetStatusLabel,
+  getAssetTypeLabel,
+} from "./constants";
 
 type AssetRow = {
   id: string;
@@ -61,7 +65,9 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
                     {asset.code}
                   </p>
                 </td>
-                <td className="px-4 py-4 align-top">{asset.type}</td>
+                <td className="px-4 py-4 align-top">
+                  {getAssetTypeLabel(asset.type)}
+                </td>
                 <td className="px-4 py-4 align-top">
                   {getAssetStatusLabel(asset.status)}
                 </td>

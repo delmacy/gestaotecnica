@@ -1,3 +1,5 @@
+import { activeAdaptation } from "@/adaptations/active";
+
 export const assetStatuses = [
   { value: "active", label: "Ativo" },
   { value: "inactive", label: "Inativo" },
@@ -12,14 +14,10 @@ export const assetCriticalities = [
   { value: "critical", label: "Critica" },
 ] as const;
 
-export const assetTypeSuggestions = [
-  "equipamento",
-  "sistema",
-  "infraestrutura",
-  "rede",
-  "software",
-  "documento",
-] as const;
+export const assetTypeSuggestions = activeAdaptation.assetTypes.map((type) => ({
+  value: type.key,
+  label: type.label,
+}));
 
 export type AssetStatusValue = (typeof assetStatuses)[number]["value"];
 export type AssetCriticalityValue = (typeof assetCriticalities)[number]["value"];
@@ -30,4 +28,8 @@ export function getAssetStatusLabel(value: string) {
 
 export function getAssetCriticalityLabel(value: string) {
   return assetCriticalities.find((item) => item.value === value)?.label ?? value;
+}
+
+export function getAssetTypeLabel(value: string) {
+  return assetTypeSuggestions.find((item) => item.value === value)?.label ?? value;
 }

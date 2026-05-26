@@ -1,3 +1,5 @@
+import { activeAdaptation } from "@/adaptations/active";
+
 export const documentStatuses = [
   { value: "draft", label: "Rascunho" },
   { value: "prepared_by_secretary", label: "Preparado pela secretaria" },
@@ -10,12 +12,10 @@ export const documentStatuses = [
   { value: "returned_for_correction", label: "Retornado para correcao" },
 ] as const;
 
-export const documentTypes = [
-  { value: "technical_report", label: "Relatorio tecnico" },
-  { value: "dispatch", label: "Despacho" },
-  { value: "handover", label: "Passagem de servico" },
-  { value: "legacy_summary", label: "Resumo para legado" },
-] as const;
+export const documentTypes = activeAdaptation.documentTemplates.map((template) => ({
+  value: template.key,
+  label: template.label,
+}));
 
 export type DocumentStatusValue = (typeof documentStatuses)[number]["value"];
 

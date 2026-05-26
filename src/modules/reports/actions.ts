@@ -13,10 +13,19 @@ import {
   timeEntries,
   workItems,
 } from "@/db/schema";
+import { getReportTypeOptions } from "./queries";
 
 function readOptionalText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
   return value.length > 0 ? value : undefined;
+}
+
+async function readReportType(formData: FormData) {
+  const reportTypes = await getReportTypeOptions();
+  const value = String(formData.get("type") ?? "").trim();
+  const fallback = reportTypes[0]?.value ?? "monthly_operational_summary";
+
+  return reportTypes.some((item) => item.value === value) ? value : fallback;
 }
 
 async function countByStatus(
@@ -34,6 +43,7 @@ export async function createOperationalReport(formData: FormData) {
   const title =
     readOptionalText(formData, "title") ??
     `Resumo operacional - ${new Intl.DateTimeFormat("pt-BR").format(new Date())}`;
+  const type = await readReportType(formData);
   const db = getDb();
 
   const [
@@ -85,7 +95,7 @@ export async function createOperationalReport(formData: FormData) {
     .insert(reports)
     .values({
       title,
-      type: "operational_summary",
+      type,
       payload,
     })
     .returning({

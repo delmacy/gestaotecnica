@@ -1,7 +1,12 @@
 import { createAsset } from "./actions";
-import { assetCriticalities, assetStatuses, assetTypeSuggestions } from "./constants";
+import { assetCriticalities, assetStatuses } from "./constants";
 
-export function AssetForm() {
+type AssetTypeOption = {
+  value: string;
+  label: string;
+};
+
+export function AssetForm({ assetTypes }: { assetTypes: AssetTypeOption[] }) {
   return (
     <form action={createAsset} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <div className="mb-5">
@@ -25,18 +30,18 @@ export function AssetForm() {
 
           <label className="block">
             <span className="text-sm font-medium text-[#273025]">Tipo</span>
-            <input
+            <select
               className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
-              list="asset-types"
               name="type"
-              placeholder="equipamento"
+              defaultValue="equipment"
               required
-            />
-            <datalist id="asset-types">
-              {assetTypeSuggestions.map((type) => (
-                <option key={type} value={type} />
+            >
+              {assetTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
               ))}
-            </datalist>
+            </select>
           </label>
         </div>
 

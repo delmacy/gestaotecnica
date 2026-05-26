@@ -1,7 +1,10 @@
 import { asc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
+  assetTypeDefinitions,
   businessRoleDefinitions,
+  documentTemplateDefinitions,
+  reportTemplateDefinitions,
   scheduleTypeDefinitions,
   workItemTypeDefinitions,
 } from "@/db/schema";
@@ -72,4 +75,55 @@ export async function getWorkspaceTechnicianLevelOptions(): Promise<CatalogOptio
   return rows
     .filter((row): row is { value: string; label: string } => Boolean(row.value))
     .map((row) => ({ value: row.value, label: row.label }));
+}
+
+export async function getWorkspaceAssetTypeOptions(): Promise<CatalogOption[]> {
+  const workspace = await ensureActiveWorkspaceConfig();
+  const db = getDb();
+
+  return db
+    .select({
+      value: assetTypeDefinitions.key,
+      label: assetTypeDefinitions.label,
+    })
+    .from(assetTypeDefinitions)
+    .where(eq(assetTypeDefinitions.workspaceId, workspace.id))
+    .orderBy(
+      asc(assetTypeDefinitions.sortOrder),
+      asc(assetTypeDefinitions.label),
+    );
+}
+
+export async function getWorkspaceDocumentTemplateOptions(): Promise<CatalogOption[]> {
+  const workspace = await ensureActiveWorkspaceConfig();
+  const db = getDb();
+
+  return db
+    .select({
+      value: documentTemplateDefinitions.key,
+      label: documentTemplateDefinitions.label,
+    })
+    .from(documentTemplateDefinitions)
+    .where(eq(documentTemplateDefinitions.workspaceId, workspace.id))
+    .orderBy(
+      asc(documentTemplateDefinitions.sortOrder),
+      asc(documentTemplateDefinitions.label),
+    );
+}
+
+export async function getWorkspaceReportTemplateOptions(): Promise<CatalogOption[]> {
+  const workspace = await ensureActiveWorkspaceConfig();
+  const db = getDb();
+
+  return db
+    .select({
+      value: reportTemplateDefinitions.key,
+      label: reportTemplateDefinitions.label,
+    })
+    .from(reportTemplateDefinitions)
+    .where(eq(reportTemplateDefinitions.workspaceId, workspace.id))
+    .orderBy(
+      asc(reportTemplateDefinitions.sortOrder),
+      asc(reportTemplateDefinitions.label),
+    );
 }

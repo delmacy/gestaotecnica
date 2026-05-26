@@ -11,6 +11,7 @@ import {
   assetCriticalities,
   assetStatuses,
 } from "./constants";
+import { getAssetTypeOptions } from "./queries";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -37,10 +38,18 @@ function readEnum<T extends string>(
   return allowedValues.some((item) => item.value === value) ? (value as T) : fallback;
 }
 
+async function readAssetType(formData: FormData) {
+  const assetTypes = await getAssetTypeOptions();
+  const value = String(formData.get("type") ?? "").trim();
+  const fallback = assetTypes[0]?.value ?? "equipment";
+
+  return assetTypes.some((item) => item.value === value) ? value : fallback;
+}
+
 export async function createAsset(formData: FormData) {
   const code = readRequiredText(formData, "code");
   const name = readRequiredText(formData, "name");
-  const type = readRequiredText(formData, "type");
+  const type = await readAssetType(formData);
   const location = readOptionalText(formData, "location");
   const description = readOptionalText(formData, "description");
   const status = readEnum<AssetStatusValue>(

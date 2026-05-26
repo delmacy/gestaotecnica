@@ -156,6 +156,61 @@ export const automationStatusEnum = pgEnum("automation_status", [
   "retired",
 ]);
 
+export const supplierStatusEnum = pgEnum("supplier_status", [
+  "prospect",
+  "active",
+  "under_review",
+  "suspended",
+  "inactive",
+]);
+
+export const contractStatusEnum = pgEnum("contract_status", [
+  "draft",
+  "active",
+  "expiring",
+  "expired",
+  "cancelled",
+]);
+
+export const inventoryItemStatusEnum = pgEnum("inventory_item_status", [
+  "available",
+  "reserved",
+  "low_stock",
+  "unavailable",
+  "retired",
+]);
+
+export const inventoryMovementTypeEnum = pgEnum("inventory_movement_type", [
+  "inbound",
+  "outbound",
+  "reservation",
+  "release",
+  "adjustment",
+]);
+
+export const auditStatusEnum = pgEnum("audit_status", [
+  "planned",
+  "in_progress",
+  "completed",
+  "requires_action",
+  "cancelled",
+]);
+
+export const findingSeverityEnum = pgEnum("finding_severity", [
+  "low",
+  "medium",
+  "high",
+  "critical",
+]);
+
+export const findingStatusEnum = pgEnum("finding_status", [
+  "open",
+  "in_progress",
+  "mitigated",
+  "accepted",
+  "closed",
+]);
+
 export const users = pgTable(
   "users",
   {
@@ -642,5 +697,137 @@ export const automationRules = pgTable(
   (table) => [
     index("automation_rules_status_idx").on(table.status),
     index("automation_rules_trigger_type_idx").on(table.triggerType),
+  ],
+);
+
+export const suppliers = pgTable(
+  "suppliers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    documentNumber: text("document_number"),
+    contactName: text("contact_name"),
+    contactEmail: text("contact_email"),
+    contactPhone: text("contact_phone"),
+    status: supplierStatusEnum("status").notNull().default("prospect"),
+    category: text("category"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("suppliers_name_idx").on(table.name),
+    index("suppliers_status_idx").on(table.status),
+  ],
+);
+
+export const supplierContracts = pgTable(
+  "supplier_contracts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    supplierId: uuid("supplier_id").notNull().references(() => suppliers.id),
+    title: text("title").notNull(),
+    status: contractStatusEnum("status").notNull().default("draft"),
+    contractNumber: text("contract_number"),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    valueCents: integer("value_cents"),
+    scope: text("scope"),
+    ownerTeamId: uuid("owner_team_id").references(() => teams.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("supplier_contracts_supplier_id_idx").on(table.supplierId),
+    index("supplier_contracts_status_idx").on(table.status),
+  ],
+);
+
+export const inventoryItems = pgTable(
+  "inventory_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sku: text("sku").notNull().unique(),
+    name: text("name").notNull(),
+    category: text("category"),
+    status: inventoryItemStatusEnum("status").notNull().default("available"),
+    quantityOnHand: integer("quantity_on_hand").notNull().default(0),
+    minimumQuantity: integer("minimum_quantity").notNull().default(0),
+    unit: text("unit").notNull().default("un"),
+    location: text("location"),
+    supplierId: uuid("supplier_id").references(() => suppliers.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("inventory_items_sku_idx").on(table.sku),
+    index("inventory_items_status_idx").on(table.status),
+    index("inventory_items_supplier_id_idx").on(table.supplierId),
+  ],
+);
+
+export const inventoryMovements = pgTable(
+  "inventory_movements",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    itemId: uuid("item_id").notNull().references(() => inventoryItems.id),
+    movementType: inventoryMovementTypeEnum("movement_type").notNull(),
+    quantity: integer("quantity").notNull(),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    acquisitionNeedId: uuid("acquisition_need_id").references(() => acquisitionNeeds.id),
+    performedById: uuid("performed_by_id").references(() => users.id),
+    notes: text("notes"),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("inventory_movements_item_id_idx").on(table.itemId),
+    index("inventory_movements_type_idx").on(table.movementType),
+    index("inventory_movements_occurred_at_idx").on(table.occurredAt),
+  ],
+);
+
+export const complianceAudits = pgTable(
+  "compliance_audits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    area: text("area"),
+    status: auditStatusEnum("status").notNull().default("planned"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    ownerTeamId: uuid("owner_team_id").references(() => teams.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    plannedAt: timestamp("planned_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    summary: text("summary"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("compliance_audits_status_idx").on(table.status),
+    index("compliance_audits_asset_id_idx").on(table.assetId),
+  ],
+);
+
+export const complianceFindings = pgTable(
+  "compliance_findings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    auditId: uuid("audit_id").notNull().references(() => complianceAudits.id),
+    title: text("title").notNull(),
+    severity: findingSeverityEnum("severity").notNull().default("medium"),
+    status: findingStatusEnum("status").notNull().default("open"),
+    responsibleTeamId: uuid("responsible_team_id").references(() => teams.id),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+    description: text("description"),
+    correctiveAction: text("corrective_action"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("compliance_findings_audit_id_idx").on(table.auditId),
+    index("compliance_findings_status_idx").on(table.status),
+    index("compliance_findings_severity_idx").on(table.severity),
   ],
 );

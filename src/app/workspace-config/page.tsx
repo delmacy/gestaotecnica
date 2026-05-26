@@ -35,7 +35,7 @@ const layerLabels = {
 
 export default async function WorkspaceConfigPage() {
   const config = await getWorkspaceConfigOverview();
-  const { adaptation, modules, totals } = config;
+  const { adaptation, catalogs, modules, totals, workspace } = config;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -48,7 +48,7 @@ export default async function WorkspaceConfigPage() {
               </Badge>
               <div>
                 <h1 className="text-4xl font-semibold tracking-normal">
-                  {adaptation.workspaceName}
+                  {workspace.name}
                 </h1>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
                   Configuracao que conecta o core replicavel aos modulos e ao
@@ -102,7 +102,7 @@ export default async function WorkspaceConfigPage() {
                 </TableHeader>
                 <TableBody>
                   {modules.map((item) => (
-                    <TableRow key={item.key}>
+                    <TableRow key={item.moduleKey}>
                       <TableCell>
                         <div>
                           <p className="font-medium">{item.name}</p>
@@ -111,8 +111,14 @@ export default async function WorkspaceConfigPage() {
                           </p>
                         </div>
                       </TableCell>
-                      <TableCell>{layerLabels[item.layer]}</TableCell>
-                      <TableCell>{statusLabels[item.status]}</TableCell>
+                      <TableCell>
+                        {layerLabels[item.layer as keyof typeof layerLabels] ??
+                          item.layer}
+                      </TableCell>
+                      <TableCell>
+                        {statusLabels[item.status as keyof typeof statusLabels] ??
+                          item.status}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -131,7 +137,7 @@ export default async function WorkspaceConfigPage() {
               <div>
                 <p className="text-sm font-medium">Filas</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {adaptation.queues.map((queue) => (
+                  {catalogs.queues.map((queue) => (
                     <Badge key={queue.key} variant="outline">
                       {queue.label}
                     </Badge>
@@ -141,7 +147,7 @@ export default async function WorkspaceConfigPage() {
               <div>
                 <p className="text-sm font-medium">Tipos de demanda</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {adaptation.demandTypes.map((type) => (
+                  {catalogs.demandTypes.map((type) => (
                     <Badge key={type.key} variant="secondary">
                       {type.label}
                     </Badge>

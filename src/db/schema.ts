@@ -7,6 +7,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -210,6 +211,288 @@ export const findingStatusEnum = pgEnum("finding_status", [
   "accepted",
   "closed",
 ]);
+
+export const workspaces = pgTable(
+  "workspaces",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    adaptationKey: text("adaptation_key").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    metadata: jsonb("metadata").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("workspaces_key_uidx").on(table.key),
+    index("workspaces_active_idx").on(table.isActive),
+  ],
+);
+
+export const workspaceModuleConfigs = pgTable(
+  "workspace_module_configs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    moduleKey: text("module_key").notNull(),
+    name: text("name").notNull(),
+    description: text("description"),
+    layer: text("layer").notNull().default("module"),
+    status: text("status").notNull().default("planned"),
+    isEnabled: boolean("is_enabled").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("workspace_module_configs_workspace_module_uidx").on(
+      table.workspaceId,
+      table.moduleKey,
+    ),
+    index("workspace_module_configs_workspace_idx").on(table.workspaceId),
+  ],
+);
+
+export const workItemTypeDefinitions = pgTable(
+  "work_item_type_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    defaultPriority: priorityEnum("default_priority").notNull().default("medium"),
+    defaultQueue: text("default_queue"),
+    canGenerateServiceOrder: boolean("can_generate_service_order")
+      .notNull()
+      .default(true),
+    canAppearInShiftLog: boolean("can_appear_in_shift_log").notNull().default(false),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("work_item_type_definitions_workspace_key_uidx").on(
+      table.workspaceId,
+      table.key,
+    ),
+    index("work_item_type_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
+
+export const serviceOrderTypeDefinitions = pgTable(
+  "service_order_type_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    requiresAsset: boolean("requires_asset").notNull().default(false),
+    requiresTimeEntry: boolean("requires_time_entry").notNull().default(true),
+    requiresEvidence: boolean("requires_evidence").notNull().default(false),
+    requiresSupervisorApproval: boolean("requires_supervisor_approval")
+      .notNull()
+      .default(false),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("service_order_type_definitions_workspace_key_uidx").on(
+      table.workspaceId,
+      table.key,
+    ),
+    index("service_order_type_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
+
+export const assetTypeDefinitions = pgTable(
+  "asset_type_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    tracksMaintenance: boolean("tracks_maintenance").notNull().default(true),
+    tracksLocation: boolean("tracks_location").notNull().default(true),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("asset_type_definitions_workspace_key_uidx").on(
+      table.workspaceId,
+      table.key,
+    ),
+    index("asset_type_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
+
+export const scheduleTypeDefinitions = pgTable(
+  "schedule_type_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    requiresShiftLog: boolean("requires_shift_log").notNull().default(false),
+    receivesTickets: jsonb("receives_tickets").notNull().default(false),
+    receivesServiceOrders: jsonb("receives_service_orders").notNull().default(false),
+    allowsOverlap: boolean("allows_overlap").notNull().default(true),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("schedule_type_definitions_workspace_key_uidx").on(
+      table.workspaceId,
+      table.key,
+    ),
+    index("schedule_type_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
+
+export const businessRoleDefinitions = pgTable(
+  "business_role_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    legacyLevel: text("legacy_level"),
+    canExecuteServiceOrder: boolean("can_execute_service_order")
+      .notNull()
+      .default(false),
+    requiresSupervision: boolean("requires_supervision").notNull().default(false),
+    canApprove: boolean("can_approve").notNull().default(false),
+    canAssignServiceOrder: boolean("can_assign_service_order").notNull().default(false),
+    canReviewShiftLog: boolean("can_review_shift_log").notNull().default(false),
+    canValidateTechnicalWork: boolean("can_validate_technical_work")
+      .notNull()
+      .default(false),
+    canPrepareDocuments: boolean("can_prepare_documents").notNull().default(false),
+    canReviewCompleteness: boolean("can_review_completeness").notNull().default(false),
+    canPlanMaintenance: boolean("can_plan_maintenance").notNull().default(false),
+    canManageAcquisitions: boolean("can_manage_acquisitions").notNull().default(false),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("business_role_definitions_workspace_key_uidx").on(
+      table.workspaceId,
+      table.key,
+    ),
+    index("business_role_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
+
+export const workspaceQueues = pgTable(
+  "workspace_queues",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("workspace_queues_workspace_key_uidx").on(
+      table.workspaceId,
+      table.key,
+    ),
+    index("workspace_queues_workspace_idx").on(table.workspaceId),
+  ],
+);
+
+export const workflowTemplates = pgTable(
+  "workflow_templates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    target: text("target").notNull(),
+    states: jsonb("states").notNull().default([]),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("workflow_templates_workspace_key_uidx").on(
+      table.workspaceId,
+      table.key,
+    ),
+    index("workflow_templates_workspace_idx").on(table.workspaceId),
+  ],
+);
+
+export const reportTemplateDefinitions = pgTable(
+  "report_template_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    target: text("target").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("report_template_definitions_workspace_key_uidx").on(
+      table.workspaceId,
+      table.key,
+    ),
+    index("report_template_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
+
+export const documentTemplateDefinitions = pgTable(
+  "document_template_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    target: text("target").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("document_template_definitions_workspace_key_uidx").on(
+      table.workspaceId,
+      table.key,
+    ),
+    index("document_template_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
 
 export const users = pgTable(
   "users",

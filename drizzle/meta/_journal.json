@@ -22,6 +22,13 @@
       "when": 1779795797676,
       "tag": "0002_faithful_kitty_pryde",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779810253857,
+      "tag": "0003_blushing_hobgoblin",
+      "breakpoints": true
     }
   ]
 }

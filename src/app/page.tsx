@@ -30,6 +30,21 @@ const mvpModules = [
     status: "MVP",
   },
   {
+    name: "Event Log",
+    description: "Memoria rastreavel de tudo que muda no fluxo tecnico.",
+    status: "MVP",
+  },
+  {
+    name: "Evidencias",
+    description: "Biblioteca de comprovantes, fotos, documentos e links tecnicos.",
+    status: "MVP",
+  },
+  {
+    name: "Horas",
+    description: "Apontamentos de tempo, produtividade tecnica e esforco por OS.",
+    status: "MVP",
+  },
+  {
     name: "Livro de Turno",
     description: "Consolidacao de ocorrencias, pendencias e passagem de servico.",
     status: "MVP",
@@ -47,6 +62,9 @@ const moduleLinks: Record<string, string> = {
   "Ordens de Servico": "/service-orders",
   Workforce: "/workforce",
   "Revisao Tecnica": "/approvals",
+  "Event Log": "/events",
+  Evidencias: "/evidences",
+  Horas: "/timesheets",
   "Livro de Turno": "/shifts",
   Relatorios: "/reports",
 };

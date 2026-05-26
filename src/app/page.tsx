@@ -35,6 +35,21 @@ const mvpModules = [
     status: "Fase 2",
   },
   {
+    name: "Planos de Manutencao",
+    description: "Planejamento preventivo por ativo, periodo, equipe e prioridade.",
+    status: "Fase 3",
+  },
+  {
+    name: "Projetos Tecnicos",
+    description: "Modernizacoes, melhorias, substituicoes e implantacoes tecnicas.",
+    status: "Fase 3",
+  },
+  {
+    name: "Aquisicoes",
+    description: "Necessidades de compra, justificativas e status administrativo.",
+    status: "Fase 3",
+  },
+  {
     name: "WorkItems",
     description: "Entrada, triagem e priorizacao das demandas antes de virarem OS.",
     status: "MVP",
@@ -93,6 +108,9 @@ const moduleLinks: Record<string, string> = {
   Escalas: "/schedules",
   Documentos: "/documents",
   Legado: "/legacy",
+  "Planos de Manutencao": "/maintenance-plans",
+  "Projetos Tecnicos": "/technical-projects",
+  Aquisicoes: "/acquisitions",
   WorkItems: "/work-items",
   Ativos: "/assets",
   "Ordens de Servico": "/service-orders",

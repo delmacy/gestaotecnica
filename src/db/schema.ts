@@ -105,6 +105,25 @@ export const legacySyncStatusEnum = pgEnum("legacy_sync_status", [
   "failed",
 ]);
 
+export const planningStatusEnum = pgEnum("planning_status", [
+  "draft",
+  "proposed",
+  "approved",
+  "in_progress",
+  "completed",
+  "cancelled",
+]);
+
+export const acquisitionStatusEnum = pgEnum("acquisition_status", [
+  "identified",
+  "justified",
+  "requested",
+  "approved",
+  "ordered",
+  "received",
+  "cancelled",
+]);
+
 export const users = pgTable(
   "users",
   {
@@ -413,5 +432,74 @@ export const legacyRecords = pgTable(
     index("legacy_records_sync_status_idx").on(table.syncStatus),
     index("legacy_records_service_order_id_idx").on(table.serviceOrderId),
     index("legacy_records_document_id_idx").on(table.documentId),
+  ],
+);
+
+export const maintenancePlans = pgTable(
+  "maintenance_plans",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    status: planningStatusEnum("status").notNull().default("draft"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    assetId: uuid("asset_id").references(() => assets.id),
+    ownerTeamId: uuid("owner_team_id").references(() => teams.id),
+    periodStart: timestamp("period_start", { withTimezone: true }),
+    periodEnd: timestamp("period_end", { withTimezone: true }),
+    objective: text("objective"),
+    checklist: jsonb("checklist").notNull().default([]),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("maintenance_plans_status_idx").on(table.status),
+    index("maintenance_plans_asset_id_idx").on(table.assetId),
+  ],
+);
+
+export const technicalProjects = pgTable(
+  "technical_projects",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    status: planningStatusEnum("status").notNull().default("draft"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    sponsor: text("sponsor"),
+    assetId: uuid("asset_id").references(() => assets.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    targetEndsAt: timestamp("target_ends_at", { withTimezone: true }),
+    objective: text("objective"),
+    scope: text("scope"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("technical_projects_status_idx").on(table.status),
+    index("technical_projects_asset_id_idx").on(table.assetId),
+  ],
+);
+
+export const acquisitionNeeds = pgTable(
+  "acquisition_needs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    status: acquisitionStatusEnum("status").notNull().default("identified"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    quantity: integer("quantity").notNull().default(1),
+    estimatedCostCents: integer("estimated_cost_cents"),
+    justification: text("justification"),
+    assetId: uuid("asset_id").references(() => assets.id),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    projectId: uuid("project_id").references(() => technicalProjects.id),
+    requestedById: uuid("requested_by_id").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("acquisition_needs_status_idx").on(table.status),
+    index("acquisition_needs_asset_id_idx").on(table.assetId),
+    index("acquisition_needs_project_id_idx").on(table.projectId),
   ],
 );

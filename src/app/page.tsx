@@ -50,6 +50,21 @@ const mvpModules = [
     status: "Fase 3",
   },
   {
+    name: "Competencias",
+    description: "Catalogo de habilidades, matriz tecnica e treinamentos.",
+    status: "Fase 4",
+  },
+  {
+    name: "Recursos",
+    description: "Necessidades de pessoas, materiais, ferramentas e apoio operacional.",
+    status: "Fase 4",
+  },
+  {
+    name: "Automacoes",
+    description: "Registro governado de gatilhos, endpoints e rotinas de integracao.",
+    status: "Fase 4",
+  },
+  {
     name: "WorkItems",
     description: "Entrada, triagem e priorizacao das demandas antes de virarem OS.",
     status: "MVP",
@@ -111,6 +126,9 @@ const moduleLinks: Record<string, string> = {
   "Planos de Manutencao": "/maintenance-plans",
   "Projetos Tecnicos": "/technical-projects",
   Aquisicoes: "/acquisitions",
+  Competencias: "/skills",
+  Recursos: "/resource-needs",
+  Automacoes: "/automations",
   WorkItems: "/work-items",
   Ativos: "/assets",
   "Ordens de Servico": "/service-orders",
@@ -128,6 +146,7 @@ const phases = [
   "Nucleo operacional com WorkItems, OS, ativos e eventos",
   "Governanca com aprovacoes, secretaria tecnica e documentos",
   "Planejamento, escalas, legado, automacoes e BI",
+  "Capacitacao, recursos, integracoes e governanca operacional",
 ];
 
 export default async function Home() {

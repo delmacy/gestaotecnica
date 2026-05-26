@@ -124,6 +124,38 @@ export const acquisitionStatusEnum = pgEnum("acquisition_status", [
   "cancelled",
 ]);
 
+export const skillProficiencyEnum = pgEnum("skill_proficiency", [
+  "basic",
+  "intermediate",
+  "advanced",
+  "expert",
+]);
+
+export const trainingStatusEnum = pgEnum("training_status", [
+  "planned",
+  "in_progress",
+  "completed",
+  "expired",
+  "cancelled",
+]);
+
+export const resourceNeedStatusEnum = pgEnum("resource_need_status", [
+  "identified",
+  "prioritized",
+  "approved",
+  "in_progress",
+  "fulfilled",
+  "cancelled",
+]);
+
+export const automationStatusEnum = pgEnum("automation_status", [
+  "draft",
+  "active",
+  "paused",
+  "failed",
+  "retired",
+]);
+
 export const users = pgTable(
   "users",
   {
@@ -501,5 +533,114 @@ export const acquisitionNeeds = pgTable(
     index("acquisition_needs_status_idx").on(table.status),
     index("acquisition_needs_asset_id_idx").on(table.assetId),
     index("acquisition_needs_project_id_idx").on(table.projectId),
+  ],
+);
+
+export const skillCatalog = pgTable(
+  "skill_catalog",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    category: text("category"),
+    description: text("description"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("skill_catalog_name_idx").on(table.name),
+    index("skill_catalog_category_idx").on(table.category),
+  ],
+);
+
+export const technicianSkills = pgTable(
+  "technician_skills",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id")
+      .notNull()
+      .references(() => technicianProfiles.id),
+    skillId: uuid("skill_id").notNull().references(() => skillCatalog.id),
+    proficiency: skillProficiencyEnum("proficiency").notNull().default("basic"),
+    certifiedAt: timestamp("certified_at", { withTimezone: true }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("technician_skills_technician_id_idx").on(table.technicianProfileId),
+    index("technician_skills_skill_id_idx").on(table.skillId),
+  ],
+);
+
+export const trainingRecords = pgTable(
+  "training_records",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id").references(
+      () => technicianProfiles.id,
+    ),
+    skillId: uuid("skill_id").references(() => skillCatalog.id),
+    title: text("title").notNull(),
+    provider: text("provider"),
+    status: trainingStatusEnum("status").notNull().default("planned"),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("training_records_status_idx").on(table.status),
+    index("training_records_technician_id_idx").on(table.technicianProfileId),
+    index("training_records_skill_id_idx").on(table.skillId),
+  ],
+);
+
+export const resourceNeeds = pgTable(
+  "resource_needs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    category: text("category"),
+    status: resourceNeedStatusEnum("status").notNull().default("identified"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    quantity: integer("quantity").notNull().default(1),
+    justification: text("justification"),
+    assetId: uuid("asset_id").references(() => assets.id),
+    projectId: uuid("project_id").references(() => technicalProjects.id),
+    acquisitionNeedId: uuid("acquisition_need_id").references(() => acquisitionNeeds.id),
+    ownerTeamId: uuid("owner_team_id").references(() => teams.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("resource_needs_status_idx").on(table.status),
+    index("resource_needs_asset_id_idx").on(table.assetId),
+    index("resource_needs_project_id_idx").on(table.projectId),
+  ],
+);
+
+export const automationRules = pgTable(
+  "automation_rules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    triggerType: text("trigger_type").notNull(),
+    status: automationStatusEnum("status").notNull().default("draft"),
+    provider: text("provider"),
+    endpointUrl: text("endpoint_url"),
+    scheduleExpression: text("schedule_expression"),
+    description: text("description"),
+    lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+    payload: jsonb("payload").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("automation_rules_status_idx").on(table.status),
+    index("automation_rules_trigger_type_idx").on(table.triggerType),
   ],
 );

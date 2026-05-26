@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Boxes, CheckCircle2, Gauge, Search } from "lucide-react";
+import {
+  ArrowRight,
+  Boxes,
+  CheckCircle2,
+  Gauge,
+  Search,
+  Settings2,
+} from "lucide-react";
 import { getDashboardSummary } from "@/modules/dashboard/queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -92,6 +99,11 @@ const mvpModules = [
     status: "Fase 5",
   },
   {
+    name: "Workspace Config",
+    description: "Adaptacao ativa, catalogo de modulos, filas, papeis e templates por cliente.",
+    status: "Fase 6",
+  },
+  {
     name: "WorkItems",
     description: "Entrada, triagem e priorizacao das demandas antes de virarem OS.",
     status: "MVP",
@@ -159,6 +171,7 @@ const moduleLinks: Record<string, string> = {
   Fornecedores: "/suppliers",
   Estoque: "/inventory",
   Conformidade: "/compliance",
+  "Workspace Config": "/workspace-config",
   WorkItems: "/work-items",
   Ativos: "/assets",
   "Ordens de Servico": "/service-orders",
@@ -186,11 +199,13 @@ const statusTone: Record<string, "default" | "secondary" | "outline"> = {
   "Fase 3": "secondary",
   "Fase 4": "outline",
   "Fase 5": "outline",
+  "Fase 6": "outline",
 };
 
 const quickLinks = [
   { href: "/operations", label: "Operacao", icon: Gauge },
   { href: "/search", label: "Busca", icon: Search },
+  { href: "/workspace-config", label: "Config", icon: Settings2 },
   { href: "/inventory", label: "Estoque", icon: Boxes },
   { href: "/compliance", label: "Conformidade", icon: CheckCircle2 },
 ];

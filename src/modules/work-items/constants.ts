@@ -1,12 +1,21 @@
-export const workItemTypes = [
-  { value: "incidente", label: "Incidente" },
-  { value: "solicitacao", label: "Solicitacao" },
-  { value: "vistoria", label: "Vistoria" },
-  { value: "manutencao", label: "Manutencao" },
-  { value: "pendencia_turno", label: "Pendencia de turno" },
-  { value: "atividade_planejada", label: "Atividade planejada" },
-  { value: "administrativo", label: "Administrativo" },
-] as const;
+import { activeAdaptation } from "@/adaptations/active";
+import type { DemandTypeKey } from "@/adaptations/secao-tecnica/demand-types";
+
+export const workItemTypes = activeAdaptation.demandTypes.map((item) => ({
+  value: item.key,
+  label: item.label,
+  description: item.description,
+  defaultQueue: item.defaultQueue,
+  canGenerateServiceOrder: item.canGenerateServiceOrder,
+  canAppearInShiftLog: item.canAppearInShiftLog,
+})) satisfies Array<{
+  value: DemandTypeKey;
+  label: string;
+  description: string;
+  defaultQueue: string;
+  canGenerateServiceOrder: boolean;
+  canAppearInShiftLog: boolean;
+}>;
 
 export const workItemPriorities = [
   { value: "low", label: "Baixa" },
@@ -26,7 +35,7 @@ export const workItemStatuses = [
   { value: "cancelled", label: "Cancelada" },
 ] as const;
 
-export type WorkItemTypeValue = (typeof workItemTypes)[number]["value"];
+export type WorkItemTypeValue = DemandTypeKey;
 export type WorkItemPriorityValue = (typeof workItemPriorities)[number]["value"];
 export type WorkItemStatusValue = (typeof workItemStatuses)[number]["value"];
 

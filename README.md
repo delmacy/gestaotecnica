@@ -22,6 +22,12 @@ Os documentos de arquitetura ficam em `docs/`:
 - `docs/05-modulo-assets.md`
 - `docs/06-modulo-service-orders.md`
 - `docs/07-blueprint-core-workspaces-adaptacoes.md`
+- `docs/manual-edicao-configuracao-modulos.md`
+- `docs/modulos/README.md`
+- `docs/modulos/workspace-config.md`
+- `docs/adaptacoes/README.md`
+- `docs/adaptacoes/secao-tecnica.md`
+- `docs/base/possiveis-alteracoes-de-schema.md`
 
 ## Arquitetura
 
@@ -35,6 +41,7 @@ Camadas:
 - `src/modules`: modulos reutilizaveis.
 - `src/adaptations`: configuracoes por cliente/setor.
 - `secao-tecnica`: primeira adaptacao real da plataforma.
+- `/workspace-config`: leitura da adaptacao ativa e mapa dos modulos.
 
 A diretriz central e: o modulo universal nao conhece o cliente; a adaptacao
 ensina o modulo a operar naquele cliente.

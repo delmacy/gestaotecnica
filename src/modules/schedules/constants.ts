@@ -1,9 +1,19 @@
-export const scheduleTypes = [
-  { value: "expediente", label: "Expediente" },
-  { value: "plantao", label: "Plantao" },
-  { value: "sobreaviso", label: "Sobreaviso" },
-  { value: "ausencia", label: "Ausencia" },
-] as const;
+import { activeAdaptation } from "@/adaptations/active";
+import type { ShiftTypeKey } from "@/adaptations/secao-tecnica/shift-types";
+
+export const scheduleTypes = activeAdaptation.shiftTypes.map((item) => ({
+  value: item.key,
+  label: item.label,
+  description: item.description,
+  requiresShiftLog: item.requiresShiftLog,
+  allowsOverlap: item.allowsOverlap,
+})) satisfies Array<{
+  value: ShiftTypeKey;
+  label: string;
+  description: string;
+  requiresShiftLog: boolean;
+  allowsOverlap: boolean;
+}>;
 
 export const scheduleStatuses = [
   { value: "planned", label: "Planejada" },
@@ -12,7 +22,7 @@ export const scheduleStatuses = [
   { value: "completed", label: "Concluida" },
 ] as const;
 
-export type ScheduleTypeValue = (typeof scheduleTypes)[number]["value"];
+export type ScheduleTypeValue = ShiftTypeKey;
 export type ScheduleStatusValue = (typeof scheduleStatuses)[number]["value"];
 
 export function getScheduleTypeLabel(value: string) {

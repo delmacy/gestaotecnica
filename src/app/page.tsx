@@ -20,6 +20,21 @@ const mvpModules = [
     status: "MVP",
   },
   {
+    name: "Escalas",
+    description: "Expediente, plantao, sobreaviso e ausencias da equipe tecnica.",
+    status: "Fase 2",
+  },
+  {
+    name: "Documentos",
+    description: "Workflow documental tecnico, revisao, aprovacao e exportacao.",
+    status: "Fase 2",
+  },
+  {
+    name: "Legado",
+    description: "Protocolos e status de sincronizacao com sistemas oficiais.",
+    status: "Fase 2",
+  },
+  {
     name: "WorkItems",
     description: "Entrada, triagem e priorizacao das demandas antes de virarem OS.",
     status: "MVP",
@@ -75,6 +90,9 @@ const moduleLinks: Record<string, string> = {
   "Centro Operacional": "/operations",
   "Busca Global": "/search",
   Planejamento: "/planning",
+  Escalas: "/schedules",
+  Documentos: "/documents",
+  Legado: "/legacy",
   WorkItems: "/work-items",
   Ativos: "/assets",
   "Ordens de Servico": "/service-orders",

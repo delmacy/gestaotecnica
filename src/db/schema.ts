@@ -71,6 +71,40 @@ export const shiftStatusEnum = pgEnum("shift_status", [
   "closed",
 ]);
 
+export const scheduleTypeEnum = pgEnum("schedule_type", [
+  "expediente",
+  "plantao",
+  "sobreaviso",
+  "ausencia",
+]);
+
+export const scheduleStatusEnum = pgEnum("schedule_status", [
+  "planned",
+  "confirmed",
+  "cancelled",
+  "completed",
+]);
+
+export const documentStatusEnum = pgEnum("document_status", [
+  "draft",
+  "prepared_by_secretary",
+  "waiting_technician_review",
+  "waiting_supervisor_approval",
+  "approved",
+  "signed",
+  "exported_to_legacy",
+  "archived",
+  "returned_for_correction",
+]);
+
+export const legacySyncStatusEnum = pgEnum("legacy_sync_status", [
+  "pending",
+  "prepared",
+  "exported",
+  "confirmed",
+  "failed",
+]);
+
 export const users = pgTable(
   "users",
   {
@@ -307,3 +341,77 @@ export const reports = pgTable("reports", {
   payload: jsonb("payload").notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const schedules = pgTable(
+  "schedules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id").references(
+      () => technicianProfiles.id,
+    ),
+    teamId: uuid("team_id").references(() => teams.id),
+    title: text("title").notNull(),
+    type: scheduleTypeEnum("type").notNull().default("expediente"),
+    status: scheduleStatusEnum("status").notNull().default("planned"),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("schedules_technician_id_idx").on(table.technicianProfileId),
+    index("schedules_team_id_idx").on(table.teamId),
+    index("schedules_period_idx").on(table.startsAt, table.endsAt),
+  ],
+);
+
+export const technicalDocuments = pgTable(
+  "technical_documents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    documentType: text("document_type").notNull().default("technical_report"),
+    status: documentStatusEnum("status").notNull().default("draft"),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    content: text("content"),
+    preparedById: uuid("prepared_by_id").references(() => users.id),
+    reviewedById: uuid("reviewed_by_id").references(() => users.id),
+    approvedById: uuid("approved_by_id").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("technical_documents_status_idx").on(table.status),
+    index("technical_documents_service_order_id_idx").on(table.serviceOrderId),
+    index("technical_documents_work_item_id_idx").on(table.workItemId),
+  ],
+);
+
+export const legacyRecords = pgTable(
+  "legacy_records",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    systemName: text("system_name").notNull(),
+    protocolNumber: text("protocol_number"),
+    externalRecordId: text("external_record_id"),
+    externalStatus: text("external_status"),
+    syncStatus: legacySyncStatusEnum("sync_status").notNull().default("pending"),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    documentId: uuid("document_id").references(() => technicalDocuments.id),
+    exportedAt: timestamp("exported_at", { withTimezone: true }),
+    notes: text("notes"),
+    payload: jsonb("payload").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("legacy_records_sync_status_idx").on(table.syncStatus),
+    index("legacy_records_service_order_id_idx").on(table.serviceOrderId),
+    index("legacy_records_document_id_idx").on(table.documentId),
+  ],
+);

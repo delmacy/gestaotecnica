@@ -4,16 +4,18 @@ import { WorkItemsTable } from "@/modules/work-items/work-items-table";
 import {
   getWorkItems,
   getWorkItemSummary,
+  getWorkItemTypeOptions,
 } from "@/modules/work-items/queries";
 import { getAssetOptions } from "@/modules/assets/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function WorkItemsPage() {
-  const [workItems, summary, assetOptions] = await Promise.all([
+  const [workItems, summary, assetOptions, workItemTypeOptions] = await Promise.all([
     getWorkItems(),
     getWorkItemSummary(),
     getAssetOptions(),
+    getWorkItemTypeOptions(),
   ]);
 
   return (
@@ -71,7 +73,10 @@ export default async function WorkItemsPage() {
         </div>
 
         <aside>
-          <WorkItemForm assets={assetOptions} />
+          <WorkItemForm
+            assets={assetOptions}
+            workItemTypes={workItemTypeOptions}
+          />
         </aside>
       </section>
     </main>

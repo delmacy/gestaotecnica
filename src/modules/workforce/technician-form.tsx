@@ -1,12 +1,23 @@
 import { createTechnician } from "./actions";
-import { technicianLevels } from "./constants";
+import type { TechnicianLevelValue } from "./constants";
 
 type TeamOption = {
   id: string;
   name: string;
 };
 
-export function TechnicianForm({ teams }: { teams: TeamOption[] }) {
+type TechnicianLevelOption = {
+  value: TechnicianLevelValue;
+  label: string;
+};
+
+export function TechnicianForm({
+  teams,
+  technicianLevels,
+}: {
+  teams: TeamOption[];
+  technicianLevels: TechnicianLevelOption[];
+}) {
   return (
     <form action={createTechnician} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <div className="mb-5">

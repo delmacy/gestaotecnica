@@ -111,12 +111,16 @@ Migre para tabelas quando:
 - Revisar documentacao da adaptacao
 - Registrar futuras alteracoes de schema em `docs/base`
 
-## 8. Modulos atualmente ligados a adaptacao
+## 8. Modulos atualmente ligados ao catalogo do workspace
 
-- WorkItems: tipos de demanda.
-- Schedules: tipos de escala.
-- Workforce: labels de papeis tecnicos compativeis com o schema atual.
+- WorkItems: tipos de demanda lidos de `work_item_type_definitions`.
+- Schedules: tipos de escala lidos de `schedule_type_definitions`.
+- Workforce: papeis tecnicos compativeis lidos de `business_role_definitions`.
 - Workspace Config: leitura do pacote ativo, catalogo de modulos e configuracao.
+
+A adaptacao em codigo continua sendo a origem versionada do bootstrap. Depois
+de semeados, os formularios e validations desses modulos passam a consultar o
+catalogo persistido no Postgres.
 
 ## 9. Proxima evolucao recomendada
 

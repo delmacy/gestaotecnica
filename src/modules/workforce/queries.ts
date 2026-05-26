@@ -1,6 +1,8 @@
 import { count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { teams, technicianProfiles, users } from "@/db/schema";
+import { getWorkspaceTechnicianLevelOptions } from "@/platform/workspaces/catalogs";
+import type { TechnicianLevelValue } from "./constants";
 
 export async function getTeams() {
   const db = getDb();
@@ -84,4 +86,12 @@ export async function getWorkforceSummary() {
     { label: "Equipes", value: teamsRow.value },
     { label: "Supervisores", value: supervisorsRow.value },
   ];
+}
+
+export async function getTechnicianLevelOptions() {
+  const options = await getWorkspaceTechnicianLevelOptions();
+  return options.map((option) => ({
+    ...option,
+    value: option.value as TechnicianLevelValue,
+  }));
 }

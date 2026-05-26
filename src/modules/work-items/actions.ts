@@ -11,8 +11,8 @@ import {
   type WorkItemTypeValue,
   workItemPriorities,
   workItemStatuses,
-  workItemTypes,
 } from "./constants";
+import { getWorkItemTypeOptions } from "./queries";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -45,6 +45,7 @@ export async function createWorkItem(formData: FormData) {
   const requesterName = readOptionalText(formData, "requesterName");
   const requesterContact = readOptionalText(formData, "requesterContact");
   const assetId = readOptionalText(formData, "assetId");
+  const workItemTypes = await getWorkItemTypeOptions();
   const type = readEnum<WorkItemTypeValue>(
     formData,
     "type",

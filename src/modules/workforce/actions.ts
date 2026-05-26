@@ -6,8 +6,8 @@ import { getDb } from "@/db";
 import { eventLogs, teams, technicianProfiles, users } from "@/db/schema";
 import {
   type TechnicianLevelValue,
-  technicianLevels,
 } from "./constants";
+import { getTechnicianLevelOptions } from "./queries";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -71,6 +71,7 @@ export async function createTechnician(formData: FormData) {
   const registrationCode = readOptionalText(formData, "registrationCode");
   const specialty = readOptionalText(formData, "specialty");
   const teamId = readOptionalText(formData, "teamId");
+  const technicianLevels = await getTechnicianLevelOptions();
   const level = readEnum<TechnicianLevelValue>(
     formData,
     "level",

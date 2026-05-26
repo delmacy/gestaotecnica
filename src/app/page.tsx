@@ -1,5 +1,24 @@
 import Link from "next/link";
+import {
+  ArrowRight,
+  Boxes,
+  CheckCircle2,
+  Gauge,
+  Search,
+  Settings2,
+} from "lucide-react";
 import { getDashboardSummary } from "@/modules/dashboard/queries";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export const dynamic = "force-dynamic";
 
@@ -80,6 +99,11 @@ const mvpModules = [
     status: "Fase 5",
   },
   {
+    name: "Workspace Config",
+    description: "Adaptacao ativa, catalogo de modulos, filas, papeis e templates por cliente.",
+    status: "Fase 6",
+  },
+  {
     name: "WorkItems",
     description: "Entrada, triagem e priorizacao das demandas antes de virarem OS.",
     status: "MVP",
@@ -147,6 +171,7 @@ const moduleLinks: Record<string, string> = {
   Fornecedores: "/suppliers",
   Estoque: "/inventory",
   Conformidade: "/compliance",
+  "Workspace Config": "/workspace-config",
   WorkItems: "/work-items",
   Ativos: "/assets",
   "Ordens de Servico": "/service-orders",
@@ -168,107 +193,155 @@ const phases = [
   "Suprimentos, estoque tecnico, conformidade e contratos",
 ];
 
+const statusTone: Record<string, "default" | "secondary" | "outline"> = {
+  MVP: "default",
+  "Fase 2": "secondary",
+  "Fase 3": "secondary",
+  "Fase 4": "outline",
+  "Fase 5": "outline",
+  "Fase 6": "outline",
+};
+
+const quickLinks = [
+  { href: "/operations", label: "Operacao", icon: Gauge },
+  { href: "/search", label: "Busca", icon: Search },
+  { href: "/workspace-config", label: "Config", icon: Settings2 },
+  { href: "/inventory", label: "Estoque", icon: Boxes },
+  { href: "/compliance", label: "Conformidade", icon: CheckCircle2 },
+];
+
 export default async function Home() {
   const dashboard = await getDashboardSummary();
 
   return (
-    <main className="min-h-screen bg-[#f6f7f4] text-[#1c211b]">
-      <section className="border-b border-[#d7dccf] bg-[#fbfcf8]">
+    <main className="min-h-screen bg-background text-foreground">
+      <section className="border-b bg-card">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-10 lg:px-8">
-          <div className="flex flex-col gap-2">
-            <p className="font-mono text-xs uppercase text-[#65705f]">
-              Plataforma modular
-            </p>
-            <h1 className="max-w-4xl text-4xl font-semibold tracking-normal text-[#111510] sm:text-5xl">
-              Gestao Tecnica
-            </h1>
-            <p className="max-w-3xl text-base leading-7 text-[#4d5848]">
-              Base operacional para demandas, ordens de servico, ativos,
-              evidencias, livro de turno e relatorios da secao tecnica.
-            </p>
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div className="flex flex-col gap-3">
+              <Badge className="w-fit" variant="secondary">
+                Plataforma modular
+              </Badge>
+              <div className="space-y-3">
+                <h1 className="max-w-4xl text-4xl font-semibold tracking-normal text-foreground sm:text-5xl">
+                  Gestao Tecnica
+                </h1>
+                <p className="max-w-3xl text-base leading-7 text-muted-foreground">
+                  Base operacional para demandas, ordens de servico, ativos,
+                  evidencias, livro de turno, suprimentos e governanca tecnica.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {quickLinks.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button asChild key={item.href} variant="outline">
+                    <Link href={item.href}>
+                      <Icon />
+                      {item.label}
+                    </Link>
+                  </Button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {phases.map((phase, index) => (
-              <div
-                className="border border-[#d7dccf] bg-white p-4 shadow-sm"
-                key={phase}
-              >
-                <p className="font-mono text-xs text-[#6e7a66]">
-                  Fase {index}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[#273025]">{phase}</p>
-              </div>
+              <Card key={phase} size="sm">
+                <CardHeader>
+                  <CardTitle className="font-mono text-xs uppercase text-muted-foreground">
+                    Fase {index}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm leading-6">{phase}</p>
+                </CardContent>
+              </Card>
             ))}
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {dashboard.available ? (
               dashboard.metrics.slice(0, 5).map((metric) => (
-                <div
-                  className="border border-[#d7dccf] bg-white p-4 shadow-sm"
-                  key={metric.label}
-                >
-                  <p className="font-mono text-xs text-[#6e7a66]">
-                    {metric.label}
-                  </p>
-                  <p className="mt-2 text-3xl font-semibold text-[#111510]">
-                    {metric.value}
-                  </p>
-                </div>
+                <Card key={metric.label} size="sm">
+                  <CardHeader>
+                    <CardDescription className="font-mono text-xs uppercase">
+                      {metric.label}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-semibold">{metric.value}</p>
+                  </CardContent>
+                </Card>
               ))
             ) : (
-              <div className="border border-[#d7dccf] bg-white p-4 text-sm text-[#4d5848] shadow-sm sm:col-span-3 lg:col-span-5">
+              <Card className="sm:col-span-3 lg:col-span-5" size="sm">
+                <CardContent className="text-sm text-muted-foreground">
                 Banco indisponivel no momento. A estrutura da aplicacao continua
                 carregando normalmente.
-              </div>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>
       </section>
 
       <section className="mx-auto grid w-full max-w-7xl gap-8 px-6 py-8 lg:grid-cols-[280px_1fr] lg:px-8">
-        <aside className="border-r border-[#d7dccf] pr-0 lg:pr-8">
-          <h2 className="text-sm font-semibold uppercase text-[#65705f]">
-            Execucao atual
-          </h2>
-          <div className="mt-4 space-y-3 text-sm leading-6 text-[#3f493b]">
-            <p>Fase 0 iniciada: fundacao do projeto.</p>
-            <p>Stack base: Next.js, TypeScript, Tailwind e Vercel.</p>
-            <p>Proximo alvo: schema inicial e modulos do MVP.</p>
-          </div>
+        <aside>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm uppercase">Execucao atual</CardTitle>
+              <CardDescription>
+                Camadas do produto ja incorporadas na arquitetura.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
+              <p>Fundacao Next.js, TypeScript, Tailwind, Vercel e Postgres.</p>
+              <Separator />
+              <p>Nucleo operacional, planejamento, secretaria tecnica e eventos.</p>
+              <Separator />
+              <p>Governanca com recursos, automacoes, contratos, estoque e conformidade.</p>
+            </CardContent>
+          </Card>
         </aside>
 
         <div>
           <div className="mb-5 flex flex-col gap-1">
-            <h2 className="text-2xl font-semibold text-[#111510]">
-              Modulos do MVP
+            <h2 className="text-2xl font-semibold">
+              Modulos da plataforma
             </h2>
-            <p className="text-sm leading-6 text-[#5b6655]">
-              O primeiro recorte prova o fluxo operacional sem tentar cobrir
-              toda a visao estrategica de uma vez.
+            <p className="text-sm leading-6 text-muted-foreground">
+              Um mapa navegavel da operacao tecnica, agora com uma base visual
+              shadcn para evoluir os demais fluxos com mais consistencia.
             </p>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {mvpModules.map((module) => (
-              <Link
-                href={moduleLinks[module.name] ?? "#"}
-                className="min-h-40 border border-[#d7dccf] bg-white p-5 shadow-sm"
-                key={module.name}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-lg font-semibold text-[#182017]">
-                    {module.name}
-                  </h3>
-                  <span className="border border-[#b9c6ac] px-2 py-1 font-mono text-xs text-[#506247]">
+              <Card className="min-h-40 transition-colors hover:bg-muted/40" key={module.name}>
+                <Link href={moduleLinks[module.name] ?? "#"} className="flex h-full flex-col">
+                  <CardHeader>
+                    <CardTitle>{module.name}</CardTitle>
+                    <CardAction>
+                      <Badge variant={statusTone[module.status] ?? "outline"}>
                     {module.status}
-                  </span>
-                </div>
-                <p className="mt-4 text-sm leading-6 text-[#4d5848]">
-                  {module.description}
-                </p>
-              </Link>
+                      </Badge>
+                    </CardAction>
+                  </CardHeader>
+                  <CardContent className="flex flex-1 flex-col justify-between gap-4">
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      {module.description}
+                    </p>
+                    <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                      Abrir modulo
+                      <ArrowRight className="size-4" />
+                    </span>
+                  </CardContent>
+                </Link>
+              </Card>
             ))}
           </div>
         </div>

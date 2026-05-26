@@ -1,11 +1,24 @@
-export const technicianLevels = [
-  { value: "trainee", label: "Trainee" },
-  { value: "pleno", label: "Pleno" },
-  { value: "especialista", label: "Especialista" },
-  { value: "supervisor", label: "Supervisor" },
-] as const;
+import { activeAdaptation } from "@/adaptations/active";
 
-export type TechnicianLevelValue = (typeof technicianLevels)[number]["value"];
+type LegacyTechnicianLevel = "trainee" | "pleno" | "especialista" | "supervisor";
+
+export const technicianLevels = activeAdaptation.businessRoles.flatMap((role) =>
+  "legacyLevel" in role
+    ? [
+        {
+          value: role.legacyLevel,
+          label: role.label,
+          roleKey: role.key,
+        },
+      ]
+    : [],
+) satisfies Array<{
+  value: LegacyTechnicianLevel;
+  label: string;
+  roleKey: string;
+}>;
+
+export type TechnicianLevelValue = LegacyTechnicianLevel;
 
 export function getTechnicianLevelLabel(value: string) {
   return technicianLevels.find((item) => item.value === value)?.label ?? value;

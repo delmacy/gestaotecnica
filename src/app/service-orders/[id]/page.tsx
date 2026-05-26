@@ -20,6 +20,7 @@ import { ServiceOrderTimeEntriesList } from "@/modules/service-orders/time-entri
 import {
   getServiceOrderPriorityLabel,
   getServiceOrderStatusLabel,
+  getServiceOrderTypeLabel,
 } from "@/modules/service-orders/constants";
 
 export const dynamic = "force-dynamic";
@@ -84,6 +85,12 @@ export default async function ServiceOrderDetailPage({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="border border-[#d7dccf] bg-white p-4 shadow-sm">
+              <p className="font-mono text-xs text-[#6e7a66]">Tipo</p>
+              <p className="mt-2 text-xl font-semibold text-[#111510]">
+                {getServiceOrderTypeLabel(serviceOrder.type)}
+              </p>
+            </div>
             <div className="border border-[#d7dccf] bg-white p-4 shadow-sm">
               <p className="font-mono text-xs text-[#6e7a66]">Status</p>
               <p className="mt-2 text-xl font-semibold text-[#111510]">

@@ -2,12 +2,14 @@ import Link from "next/link";
 import {
   getServiceOrderPriorityLabel,
   getServiceOrderStatusLabel,
+  getServiceOrderTypeLabel,
 } from "./constants";
 
 type WorkItemServiceOrder = {
   id: string;
   code: string;
   title: string;
+  type: string;
   status: string;
   priority: string;
   createdAt: Date;
@@ -44,7 +46,8 @@ export function WorkItemServiceOrdersList({
             </p>
             <p className="mt-2 text-sm text-[#5b6655]">
               {getServiceOrderStatusLabel(serviceOrder.status)} |{" "}
-              {getServiceOrderPriorityLabel(serviceOrder.priority)}
+              {getServiceOrderPriorityLabel(serviceOrder.priority)} |{" "}
+              {getServiceOrderTypeLabel(serviceOrder.type)}
             </p>
           </Link>
         ))}

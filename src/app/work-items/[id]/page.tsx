@@ -8,7 +8,10 @@ import { WorkItemEventTimeline } from "@/modules/work-items/event-timeline";
 import { WorkItemStatusForm } from "@/modules/work-items/status-form";
 import { CreateServiceOrderFromWorkItemForm } from "@/modules/service-orders/create-from-work-item-form";
 import { WorkItemServiceOrdersList } from "@/modules/service-orders/service-orders-list";
-import { getServiceOrdersForWorkItem } from "@/modules/service-orders/queries";
+import {
+  getServiceOrdersForWorkItem,
+  getServiceOrderTypeOptions,
+} from "@/modules/service-orders/queries";
 import {
   getWorkItemPriorityLabel,
   getWorkItemStatusLabel,
@@ -34,10 +37,11 @@ export default async function WorkItemDetailPage({
   params,
 }: WorkItemDetailPageProps) {
   const { id } = await params;
-  const [workItem, events, serviceOrders] = await Promise.all([
+  const [workItem, events, serviceOrders, serviceOrderTypeOptions] = await Promise.all([
     getWorkItemById(id),
     getWorkItemEvents(id),
     getServiceOrdersForWorkItem(id),
+    getServiceOrderTypeOptions(),
   ]);
 
   if (!workItem) {
@@ -138,7 +142,10 @@ export default async function WorkItemDetailPage({
         </div>
 
         <aside className="space-y-6">
-          <CreateServiceOrderFromWorkItemForm workItemId={workItem.id} />
+          <CreateServiceOrderFromWorkItemForm
+            serviceOrderTypes={serviceOrderTypeOptions}
+            workItemId={workItem.id}
+          />
           <WorkItemStatusForm
             currentStatus={workItem.status}
             workItemId={workItem.id}

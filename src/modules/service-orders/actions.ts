@@ -17,8 +17,10 @@ import {
 import { generateServiceOrderCode } from "./code";
 import {
   type ServiceOrderStatusValue,
+  type ServiceOrderTypeValue,
   serviceOrderStatuses,
 } from "./constants";
+import { getServiceOrderTypeOptions } from "./queries";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -68,8 +70,19 @@ function readEnum<T extends string>(
   return allowedValues.some((item) => item.value === value) ? (value as T) : fallback;
 }
 
+async function readServiceOrderType(formData: FormData) {
+  const serviceOrderTypes = await getServiceOrderTypeOptions();
+  return readEnum<ServiceOrderTypeValue>(
+    formData,
+    "type",
+    serviceOrderTypes,
+    "manutencao",
+  );
+}
+
 export async function createServiceOrderFromWorkItem(formData: FormData) {
   const workItemId = readRequiredText(formData, "workItemId");
+  const type = await readServiceOrderType(formData);
   const objective = readOptionalText(formData, "objective");
   const db = getDb();
 
@@ -97,6 +110,7 @@ export async function createServiceOrderFromWorkItem(formData: FormData) {
       assetId: workItem.assetId,
       code: generateServiceOrderCode(),
       title: workItem.title,
+      type,
       objective: objective ?? workItem.description,
       priority: workItem.priority,
       status: "open",
@@ -105,6 +119,7 @@ export async function createServiceOrderFromWorkItem(formData: FormData) {
       id: serviceOrders.id,
       code: serviceOrders.code,
       title: serviceOrders.title,
+      type: serviceOrders.type,
       status: serviceOrders.status,
       priority: serviceOrders.priority,
       assetId: serviceOrders.assetId,
@@ -130,6 +145,7 @@ export async function createServiceOrderFromWorkItem(formData: FormData) {
       payload: {
         code: serviceOrder.code,
         title: serviceOrder.title,
+        type: serviceOrder.type,
         status: serviceOrder.status,
         priority: serviceOrder.priority,
         source: "work_item",

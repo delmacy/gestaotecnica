@@ -12,6 +12,8 @@ import {
   users,
   workItems,
 } from "@/db/schema";
+import { getWorkspaceServiceOrderTypeOptions } from "@/platform/workspaces/catalogs";
+import type { ServiceOrderTypeValue } from "./constants";
 
 export async function getServiceOrders() {
   const db = getDb();
@@ -21,6 +23,7 @@ export async function getServiceOrders() {
       id: serviceOrders.id,
       code: serviceOrders.code,
       title: serviceOrders.title,
+      type: serviceOrders.type,
       objective: serviceOrders.objective,
       status: serviceOrders.status,
       priority: serviceOrders.priority,
@@ -44,6 +47,7 @@ export async function getServiceOrderById(id: string) {
       id: serviceOrders.id,
       code: serviceOrders.code,
       title: serviceOrders.title,
+      type: serviceOrders.type,
       objective: serviceOrders.objective,
       status: serviceOrders.status,
       priority: serviceOrders.priority,
@@ -186,6 +190,7 @@ export async function getServiceOrdersForWorkItem(workItemId: string) {
       id: serviceOrders.id,
       code: serviceOrders.code,
       title: serviceOrders.title,
+      type: serviceOrders.type,
       status: serviceOrders.status,
       priority: serviceOrders.priority,
       createdAt: serviceOrders.createdAt,
@@ -193,4 +198,12 @@ export async function getServiceOrdersForWorkItem(workItemId: string) {
     .from(serviceOrders)
     .where(eq(serviceOrders.workItemId, workItemId))
     .orderBy(desc(serviceOrders.createdAt));
+}
+
+export async function getServiceOrderTypeOptions() {
+  const options = await getWorkspaceServiceOrderTypeOptions();
+  return options.map((option) => ({
+    ...option,
+    value: option.value as ServiceOrderTypeValue,
+  }));
 }

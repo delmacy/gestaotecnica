@@ -589,6 +589,7 @@ export const serviceOrders = pgTable(
     assetId: uuid("asset_id").references(() => assets.id),
     code: text("code").notNull().unique(),
     title: text("title").notNull(),
+    type: text("type").notNull().default("manutencao"),
     objective: text("objective"),
     status: serviceOrderStatusEnum("status").notNull().default("open"),
     priority: priorityEnum("priority").notNull().default("medium"),

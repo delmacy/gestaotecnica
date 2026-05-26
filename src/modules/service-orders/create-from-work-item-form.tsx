@@ -1,9 +1,15 @@
 import { createServiceOrderFromWorkItem } from "./actions";
+import type { ServiceOrderTypeValue } from "./constants";
 
 export function CreateServiceOrderFromWorkItemForm({
   workItemId,
+  serviceOrderTypes,
 }: {
   workItemId: string;
+  serviceOrderTypes: Array<{
+    value: ServiceOrderTypeValue;
+    label: string;
+  }>;
 }) {
   return (
     <form
@@ -17,6 +23,21 @@ export function CreateServiceOrderFromWorkItemForm({
           Gere uma ordem de servico a partir desta demanda.
         </p>
       </div>
+
+      <label className="mb-4 block">
+        <span className="text-sm font-medium text-[#273025]">Tipo de OS</span>
+        <select
+          className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
+          name="type"
+          defaultValue="manutencao"
+        >
+          {serviceOrderTypes.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <label className="block">
         <span className="text-sm font-medium text-[#273025]">Objetivo da OS</span>

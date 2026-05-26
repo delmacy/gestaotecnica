@@ -119,6 +119,7 @@ Migre para tabelas quando:
 - Assets: tipos de ativo lidos de `asset_type_definitions`.
 - Documents: templates documentais lidos de `document_template_definitions`.
 - Reports: templates de relatorio lidos de `report_template_definitions`.
+- ServiceOrders: tipos de OS lidos de `service_order_type_definitions`.
 - Workspace Config: leitura do pacote ativo, catalogo de modulos e configuracao.
 
 A adaptacao em codigo continua sendo a origem versionada do bootstrap. Depois

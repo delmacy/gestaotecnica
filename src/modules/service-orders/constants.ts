@@ -1,3 +1,5 @@
+import { activeAdaptation } from "@/adaptations/active";
+
 export const serviceOrderStatuses = [
   { value: "draft", label: "Rascunho" },
   { value: "open", label: "Aberta" },
@@ -16,10 +18,20 @@ export const serviceOrderPriorities = [
   { value: "critical", label: "Critica" },
 ] as const;
 
+export const serviceOrderTypes = activeAdaptation.serviceOrderTypes.map((type) => ({
+  value: type.key,
+  label: type.label,
+}));
+
 export type ServiceOrderStatusValue = (typeof serviceOrderStatuses)[number]["value"];
+export type ServiceOrderTypeValue = (typeof serviceOrderTypes)[number]["value"];
 
 export function getServiceOrderStatusLabel(value: string) {
   return serviceOrderStatuses.find((item) => item.value === value)?.label ?? value;
+}
+
+export function getServiceOrderTypeLabel(value: string) {
+  return serviceOrderTypes.find((item) => item.value === value)?.label ?? value;
 }
 
 export function getServiceOrderPriorityLabel(value: string) {

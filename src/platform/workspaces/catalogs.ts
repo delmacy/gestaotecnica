@@ -6,6 +6,7 @@ import {
   documentTemplateDefinitions,
   reportTemplateDefinitions,
   scheduleTypeDefinitions,
+  serviceOrderTypeDefinitions,
   workItemTypeDefinitions,
 } from "@/db/schema";
 import { ensureActiveWorkspaceConfig } from "./bootstrap";
@@ -125,5 +126,23 @@ export async function getWorkspaceReportTemplateOptions(): Promise<CatalogOption
     .orderBy(
       asc(reportTemplateDefinitions.sortOrder),
       asc(reportTemplateDefinitions.label),
+    );
+}
+
+export async function getWorkspaceServiceOrderTypeOptions(): Promise<CatalogOption[]> {
+  const workspace = await ensureActiveWorkspaceConfig();
+  const db = getDb();
+
+  return db
+    .select({
+      value: serviceOrderTypeDefinitions.key,
+      label: serviceOrderTypeDefinitions.label,
+      description: serviceOrderTypeDefinitions.description,
+    })
+    .from(serviceOrderTypeDefinitions)
+    .where(eq(serviceOrderTypeDefinitions.workspaceId, workspace.id))
+    .orderBy(
+      asc(serviceOrderTypeDefinitions.sortOrder),
+      asc(serviceOrderTypeDefinitions.label),
     );
 }

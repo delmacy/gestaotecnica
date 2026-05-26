@@ -2,12 +2,14 @@ import Link from "next/link";
 import {
   getServiceOrderPriorityLabel,
   getServiceOrderStatusLabel,
+  getServiceOrderTypeLabel,
 } from "./constants";
 
 type ServiceOrderRow = {
   id: string;
   code: string;
   title: string;
+  type: string;
   objective: string | null;
   status: string;
   priority: string;
@@ -50,6 +52,7 @@ export function ServiceOrdersTable({
           <thead className="bg-[#f1f3ed] text-xs uppercase text-[#65705f]">
             <tr>
               <th className="px-4 py-3 font-semibold">OS</th>
+              <th className="px-4 py-3 font-semibold">Tipo</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Prioridade</th>
               <th className="px-4 py-3 font-semibold">Ativo</th>
@@ -72,6 +75,9 @@ export function ServiceOrdersTable({
                       {serviceOrder.objective}
                     </p>
                   ) : null}
+                </td>
+                <td className="px-4 py-4 align-top">
+                  {getServiceOrderTypeLabel(serviceOrder.type)}
                 </td>
                 <td className="px-4 py-4 align-top">
                   {getServiceOrderStatusLabel(serviceOrder.status)}

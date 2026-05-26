@@ -25,8 +25,8 @@ const mvpModules = [
     status: "MVP",
   },
   {
-    name: "Event Log",
-    description: "Memoria rastreavel de tudo que muda no fluxo tecnico.",
+    name: "Revisao Tecnica",
+    description: "Fila de aprovacao, retorno e aceite das OS concluidas.",
     status: "MVP",
   },
   {
@@ -46,6 +46,9 @@ const moduleLinks: Record<string, string> = {
   Ativos: "/assets",
   "Ordens de Servico": "/service-orders",
   Workforce: "/workforce",
+  "Revisao Tecnica": "/approvals",
+  "Livro de Turno": "/shifts",
+  Relatorios: "/reports",
 };
 
 const phases = [

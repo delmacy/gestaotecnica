@@ -14,6 +14,7 @@ import { ServiceOrderEvidenceForm } from "@/modules/service-orders/evidence-form
 import { ServiceOrderEvidencesList } from "@/modules/service-orders/evidences-list";
 import { ServiceOrderEventTimeline } from "@/modules/service-orders/event-timeline";
 import { ServiceOrderStatusForm } from "@/modules/service-orders/status-form";
+import { ServiceOrderReviewRequestForm } from "@/modules/service-orders/review-request-form";
 import { ServiceOrderTimeEntryForm } from "@/modules/service-orders/time-entry-form";
 import { ServiceOrderTimeEntriesList } from "@/modules/service-orders/time-entries-list";
 import {
@@ -167,6 +168,10 @@ export default async function ServiceOrderDetailPage({
             serviceOrderId={serviceOrder.id}
           />
           <ServiceOrderEvidenceForm serviceOrderId={serviceOrder.id} />
+          <ServiceOrderReviewRequestForm
+            currentStatus={serviceOrder.status}
+            serviceOrderId={serviceOrder.id}
+          />
           <ServiceOrderStatusForm
             currentStatus={serviceOrder.status}
             serviceOrderId={serviceOrder.id}

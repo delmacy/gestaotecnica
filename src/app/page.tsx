@@ -5,6 +5,21 @@ export const dynamic = "force-dynamic";
 
 const mvpModules = [
   {
+    name: "Centro Operacional",
+    description: "Painel de filas, pendencias, tecnicos disponiveis e eventos recentes.",
+    status: "MVP",
+  },
+  {
+    name: "Busca Global",
+    description: "Localizacao rapida de OS, demandas, ativos e tecnicos.",
+    status: "MVP",
+  },
+  {
+    name: "Planejamento",
+    description: "Backlog, execucao, revisao e carga tecnica em visao de quadro.",
+    status: "MVP",
+  },
+  {
     name: "WorkItems",
     description: "Entrada, triagem e priorizacao das demandas antes de virarem OS.",
     status: "MVP",
@@ -57,6 +72,9 @@ const mvpModules = [
 ];
 
 const moduleLinks: Record<string, string> = {
+  "Centro Operacional": "/operations",
+  "Busca Global": "/search",
+  Planejamento: "/planning",
   WorkItems: "/work-items",
   Ativos: "/assets",
   "Ordens de Servico": "/service-orders",

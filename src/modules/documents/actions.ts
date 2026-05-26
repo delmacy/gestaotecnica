@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { eventLogs, serviceOrders, technicalDocuments } from "@/db/schema";
-import { documentStatuses, documentTypes, type DocumentStatusValue } from "./constants";
+import { documentStatuses, type DocumentStatusValue } from "./constants";
+import { getDocumentTypeOptions } from "./queries";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -34,6 +35,7 @@ export async function createTechnicalDocument(formData: FormData) {
   const serviceOrderId = readOptionalText(formData, "serviceOrderId");
   let workItemId = readOptionalText(formData, "workItemId");
   let assetId = readOptionalText(formData, "assetId");
+  const documentTypes = await getDocumentTypeOptions();
   const documentType = readEnum(
     formData,
     "documentType",

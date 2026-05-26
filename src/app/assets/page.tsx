@@ -1,12 +1,20 @@
 import Link from "next/link";
 import { AssetForm } from "@/modules/assets/asset-form";
 import { AssetsTable } from "@/modules/assets/assets-table";
-import { getAssetSummary, getAssets } from "@/modules/assets/queries";
+import {
+  getAssetSummary,
+  getAssetTypeOptions,
+  getAssets,
+} from "@/modules/assets/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function AssetsPage() {
-  const [assets, summary] = await Promise.all([getAssets(), getAssetSummary()]);
+  const [assets, summary, assetTypeOptions] = await Promise.all([
+    getAssets(),
+    getAssetSummary(),
+    getAssetTypeOptions(),
+  ]);
 
   return (
     <main className="min-h-screen bg-[#f6f7f4] text-[#1c211b]">
@@ -63,7 +71,7 @@ export default async function AssetsPage() {
         </div>
 
         <aside>
-          <AssetForm />
+          <AssetForm assetTypes={assetTypeOptions} />
         </aside>
       </section>
     </main>

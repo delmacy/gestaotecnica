@@ -8,6 +8,7 @@ import {
   timeEntries,
   workItems,
 } from "@/db/schema";
+import { getWorkspaceReportTemplateOptions } from "@/platform/workspaces/catalogs";
 
 type ServiceOrderStatus =
   | "draft"
@@ -111,4 +112,8 @@ export async function getReports() {
     .from(reports)
     .orderBy(desc(reports.createdAt))
     .limit(20);
+}
+
+export async function getReportTypeOptions() {
+  return getWorkspaceReportTemplateOptions();
 }

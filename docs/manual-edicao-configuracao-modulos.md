@@ -116,6 +116,9 @@ Migre para tabelas quando:
 - WorkItems: tipos de demanda lidos de `work_item_type_definitions`.
 - Schedules: tipos de escala lidos de `schedule_type_definitions`.
 - Workforce: papeis tecnicos compativeis lidos de `business_role_definitions`.
+- Assets: tipos de ativo lidos de `asset_type_definitions`.
+- Documents: templates documentais lidos de `document_template_definitions`.
+- Reports: templates de relatorio lidos de `report_template_definitions`.
 - Workspace Config: leitura do pacote ativo, catalogo de modulos e configuracao.
 
 A adaptacao em codigo continua sendo a origem versionada do bootstrap. Depois

@@ -1,6 +1,7 @@
 import { count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { assets, eventLogs, serviceOrders, workItems } from "@/db/schema";
+import { getWorkspaceAssetTypeOptions } from "@/platform/workspaces/catalogs";
 
 export async function getAssets() {
   const db = getDb();
@@ -114,4 +115,8 @@ export async function getAssetSummary() {
     { label: "Em manutencao", value: maintenanceRow.value },
     { label: "Criticos", value: criticalRow.value },
   ];
+}
+
+export async function getAssetTypeOptions() {
+  return getWorkspaceAssetTypeOptions();
 }

@@ -1,9 +1,12 @@
 import { getEvidenceLinkOptions } from "@/modules/evidences/queries";
 import { createTechnicalDocument } from "./actions";
-import { documentTypes } from "./constants";
+import { getDocumentTypeOptions } from "./queries";
 
 export async function DocumentForm() {
-  const options = await getEvidenceLinkOptions();
+  const [options, documentTypes] = await Promise.all([
+    getEvidenceLinkOptions(),
+    getDocumentTypeOptions(),
+  ]);
 
   return (
     <form action={createTechnicalDocument} className="border border-[#d7dccf] bg-white p-5 shadow-sm">

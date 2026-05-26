@@ -1,6 +1,7 @@
 import { count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { assets, serviceOrders, technicalDocuments, workItems } from "@/db/schema";
+import { getWorkspaceDocumentTemplateOptions } from "@/platform/workspaces/catalogs";
 
 export async function getTechnicalDocuments() {
   const db = getDb();
@@ -50,4 +51,8 @@ export async function getDocumentSummary() {
     { label: "Aguardando aprovacao", value: approval.value },
     { label: "Aprovados", value: approved.value },
   ];
+}
+
+export async function getDocumentTypeOptions() {
+  return getWorkspaceDocumentTemplateOptions();
 }

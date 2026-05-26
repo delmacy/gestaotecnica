@@ -6,10 +6,10 @@ import { getDb } from "@/db";
 import { eventLogs, schedules } from "@/db/schema";
 import {
   scheduleStatuses,
-  scheduleTypes,
   type ScheduleStatusValue,
   type ScheduleTypeValue,
 } from "./constants";
+import { getScheduleTypeOptions } from "./queries";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -45,6 +45,7 @@ export async function createSchedule(formData: FormData) {
   const startsAt = readDate(formData, "startsAt");
   const endsAt = readDate(formData, "endsAt");
   const notes = readOptionalText(formData, "notes");
+  const scheduleTypes = await getScheduleTypeOptions();
   const type = readEnum<ScheduleTypeValue>(
     formData,
     "type",

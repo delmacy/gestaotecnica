@@ -6,16 +6,18 @@ import { TechniciansTable } from "@/modules/workforce/technicians-table";
 import {
   getTeams,
   getTechnicians,
+  getTechnicianLevelOptions,
   getWorkforceSummary,
 } from "@/modules/workforce/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function WorkforcePage() {
-  const [teams, technicians, summary] = await Promise.all([
+  const [teams, technicians, summary, technicianLevelOptions] = await Promise.all([
     getTeams(),
     getTechnicians(),
     getWorkforceSummary(),
+    getTechnicianLevelOptions(),
   ]);
 
   return (
@@ -87,7 +89,10 @@ export default async function WorkforcePage() {
         </div>
 
         <aside className="space-y-6">
-          <TechnicianForm teams={teams} />
+          <TechnicianForm
+            teams={teams}
+            technicianLevels={technicianLevelOptions}
+          />
           <TeamForm />
         </aside>
       </section>

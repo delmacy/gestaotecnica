@@ -1,6 +1,8 @@
 import { desc, eq, count } from "drizzle-orm";
 import { getDb } from "@/db";
 import { assets, eventLogs, workItems } from "@/db/schema";
+import { getWorkspaceWorkItemTypeOptions } from "@/platform/workspaces/catalogs";
+import type { WorkItemTypeValue } from "./constants";
 
 export async function getWorkItems() {
   const db = getDb();
@@ -91,4 +93,12 @@ export async function getWorkItemSummary() {
     { label: "Criticas", value: criticalRow.value },
     { label: "Eventos criados", value: eventsRow.value },
   ];
+}
+
+export async function getWorkItemTypeOptions() {
+  const options = await getWorkspaceWorkItemTypeOptions();
+  return options.map((option) => ({
+    ...option,
+    value: option.value as WorkItemTypeValue,
+  }));
 }

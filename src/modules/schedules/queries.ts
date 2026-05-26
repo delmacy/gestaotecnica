@@ -1,6 +1,8 @@
 import { count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { schedules, teams, technicianProfiles, users } from "@/db/schema";
+import { getWorkspaceScheduleTypeOptions } from "@/platform/workspaces/catalogs";
+import type { ScheduleTypeValue } from "./constants";
 
 export async function getSchedules() {
   const db = getDb();
@@ -50,4 +52,12 @@ export async function getScheduleSummary() {
     { label: "Confirmadas", value: confirmed.value },
     { label: "Sobreaviso", value: onCall.value },
   ];
+}
+
+export async function getScheduleTypeOptions() {
+  const options = await getWorkspaceScheduleTypeOptions();
+  return options.map((option) => ({
+    ...option,
+    value: option.value as ScheduleTypeValue,
+  }));
 }

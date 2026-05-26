@@ -1,7 +1,8 @@
 import { getTeams } from "@/modules/workforce/queries";
 import { getTechnicianOptions } from "@/modules/workforce/queries";
 import { createSchedule } from "./actions";
-import { scheduleStatuses, scheduleTypes } from "./constants";
+import { scheduleStatuses } from "./constants";
+import { getScheduleTypeOptions } from "./queries";
 
 function toDateTimeLocal(date: Date) {
   const offsetMs = date.getTimezoneOffset() * 60000;
@@ -9,9 +10,10 @@ function toDateTimeLocal(date: Date) {
 }
 
 export async function ScheduleForm() {
-  const [technicians, teams] = await Promise.all([
+  const [technicians, teams, scheduleTypes] = await Promise.all([
     getTechnicianOptions(),
     getTeams(),
+    getScheduleTypeOptions(),
   ]);
   const now = new Date();
   const later = new Date(now.getTime() + 8 * 60 * 60 * 1000);

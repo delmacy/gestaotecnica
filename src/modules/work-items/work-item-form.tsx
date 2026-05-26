@@ -1,5 +1,6 @@
 import { createWorkItem } from "./actions";
-import { workItemPriorities, workItemTypes } from "./constants";
+import { workItemPriorities } from "./constants";
+import type { WorkItemTypeValue } from "./constants";
 
 type AssetOption = {
   id: string;
@@ -8,7 +9,18 @@ type AssetOption = {
   status: string;
 };
 
-export function WorkItemForm({ assets }: { assets: AssetOption[] }) {
+type WorkItemTypeOption = {
+  value: WorkItemTypeValue;
+  label: string;
+};
+
+export function WorkItemForm({
+  assets,
+  workItemTypes,
+}: {
+  assets: AssetOption[];
+  workItemTypes: WorkItemTypeOption[];
+}) {
   return (
     <form action={createWorkItem} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <div className="mb-5">

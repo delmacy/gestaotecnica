@@ -1,5 +1,10 @@
 # Blueprint Modular da Plataforma de Gestao Tecnica
 
+> Nota: este blueprint representa a primeira visao modular da plataforma.
+> A versao arquitetural atualizada, com core reutilizavel, workspaces e
+> adaptacoes por cliente, esta em
+> `docs/07-blueprint-core-workspaces-adaptacoes.md`.
+
 Stack alvo:
 
 - Next.js

@@ -16,6 +16,7 @@ import {
   technicianProfiles,
   timeEntries,
   users,
+  workforceAllocations,
   workItems,
 } from "@/db/schema";
 import { generateServiceOrderCode } from "./code";
@@ -344,6 +345,20 @@ export async function assignTechnicianToServiceOrder(formData: FormData) {
       .where(eq(serviceOrders.id, serviceOrder.id));
   }
 
+  const [allocation] = await db
+    .insert(workforceAllocations)
+    .values({
+      technicianProfileId: technician.id,
+      serviceOrderId: serviceOrder.id,
+      allocationType: "service_order",
+      status: statusTo === "in_progress" ? "active" : "planned",
+      notes: `Atribuicao ${assignment.role} criada pela OS ${serviceOrder.code}.`,
+    })
+    .returning({
+      id: workforceAllocations.id,
+      status: workforceAllocations.status,
+    });
+
   await db.insert(eventLogs).values({
     eventType: "service_order.technician_assigned",
     entityType: "service_order",
@@ -359,6 +374,8 @@ export async function assignTechnicianToServiceOrder(formData: FormData) {
       technicianLevel: technician.level,
       technicianAvailable: technician.isAvailable,
       role: assignment.role,
+      workforceAllocationId: allocation.id,
+      workforceAllocationStatus: allocation.status,
       statusFrom: serviceOrder.status,
       statusTo,
     },

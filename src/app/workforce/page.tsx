@@ -1,4 +1,12 @@
 import Link from "next/link";
+import {
+  TechnicianUnavailabilityForm,
+  WorkforceAllocationForm,
+} from "@/modules/workforce/allocation-form";
+import {
+  TechnicianUnavailabilitiesList,
+  WorkforceAllocationsList,
+} from "@/modules/workforce/allocations-list";
 import { TeamForm } from "@/modules/workforce/team-form";
 import { TeamsList } from "@/modules/workforce/teams-list";
 import { TechnicianForm } from "@/modules/workforce/technician-form";
@@ -7,17 +15,31 @@ import {
   getTeams,
   getTechnicians,
   getTechnicianLevelOptions,
+  getTechnicianUnavailabilities,
+  getWorkforceAllocationOptions,
+  getWorkforceAllocations,
   getWorkforceSummary,
 } from "@/modules/workforce/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function WorkforcePage() {
-  const [teams, technicians, summary, technicianLevelOptions] = await Promise.all([
+  const [
+    teams,
+    technicians,
+    summary,
+    technicianLevelOptions,
+    allocations,
+    unavailabilities,
+    allocationOptions,
+  ] = await Promise.all([
     getTeams(),
     getTechnicians(),
     getWorkforceSummary(),
     getTechnicianLevelOptions(),
+    getWorkforceAllocations(),
+    getTechnicianUnavailabilities(),
+    getWorkforceAllocationOptions(),
   ]);
 
   return (
@@ -66,6 +88,30 @@ export default async function WorkforcePage() {
           <div>
             <div className="mb-4">
               <h2 className="text-2xl font-semibold text-[#111510]">
+                Alocacoes
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-[#5b6655]">
+                Capacidade planejada por tecnico, OS, demanda ou escala.
+              </p>
+            </div>
+            <WorkforceAllocationsList allocations={allocations} />
+          </div>
+
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-semibold text-[#111510]">
+                Indisponibilidades
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-[#5b6655]">
+                Ausencias, bloqueios e restricoes que afetam capacidade.
+              </p>
+            </div>
+            <TechnicianUnavailabilitiesList unavailabilities={unavailabilities} />
+          </div>
+
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-semibold text-[#111510]">
                 Tecnicos cadastrados
               </h2>
               <p className="mt-1 text-sm leading-6 text-[#5b6655]">
@@ -89,6 +135,8 @@ export default async function WorkforcePage() {
         </div>
 
         <aside className="space-y-6">
+          <WorkforceAllocationForm options={allocationOptions} />
+          <TechnicianUnavailabilityForm options={allocationOptions} />
           <TechnicianForm
             teams={teams}
             technicianLevels={technicianLevelOptions}

@@ -507,6 +507,93 @@ export const users = pgTable(
   (table) => [index("users_email_idx").on(table.email)],
 );
 
+export const authAccounts = pgTable(
+  "auth_accounts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id),
+    passwordHash: text("password_hash").notNull(),
+    passwordSalt: text("password_salt").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("auth_accounts_user_id_uidx").on(table.userId),
+    index("auth_accounts_active_idx").on(table.isActive),
+  ],
+);
+
+export const authSessions = pgTable(
+  "auth_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex("auth_sessions_token_hash_uidx").on(table.tokenHash),
+    index("auth_sessions_user_id_idx").on(table.userId),
+    index("auth_sessions_expires_at_idx").on(table.expiresAt),
+  ],
+);
+
+export const permissionDefinitions = pgTable(
+  "permission_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    key: text("key").notNull(),
+    moduleKey: text("module_key").notNull(),
+    action: text("action").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("permission_definitions_key_uidx").on(table.key),
+    index("permission_definitions_module_idx").on(table.moduleKey),
+  ],
+);
+
+export const rolePermissionGrants = pgTable(
+  "role_permission_grants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    roleId: uuid("role_id").notNull().references(() => businessRoleDefinitions.id),
+    permissionId: uuid("permission_id")
+      .notNull()
+      .references(() => permissionDefinitions.id),
+    isAllowed: boolean("is_allowed").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("role_permission_grants_role_permission_uidx").on(
+      table.roleId,
+      table.permissionId,
+    ),
+    index("role_permission_grants_role_idx").on(table.roleId),
+  ],
+);
+
+export const userRoleAssignments = pgTable(
+  "user_role_assignments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    roleId: uuid("role_id").notNull().references(() => businessRoleDefinitions.id),
+    assignedAt: timestamp("assigned_at", { withTimezone: true }).notNull().defaultNow(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("user_role_assignments_user_idx").on(table.userId),
+    index("user_role_assignments_workspace_idx").on(table.workspaceId),
+  ],
+);
+
 export const teams = pgTable("teams", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
@@ -731,6 +818,84 @@ export const reports = pgTable("reports", {
   payload: jsonb("payload").notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const entityComments = pgTable(
+  "entity_comments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id").notNull(),
+    body: text("body").notNull(),
+    createdById: uuid("created_by_id").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("entity_comments_entity_idx").on(table.entityType, table.entityId),
+    index("entity_comments_created_by_idx").on(table.createdById),
+  ],
+);
+
+export const entityAttachments = pgTable(
+  "entity_attachments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id").notNull(),
+    title: text("title").notNull(),
+    fileUrl: text("file_url").notNull(),
+    mimeType: text("mime_type"),
+    createdById: uuid("created_by_id").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("entity_attachments_entity_idx").on(table.entityType, table.entityId),
+    index("entity_attachments_created_by_idx").on(table.createdById),
+  ],
+);
+
+export const queueItems = pgTable(
+  "queue_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    queueId: uuid("queue_id").notNull().references(() => workspaceQueues.id),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id").notNull(),
+    status: text("status").notNull().default("open"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    assignedToId: uuid("assigned_to_id").references(() => users.id),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+    payload: jsonb("payload").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("queue_items_queue_idx").on(table.queueId),
+    index("queue_items_entity_idx").on(table.entityType, table.entityId),
+    index("queue_items_status_idx").on(table.status),
+  ],
+);
+
+export const slaPolicies = pgTable(
+  "sla_policies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    targetEntityType: text("target_entity_type").notNull(),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    responseMinutes: integer("response_minutes").notNull().default(240),
+    resolutionMinutes: integer("resolution_minutes").notNull().default(1440),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("sla_policies_workspace_key_uidx").on(table.workspaceId, table.key),
+    index("sla_policies_workspace_idx").on(table.workspaceId),
+  ],
+);
 
 export const schedules = pgTable(
   "schedules",

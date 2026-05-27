@@ -119,6 +119,13 @@ Migre para tabelas quando:
 - `npm run lint`
 - `npm run build`
 - Validar `/workspace-config`
+- Validar `/auth/setup` e `/auth/login`
+- Validar `/admin`
+- Validar `/admin/users`
+- Validar `/admin/workspaces`
+- Validar `/admin/workflows`
+- Validar `/admin/permissions`
+- Validar `/admin/queues`
 - Validar formularios de demandas
 - Validar formularios de escalas
 - Validar cadastro de tecnicos
@@ -142,7 +149,10 @@ catalogo persistido no Postgres.
 
 ## 9. Proxima evolucao recomendada
 
-A proxima etapa e migrar gradualmente enums para tabelas por workspace:
+A plataforma ja possui fundacao para Auth, RBAC, User Management, Workspace
+Admin, Workflow Engine, Comments/Attachments e Queue/SLA. A proxima etapa e
+integrar esses blocos profundamente aos fluxos operacionais e migrar
+gradualmente enums restantes para tabelas por workspace:
 
 - `work_item_type` para `work_item_types`;
 - `schedule_type` para `schedule_types`;

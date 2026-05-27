@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { initializePlatformKernel } from "@/platform";
 import { routeIntegrationCommand } from "@/platform/integrations";
 import type { IntegrationCommandRequest } from "@/platform/integrations";
@@ -11,7 +10,7 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as Partial<IntegrationCommandRequest>;
 
   if (!body.command) {
-    return NextResponse.json(
+    return Response.json(
       {
         success: false,
         error: {
@@ -32,5 +31,13 @@ export async function POST(request: Request) {
     payload: body.payload,
   });
 
-  return NextResponse.json(response, { status: response.success ? 200 : 400 });
+  return Response.json(
+    {
+      success: response.success,
+      data: response.data,
+      error: response.error,
+      correlationId: response.correlationId,
+    },
+    { status: response.success ? 200 : 400 },
+  );
 }

@@ -8,6 +8,83 @@ type CompleteServiceOrderInput = {
   conclusion?: string;
 };
 
+type CreateServiceOrderInput = {
+  title?: string;
+  type?: string;
+  objective?: string;
+  priority?: "low" | "medium" | "high" | "critical";
+  workItemId?: string;
+  assetId?: string;
+};
+
+function createServiceOrderCode() {
+  const timestamp = new Date()
+    .toISOString()
+    .replace(/[-:TZ.]/g, "")
+    .slice(0, 14);
+  const suffix = globalThis.crypto?.randomUUID?.().slice(0, 6) ?? String(Date.now()).slice(-6);
+  return `OS-${timestamp}-${suffix}`;
+}
+
+export const createServiceOrderKernelAction: ActionDefinition<
+  CreateServiceOrderInput,
+  { id: string; code: string; title: string; status: string }
+> = {
+  key: "service_orders.create",
+  moduleKey: "service-orders",
+  description: "Cria uma ordem de servico operacional.",
+  callableBy: ["ui", "integration", "automation", "system"],
+  requiredModules: ["work-items"],
+  emits: ["service_order.created"],
+  async handler(input) {
+    const title = String(input.title ?? "").trim();
+    if (!title) {
+      return {
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "title e obrigatorio." },
+      };
+    }
+
+    const db = getDb();
+    const [serviceOrder] = await db
+      .insert(serviceOrders)
+      .values({
+        code: createServiceOrderCode(),
+        title,
+        type: String(input.type ?? "manutencao"),
+        objective: input.objective,
+        priority: input.priority ?? "medium",
+        workItemId: input.workItemId,
+        assetId: input.assetId,
+        status: "open",
+      })
+      .returning({
+        id: serviceOrders.id,
+        code: serviceOrders.code,
+        title: serviceOrders.title,
+        status: serviceOrders.status,
+      });
+
+    return {
+      success: true,
+      data: serviceOrder,
+      events: [
+        {
+          eventType: "service_order.created",
+          entityType: "service_order",
+          entityId: serviceOrder.id,
+          payload: {
+            code: serviceOrder.code,
+            title: serviceOrder.title,
+            workItemId: input.workItemId,
+            assetId: input.assetId,
+          },
+        },
+      ],
+    };
+  },
+};
+
 export const completeServiceOrderKernelAction: ActionDefinition<
   CompleteServiceOrderInput,
   { id: string; code: string; status: string }

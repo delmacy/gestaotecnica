@@ -42,6 +42,8 @@ Camadas:
 - `src/adaptations`: configuracoes por cliente/setor.
 - `secao-tecnica`: primeira adaptacao real da plataforma.
 - `/workspace-config`: leitura da adaptacao ativa e mapa dos modulos.
+- `/auth/login` e `/auth/setup`: autenticacao local inicial.
+- `/admin`: administracao de usuarios, workspace, workflows, permissoes e filas.
 
 A diretriz central e: o modulo universal nao conhece o cliente; a adaptacao
 ensina o modulo a operar naquele cliente.

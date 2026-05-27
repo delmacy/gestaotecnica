@@ -50,6 +50,13 @@
       "when": 1779839234490,
       "tag": "0006_curious_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1779841033164,
+      "tag": "0007_mysterious_morg",
+      "breakpoints": true
     }
   ]
 }

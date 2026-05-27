@@ -1,13 +1,24 @@
 import { AutomationRuleForm } from "@/modules/automations/automation-form";
-import { AutomationRulesList } from "@/modules/automations/automation-list";
-import { getAutomationRules, getAutomationSummary } from "@/modules/automations/queries";
+import {
+  AutomationRunLogsList,
+  AutomationRunsList,
+  AutomationRulesList,
+} from "@/modules/automations/automation-list";
+import {
+  getAutomationRules,
+  getAutomationRuns,
+  getAutomationSummary,
+  getRecentAutomationRunLogs,
+} from "@/modules/automations/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function AutomationsPage() {
-  const [rules, summary] = await Promise.all([
+  const [rules, summary, runs, logs] = await Promise.all([
     getAutomationRules(),
     getAutomationSummary(),
+    getAutomationRuns(),
+    getRecentAutomationRunLogs(),
   ]);
 
   return (
@@ -32,8 +43,20 @@ export default async function AutomationsPage() {
           <AutomationRuleForm />
         </aside>
         <section>
-          <h2 className="mb-4 text-xl font-semibold text-[#111510]">Regras registradas</h2>
-          <AutomationRulesList rules={rules} />
+          <div className="space-y-8">
+            <section>
+              <h2 className="mb-4 text-xl font-semibold text-[#111510]">Regras registradas</h2>
+              <AutomationRulesList rules={rules} />
+            </section>
+            <section>
+              <h2 className="mb-4 text-xl font-semibold text-[#111510]">Execucoes recentes</h2>
+              <AutomationRunsList runs={runs} />
+            </section>
+            <section>
+              <h2 className="mb-4 text-xl font-semibold text-[#111510]">Logs recentes</h2>
+              <AutomationRunLogsList logs={logs} />
+            </section>
+          </div>
         </section>
       </div>
     </main>

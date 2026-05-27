@@ -1302,6 +1302,44 @@ export const automationRules = pgTable(
   ],
 );
 
+export const automationRuns = pgTable(
+  "automation_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    automationRuleId: uuid("automation_rule_id").notNull().references(() => automationRules.id),
+    status: text("status").notNull().default("queued"),
+    triggerSource: text("trigger_source").notNull().default("manual"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    durationMs: integer("duration_ms"),
+    requestPayload: jsonb("request_payload").notNull().default({}),
+    responsePayload: jsonb("response_payload").notNull().default({}),
+    errorMessage: text("error_message"),
+    createdById: uuid("created_by_id").references(() => users.id),
+  },
+  (table) => [
+    index("automation_runs_rule_idx").on(table.automationRuleId),
+    index("automation_runs_status_idx").on(table.status),
+    index("automation_runs_started_at_idx").on(table.startedAt),
+  ],
+);
+
+export const automationRunLogs = pgTable(
+  "automation_run_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    automationRunId: uuid("automation_run_id").notNull().references(() => automationRuns.id),
+    level: text("level").notNull().default("info"),
+    message: text("message").notNull(),
+    payload: jsonb("payload").notNull().default({}),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("automation_run_logs_run_idx").on(table.automationRunId),
+    index("automation_run_logs_occurred_at_idx").on(table.occurredAt),
+  ],
+);
+
 export const suppliers = pgTable(
   "suppliers",
   {

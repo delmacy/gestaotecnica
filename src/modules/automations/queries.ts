@@ -1,6 +1,6 @@
 import { count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { automationRules } from "@/db/schema";
+import { automationRunLogs, automationRuns, automationRules } from "@/db/schema";
 
 export async function getAutomationRules() {
   const db = getDb();
@@ -29,4 +29,46 @@ export async function getAutomationSummary() {
     { label: "Ativas", value: active.value },
     { label: "Com falha", value: failed.value },
   ];
+}
+
+export async function getAutomationRuns() {
+  const db = getDb();
+
+  return db
+    .select({
+      id: automationRuns.id,
+      status: automationRuns.status,
+      triggerSource: automationRuns.triggerSource,
+      startedAt: automationRuns.startedAt,
+      finishedAt: automationRuns.finishedAt,
+      durationMs: automationRuns.durationMs,
+      errorMessage: automationRuns.errorMessage,
+      automationRuleId: automationRules.id,
+      automationRuleName: automationRules.name,
+      provider: automationRules.provider,
+      triggerType: automationRules.triggerType,
+    })
+    .from(automationRuns)
+    .innerJoin(automationRules, eq(automationRuns.automationRuleId, automationRules.id))
+    .orderBy(desc(automationRuns.startedAt))
+    .limit(80);
+}
+
+export async function getRecentAutomationRunLogs() {
+  const db = getDb();
+
+  return db
+    .select({
+      id: automationRunLogs.id,
+      level: automationRunLogs.level,
+      message: automationRunLogs.message,
+      occurredAt: automationRunLogs.occurredAt,
+      automationRunId: automationRuns.id,
+      automationRuleName: automationRules.name,
+    })
+    .from(automationRunLogs)
+    .innerJoin(automationRuns, eq(automationRunLogs.automationRunId, automationRuns.id))
+    .innerJoin(automationRules, eq(automationRuns.automationRuleId, automationRules.id))
+    .orderBy(desc(automationRunLogs.occurredAt))
+    .limit(80);
 }

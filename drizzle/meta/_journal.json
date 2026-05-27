@@ -85,6 +85,13 @@
       "when": 1779866406821,
       "tag": "0011_romantic_mantis",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1779867391109,
+      "tag": "0012_dark_shinko_yamashiro",
+      "breakpoints": true
     }
   ]
 }

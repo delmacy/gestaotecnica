@@ -1124,6 +1124,51 @@ export const legacyRecords = pgTable(
   ],
 );
 
+export const integrationPlugins = pgTable(
+  "integration_plugins",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    provider: text("provider"),
+    status: text("status").notNull().default("active"),
+    baseUrl: text("base_url"),
+    secretRef: text("secret_ref"),
+    capabilities: jsonb("capabilities").notNull().default([]),
+    config: jsonb("config").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("integration_plugins_key_uidx").on(table.key),
+    index("integration_plugins_status_idx").on(table.status),
+  ],
+);
+
+export const integrationWebhookEvents = pgTable(
+  "integration_webhook_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pluginId: uuid("plugin_id").references(() => integrationPlugins.id),
+    pluginKey: text("plugin_key"),
+    direction: text("direction").notNull().default("inbound"),
+    eventType: text("event_type").notNull(),
+    targetModule: text("target_module"),
+    status: text("status").notNull().default("received"),
+    source: text("source"),
+    payload: jsonb("payload").notNull().default({}),
+    receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+    errorMessage: text("error_message"),
+  },
+  (table) => [
+    index("integration_webhook_events_plugin_idx").on(table.pluginId),
+    index("integration_webhook_events_type_idx").on(table.eventType),
+    index("integration_webhook_events_status_idx").on(table.status),
+    index("integration_webhook_events_received_at_idx").on(table.receivedAt),
+  ],
+);
+
 export const maintenancePlans = pgTable(
   "maintenance_plans",
   {

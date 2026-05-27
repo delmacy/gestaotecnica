@@ -23,6 +23,7 @@ Os documentos de arquitetura ficam em `docs/`:
 - `docs/06-modulo-service-orders.md`
 - `docs/07-blueprint-core-workspaces-adaptacoes.md`
 - `docs/manual-edicao-configuracao-modulos.md`
+- `docs/architecture/platform-kernel.md`
 - `docs/integracoes-api-gateway.md`
 - `docs/packs-contextuais-adaptacoes.md`
 - `docs/modulos/README.md`

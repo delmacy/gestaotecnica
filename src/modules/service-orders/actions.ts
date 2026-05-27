@@ -4,6 +4,8 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
+import { runAction } from "@/platform/actions";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import { startWorkflowInstanceForTarget } from "@/platform/workflows/runtime";
 import {
   eventLogs,
@@ -199,66 +201,84 @@ export async function updateServiceOrderStatus(formData: FormData) {
     "open",
   );
   const note = readOptionalText(formData, "note");
-  const db = getDb();
 
-  const [previous] = await db
-    .select({
-      id: serviceOrders.id,
-      code: serviceOrders.code,
-      status: serviceOrders.status,
-      workItemId: serviceOrders.workItemId,
-      assetId: serviceOrders.assetId,
-    })
-    .from(serviceOrders)
-    .where(eq(serviceOrders.id, id))
-    .limit(1);
+  const context = await resolveWorkspaceContext({ source: "ui" });
 
-  if (!previous) {
-    throw new Error("OS nao encontrada.");
-  }
+  if (status === "completed") {
+    const result = await runAction(
+      "service_orders.complete",
+      {
+        serviceOrderId: id,
+        conclusion: note,
+      },
+      context,
+    );
 
-  const completedAt = status === "completed" ? new Date() : undefined;
-  const approvedAt = status === "approved" ? new Date() : undefined;
+    if (!result.success) {
+      throw new Error(result.error?.message ?? "Falha ao concluir OS.");
+    }
+  } else {
+    // Para outros status, por enquanto mantemos o comportamento direto ou implementamos novas actions.
+    const db = getDb();
 
-  const [updated] = await db
-    .update(serviceOrders)
-    .set({
-      status,
-      completedAt,
-      approvedAt,
-      updatedAt: new Date(),
-    })
-    .where(eq(serviceOrders.id, id))
-    .returning({
-      id: serviceOrders.id,
-      code: serviceOrders.code,
-      status: serviceOrders.status,
+    const [previous] = await db
+      .select({
+        id: serviceOrders.id,
+        code: serviceOrders.code,
+        status: serviceOrders.status,
+        workItemId: serviceOrders.workItemId,
+        assetId: serviceOrders.assetId,
+      })
+      .from(serviceOrders)
+      .where(eq(serviceOrders.id, id))
+      .limit(1);
+
+    if (!previous) {
+      throw new Error("OS nao encontrada.");
+    }
+
+    const approvedAt = status === "approved" ? new Date() : undefined;
+
+    const [updated] = await db
+      .update(serviceOrders)
+      .set({
+        status,
+        approvedAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(serviceOrders.id, id))
+      .returning({
+        id: serviceOrders.id,
+        code: serviceOrders.code,
+        status: serviceOrders.status,
+      });
+
+    await db.insert(eventLogs).values({
+      eventType: "service_order.status_changed",
+      entityType: "service_order",
+      entityId: updated.id,
+      serviceOrderId: updated.id,
+      workItemId: previous.workItemId,
+      assetId: previous.assetId,
+      payload: {
+        code: updated.code,
+        from: previous.status,
+        to: updated.status,
+        note,
+      },
     });
 
-  await db.insert(eventLogs).values({
-    eventType: "service_order.status_changed",
-    entityType: "service_order",
-    entityId: updated.id,
-    serviceOrderId: updated.id,
-    workItemId: previous.workItemId,
-    assetId: previous.assetId,
-    payload: {
-      code: updated.code,
-      from: previous.status,
-      to: updated.status,
-      note,
-    },
-  });
+    revalidatePath("/");
+    revalidatePath("/service-orders");
+    revalidatePath(`/service-orders/${id}`);
+    if (previous.workItemId) {
+      revalidatePath(`/work-items/${previous.workItemId}`);
+    }
+    if (previous.assetId) {
+      revalidatePath(`/assets/${previous.assetId}`);
+    }
+  }
 
-  revalidatePath("/");
-  revalidatePath("/service-orders");
-  revalidatePath(`/service-orders/${id}`);
-  if (previous.workItemId) {
-    revalidatePath(`/work-items/${previous.workItemId}`);
-  }
-  if (previous.assetId) {
-    revalidatePath(`/assets/${previous.assetId}`);
-  }
   redirect(`/service-orders/${id}`);
 }
 

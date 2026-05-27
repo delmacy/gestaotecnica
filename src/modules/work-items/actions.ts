@@ -2,9 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
-import { eventLogs, workItems } from "@/db/schema";
+import { runAction } from "@/platform/actions";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   type WorkItemPriorityValue,
   type WorkItemStatusValue,
@@ -42,9 +41,6 @@ function readEnum<T extends string>(
 export async function createWorkItem(formData: FormData) {
   const title = readRequiredText(formData, "title");
   const description = readOptionalText(formData, "description");
-  const requesterName = readOptionalText(formData, "requesterName");
-  const requesterContact = readOptionalText(formData, "requesterContact");
-  const assetId = readOptionalText(formData, "assetId");
   const workItemTypes = await getWorkItemTypeOptions();
   const type = readEnum<WorkItemTypeValue>(
     formData,
@@ -59,43 +55,23 @@ export async function createWorkItem(formData: FormData) {
     "medium",
   );
 
-  const db = getDb();
-  const newWorkItem: typeof workItems.$inferInsert = {
-    title,
-    description,
-    requesterName,
-    requesterContact,
-    assetId,
-    type,
-    priority,
-    status: "open",
-    payload: {},
-  };
-
-  const [workItem] = await db
-    .insert(workItems)
-    .values(newWorkItem)
-    .returning({
-      id: workItems.id,
-      title: workItems.title,
-      type: workItems.type,
-      priority: workItems.priority,
-      status: workItems.status,
-    });
-
-  await db.insert(eventLogs).values({
-    eventType: "work_item.created",
-    entityType: "work_item",
-    entityId: workItem.id,
-    workItemId: workItem.id,
-    payload: {
-      title: workItem.title,
-      type: workItem.type,
-      priority: workItem.priority,
-      status: workItem.status,
-      assetId,
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const result = await runAction(
+    "work_items.create",
+    {
+      title,
+      description,
+      type,
+      priority,
     },
-  });
+    context,
+  );
+
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao criar demanda.");
+  }
+
+  const workItem = result.data as { id: string };
 
   revalidatePath("/");
   revalidatePath("/work-items");
@@ -111,47 +87,21 @@ export async function updateWorkItemStatus(formData: FormData) {
     "open",
   );
   const note = readOptionalText(formData, "note");
-  const db = getDb();
 
-  const [previous] = await db
-    .select({
-      id: workItems.id,
-      title: workItems.title,
-      status: workItems.status,
-    })
-    .from(workItems)
-    .where(eq(workItems.id, id))
-    .limit(1);
-
-  if (!previous) {
-    throw new Error("Demanda nao encontrada.");
-  }
-
-  const [updated] = await db
-    .update(workItems)
-    .set({
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const result = await runAction(
+    "work_items.transition",
+    {
+      workItemId: id,
       status,
-      updatedAt: new Date(),
-    })
-    .where(eq(workItems.id, id))
-    .returning({
-      id: workItems.id,
-      title: workItems.title,
-      status: workItems.status,
-    });
-
-  await db.insert(eventLogs).values({
-    eventType: "work_item.status_changed",
-    entityType: "work_item",
-    entityId: updated.id,
-    workItemId: updated.id,
-    payload: {
-      title: updated.title,
-      from: previous.status,
-      to: updated.status,
       note,
     },
-  });
+    context,
+  );
+
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao atualizar status.");
+  }
 
   revalidatePath("/");
   revalidatePath("/work-items");

@@ -37,12 +37,18 @@ Actions iniciais:
 - `work_items.create`
 - `service_orders.complete`
 - `notifications.send`
+- `assets.create`
+- `reports.generate_operational`
+- `automations.run`
 
 Eventos iniciais:
 
 - `work_item.created`
 - `service_order.completed`
 - `notification.sent`
+- `asset.created`
+- `report.generated`
+- `automation_rule.executed`
 
 Flow inicial:
 
@@ -51,6 +57,9 @@ Flow inicial:
 Gateway inicial:
 
 - `POST /api/integrations/commands`
+- `GET /api/integrations/actions`
+
+O endpoint de catalogo lista manifests, actions, events e flows sem expor os handlers internos. Ele serve como base para plugins, integracoes e futuras views administrativas de capacidade por workspace.
 
 ## O que ainda nao foi implementado
 

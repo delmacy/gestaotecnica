@@ -33,6 +33,8 @@ export async function resolveWorkspaceContext(
     enabledModules: [
       "work-items",
       "service-orders",
+      "assets",
+      "reports",
       "notifications",
       "events",
       "workflow-engine",

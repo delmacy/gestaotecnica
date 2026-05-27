@@ -25,6 +25,7 @@ Os documentos de arquitetura ficam em `docs/`:
 - `docs/manual-edicao-configuracao-modulos.md`
 - `docs/modulos/README.md`
 - `docs/modulos/workspace-config.md`
+- `docs/modulos/*.md`
 - `docs/adaptacoes/README.md`
 - `docs/adaptacoes/secao-tecnica.md`
 - `docs/base/possiveis-alteracoes-de-schema.md`

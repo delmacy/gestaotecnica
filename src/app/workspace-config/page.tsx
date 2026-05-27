@@ -18,7 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { updateWorkspaceCatalogItem } from "@/modules/workspace-config/actions";
+import {
+  createWorkspaceCatalogItem,
+  updateWorkspaceCatalogItem,
+} from "@/modules/workspace-config/actions";
 import { getWorkspaceConfigOverview } from "@/modules/workspace-config/queries";
 
 export const dynamic = "force-dynamic";
@@ -41,17 +44,21 @@ type EditableCatalogItem = {
   label?: string;
   name?: string;
   description?: string | null;
+  isActive?: boolean;
+  isEnabled?: boolean;
 };
 
 function EditableCatalogCard({
   catalog,
   description,
   items,
+  supportsTarget = false,
   title,
 }: {
   catalog: string;
   description: string;
   items: EditableCatalogItem[];
+  supportsTarget?: boolean;
   title: string;
 }) {
   return (
@@ -61,10 +68,46 @@ function EditableCatalogCard({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
+        <form
+          action={createWorkspaceCatalogItem}
+          className="grid gap-3 border bg-muted/30 p-3 md:grid-cols-[140px_1fr_1fr_120px_auto] md:items-end"
+        >
+          <input name="catalog" type="hidden" value={catalog} />
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">
+              Chave
+            </span>
+            <Input className="mt-1" name="key" placeholder="nova_chave" required />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">
+              Nome exibido
+            </span>
+            <Input className="mt-1" name="label" required />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-muted-foreground">
+              Descricao
+            </span>
+            <Input className="mt-1" name="description" />
+          </label>
+          {supportsTarget ? (
+            <label className="block">
+              <span className="text-xs font-medium text-muted-foreground">
+                Alvo
+              </span>
+              <Input className="mt-1" name="target" placeholder="workspace" />
+            </label>
+          ) : (
+            <input name="target" type="hidden" value="workspace" />
+          )}
+          <Button type="submit">Adicionar</Button>
+        </form>
+
         {items.map((item) => (
           <form
             action={updateWorkspaceCatalogItem}
-            className="grid gap-3 border p-3 md:grid-cols-[160px_1fr_1fr_auto] md:items-end"
+            className="grid gap-3 border p-3 md:grid-cols-[160px_1fr_1fr_92px_auto] md:items-end"
             key={item.id}
           >
             <input name="catalog" type="hidden" value={catalog} />
@@ -95,6 +138,15 @@ function EditableCatalogCard({
                 defaultValue={item.description ?? ""}
                 name="description"
               />
+            </label>
+            <label className="flex h-10 items-center gap-2 text-sm">
+              <input
+                className="size-4"
+                defaultChecked={item.isActive ?? item.isEnabled ?? true}
+                name="isActive"
+                type="checkbox"
+              />
+              Ativo
             </label>
             <Button type="submit" variant="outline">
               Salvar
@@ -238,6 +290,7 @@ export default async function WorkspaceConfigPage() {
             catalog="documentTemplate"
             description="Modelos documentais usados no modulo de documentos."
             items={catalogs.documentTemplates}
+            supportsTarget
             title="Templates documentais"
           />
 
@@ -245,6 +298,7 @@ export default async function WorkspaceConfigPage() {
             catalog="reportTemplate"
             description="Modelos usados na geracao de relatorios."
             items={catalogs.reportTemplates}
+            supportsTarget
             title="Templates de relatorio"
           />
         </div>

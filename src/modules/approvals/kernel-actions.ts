@@ -2,6 +2,11 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { serviceOrders } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
+import {
+  actionObjectSchema,
+  stringProperty,
+  uuidProperty,
+} from "@/platform/actions/schema-presets";
 
 type RequestApprovalInput = {
   serviceOrderId?: string;
@@ -14,16 +19,28 @@ export const requestApprovalKernelAction: ActionDefinition<
 > = {
   key: "approvals.request",
   moduleKey: "approvals",
-  description: "Envia uma ordem de servico para revisao/aprovacao.",
+  description: "Envia uma ordem de serviço para revisão/aprovação.",
   callableBy: ["ui", "integration", "automation", "system"],
   requiredModules: ["service-orders"],
+  inputSchema: actionObjectSchema(
+    {
+      serviceOrderId: uuidProperty("OS que será enviada para aprovação."),
+      note: stringProperty("Observação para o revisor."),
+    },
+    ["serviceOrderId"],
+  ),
+  outputSchema: actionObjectSchema({
+    id: uuidProperty("Identificador da OS."),
+    code: stringProperty("Código da OS."),
+    status: stringProperty("Status final."),
+  }),
   emits: ["approval.requested"],
   async handler(input) {
     const serviceOrderId = String(input.serviceOrderId ?? "").trim();
     if (!serviceOrderId) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "serviceOrderId e obrigatorio." },
+        error: { code: "VALIDATION_ERROR", message: "serviceOrderId e obrigatório." },
       };
     }
 
@@ -41,7 +58,7 @@ export const requestApprovalKernelAction: ActionDefinition<
       .limit(1);
 
     if (!previous) {
-      return { success: false, error: { code: "NOT_FOUND", message: "OS nao encontrada." } };
+      return { success: false, error: { code: "NOT_FOUND", message: "OS não encontrada." } };
     }
 
     const [updated] = await db
@@ -79,3 +96,4 @@ export const requestApprovalKernelAction: ActionDefinition<
     };
   },
 };
+

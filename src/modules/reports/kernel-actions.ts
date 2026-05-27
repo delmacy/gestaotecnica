@@ -9,6 +9,11 @@ import {
   workItems,
 } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
+import {
+  actionObjectSchema,
+  stringProperty,
+  uuidProperty,
+} from "@/platform/actions/schema-presets";
 
 type GenerateOperationalReportInput = {
   title?: string;
@@ -34,6 +39,15 @@ export const generateOperationalReportKernelAction: ActionDefinition<
   moduleKey: "reports",
   description: "Gera um resumo operacional.",
   callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema({
+    title: stringProperty("Título do relatório."),
+    type: stringProperty("Tipo lógico do relatório."),
+  }),
+  outputSchema: actionObjectSchema({
+    id: uuidProperty("Identificador do relatório."),
+    title: stringProperty("Título do relatório."),
+    type: stringProperty("Tipo do relatório."),
+  }),
   emits: ["report.generated"],
   async handler(input) {
     const title =

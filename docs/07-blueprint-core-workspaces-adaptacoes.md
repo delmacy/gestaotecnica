@@ -1,11 +1,11 @@
-# Blueprint Core, Workspaces e Adaptacoes
+# Blueprint Core, Workspaces e Adaptações
 
-Este blueprint organiza a plataforma como um **core operacional reutilizavel**,
-capaz de receber adaptacoes por cliente/setor atraves de workspaces.
+Este blueprint organiza a plataforma como um **core operacional reutilizável**,
+capaz de receber adaptações por cliente/setor através de workspaces.
 
-A primeira adaptacao real e a **secao-tecnica**, mas ela nao deve ser tratada
-como o produto inteiro. Ela e o primeiro pacote de configuracao sobre um core
-replicavel.
+A primeira adaptação real é a **seção técnica**, mas ela não deve ser tratada
+como o produto inteiro. Ela é o primeiro pacote de configuração sobre um core
+replicável.
 
 ## 1. Tese arquitetural
 
@@ -17,59 +17,59 @@ Core replicavel
 = sistema operacional sob medida
 ```
 
-O objetivo e permitir que a plataforma seja usada futuramente como:
+O objetivo é permitir que a plataforma seja usada futuramente como:
 
-- aplicacao da sala/secao tecnica;
-- base open source reutilizavel;
+- aplicação da sala/seção técnica;
+- base open source reutilizável;
 - system builder operacional para PMEs;
-- pacote hospedado e mantido como servico recorrente;
-- base para futuros repositorios `gestaotecnica-core` e `sala-tecnica-app`.
+- pacote hospedado e mantido como serviço recorrente;
+- base para futuros repositórios `gestaotecnica-core` e `sala-tecnica-app`.
 
 Regra central:
 
-> O core fornece capacidades universais; a adaptacao ensina o sistema a operar
-> com o vocabulario, fluxos, papeis e regras de um cliente.
+> O core fornece capacidades universais; a adaptação ensina o sistema a operar
+> com o vocabulário, fluxos, papéis e regras de um cliente.
 
 ## 2. Camadas da plataforma
 
 ### 2.1 Core Platform
 
-Camada universal, sem conhecimento da secao tecnica.
+Camada universal, sem conhecimento da seção técnica.
 
 Responsabilidades:
 
 - eventos;
 - auditoria;
 - workflows;
-- permissoes;
+- permissões;
 - filas;
 - documentos;
-- relatorios;
+- relatórios;
 - notificacoes futuras;
 - comentarios futuros;
-- configuracao de modulos;
-- contratos publicos entre modulos.
+- configuração de módulos;
+- contratos públicos entre módulos.
 
-Nao deve conter termos como:
+Não deve conter termos como:
 
 - plantao;
 - sobreaviso;
 - pendencia de turno;
-- livro de servico;
-- tecnico pleno;
-- secretario tecnico-operacional;
-- sistema oficial especifico.
+- livro de serviço;
+- técnico pleno;
+- secretario técnico-operacional;
+- sistema oficial específico.
 
-Esses termos pertencem a adaptacao.
+Esses termos pertencem a adaptação.
 
 ### 2.2 Domain Modules
 
-Modulos reutilizaveis de dominio operacional.
+Módulos reutilizáveis de domínio operacional.
 
-Eles podem ser usados pela secao tecnica ou por outro cliente com configuracao
+Eles podem ser usados pela seção técnica ou por outro cliente com configuração
 diferente.
 
-Modulos atuais:
+Módulos atuais:
 
 - Dashboard;
 - Operations;
@@ -103,7 +103,7 @@ Modulos atuais:
 
 Workspace e a unidade de cliente, setor ou operacao.
 
-No inicio existira:
+No início existira:
 
 ```text
 workspace: secao-tecnica
@@ -111,20 +111,20 @@ workspace: secao-tecnica
 
 O workspace deve permitir:
 
-- habilitar/desabilitar modulos;
+- habilitar/desabilitar módulos;
 - definir tipos de demanda;
 - definir tipos de OS;
 - definir tipos de escala;
-- definir papeis;
+- definir papéis;
 - definir filas;
 - definir workflows;
 - definir templates documentais;
-- definir templates de relatorio;
-- configurar integracoes e legado.
+- definir templates de relatório;
+- configurar integrações e legado.
 
 ### 2.4 Client Adaptation / Domain Pack
 
-Adaptacao e o pacote que configura o workspace.
+Adaptação e o pacote que configura o workspace.
 
 Para a primeira versao:
 
@@ -200,18 +200,18 @@ Regra de importacao:
 import { activeAdaptation } from "@/adaptations/active";
 ```
 
-Evitar importar `secao-tecnica` diretamente nos modulos.
+Evitar importar `secao-tecnica` diretamente nos módulos.
 
-## 4. Estrutura futura de repositorios
+## 4. Estrutura futura de repositórios
 
-Nao separar agora.
+Não separar agora.
 
 Separar apenas quando:
 
 1. o MVP estiver funcionando;
-2. a adaptacao `secao-tecnica` estiver estavel;
-3. surgir uma segunda adaptacao real;
-4. as interfaces publicas dos modulos estiverem mais maduras.
+2. a adaptação `secao-tecnica` estiver estável;
+3. surgir uma segunda adaptação real;
+4. as interfaces publicas dos módulos estiverem mais maduras.
 
 ### 4.1 Futuro monorepo
 
@@ -242,13 +242,13 @@ cliente-y-app
 Frase guia:
 
 > Primeiro separar conceitualmente por pastas; depois separar tecnicamente por
-> pacotes; por ultimo separar operacionalmente por repositorios.
+> pacotes; por ultimo separar operacionalmente por repositórios.
 
-## 5. Mapa dos modulos
+## 5. Mapa dos módulos
 
 ### 5.1 Foundation / Platform
 
-Modulos e capacidades:
+Módulos e capacidades:
 
 - users;
 - teams;
@@ -265,9 +265,9 @@ Natureza:
 - pouco dependente de cliente;
 - deve suportar todos os workspaces.
 
-### 5.2 Entrada e circulacao de trabalho
+### 5.2 Entrada e circulação de trabalho
 
-Modulos:
+Módulos:
 
 - WorkItems;
 - Global Search;
@@ -278,7 +278,7 @@ Inspiracoes:
 
 - Jira: issue, prioridade, status, workflow;
 - Trello: card, quadro, responsavel, lista/status;
-- Zendesk: ticket, triagem, fila de atendimento, historico.
+- Zendesk: ticket, triagem, fila de atendimento, histórico.
 
 No produto:
 
@@ -296,7 +296,7 @@ Configuravel por workspace:
 
 - tipos de demanda;
 - labels;
-- filas padrao;
+- filas padrão;
 - se gera OS;
 - se aparece no livro de turno;
 - SLA;
@@ -305,7 +305,7 @@ Configuravel por workspace:
 
 ### 5.3 Execucao operacional
 
-Modulos:
+Módulos:
 
 - Service Orders;
 - Approvals;
@@ -324,10 +324,10 @@ Configuravel por workspace:
 - tipos de OS;
 - necessidade de ativo;
 - necessidade de evidencia;
-- necessidade de aprovacao;
+- necessidade de aprovação;
 - regras de encerramento;
-- templates de relatorio;
-- relacao com WorkItems.
+- templates de relatório;
+- relação com WorkItems.
 
 Evolucao futura:
 
@@ -337,9 +337,9 @@ Evolucao futura:
 - `approval_requests`;
 - workflow instance congelada por OS.
 
-### 5.4 Capacidade tecnica e disponibilidade
+### 5.4 Capacidade técnica e disponibilidade
 
-Modulos:
+Módulos:
 
 - Workforce;
 - Skills;
@@ -348,7 +348,7 @@ Modulos:
 
 Configuravel por workspace:
 
-- papeis de negocio;
+- papéis de negócio;
 - niveis profissionais;
 - tipos de escala;
 - regras de sobreposicao;
@@ -365,7 +365,7 @@ Evolucao futura:
 
 ### 5.5 Ativos, infraestrutura e materiais
 
-Modulos:
+Módulos:
 
 - Assets;
 - Inventory;
@@ -377,9 +377,9 @@ Conceitos universais:
 
 - ativo como entidade de vida longa;
 - estoque como recursos consumiveis ou reservaveis;
-- plano como intencao tecnica futura;
-- projeto como iniciativa tecnica;
-- aquisicao como necessidade, nao como processo completo de compras.
+- plano como intenção técnica futura;
+- projeto como iniciativa técnica;
+- aquisição como necessidade, não como processo completo de compras.
 
 Configuravel por workspace:
 
@@ -388,7 +388,7 @@ Configuravel por workspace:
 - campos por tipo;
 - topologia;
 - tipos de material;
-- fluxo de aquisicao;
+- fluxo de aquisição;
 - documentos exigidos.
 
 Evolucao futura:
@@ -402,7 +402,7 @@ Evolucao futura:
 
 ### 5.6 Documentos, evidencias e legado
 
-Modulos:
+Módulos:
 
 - Documents;
 - Evidences;
@@ -414,16 +414,16 @@ Conceitos universais:
 - evidencia como prova operacional;
 - documento como artefato revisavel/aprovavel;
 - legado como vinculo com sistema externo;
-- relatorio como consolidacao.
+- relatório como consolidacao.
 
 Configuravel por workspace:
 
 - templates documentais;
-- templates de relatorio;
+- templates de relatório;
 - sistema legado;
 - campos de protocolo;
 - status externos;
-- eventos que aparecem nos relatorios.
+- eventos que aparecem nos relatórios.
 
 Evolucao futura:
 
@@ -436,9 +436,9 @@ Evolucao futura:
 - sync jobs;
 - webhooks.
 
-### 5.7 Governanca, suprimentos e conformidade
+### 5.7 Governança, suprimentos e conformidade
 
-Modulos:
+Módulos:
 
 - Suppliers;
 - Compliance;
@@ -463,10 +463,10 @@ Evolucao futura:
 - webhook deliveries;
 - correlation_id e causation_id em eventos.
 
-## 6. Schema configuravel por workspace
+## 6. Schema configurável por workspace
 
-Como nao ha dados de producao, a arquitetura pode migrar os enums mais
-especificos para tabelas configuraveis.
+Como não há dados de produção, a arquitetura pode migrar os enums mais
+específicos para tabelas configuráveis.
 
 ### 6.1 Tabelas base
 
@@ -495,7 +495,7 @@ Campos sugeridos para `workspace_module_configs`:
 - created_at;
 - updated_at.
 
-### 6.2 Tabelas configuraveis iniciais
+### 6.2 Tabelas configuráveis iniciais
 
 ```text
 work_item_types
@@ -510,7 +510,7 @@ document_templates
 report_templates
 ```
 
-Cada tabela configuravel deve ter, no minimo:
+Cada tabela configurável deve ter, no mínimo:
 
 - id;
 - workspace_id;
@@ -553,7 +553,7 @@ Entidades que devem receber `workspace_id` primeiro:
 - compliance_audits;
 - reports.
 
-## 7. Adaptacao inicial: secao-tecnica
+## 7. Adaptação inicial: seção técnica
 
 Workspace inicial:
 
@@ -575,9 +575,9 @@ name: Secao Tecnica
 Cada tipo deve poder configurar:
 
 - label;
-- descricao;
-- prioridade padrao;
-- fila padrao;
+- descrição;
+- prioridade padrão;
+- fila padrão;
 - se pode gerar OS;
 - se aparece no livro de turno;
 - SLA futuro.
@@ -594,8 +594,8 @@ Cada tipo deve poder configurar:
 - necessidade de ativo;
 - necessidade de apontamento de tempo;
 - necessidade de evidencia;
-- necessidade de aprovacao;
-- template de documento/relatorio.
+- necessidade de aprovação;
+- template de documento/relatório.
 
 ### 7.3 Tipos de escala
 
@@ -612,7 +612,7 @@ Cada tipo deve poder configurar:
 - se permite sobreposicao;
 - se bloqueia disponibilidade.
 
-### 7.4 Papeis de negocio
+### 7.4 Papéis de negócio
 
 - tecnico_trainee;
 - tecnico_pleno;
@@ -621,31 +621,31 @@ Cada tipo deve poder configurar:
 - secretario_tecnico_operacional;
 - chefe_interino.
 
-Nao confundir:
+Não confundir:
 
-- usuario;
+- usuário;
 - cargo;
 - permissao;
 - papel no processo;
 - papel temporario na OS;
-- papel de negocio.
+- papel de negócio.
 
 ### 7.5 Filas
 
 - operacional-n1;
-- triagem-tecnica;
-- supervisao-tecnica;
-- secretaria-tecnica;
+- triagem-técnica;
+- supervisao-técnica;
+- secretaria-técnica;
 - livro-turno;
-- planejamento-tecnico.
+- planejamento-técnico.
 
 ### 7.6 Workflows iniciais
 
-- fluxo padrao de demanda;
-- fluxo padrao de OS;
-- fluxo padrao de documento tecnico.
+- fluxo padrão de demanda;
+- fluxo padrão de OS;
+- fluxo padrão de documento técnico.
 
-No inicio, workflow pode documentar e orientar status.
+No início, workflow pode documentar e orientar status.
 
 Depois, pode evoluir para:
 
@@ -657,7 +657,7 @@ workflow_template
 
 ## 8. Relacao com Trello, Jira e Zendesk
 
-Essas ferramentas nao devem ser copiadas diretamente. Elas servem como
+Essas ferramentas não devem ser copiadas diretamente. Elas servem como
 referencias de padroes operacionais.
 
 ### Trello
@@ -684,9 +684,9 @@ Inspirar:
 - issue;
 - tipo de issue;
 - prioridade;
-- workflow configuravel;
+- workflow configurável;
 - transicoes;
-- historico;
+- histórico;
 - SLA;
 - filtros e views.
 
@@ -708,7 +708,7 @@ Inspirar:
 - triagem;
 - atendimento;
 - escalonamento;
-- historico;
+- histórico;
 - base de conhecimento.
 
 No sistema:
@@ -722,7 +722,7 @@ No sistema:
 
 1. Mergear a base visual com shadcn.
 2. Criar `workspaces` e workspace seed `secao-tecnica`.
-3. Criar tabelas configuraveis iniciais.
+3. Criar tabelas configuráveis iniciais.
 4. Migrar `work_items.type` para `work_item_type_id`.
 5. Migrar `schedules.type` para `schedule_type_id`.
 6. Migrar `technician_profiles.level` para `business_role_id`.
@@ -730,8 +730,8 @@ No sistema:
 8. Adicionar `workspace_id` nas entidades principais.
 9. Criar `src/adaptations/active.ts`.
 10. Criar `src/adaptations/secao-tecnica`.
-11. Atualizar forms/actions/queries para buscar opcoes por workspace.
-12. Criar documentacao dos modulos e da adaptacao.
+11. Atualizar forms/actions/queries para buscar opções por workspace.
+12. Criar documentação dos módulos e da adaptação.
 13. Validar build, lint, rotas e fluxos principais.
 
 ## 10. Criterios de aceite
@@ -741,23 +741,23 @@ A etapa estara correta quando:
 - existir workspace `secao-tecnica`;
 - tipos de demanda vierem de `work_item_types`;
 - tipos de escala vierem de `schedule_types`;
-- papeis/niveis vierem de `business_roles`;
+- papéis/niveis vierem de `business_roles`;
 - OS puder receber `service_order_type_id`;
 - entidades principais tiverem `workspace_id`;
-- modulos nao precisarem conhecer termos especificos da secao tecnica;
-- existir documentacao clara de core, modulos e adaptacao;
+- módulos não precisarem conhecer termos específicos da seção técnica;
+- existir documentação clara de core, módulos e adaptação;
 - `npm run lint` passar;
 - `npm run build` passar;
 - rotas principais responderem 200;
-- fluxos de criar demanda, OS, tecnico e escala continuarem funcionando.
+- fluxos de criar demanda, OS, técnico e escala continuarem funcionando.
 
 ## 11. Frases guia
 
-> O modulo universal nao conhece o cliente; a adaptacao ensina o modulo a operar
+> O módulo universal não conhece o cliente; a adaptação ensina o módulo a operar
 > naquele cliente.
 
-> O core e produto; a adaptacao e projeto.
+> O core e produto; a adaptação e projeto.
 
-> O workspace e o limite de configuracao, dados, vocabulario e regra local.
+> O workspace e o limite de configuração, dados, vocabulário e regra local.
 
-> Primeiro separe por pastas; depois por pacotes; por ultimo por repositorios.
+> Primeiro separe por pastas; depois por pacotes; por ultimo por repositórios.

@@ -2,6 +2,11 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { automationRunLogs, automationRuns, automationRules } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
+import {
+  actionObjectSchema,
+  stringProperty,
+  uuidProperty,
+} from "@/platform/actions/schema-presets";
 
 type RunAutomationInput = {
   automationRuleId?: string;
@@ -11,15 +16,26 @@ type RunAutomationInput = {
 export const runAutomationKernelAction: ActionDefinition<RunAutomationInput, { runId: string; status: string }> = {
   key: "automations.run",
   moduleKey: "automations",
-  description: "Executa uma automacao ativa em modo manual-first.",
+  description: "Executa uma automação ativa em modo manual-first.",
   callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      automationRuleId: uuidProperty("Regra de automação ativa."),
+      note: stringProperty("Observação da execução."),
+    },
+    ["automationRuleId"],
+  ),
+  outputSchema: actionObjectSchema({
+    runId: uuidProperty("Identificador da execução."),
+    status: stringProperty("Status final da execução."),
+  }),
   emits: ["automation_rule.executed"],
   async handler(input) {
     const automationRuleId = String(input.automationRuleId ?? "").trim();
     if (!automationRuleId) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "automationRuleId e obrigatorio." },
+        error: { code: "VALIDATION_ERROR", message: "automationRuleId e obrigatório." },
       };
     }
 
@@ -39,10 +55,10 @@ export const runAutomationKernelAction: ActionDefinition<RunAutomationInput, { r
       .limit(1);
 
     if (!rule) {
-      return { success: false, error: { code: "NOT_FOUND", message: "Automacao nao encontrada." } };
+      return { success: false, error: { code: "NOT_FOUND", message: "Automação não encontrada." } };
     }
     if (rule.status !== "active") {
-      return { success: false, error: { code: "INVALID_STATUS", message: "Automacao precisa estar ativa." } };
+      return { success: false, error: { code: "INVALID_STATUS", message: "Automação precisa estar ativa." } };
     }
 
     const startedAt = new Date();
@@ -76,7 +92,7 @@ export const runAutomationKernelAction: ActionDefinition<RunAutomationInput, { r
     await db.insert(automationRunLogs).values({
       automationRunId: run.id,
       level: "info",
-      message: "Automacao executada via Platform Kernel.",
+      message: "Automação executada via Platform Kernel.",
       payload: { ruleName: rule.name },
     });
 
@@ -96,3 +112,4 @@ export const runAutomationKernelAction: ActionDefinition<RunAutomationInput, { r
     };
   },
 };
+

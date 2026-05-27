@@ -5,5 +5,7 @@ export type {
   ActionDefinition,
   ActionEvent,
   ActionHandler,
+  ActionJsonSchema,
   ActionResult,
+  ActionSchemaProperty,
 } from "./action-types";

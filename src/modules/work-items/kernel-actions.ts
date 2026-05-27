@@ -2,6 +2,14 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { workItems } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
+import {
+  actionObjectSchema,
+  booleanProperty,
+  enumProperty,
+  idTitleOutputSchema,
+  stringProperty,
+  uuidProperty,
+} from "@/platform/actions/schema-presets";
 import { workItemPriorities, workItemStatuses, workItemTypes } from "./constants";
 
 type CreateWorkItemInput = {
@@ -31,13 +39,24 @@ export const createWorkItemKernelAction: ActionDefinition<CreateWorkItemInput, {
   moduleKey: "work-items",
   description: "Cria uma demanda operacional.",
   callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      title: stringProperty("Título da demanda."),
+      description: stringProperty("Descrição livre da demanda."),
+      type: enumProperty(workItemTypes.map((type) => type.value), "Tipo de demanda."),
+      priority: enumProperty(workItemPriorities.map((priority) => priority.value), "Prioridade inicial."),
+      autoCreateServiceOrder: booleanProperty("Quando verdadeiro, a adaptação pode gerar uma OS por flow."),
+    },
+    ["title"],
+  ),
+  outputSchema: idTitleOutputSchema,
   emits: ["work_item.created"],
   async handler(input) {
     const title = String(input.title ?? "").trim();
     if (!title) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "title e obrigatorio." },
+        error: { code: "VALIDATION_ERROR", message: "title e obrigatório." },
       };
     }
 
@@ -84,13 +103,26 @@ export const transitionWorkItemKernelAction: ActionDefinition<
   moduleKey: "work-items",
   description: "Transiciona o status de uma demanda.",
   callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      workItemId: uuidProperty("Demanda que será transicionada."),
+      status: enumProperty(workItemStatuses.map((status) => status.value), "Novo status da demanda."),
+      note: stringProperty("Observação da transição."),
+    },
+    ["workItemId", "status"],
+  ),
+  outputSchema: actionObjectSchema({
+    id: uuidProperty("Identificador da demanda."),
+    title: stringProperty("Título da demanda."),
+    status: stringProperty("Status final."),
+  }),
   emits: ["work_item.transitioned"],
   async handler(input) {
     const workItemId = String(input.workItemId ?? "").trim();
     if (!workItemId) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "workItemId e obrigatorio." },
+        error: { code: "VALIDATION_ERROR", message: "workItemId e obrigatório." },
       };
     }
 
@@ -108,7 +140,7 @@ export const transitionWorkItemKernelAction: ActionDefinition<
       .limit(1);
 
     if (!previous) {
-      return { success: false, error: { code: "NOT_FOUND", message: "Demanda nao encontrada." } };
+      return { success: false, error: { code: "NOT_FOUND", message: "Demanda não encontrada." } };
     }
 
     const [updated] = await db
@@ -141,3 +173,4 @@ export const transitionWorkItemKernelAction: ActionDefinition<
     };
   },
 };
+

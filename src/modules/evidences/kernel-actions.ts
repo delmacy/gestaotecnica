@@ -1,6 +1,11 @@
 import { getDb } from "@/db";
 import { evidences } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
+import {
+  actionObjectSchema,
+  stringProperty,
+  uuidProperty,
+} from "@/platform/actions/schema-presets";
 
 type AttachEvidenceInput = {
   title?: string;
@@ -18,15 +23,31 @@ export const attachEvidenceKernelAction: ActionDefinition<
 > = {
   key: "evidences.attach",
   moduleKey: "evidences",
-  description: "Anexa uma evidencia a uma entidade operacional.",
+  description: "Anexa uma evidência a uma entidade operacional.",
   callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      title: stringProperty("Título da evidência."),
+      description: stringProperty("Descrição da evidência."),
+      fileUrl: stringProperty("URL do arquivo."),
+      mimeType: stringProperty("MIME type do arquivo."),
+      serviceOrderId: uuidProperty("OS relacionada."),
+      workItemId: uuidProperty("Demanda relacionada."),
+      assetId: uuidProperty("Ativo relacionado."),
+    },
+    ["title"],
+  ),
+  outputSchema: actionObjectSchema({
+    id: uuidProperty("Identificador da evidência."),
+    title: stringProperty("Título da evidência."),
+  }),
   emits: ["evidence.attached"],
   async handler(input) {
     const title = String(input.title ?? "").trim();
     if (!title) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "title e obrigatorio." },
+        error: { code: "VALIDATION_ERROR", message: "title e obrigatório." },
       };
     }
 
@@ -67,3 +88,4 @@ export const attachEvidenceKernelAction: ActionDefinition<
     };
   },
 };
+

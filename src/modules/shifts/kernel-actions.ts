@@ -1,6 +1,12 @@
 import { getDb } from "@/db";
 import { shiftLogEntries } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
+import {
+  actionObjectSchema,
+  booleanProperty,
+  stringProperty,
+  uuidProperty,
+} from "@/platform/actions/schema-presets";
 
 type AddShiftLogEntryInput = {
   shiftId?: string;
@@ -20,6 +26,23 @@ export const addShiftLogEntryKernelAction: ActionDefinition<
   moduleKey: "shifts",
   description: "Adiciona uma entrada ao livro de turno.",
   callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      shiftId: uuidProperty("Turno relacionado."),
+      title: stringProperty("Título do registro."),
+      description: stringProperty("Descrição do registro."),
+      isPending: booleanProperty("Indica se a entrada vira pendência."),
+      workItemId: uuidProperty("Demanda relacionada."),
+      serviceOrderId: uuidProperty("OS relacionada."),
+      assetId: uuidProperty("Ativo relacionado."),
+    },
+    ["shiftId", "title"],
+  ),
+  outputSchema: actionObjectSchema({
+    id: uuidProperty("Identificador da entrada."),
+    title: stringProperty("Título do registro."),
+    isPending: booleanProperty("Indica se ficou pendente."),
+  }),
   emits: ["shift_log.entry_added"],
   async handler(input) {
     const shiftId = String(input.shiftId ?? "").trim();
@@ -27,7 +50,7 @@ export const addShiftLogEntryKernelAction: ActionDefinition<
     if (!shiftId || !title) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "shiftId e title sao obrigatorios." },
+        error: { code: "VALIDATION_ERROR", message: "shiftId e title sao obrigatórios." },
       };
     }
 
@@ -70,3 +93,4 @@ export const addShiftLogEntryKernelAction: ActionDefinition<
     };
   },
 };
+

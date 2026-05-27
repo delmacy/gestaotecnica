@@ -448,6 +448,48 @@ export const workflowTemplates = pgTable(
   ],
 );
 
+export const workflowInstances = pgTable(
+  "workflow_instances",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workflowTemplateId: uuid("workflow_template_id").notNull().references(() => workflowTemplates.id),
+    targetType: text("target_type").notNull(),
+    targetId: uuid("target_id").notNull(),
+    currentState: text("current_state").notNull(),
+    status: text("status").notNull().default("active"),
+    snapshot: jsonb("snapshot").notNull().default({}),
+    startedById: uuid("started_by_id").references(() => users.id),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("workflow_instances_workspace_idx").on(table.workspaceId),
+    index("workflow_instances_template_idx").on(table.workflowTemplateId),
+    index("workflow_instances_target_idx").on(table.targetType, table.targetId),
+    index("workflow_instances_status_idx").on(table.status),
+  ],
+);
+
+export const workflowTransitions = pgTable(
+  "workflow_transitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workflowInstanceId: uuid("workflow_instance_id").notNull().references(() => workflowInstances.id),
+    fromState: text("from_state").notNull(),
+    toState: text("to_state").notNull(),
+    actorId: uuid("actor_id").references(() => users.id),
+    note: text("note"),
+    payload: jsonb("payload").notNull().default({}),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("workflow_transitions_instance_idx").on(table.workflowInstanceId),
+    index("workflow_transitions_occurred_at_idx").on(table.occurredAt),
+  ],
+);
+
 export const reportTemplateDefinitions = pgTable(
   "report_template_definitions",
   {

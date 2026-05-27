@@ -20,7 +20,7 @@ Provar o ciclo:
 
 ## Regra central
 
-Modulos expoem actions.
+Módulos expõem actions.
 
 Actions emitem events.
 
@@ -28,9 +28,9 @@ Flows reagem a events.
 
 Flows chamam actions.
 
-Integracoes externas chamam actions via API.
+Integrações externas chamam actions via API.
 
-## Implementacao inicial
+## Implementação inicial
 
 Actions iniciais:
 
@@ -74,29 +74,29 @@ Gateway inicial:
 - `POST /api/integrations/commands`
 - `GET /api/integrations/actions`
 
-O endpoint de catalogo lista manifests, actions, events e flows sem expor os handlers internos. Ele serve como base para plugins, integracoes e futuras views administrativas de capacidade por workspace.
+O endpoint de catálogo lista manifests, actions, events e flows sem expor os handlers internos. Ele serve como base para plugins, integrações e futuras views administrativas de capacidade por workspace.
 
-## Persistencia inicial
+## Persistência inicial
 
 O kernel agora persiste:
 
-- `integration_commands`: comandos recebidos pelo gateway, com idempotencia, payload, resposta e correlacao.
+- `integration_commands`: comandos recebidos pelo gateway, com idempotência, payload, resposta e correlação.
 - `event_logs`: eventos emitidos por actions, com workspace, fonte, ator e correlation id.
 - `outbox_events`: fila inicial para processar eventos e disparar flows.
-- `flow_runs`: execucoes de flows por evento.
+- `flow_runs`: execuções de flows por evento.
 - `flow_action_runs`: actions chamadas dentro de cada flow.
 
-O processamento do outbox ainda ocorre no mesmo request. Isso preserva simplicidade, mas ja cria a trilha para mover a execucao para worker dedicado.
+O processamento do outbox ainda ocorre no mesmo request. Isso preserva simplicidade, mas já cria a trilha para mover a execução para worker dedicado.
 
-## Habilitacao por workspace
+## Habilitação por workspace
 
-`resolveWorkspaceContext` resolve o workspace real em `workspaces` e carrega modulos ativos em `workspace_module_configs`.
+`resolveWorkspaceContext` resolve o workspace real em `workspaces` e carrega módulos ativos em `workspace_module_configs`.
 
-Se o workspace `sala-tecnica` ainda nao existir, a configuracao ativa e semeada a partir da adaptacao.
+Se o workspace `sala-tecnica` ainda não existir, a configuração ativa é semeada a partir da adaptação.
 
-## Contratos publicos de actions
+## Contratos públicos de actions
 
-`GET /api/integrations/actions` e o ponto inicial de descoberta para plugins e sistemas externos. Cada action exposta informa:
+`GET /api/integrations/actions` é o ponto inicial de descoberta para plugins e sistemas externos. Cada action exposta informa:
 
 - `key`
 - `moduleKey`
@@ -104,30 +104,32 @@ Se o workspace `sala-tecnica` ainda nao existir, a configuracao ativa e semeada 
 - `requiredScopes`
 - `requiredModules`
 - `callableBy`
+- `inputSchema`
+- `outputSchema`
 - `emits`
 - `idempotent`
 
-Os schemas formais de input/output ainda serao fortalecidos com Zod ou JSON Schema.
+Os contratos de input/output usam um subconjunto simples de JSON Schema. A próxima evolução é validar esses contratos em runtime com Zod ou JSON Schema completo.
 
-## O que ainda nao foi implementado
+## O que ainda não foi implementado
 
 - workflow engine completo
 - visual flow editor
 - sandbox
-- worker assicrono dedicado para outbox
+- worker assíncrono dedicado para outbox
 - API key real
 - module registry em banco
 - flow definitions em banco
-- schemas formais de input/output por action
+- validação runtime dos schemas de input/output por action
 
-## Proxima etapa
+## Próxima etapa
 
 - Criar worker dedicado para `outbox_events`
 - Criar API key real
-- Persistir definicoes de flows em banco
+- Persistir definições de flows em banco
 - Criar editor visual de flows
-- Formalizar contratos com Zod/JSON Schema
+- Adicionar validação runtime aos contratos com Zod/JSON Schema
 
 ## Frase guia
 
-Primeiro faca uma action emitir um evento e um flow reagir chamando outra action. Depois todos os modulos poderao seguir o mesmo padrao.
+Primeiro faça uma action emitir um evento e um flow reagir chamando outra action. Depois todos os módulos poderão seguir o mesmo padrão.

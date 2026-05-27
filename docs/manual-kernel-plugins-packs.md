@@ -1,14 +1,14 @@
-# Manual: Kernel, Plugins e Packs de Adaptacao
+# Manual: Kernel, Plugins e Packs de Adaptação
 
 ## 1. Conceito
 
-A plataforma e montada por capacidades.
+A plataforma é montada por capacidades.
 
-- Modulos declaram actions, events, views e dependencias.
+- Módulos declaram actions, events, views e dependências.
 - Actions executam trabalho e emitem events.
 - Events entram em `event_logs` e `outbox_events`.
 - Flows reagem a events e chamam outras actions.
-- Adaptacoes configuram comportamento por cliente/workspace.
+- Adaptações configuram comportamento por cliente/workspace.
 
 ## 2. Criar uma action
 
@@ -18,7 +18,7 @@ A plataforma e montada por capacidades.
 4. Retorne `events` no `ActionResult` quando a action alterar estado.
 5. Registre a action em `src/platform/kernel.ts`.
 
-Padrao de chave:
+Padrão de chave:
 
 ```txt
 <modulo>.<verbo>
@@ -34,10 +34,10 @@ Exemplos:
 ## 3. Criar um evento
 
 1. Registre o evento em `src/platform/events/default-events.ts`.
-2. Use payload pequeno e orientado a integracao.
-3. Nao coloque regra especifica de cliente no evento.
+2. Use payload pequeno e orientado a integração.
+3. Não coloque regra específica de cliente no evento.
 
-Padrao de chave:
+Padrão de chave:
 
 ```txt
 <entidade>.<acontecimento>
@@ -51,7 +51,7 @@ Exemplos:
 
 ## 4. Criar um flow
 
-Flows de cliente devem ficar na adaptacao:
+Flows de cliente devem ficar na adaptação:
 
 ```txt
 src/adaptations/<cliente>/flows
@@ -64,13 +64,13 @@ Exemplo atual:
 - `work-item-auto-service-order`
 - `service-order-completed-notification`
 
-## 5. Criar um modulo
+## 5. Criar um módulo
 
-Um modulo minimo precisa de:
+Um módulo mínimo precisa de:
 
 - `manifest.ts`
 - `kernel-actions.ts`
-- documentacao em `docs/modulos`
+- documentação em `docs/modulos`
 - registro em `src/platform/kernel.ts`
 
 O manifest deve declarar:
@@ -84,34 +84,34 @@ O manifest deve declarar:
 
 ## 6. Criar um pack contextual
 
-Um pack contextual e uma combinacao de modulos que funcionam bem juntos.
+Um pack contextual é uma combinação de módulos que funcionam bem juntos.
 
 Exemplos:
 
-- Operacao: `work-items`, `service-orders`, `assets`, `evidences`, `events`.
+- Operação: `work-items`, `service-orders`, `assets`, `evidences`, `events`.
 - Turnos: `shifts`, `schedules`, `workforce`, `work-items`.
-- Governanca: `approvals`, `documents`, `legacy`, `reports`.
-- Automacao: `automations`, `integrations`, `events`, `notifications`.
+- Governança: `approvals`, `documents`, `legacy`, `reports`.
+- Automação: `automations`, `integrations`, `events`, `notifications`.
 
 ## 7. Adaptar para um cliente
 
 1. Crie ou edite `src/adaptations/<cliente>`.
-2. Configure terminologia, tipos, papeis, filas e templates.
-3. Crie flows especificos em `flows/`.
-4. Habilite modulos no workspace em `workspace_module_configs`.
-5. Valide o catalogo em `GET /api/integrations/actions`.
+2. Configure terminologia, tipos, papéis, filas e templates.
+3. Crie flows específicos em `flows/`.
+4. Habilite módulos no workspace em `workspace_module_configs`.
+5. Valide o catálogo em `GET /api/integrations/actions`.
 
-## 8. Regras de seguranca arquitetural
+## 8. Regras de segurança arquitetural
 
-- O core nao importa adaptacoes diretamente, exceto no bootstrap ativo da aplicacao.
-- Modulos nao devem conhecer regra local de cliente.
-- Adaptacoes devem compor actions existentes antes de pedir novas regras internas.
-- Integracoes externas devem chamar actions pelo gateway, nao tabelas diretamente.
+- O core não importa adaptações diretamente, exceto no bootstrap ativo da aplicação.
+- Módulos não devem conhecer regra local de cliente.
+- Adaptações devem compor actions existentes antes de pedir novas regras internas.
+- Integrações externas devem chamar actions pelo gateway, não tabelas diretamente.
 
-## 9. Proxima maturidade
+## 9. Próxima maturidade
 
 - API keys reais.
 - Worker dedicado para outbox.
 - Contratos Zod/JSON Schema por action.
-- Definicoes de flows em banco.
-- UI administrativa para ativar modulos por workspace.
+- Definições de flows em banco.
+- UI administrativa para ativar módulos por workspace.

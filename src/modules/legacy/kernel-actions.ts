@@ -2,6 +2,12 @@ import { getDb } from "@/db";
 import { legacyRecords } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
 import { activeAdaptation } from "@/adaptations/active";
+import {
+  actionObjectSchema,
+  objectProperty,
+  stringProperty,
+  uuidProperty,
+} from "@/platform/actions/schema-presets";
 
 type CreateLegacyRecordInput = {
   systemName?: string;
@@ -22,8 +28,25 @@ export const createLegacyRecordKernelAction: ActionDefinition<
 > = {
   key: "legacy_records.create",
   moduleKey: "legacy",
-  description: "Cria um registro de vinculo com sistema legado/oficial.",
+  description: "Cria um registro de vínculo com sistema legado/oficial.",
   callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema({
+    systemName: stringProperty("Nome do sistema legado/oficial."),
+    protocolNumber: stringProperty("Número de protocolo externo."),
+    externalRecordId: stringProperty("Identificador externo."),
+    externalStatus: stringProperty("Status externo conhecido."),
+    notes: stringProperty("Observações do vínculo."),
+    serviceOrderId: uuidProperty("OS relacionada."),
+    workItemId: uuidProperty("Demanda relacionada."),
+    assetId: uuidProperty("Ativo relacionado."),
+    documentId: uuidProperty("Documento técnico relacionado."),
+    payload: objectProperty("Payload de integração."),
+  }),
+  outputSchema: actionObjectSchema({
+    id: uuidProperty("Identificador do registro."),
+    systemName: stringProperty("Sistema legado/oficial."),
+    syncStatus: stringProperty("Status de sincronização."),
+  }),
   emits: ["legacy_record.created"],
   async handler(input) {
     const systemName = String(input.systemName ?? activeAdaptation.legacyConfig.systemName).trim();
@@ -69,3 +92,4 @@ export const createLegacyRecordKernelAction: ActionDefinition<
     };
   },
 };
+

@@ -25,6 +25,24 @@ export type ActionHandler<TInput = unknown, TOutput = unknown> = (
   context: WorkspaceContext,
 ) => Promise<ActionResult<TOutput>>;
 
+export type ActionSchemaProperty = {
+  type: "string" | "number" | "integer" | "boolean" | "object" | "array" | "null";
+  description?: string;
+  enum?: string[];
+  default?: unknown;
+  format?: string;
+  properties?: Record<string, ActionSchemaProperty>;
+  items?: ActionSchemaProperty;
+};
+
+export type ActionJsonSchema = {
+  type: "object";
+  description?: string;
+  required?: string[];
+  properties: Record<string, ActionSchemaProperty>;
+  additionalProperties?: boolean;
+};
+
 export type ActionDefinition<TInput = unknown, TOutput = unknown> = {
   key: string;
   moduleKey: string;
@@ -32,8 +50,8 @@ export type ActionDefinition<TInput = unknown, TOutput = unknown> = {
   requiredScopes?: string[];
   requiredModules?: string[];
   callableBy?: ActionCallableBy[];
-  inputSchema?: unknown;
-  outputSchema?: unknown;
+  inputSchema?: ActionJsonSchema;
+  outputSchema?: ActionJsonSchema;
   emits?: string[];
   idempotent?: boolean;
   handler: ActionHandler<TInput, TOutput>;

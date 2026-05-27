@@ -2,6 +2,12 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { serviceOrders } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
+import {
+  actionObjectSchema,
+  enumProperty,
+  stringProperty,
+  uuidProperty,
+} from "@/platform/actions/schema-presets";
 
 type CompleteServiceOrderInput = {
   serviceOrderId?: string;
@@ -32,16 +38,33 @@ export const createServiceOrderKernelAction: ActionDefinition<
 > = {
   key: "service_orders.create",
   moduleKey: "service-orders",
-  description: "Cria uma ordem de servico operacional.",
+  description: "Cria uma ordem de serviço operacional.",
   callableBy: ["ui", "integration", "automation", "system"],
   requiredModules: ["work-items"],
+  inputSchema: actionObjectSchema(
+    {
+      title: stringProperty("Título da ordem de serviço."),
+      type: stringProperty("Tipo operacional da ordem de serviço."),
+      objective: stringProperty("Objetivo ou escopo da execução."),
+      priority: enumProperty(["low", "medium", "high", "critical"], "Prioridade inicial."),
+      workItemId: uuidProperty("Demanda de origem."),
+      assetId: uuidProperty("Ativo relacionado."),
+    },
+    ["title"],
+  ),
+  outputSchema: actionObjectSchema({
+    id: uuidProperty("Identificador da OS."),
+    code: stringProperty("Código da OS."),
+    title: stringProperty("Título da OS."),
+    status: stringProperty("Status final."),
+  }),
   emits: ["service_order.created"],
   async handler(input) {
     const title = String(input.title ?? "").trim();
     if (!title) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "title e obrigatorio." },
+        error: { code: "VALIDATION_ERROR", message: "title e obrigatório." },
       };
     }
 
@@ -91,15 +114,27 @@ export const completeServiceOrderKernelAction: ActionDefinition<
 > = {
   key: "service_orders.complete",
   moduleKey: "service-orders",
-  description: "Conclui uma ordem de servico.",
+  description: "Conclui uma ordem de serviço.",
   callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      serviceOrderId: uuidProperty("Ordem de serviço a ser concluída."),
+      conclusion: stringProperty("Descrição da conclusão."),
+    },
+    ["serviceOrderId"],
+  ),
+  outputSchema: actionObjectSchema({
+    id: uuidProperty("Identificador da OS."),
+    code: stringProperty("Código da OS."),
+    status: stringProperty("Status final."),
+  }),
   emits: ["service_order.completed"],
   async handler(input) {
     const serviceOrderId = String(input.serviceOrderId ?? "").trim();
     if (!serviceOrderId) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "serviceOrderId e obrigatorio." },
+        error: { code: "VALIDATION_ERROR", message: "serviceOrderId e obrigatório." },
       };
     }
 
@@ -119,7 +154,7 @@ export const completeServiceOrderKernelAction: ActionDefinition<
     if (!serviceOrder) {
       return {
         success: false,
-        error: { code: "NOT_FOUND", message: "OS nao encontrada." },
+        error: { code: "NOT_FOUND", message: "OS não encontrada." },
       };
     }
 
@@ -158,3 +193,4 @@ export const completeServiceOrderKernelAction: ActionDefinition<
     };
   },
 };
+

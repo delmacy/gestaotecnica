@@ -2,6 +2,12 @@ import { getDb } from "@/db";
 import { assets } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
 import {
+  actionObjectSchema,
+  enumProperty,
+  stringProperty,
+  uuidProperty,
+} from "@/platform/actions/schema-presets";
+import {
   assetCriticalities,
   assetStatuses,
   assetTypeSuggestions,
@@ -30,6 +36,23 @@ export const createAssetKernelAction: ActionDefinition<CreateAssetInput, { id: s
   moduleKey: "assets",
   description: "Cria um ativo operacional.",
   callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      code: stringProperty("Código único do ativo."),
+      name: stringProperty("Nome do ativo."),
+      type: enumProperty(assetTypeSuggestions.map((type) => type.value), "Tipo do ativo."),
+      status: enumProperty(assetStatuses.map((status) => status.value), "Status inicial."),
+      criticality: enumProperty(assetCriticalities.map((criticality) => criticality.value), "Criticidade."),
+      location: stringProperty("Localização ou referência operacional."),
+      description: stringProperty("Descrição livre do ativo."),
+    },
+    ["code", "name"],
+  ),
+  outputSchema: actionObjectSchema({
+    id: uuidProperty("Identificador do ativo."),
+    code: stringProperty("Código do ativo."),
+    name: stringProperty("Nome do ativo."),
+  }),
   emits: ["asset.created"],
   async handler(input) {
     const code = String(input.code ?? "").trim();
@@ -38,7 +61,7 @@ export const createAssetKernelAction: ActionDefinition<CreateAssetInput, { id: s
     if (!code || !name) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "code e name sao obrigatorios." },
+        error: { code: "VALIDATION_ERROR", message: "code e name sao obrigatórios." },
       };
     }
 
@@ -78,3 +101,4 @@ export const createAssetKernelAction: ActionDefinition<CreateAssetInput, { id: s
     };
   },
 };
+

@@ -16,6 +16,8 @@ export async function GET() {
     requiredScopes: action.requiredScopes ?? [],
     requiredModules: action.requiredModules ?? [],
     callableBy: action.callableBy ?? [],
+    inputSchema: action.inputSchema,
+    outputSchema: action.outputSchema,
     emits: action.emits ?? [],
     idempotent: action.idempotent ?? false,
   }));

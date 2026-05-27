@@ -16,4 +16,19 @@ export function registerDefaultEvents() {
     moduleKey: "notifications",
     description: "Notificacao enviada.",
   });
+  registerEvent({
+    key: "asset.created",
+    moduleKey: "assets",
+    description: "Ativo criado.",
+  });
+  registerEvent({
+    key: "report.generated",
+    moduleKey: "reports",
+    description: "Relatorio gerado.",
+  });
+  registerEvent({
+    key: "automation_rule.executed",
+    moduleKey: "automations",
+    description: "Regra de automacao executada.",
+  });
 }

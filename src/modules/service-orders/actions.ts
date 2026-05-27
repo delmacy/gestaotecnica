@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
+import { startWorkflowInstanceForTarget } from "@/platform/workflows/runtime";
 import {
   eventLogs,
   evidences,
@@ -175,6 +176,11 @@ export async function createServiceOrderFromWorkItem(formData: FormData) {
       },
     },
   ]);
+
+  await startWorkflowInstanceForTarget({
+    targetType: "service_order",
+    targetId: serviceOrder.id,
+  });
 
   revalidatePath("/");
   revalidatePath("/work-items");

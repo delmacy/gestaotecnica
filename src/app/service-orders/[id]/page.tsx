@@ -34,6 +34,8 @@ import {
   getEntityAttachments,
   getEntityComments,
 } from "@/modules/comments/queries";
+import { getWorkflowInstancesForTarget } from "@/modules/workflow-engine/queries";
+import { WorkflowInstancePanel } from "@/modules/workflow-engine/workflow-instance-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -66,6 +68,7 @@ export default async function ServiceOrderDetailPage({
     stages,
     tasks,
     targets,
+    workflowInstances,
     comments,
     attachments,
   ] = await Promise.all([
@@ -78,6 +81,7 @@ export default async function ServiceOrderDetailPage({
       getServiceOrderStages(id),
       getServiceOrderTasks(id),
       getServiceOrderTargets(id),
+      getWorkflowInstancesForTarget("service_order", id),
       getEntityComments("service_order", id),
       getEntityAttachments("service_order", id),
     ]);
@@ -184,6 +188,13 @@ export default async function ServiceOrderDetailPage({
             stages={stages}
             targets={targets}
             tasks={tasks}
+          />
+
+          <WorkflowInstancePanel
+            instances={workflowInstances}
+            returnTo={`/service-orders/${serviceOrder.id}`}
+            targetId={serviceOrder.id}
+            targetType="service_order"
           />
 
           <ServiceOrderTimeEntriesList timeEntries={timeEntries} />

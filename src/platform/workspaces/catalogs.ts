@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   assetTypeDefinitions,
@@ -28,7 +28,12 @@ export async function getWorkspaceWorkItemTypeOptions(): Promise<CatalogOption[]
       description: workItemTypeDefinitions.description,
     })
     .from(workItemTypeDefinitions)
-    .where(eq(workItemTypeDefinitions.workspaceId, workspace.id))
+    .where(
+      and(
+        eq(workItemTypeDefinitions.workspaceId, workspace.id),
+        eq(workItemTypeDefinitions.isActive, true),
+      ),
+    )
     .orderBy(
       asc(workItemTypeDefinitions.sortOrder),
       asc(workItemTypeDefinitions.label),
@@ -48,7 +53,12 @@ export async function getWorkspaceScheduleTypeOptions(): Promise<CatalogOption[]
       description: scheduleTypeDefinitions.description,
     })
     .from(scheduleTypeDefinitions)
-    .where(eq(scheduleTypeDefinitions.workspaceId, workspace.id))
+    .where(
+      and(
+        eq(scheduleTypeDefinitions.workspaceId, workspace.id),
+        eq(scheduleTypeDefinitions.isActive, true),
+      ),
+    )
     .orderBy(
       asc(scheduleTypeDefinitions.sortOrder),
       asc(scheduleTypeDefinitions.label),
@@ -67,7 +77,13 @@ export async function getWorkspaceTechnicianLevelOptions(): Promise<CatalogOptio
       label: businessRoleDefinitions.label,
     })
     .from(businessRoleDefinitions)
-    .where(eq(businessRoleDefinitions.workspaceId, workspace.id))
+    .where(
+      and(
+        eq(businessRoleDefinitions.workspaceId, workspace.id),
+        eq(businessRoleDefinitions.isActive, true),
+        isNotNull(businessRoleDefinitions.legacyLevel),
+      ),
+    )
     .orderBy(
       asc(businessRoleDefinitions.sortOrder),
       asc(businessRoleDefinitions.label),
@@ -88,7 +104,12 @@ export async function getWorkspaceAssetTypeOptions(): Promise<CatalogOption[]> {
       label: assetTypeDefinitions.label,
     })
     .from(assetTypeDefinitions)
-    .where(eq(assetTypeDefinitions.workspaceId, workspace.id))
+    .where(
+      and(
+        eq(assetTypeDefinitions.workspaceId, workspace.id),
+        eq(assetTypeDefinitions.isActive, true),
+      ),
+    )
     .orderBy(
       asc(assetTypeDefinitions.sortOrder),
       asc(assetTypeDefinitions.label),
@@ -105,7 +126,12 @@ export async function getWorkspaceDocumentTemplateOptions(): Promise<CatalogOpti
       label: documentTemplateDefinitions.label,
     })
     .from(documentTemplateDefinitions)
-    .where(eq(documentTemplateDefinitions.workspaceId, workspace.id))
+    .where(
+      and(
+        eq(documentTemplateDefinitions.workspaceId, workspace.id),
+        eq(documentTemplateDefinitions.isActive, true),
+      ),
+    )
     .orderBy(
       asc(documentTemplateDefinitions.sortOrder),
       asc(documentTemplateDefinitions.label),
@@ -122,7 +148,12 @@ export async function getWorkspaceReportTemplateOptions(): Promise<CatalogOption
       label: reportTemplateDefinitions.label,
     })
     .from(reportTemplateDefinitions)
-    .where(eq(reportTemplateDefinitions.workspaceId, workspace.id))
+    .where(
+      and(
+        eq(reportTemplateDefinitions.workspaceId, workspace.id),
+        eq(reportTemplateDefinitions.isActive, true),
+      ),
+    )
     .orderBy(
       asc(reportTemplateDefinitions.sortOrder),
       asc(reportTemplateDefinitions.label),
@@ -140,7 +171,12 @@ export async function getWorkspaceServiceOrderTypeOptions(): Promise<CatalogOpti
       description: serviceOrderTypeDefinitions.description,
     })
     .from(serviceOrderTypeDefinitions)
-    .where(eq(serviceOrderTypeDefinitions.workspaceId, workspace.id))
+    .where(
+      and(
+        eq(serviceOrderTypeDefinitions.workspaceId, workspace.id),
+        eq(serviceOrderTypeDefinitions.isActive, true),
+      ),
+    )
     .orderBy(
       asc(serviceOrderTypeDefinitions.sortOrder),
       asc(serviceOrderTypeDefinitions.label),

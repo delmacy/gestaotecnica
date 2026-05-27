@@ -39,6 +39,10 @@ labels e descricoes podem ser feitas em `/workspace-config`. Essa tela atualiza
 os catalogos persistidos sem exigir alteracao de codigo para ajustes simples de
 linguagem do cliente.
 
+Tambem e possivel criar novas opcoes e ativar/desativar itens. Itens inativos
+continuam preservados no banco para historico e reativacao, mas deixam de
+aparecer nos formularios dos modulos.
+
 ## 3. Como criar uma nova adaptacao
 
 1. Crie uma pasta em `src/adaptations/<cliente>`.
@@ -64,9 +68,10 @@ Quando um modulo precisar de uma nova opcao configuravel:
 4. Preserve os contratos do modulo.
 5. Documente a configuracao em `docs/modulos`.
 
-Se a mudanca for apenas label ou descricao de uma opcao existente, use
-`/workspace-config`. Se for uma nova chave de configuracao, adicione primeiro na
-adaptacao versionada e deixe o bootstrap criar o registro persistido.
+Se a mudanca for label, descricao, ativacao ou uma opcao local simples, use
+`/workspace-config`. Se a nova chave precisar fazer parte do produto-base ou
+ser reaproveitada em futuros clientes, adicione tambem na adaptacao versionada
+para que o bootstrap continue documentando a intencao original.
 
 Exemplo:
 

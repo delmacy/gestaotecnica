@@ -9,6 +9,9 @@ import {
   evidences,
   serviceOrderAssignments,
   serviceOrders,
+  serviceOrderStages,
+  serviceOrderTargets,
+  serviceOrderTasks,
   technicianProfiles,
   timeEntries,
   users,
@@ -17,8 +20,14 @@ import {
 import { generateServiceOrderCode } from "./code";
 import {
   type ServiceOrderStatusValue,
+  type ServiceOrderStageStatusValue,
+  type ServiceOrderTargetTypeValue,
+  type ServiceOrderTaskStatusValue,
   type ServiceOrderTypeValue,
+  serviceOrderStageStatuses,
   serviceOrderStatuses,
+  serviceOrderTargetTypes,
+  serviceOrderTaskStatuses,
 } from "./constants";
 import { getServiceOrderTypeOptions } from "./queries";
 
@@ -552,5 +561,278 @@ export async function createServiceOrderEvidence(formData: FormData) {
   if (serviceOrder.assetId) {
     revalidatePath(`/assets/${serviceOrder.assetId}`);
   }
+  redirect(`/service-orders/${serviceOrder.id}`);
+}
+
+export async function createServiceOrderStage(formData: FormData) {
+  const serviceOrderId = readRequiredText(formData, "serviceOrderId");
+  const title = readRequiredText(formData, "title");
+  const notes = readOptionalText(formData, "notes");
+  const positionValue = Number.parseInt(String(formData.get("position") ?? "0"), 10);
+  const position = Number.isNaN(positionValue) ? 0 : positionValue;
+  const db = getDb();
+
+  const [serviceOrder] = await db
+    .select({
+      id: serviceOrders.id,
+      code: serviceOrders.code,
+      workItemId: serviceOrders.workItemId,
+      assetId: serviceOrders.assetId,
+    })
+    .from(serviceOrders)
+    .where(eq(serviceOrders.id, serviceOrderId))
+    .limit(1);
+
+  if (!serviceOrder) throw new Error("OS nao encontrada.");
+
+  const [stage] = await db
+    .insert(serviceOrderStages)
+    .values({ serviceOrderId: serviceOrder.id, title, notes, position })
+    .returning({
+      id: serviceOrderStages.id,
+      title: serviceOrderStages.title,
+      status: serviceOrderStages.status,
+    });
+
+  await db.insert(eventLogs).values({
+    eventType: "service_order.stage_created",
+    entityType: "service_order",
+    entityId: serviceOrder.id,
+    serviceOrderId: serviceOrder.id,
+    workItemId: serviceOrder.workItemId,
+    assetId: serviceOrder.assetId,
+    payload: { code: serviceOrder.code, stage },
+  });
+
+  revalidatePath(`/service-orders/${serviceOrder.id}`);
+  revalidatePath("/events");
+  redirect(`/service-orders/${serviceOrder.id}`);
+}
+
+export async function updateServiceOrderStageStatus(formData: FormData) {
+  const id = readRequiredText(formData, "id");
+  const status = readEnum<ServiceOrderStageStatusValue>(
+    formData,
+    "status",
+    serviceOrderStageStatuses,
+    "pending",
+  );
+  const db = getDb();
+
+  const [previous] = await db
+    .select({
+      id: serviceOrderStages.id,
+      title: serviceOrderStages.title,
+      status: serviceOrderStages.status,
+      serviceOrderId: serviceOrderStages.serviceOrderId,
+      workItemId: serviceOrders.workItemId,
+      assetId: serviceOrders.assetId,
+      code: serviceOrders.code,
+    })
+    .from(serviceOrderStages)
+    .innerJoin(serviceOrders, eq(serviceOrderStages.serviceOrderId, serviceOrders.id))
+    .where(eq(serviceOrderStages.id, id))
+    .limit(1);
+
+  if (!previous) throw new Error("Etapa nao encontrada.");
+
+  await db
+    .update(serviceOrderStages)
+    .set({
+      status,
+      startedAt: status === "in_progress" ? new Date() : undefined,
+      completedAt: status === "completed" ? new Date() : undefined,
+      updatedAt: new Date(),
+    })
+    .where(eq(serviceOrderStages.id, id));
+
+  await db.insert(eventLogs).values({
+    eventType: "service_order.stage_status_changed",
+    entityType: "service_order",
+    entityId: previous.serviceOrderId,
+    serviceOrderId: previous.serviceOrderId,
+    workItemId: previous.workItemId,
+    assetId: previous.assetId,
+    payload: {
+      code: previous.code,
+      stageId: previous.id,
+      title: previous.title,
+      from: previous.status,
+      to: status,
+    },
+  });
+
+  revalidatePath(`/service-orders/${previous.serviceOrderId}`);
+  revalidatePath("/events");
+  redirect(`/service-orders/${previous.serviceOrderId}`);
+}
+
+export async function createServiceOrderTask(formData: FormData) {
+  const serviceOrderId = readRequiredText(formData, "serviceOrderId");
+  const title = readRequiredText(formData, "title");
+  const description = readOptionalText(formData, "description");
+  const stageId = readOptionalText(formData, "stageId");
+  const assignedTechnicianProfileId = readOptionalText(formData, "assignedTechnicianProfileId");
+  const dueAt = readOptionalDate(formData, "dueAt");
+  const db = getDb();
+
+  const [serviceOrder] = await db
+    .select({
+      id: serviceOrders.id,
+      code: serviceOrders.code,
+      workItemId: serviceOrders.workItemId,
+      assetId: serviceOrders.assetId,
+    })
+    .from(serviceOrders)
+    .where(eq(serviceOrders.id, serviceOrderId))
+    .limit(1);
+
+  if (!serviceOrder) throw new Error("OS nao encontrada.");
+
+  const [task] = await db
+    .insert(serviceOrderTasks)
+    .values({
+      serviceOrderId: serviceOrder.id,
+      stageId,
+      title,
+      description,
+      assignedTechnicianProfileId,
+      dueAt,
+    })
+    .returning({
+      id: serviceOrderTasks.id,
+      title: serviceOrderTasks.title,
+      status: serviceOrderTasks.status,
+    });
+
+  await db.insert(eventLogs).values({
+    eventType: "service_order.task_created",
+    entityType: "service_order",
+    entityId: serviceOrder.id,
+    serviceOrderId: serviceOrder.id,
+    workItemId: serviceOrder.workItemId,
+    assetId: serviceOrder.assetId,
+    payload: { code: serviceOrder.code, task },
+  });
+
+  revalidatePath(`/service-orders/${serviceOrder.id}`);
+  revalidatePath("/events");
+  redirect(`/service-orders/${serviceOrder.id}`);
+}
+
+export async function updateServiceOrderTaskStatus(formData: FormData) {
+  const id = readRequiredText(formData, "id");
+  const status = readEnum<ServiceOrderTaskStatusValue>(
+    formData,
+    "status",
+    serviceOrderTaskStatuses,
+    "open",
+  );
+  const db = getDb();
+
+  const [previous] = await db
+    .select({
+      id: serviceOrderTasks.id,
+      title: serviceOrderTasks.title,
+      status: serviceOrderTasks.status,
+      serviceOrderId: serviceOrderTasks.serviceOrderId,
+      workItemId: serviceOrders.workItemId,
+      assetId: serviceOrders.assetId,
+      code: serviceOrders.code,
+    })
+    .from(serviceOrderTasks)
+    .innerJoin(serviceOrders, eq(serviceOrderTasks.serviceOrderId, serviceOrders.id))
+    .where(eq(serviceOrderTasks.id, id))
+    .limit(1);
+
+  if (!previous) throw new Error("Tarefa nao encontrada.");
+
+  await db
+    .update(serviceOrderTasks)
+    .set({
+      status,
+      completedAt: status === "done" ? new Date() : undefined,
+      updatedAt: new Date(),
+    })
+    .where(eq(serviceOrderTasks.id, id));
+
+  await db.insert(eventLogs).values({
+    eventType: "service_order.task_status_changed",
+    entityType: "service_order",
+    entityId: previous.serviceOrderId,
+    serviceOrderId: previous.serviceOrderId,
+    workItemId: previous.workItemId,
+    assetId: previous.assetId,
+    payload: {
+      code: previous.code,
+      taskId: previous.id,
+      title: previous.title,
+      from: previous.status,
+      to: status,
+    },
+  });
+
+  revalidatePath(`/service-orders/${previous.serviceOrderId}`);
+  revalidatePath("/events");
+  redirect(`/service-orders/${previous.serviceOrderId}`);
+}
+
+export async function createServiceOrderTarget(formData: FormData) {
+  const serviceOrderId = readRequiredText(formData, "serviceOrderId");
+  const targetType = readEnum<ServiceOrderTargetTypeValue>(
+    formData,
+    "targetType",
+    serviceOrderTargetTypes,
+    "other",
+  );
+  const title = readRequiredText(formData, "title");
+  const notes = readOptionalText(formData, "notes");
+  const assetId = targetType === "asset" ? readOptionalText(formData, "assetId") : undefined;
+  const workItemId = targetType === "work_item" ? readOptionalText(formData, "workItemId") : undefined;
+  const targetId = assetId ?? workItemId;
+  const db = getDb();
+
+  const [serviceOrder] = await db
+    .select({
+      id: serviceOrders.id,
+      code: serviceOrders.code,
+      workItemId: serviceOrders.workItemId,
+      assetId: serviceOrders.assetId,
+    })
+    .from(serviceOrders)
+    .where(eq(serviceOrders.id, serviceOrderId))
+    .limit(1);
+
+  if (!serviceOrder) throw new Error("OS nao encontrada.");
+
+  const [target] = await db
+    .insert(serviceOrderTargets)
+    .values({
+      serviceOrderId: serviceOrder.id,
+      targetType,
+      targetId,
+      assetId,
+      workItemId,
+      title,
+      notes,
+    })
+    .returning({
+      id: serviceOrderTargets.id,
+      targetType: serviceOrderTargets.targetType,
+      title: serviceOrderTargets.title,
+    });
+
+  await db.insert(eventLogs).values({
+    eventType: "service_order.target_added",
+    entityType: "service_order",
+    entityId: serviceOrder.id,
+    serviceOrderId: serviceOrder.id,
+    workItemId: serviceOrder.workItemId,
+    assetId: serviceOrder.assetId,
+    payload: { code: serviceOrder.code, target },
+  });
+
+  revalidatePath(`/service-orders/${serviceOrder.id}`);
+  revalidatePath("/events");
   redirect(`/service-orders/${serviceOrder.id}`);
 }

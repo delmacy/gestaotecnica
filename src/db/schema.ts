@@ -695,6 +695,68 @@ export const serviceOrders = pgTable(
   ],
 );
 
+export const serviceOrderStages = pgTable(
+  "service_order_stages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceOrderId: uuid("service_order_id").notNull().references(() => serviceOrders.id),
+    title: text("title").notNull(),
+    status: text("status").notNull().default("pending"),
+    position: integer("position").notNull().default(0),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("service_order_stages_order_id_idx").on(table.serviceOrderId),
+    index("service_order_stages_status_idx").on(table.status),
+  ],
+);
+
+export const serviceOrderTasks = pgTable(
+  "service_order_tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceOrderId: uuid("service_order_id").notNull().references(() => serviceOrders.id),
+    stageId: uuid("stage_id").references(() => serviceOrderStages.id),
+    title: text("title").notNull(),
+    description: text("description"),
+    status: text("status").notNull().default("open"),
+    assignedTechnicianProfileId: uuid("assigned_technician_profile_id").references(() => technicianProfiles.id),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("service_order_tasks_order_id_idx").on(table.serviceOrderId),
+    index("service_order_tasks_stage_id_idx").on(table.stageId),
+    index("service_order_tasks_status_idx").on(table.status),
+  ],
+);
+
+export const serviceOrderTargets = pgTable(
+  "service_order_targets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceOrderId: uuid("service_order_id").notNull().references(() => serviceOrders.id),
+    targetType: text("target_type").notNull(),
+    targetId: uuid("target_id"),
+    assetId: uuid("asset_id").references(() => assets.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    title: text("title").notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("service_order_targets_order_id_idx").on(table.serviceOrderId),
+    index("service_order_targets_asset_id_idx").on(table.assetId),
+    index("service_order_targets_work_item_id_idx").on(table.workItemId),
+  ],
+);
+
 export const serviceOrderAssignments = pgTable(
   "service_order_assignments",
   {

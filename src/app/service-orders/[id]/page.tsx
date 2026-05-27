@@ -5,6 +5,9 @@ import {
   getServiceOrderAssignments,
   getServiceOrderEvidences,
   getServiceOrderEvents,
+  getServiceOrderStages,
+  getServiceOrderTargets,
+  getServiceOrderTasks,
   getServiceOrderTimeEntries,
 } from "@/modules/service-orders/queries";
 import { getTechnicianOptions } from "@/modules/workforce/queries";
@@ -17,6 +20,10 @@ import { ServiceOrderStatusForm } from "@/modules/service-orders/status-form";
 import { ServiceOrderReviewRequestForm } from "@/modules/service-orders/review-request-form";
 import { ServiceOrderTimeEntryForm } from "@/modules/service-orders/time-entry-form";
 import { ServiceOrderTimeEntriesList } from "@/modules/service-orders/time-entries-list";
+import {
+  ServiceOrderExecutionPlan,
+  ServiceOrderExecutionPlanForms,
+} from "@/modules/service-orders/execution-plan";
 import {
   getServiceOrderPriorityLabel,
   getServiceOrderStatusLabel,
@@ -56,6 +63,9 @@ export default async function ServiceOrderDetailPage({
     technicians,
     timeEntries,
     evidences,
+    stages,
+    tasks,
+    targets,
     comments,
     attachments,
   ] = await Promise.all([
@@ -65,6 +75,9 @@ export default async function ServiceOrderDetailPage({
       getTechnicianOptions(),
       getServiceOrderTimeEntries(id),
       getServiceOrderEvidences(id),
+      getServiceOrderStages(id),
+      getServiceOrderTasks(id),
+      getServiceOrderTargets(id),
       getEntityComments("service_order", id),
       getEntityAttachments("service_order", id),
     ]);
@@ -167,6 +180,12 @@ export default async function ServiceOrderDetailPage({
 
           <ServiceOrderAssignmentsList assignments={assignments} />
 
+          <ServiceOrderExecutionPlan
+            stages={stages}
+            targets={targets}
+            tasks={tasks}
+          />
+
           <ServiceOrderTimeEntriesList timeEntries={timeEntries} />
 
           <ServiceOrderEvidencesList evidences={evidences} />
@@ -192,6 +211,11 @@ export default async function ServiceOrderDetailPage({
             serviceOrderId={serviceOrder.id}
           />
           <ServiceOrderEvidenceForm serviceOrderId={serviceOrder.id} />
+          <ServiceOrderExecutionPlanForms
+            serviceOrderId={serviceOrder.id}
+            stages={stages}
+            technicians={technicians}
+          />
           <ServiceOrderReviewRequestForm
             currentStatus={serviceOrder.status}
             serviceOrderId={serviceOrder.id}

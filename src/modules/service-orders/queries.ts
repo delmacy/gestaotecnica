@@ -6,6 +6,9 @@ import {
   evidences,
   serviceOrderAssignments,
   serviceOrders,
+  serviceOrderStages,
+  serviceOrderTargets,
+  serviceOrderTasks,
   teams,
   technicianProfiles,
   timeEntries,
@@ -155,6 +158,74 @@ export async function getServiceOrderEvidences(id: string) {
     .from(evidences)
     .where(eq(evidences.serviceOrderId, id))
     .orderBy(desc(evidences.createdAt));
+}
+
+export async function getServiceOrderStages(id: string) {
+  const db = getDb();
+
+  return db
+    .select({
+      id: serviceOrderStages.id,
+      title: serviceOrderStages.title,
+      status: serviceOrderStages.status,
+      position: serviceOrderStages.position,
+      startedAt: serviceOrderStages.startedAt,
+      completedAt: serviceOrderStages.completedAt,
+      notes: serviceOrderStages.notes,
+      createdAt: serviceOrderStages.createdAt,
+    })
+    .from(serviceOrderStages)
+    .where(eq(serviceOrderStages.serviceOrderId, id))
+    .orderBy(serviceOrderStages.position, serviceOrderStages.createdAt);
+}
+
+export async function getServiceOrderTasks(id: string) {
+  const db = getDb();
+
+  return db
+    .select({
+      id: serviceOrderTasks.id,
+      stageId: serviceOrderTasks.stageId,
+      title: serviceOrderTasks.title,
+      description: serviceOrderTasks.description,
+      status: serviceOrderTasks.status,
+      dueAt: serviceOrderTasks.dueAt,
+      completedAt: serviceOrderTasks.completedAt,
+      technicianName: users.name,
+      technicianEmail: users.email,
+    })
+    .from(serviceOrderTasks)
+    .leftJoin(
+      technicianProfiles,
+      eq(serviceOrderTasks.assignedTechnicianProfileId, technicianProfiles.id),
+    )
+    .leftJoin(users, eq(technicianProfiles.userId, users.id))
+    .where(eq(serviceOrderTasks.serviceOrderId, id))
+    .orderBy(desc(serviceOrderTasks.createdAt));
+}
+
+export async function getServiceOrderTargets(id: string) {
+  const db = getDb();
+
+  return db
+    .select({
+      id: serviceOrderTargets.id,
+      targetType: serviceOrderTargets.targetType,
+      targetId: serviceOrderTargets.targetId,
+      title: serviceOrderTargets.title,
+      notes: serviceOrderTargets.notes,
+      assetId: serviceOrderTargets.assetId,
+      assetCode: assets.code,
+      assetName: assets.name,
+      workItemId: serviceOrderTargets.workItemId,
+      workItemTitle: workItems.title,
+      createdAt: serviceOrderTargets.createdAt,
+    })
+    .from(serviceOrderTargets)
+    .leftJoin(assets, eq(serviceOrderTargets.assetId, assets.id))
+    .leftJoin(workItems, eq(serviceOrderTargets.workItemId, workItems.id))
+    .where(eq(serviceOrderTargets.serviceOrderId, id))
+    .orderBy(desc(serviceOrderTargets.createdAt));
 }
 
 export async function getServiceOrderSummary() {

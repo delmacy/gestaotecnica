@@ -255,6 +255,38 @@ export const workspaceModuleConfigs = pgTable(
   ],
 );
 
+export const integrationCommands = pgTable(
+  "integration_commands",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").references(() => workspaces.id),
+    workspaceKey: text("workspace_key").notNull(),
+    command: text("command").notNull(),
+    status: text("status").notNull().default("received"),
+    source: text("source").notNull().default("integration"),
+    actorType: text("actor_type").notNull().default("api_key"),
+    actorId: text("actor_id"),
+    idempotencyKey: text("idempotency_key"),
+    correlationId: text("correlation_id").notNull(),
+    requestPayload: jsonb("request_payload").notNull().default({}),
+    responsePayload: jsonb("response_payload").notNull().default({}),
+    errorPayload: jsonb("error_payload"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("integration_commands_workspace_idempotency_uidx").on(
+      table.workspaceKey,
+      table.idempotencyKey,
+    ),
+    index("integration_commands_workspace_idx").on(table.workspaceId),
+    index("integration_commands_command_idx").on(table.command),
+    index("integration_commands_status_idx").on(table.status),
+    index("integration_commands_correlation_idx").on(table.correlationId),
+  ],
+);
+
 export const workItemTypeDefinitions = pgTable(
   "work_item_type_definitions",
   {
@@ -895,10 +927,15 @@ export const eventLogs = pgTable(
   "event_logs",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").references(() => workspaces.id),
     eventType: text("event_type").notNull(),
     entityType: text("entity_type").notNull(),
     entityId: uuid("entity_id"),
+    actorType: text("actor_type"),
     actorId: uuid("actor_id").references(() => users.id),
+    source: text("source"),
+    correlationId: text("correlation_id"),
+    causationId: text("causation_id"),
     workItemId: uuid("work_item_id").references(() => workItems.id),
     serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
     assetId: uuid("asset_id").references(() => assets.id),
@@ -906,9 +943,83 @@ export const eventLogs = pgTable(
     occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
+    index("event_logs_workspace_idx").on(table.workspaceId),
     index("event_logs_event_type_idx").on(table.eventType),
     index("event_logs_entity_idx").on(table.entityType, table.entityId),
+    index("event_logs_correlation_idx").on(table.correlationId),
     index("event_logs_occurred_at_idx").on(table.occurredAt),
+  ],
+);
+
+export const flowRuns = pgTable(
+  "flow_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").references(() => workspaces.id),
+    flowKey: text("flow_key").notNull(),
+    flowName: text("flow_name").notNull(),
+    flowVersion: text("flow_version"),
+    triggerEventId: uuid("trigger_event_id").references(() => eventLogs.id),
+    triggerEventType: text("trigger_event_type").notNull(),
+    status: text("status").notNull().default("running"),
+    correlationId: text("correlation_id").notNull(),
+    skippedReason: text("skipped_reason"),
+    errorPayload: jsonb("error_payload"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    durationMs: integer("duration_ms"),
+  },
+  (table) => [
+    index("flow_runs_workspace_idx").on(table.workspaceId),
+    index("flow_runs_flow_key_idx").on(table.flowKey),
+    index("flow_runs_status_idx").on(table.status),
+    index("flow_runs_correlation_idx").on(table.correlationId),
+    index("flow_runs_trigger_event_idx").on(table.triggerEventId),
+  ],
+);
+
+export const flowActionRuns = pgTable(
+  "flow_action_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    flowRunId: uuid("flow_run_id").notNull().references(() => flowRuns.id),
+    actionKey: text("action_key").notNull(),
+    status: text("status").notNull().default("running"),
+    inputPayload: jsonb("input_payload").notNull().default({}),
+    outputPayload: jsonb("output_payload").notNull().default({}),
+    errorPayload: jsonb("error_payload"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    durationMs: integer("duration_ms"),
+  },
+  (table) => [
+    index("flow_action_runs_flow_run_idx").on(table.flowRunId),
+    index("flow_action_runs_action_key_idx").on(table.actionKey),
+    index("flow_action_runs_status_idx").on(table.status),
+  ],
+);
+
+export const outboxEvents = pgTable(
+  "outbox_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").references(() => workspaces.id),
+    eventLogId: uuid("event_log_id").references(() => eventLogs.id),
+    topic: text("topic").notNull(),
+    status: text("status").notNull().default("pending"),
+    payload: jsonb("payload").notNull().default({}),
+    attempts: integer("attempts").notNull().default(0),
+    lastError: text("last_error"),
+    availableAt: timestamp("available_at", { withTimezone: true }).notNull().defaultNow(),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("outbox_events_workspace_idx").on(table.workspaceId),
+    index("outbox_events_event_log_idx").on(table.eventLogId),
+    index("outbox_events_topic_idx").on(table.topic),
+    index("outbox_events_status_idx").on(table.status),
+    index("outbox_events_available_at_idx").on(table.availableAt),
   ],
 );
 

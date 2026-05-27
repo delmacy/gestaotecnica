@@ -7,6 +7,16 @@ export function registerDefaultEvents() {
     description: "Demanda criada.",
   });
   registerEvent({
+    key: "work_item.transitioned",
+    moduleKey: "work-items",
+    description: "Demanda transicionada.",
+  });
+  registerEvent({
+    key: "service_order.created",
+    moduleKey: "service-orders",
+    description: "Ordem de servico criada.",
+  });
+  registerEvent({
     key: "service_order.completed",
     moduleKey: "service-orders",
     description: "Ordem de servico concluida.",
@@ -30,5 +40,30 @@ export function registerDefaultEvents() {
     key: "automation_rule.executed",
     moduleKey: "automations",
     description: "Regra de automacao executada.",
+  });
+  registerEvent({
+    key: "document.generated",
+    moduleKey: "documents",
+    description: "Documento tecnico gerado.",
+  });
+  registerEvent({
+    key: "legacy_record.created",
+    moduleKey: "legacy",
+    description: "Registro de legado criado.",
+  });
+  registerEvent({
+    key: "shift_log.entry_added",
+    moduleKey: "shifts",
+    description: "Entrada adicionada ao livro de turno.",
+  });
+  registerEvent({
+    key: "evidence.attached",
+    moduleKey: "evidences",
+    description: "Evidencia anexada.",
+  });
+  registerEvent({
+    key: "approval.requested",
+    moduleKey: "approvals",
+    description: "Aprovacao solicitada.",
   });
 }

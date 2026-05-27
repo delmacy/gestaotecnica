@@ -1,6 +1,6 @@
 import { getDb } from "@/db";
 import { eventLogs } from "@/db/schema";
-import { runFlowsForEvent } from "@/platform/flows";
+import { enqueueEventForFlows, processFlowOutboxEvent } from "@/platform/outbox";
 import type { WorkspaceContext } from "@/platform/workspace";
 import type { EmittedEvent, EmitEventInput } from "./event-types";
 
@@ -18,12 +18,18 @@ export async function emitEvent(
   const [row] = await db
     .insert(eventLogs)
     .values({
+      workspaceId: asUuid(context.workspaceId),
       eventType: input.eventType,
       entityType: input.entityType,
       entityId: asUuid(input.entityId),
+      actorType: context.actor.type,
       actorId: context.actor.type === "user" ? asUuid(context.actor.id ?? "") : undefined,
+      source: context.source,
+      correlationId: context.correlationId,
+      causationId: input.causationId,
       workItemId: input.entityType === "work_item" ? asUuid(input.entityId) : undefined,
       serviceOrderId: input.entityType === "service_order" ? asUuid(input.entityId) : undefined,
+      assetId: input.entityType === "asset" ? asUuid(input.entityId) : undefined,
       payload: {
         ...(input.payload ?? {}),
         platform: {
@@ -46,7 +52,8 @@ export async function emitEvent(
     correlationId: context.correlationId,
   };
 
-  await runFlowsForEvent(emittedEvent, context);
+  const outboxEvent = await enqueueEventForFlows(emittedEvent, context);
+  await processFlowOutboxEvent(outboxEvent.id, emittedEvent, context);
 
   return emittedEvent;
 }

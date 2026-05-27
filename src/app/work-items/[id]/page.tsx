@@ -17,6 +17,11 @@ import {
   getWorkItemStatusLabel,
   getWorkItemTypeLabel,
 } from "@/modules/work-items/constants";
+import { EntityCollaboration } from "@/modules/comments/entity-collaboration";
+import {
+  getEntityAttachments,
+  getEntityComments,
+} from "@/modules/comments/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -37,12 +42,21 @@ export default async function WorkItemDetailPage({
   params,
 }: WorkItemDetailPageProps) {
   const { id } = await params;
-  const [workItem, events, serviceOrders, serviceOrderTypeOptions] = await Promise.all([
-    getWorkItemById(id),
-    getWorkItemEvents(id),
-    getServiceOrdersForWorkItem(id),
-    getServiceOrderTypeOptions(),
-  ]);
+  const [
+    workItem,
+    events,
+    serviceOrders,
+    serviceOrderTypeOptions,
+    comments,
+    attachments,
+  ] = await Promise.all([
+      getWorkItemById(id),
+      getWorkItemEvents(id),
+      getServiceOrdersForWorkItem(id),
+      getServiceOrderTypeOptions(),
+      getEntityComments("work_item", id),
+      getEntityAttachments("work_item", id),
+    ]);
 
   if (!workItem) {
     notFound();
@@ -138,6 +152,13 @@ export default async function WorkItemDetailPage({
           </article>
 
           <WorkItemServiceOrdersList serviceOrders={serviceOrders} />
+          <EntityCollaboration
+            attachments={attachments}
+            comments={comments}
+            entityId={workItem.id}
+            entityType="work_item"
+            returnTo={`/work-items/${workItem.id}`}
+          />
           <WorkItemEventTimeline events={events} />
         </div>
 

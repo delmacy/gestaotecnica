@@ -10,7 +10,13 @@ import { AssetStatusForm } from "@/modules/assets/status-form";
 import {
   getAssetCriticalityLabel,
   getAssetStatusLabel,
+  getAssetTypeLabel,
 } from "@/modules/assets/constants";
+import { EntityCollaboration } from "@/modules/comments/entity-collaboration";
+import {
+  getEntityAttachments,
+  getEntityComments,
+} from "@/modules/comments/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -29,10 +35,12 @@ function formatDate(date: Date) {
 
 export default async function AssetDetailPage({ params }: AssetDetailPageProps) {
   const { id } = await params;
-  const [asset, events, relations] = await Promise.all([
+  const [asset, events, relations, comments, attachments] = await Promise.all([
     getAssetById(id),
     getAssetEvents(id),
     getAssetRelationsSummary(id),
+    getEntityComments("asset", id),
+    getEntityAttachments("asset", id),
   ]);
 
   if (!asset) {
@@ -71,7 +79,7 @@ export default async function AssetDetailPage({ params }: AssetDetailPageProps) 
             <div className="border border-[#d7dccf] bg-white p-4 shadow-sm">
               <p className="font-mono text-xs text-[#6e7a66]">Tipo</p>
               <p className="mt-2 text-xl font-semibold text-[#111510]">
-                {asset.type}
+                {getAssetTypeLabel(asset.type)}
               </p>
             </div>
             <div className="border border-[#d7dccf] bg-white p-4 shadow-sm">
@@ -116,6 +124,14 @@ export default async function AssetDetailPage({ params }: AssetDetailPageProps) 
               ))}
             </div>
           </article>
+
+          <EntityCollaboration
+            attachments={attachments}
+            comments={comments}
+            entityId={asset.id}
+            entityType="asset"
+            returnTo={`/assets/${asset.id}`}
+          />
 
           <AssetEventTimeline events={events} />
         </div>

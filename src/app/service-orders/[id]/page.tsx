@@ -22,6 +22,11 @@ import {
   getServiceOrderStatusLabel,
   getServiceOrderTypeLabel,
 } from "@/modules/service-orders/constants";
+import { EntityCollaboration } from "@/modules/comments/entity-collaboration";
+import {
+  getEntityAttachments,
+  getEntityComments,
+} from "@/modules/comments/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +56,8 @@ export default async function ServiceOrderDetailPage({
     technicians,
     timeEntries,
     evidences,
+    comments,
+    attachments,
   ] = await Promise.all([
       getServiceOrderById(id),
       getServiceOrderEvents(id),
@@ -58,6 +65,8 @@ export default async function ServiceOrderDetailPage({
       getTechnicianOptions(),
       getServiceOrderTimeEntries(id),
       getServiceOrderEvidences(id),
+      getEntityComments("service_order", id),
+      getEntityAttachments("service_order", id),
     ]);
 
   if (!serviceOrder) {
@@ -161,6 +170,14 @@ export default async function ServiceOrderDetailPage({
           <ServiceOrderTimeEntriesList timeEntries={timeEntries} />
 
           <ServiceOrderEvidencesList evidences={evidences} />
+
+          <EntityCollaboration
+            attachments={attachments}
+            comments={comments}
+            entityId={serviceOrder.id}
+            entityType="service_order"
+            returnTo={`/service-orders/${serviceOrder.id}`}
+          />
 
           <ServiceOrderEventTimeline events={events} />
         </div>

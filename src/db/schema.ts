@@ -1025,6 +1025,55 @@ export const schedules = pgTable(
   ],
 );
 
+export const workforceAllocations = pgTable(
+  "workforce_allocations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id")
+      .notNull()
+      .references(() => technicianProfiles.id),
+    teamId: uuid("team_id").references(() => teams.id),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    scheduleId: uuid("schedule_id").references(() => schedules.id),
+    allocationType: text("allocation_type").notNull().default("service_order"),
+    status: text("status").notNull().default("planned"),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    effortMinutes: integer("effort_minutes"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("workforce_allocations_technician_idx").on(table.technicianProfileId),
+    index("workforce_allocations_team_idx").on(table.teamId),
+    index("workforce_allocations_service_order_idx").on(table.serviceOrderId),
+    index("workforce_allocations_schedule_idx").on(table.scheduleId),
+    index("workforce_allocations_status_idx").on(table.status),
+  ],
+);
+
+export const technicianUnavailabilities = pgTable(
+  "technician_unavailabilities",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id")
+      .notNull()
+      .references(() => technicianProfiles.id),
+    reason: text("reason").notNull(),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("technician_unavailabilities_technician_idx").on(table.technicianProfileId),
+    index("technician_unavailabilities_starts_at_idx").on(table.startsAt),
+  ],
+);
+
 export const technicalDocuments = pgTable(
   "technical_documents",
   {

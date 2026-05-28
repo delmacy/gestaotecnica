@@ -58,7 +58,7 @@ export const ecosystemModules: WorkspaceModuleConfig[] = [
     status: "adjusted",
   },
   {
-    key: "shift-logs",
+    key: "shifts",
     name: "Livro de Turno",
     description: "Passagem de servico, pendencias e ocorrencias do turno.",
     layer: "module",

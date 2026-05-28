@@ -1,0 +1,21 @@
+--- Verificação de Integridade da Plataforma ---
+1. Criando WorkItem via Kernel...
+[flow:work-item-auto-service-order] Flow executado com sucesso.
+   OK: WorkItem f23da69a-0859-4498-ba1d-e06247a4628b criado.
+   OK: Evento registrado: work_item.created
+2. Verificando disparo de Flow Automático (Auto-OS)...
+   OK: FlowRun encontrado: work-item-auto-service-order (succeeded)
+   OK: OS automática criada: OS-20260528000208-c4b6bd
+3. Testando Módulo de Ativos...
+   OK: Ativo df116d83-0622-47f7-8e1c-ad75821b2b9e criado.
+   OK: Status do ativo atualizado.
+4. Testando Módulo de Turnos...
+Erro na Action shifts.open: {
+  code: 'MODULE_NOT_ENABLED',
+  message: 'Modulo nao habilitado: shifts'
+}
+
+--- FALHA NA VERIFICAÇÃO ---
+Error: Falha na Action shifts.open
+    at verifyIntegrity (/app/src/scripts/verify-integrity.ts:75:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)

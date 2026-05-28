@@ -45,6 +45,46 @@ async function verifyIntegrity() {
   if (!so || (so.payload as { workItemId: string }).workItemId !== wiId) throw new Error("OS automática não encontrada ou vinculada incorretamente.");
   console.log(`   OK: OS automática criada: ${(so.payload as { code: string }).code}`);
 
+  // 5. Testar Action de Ativos
+  console.log("3. Testando Módulo de Ativos...");
+  const assetResult = await runAction("assets.create", {
+    code: `AST-${Date.now()}`,
+    name: "Ativo de Teste Integridade",
+    type: "equipment"
+  }, context);
+  if (!assetResult.success) throw new Error("Falha na Action assets.create");
+  const assetId = (assetResult.data as { id: string }).id;
+  console.log(`   OK: Ativo ${assetId} criado.`);
+
+  const updateAssetResult = await runAction("assets.update_status", {
+    assetId,
+    status: "maintenance",
+    note: "Teste de integridade"
+  }, context);
+  if (!updateAssetResult.success) {
+    console.error("Erro na Action assets.update_status:", updateAssetResult.error);
+    throw new Error("Falha na Action assets.update_status");
+  }
+  console.log("   OK: Status do ativo atualizado.");
+
+  // 6. Testar Action de Turnos
+  console.log("4. Testando Módulo de Turnos...");
+  const shiftResult = await runAction("shifts.open", { name: "Turno Teste" }, context);
+  if (!shiftResult.success) {
+    console.error("Erro na Action shifts.open:", shiftResult.error);
+    throw new Error("Falha na Action shifts.open");
+  }
+  const shiftId = (shiftResult.data as { id: string }).id;
+  console.log(`   OK: Turno ${shiftId} aberto.`);
+
+  const entryResult = await runAction("shift_logs.add_entry", {
+    shiftId,
+    title: "Ocorrência Teste",
+    isPending: true
+  }, context);
+  if (!entryResult.success) throw new Error("Falha na Action shift_logs.add_entry");
+  console.log("   OK: Entrada de log adicionada ao turno.");
+
   console.log("\n--- Integridade Verificada com Sucesso! ---");
 }
 

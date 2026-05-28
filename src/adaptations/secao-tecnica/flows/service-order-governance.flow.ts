@@ -58,3 +58,31 @@ export class PeriodicMaintenanceGeneratorFlow extends Flow {
     ctx.logger.info("Primeira OS de manutenção preventiva gerada.");
   }
 }
+
+export class InventoryUsageFlow extends Flow {
+  key = "inventory-usage-log";
+  name = "Registrar uso de materiais no estoque";
+  version = "0.1.0";
+  trigger = { eventType: "service_order.completed" };
+
+  async run(ctx: FlowContext) {
+    const partsUsed = ctx.event.payload?.partsUsed as Array<{ itemId: string; quantity: number }> | undefined;
+
+    if (!partsUsed || partsUsed.length === 0) {
+      ctx.skip("Nenhum material utilizado na OS.");
+      return;
+    }
+
+    for (const part of partsUsed) {
+      await ctx.actions.run("inventory.adjust_stock", {
+        itemId: part.itemId,
+        movementType: "outbound",
+        quantity: part.quantity,
+        serviceOrderId: ctx.event.entityId,
+        notes: `Consumo automático pela OS ${ctx.event.payload?.code}`,
+      });
+    }
+
+    ctx.logger.info(`${partsUsed.length} itens baixados do estoque.`);
+  }
+}

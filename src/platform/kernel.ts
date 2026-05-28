@@ -4,6 +4,7 @@ import {
   ServiceOrderGovernanceFlow,
   ServiceOrderApprovedDocumentFlow,
   PeriodicMaintenanceGeneratorFlow,
+  InventoryUsageFlow,
 } from "@/adaptations/secao-tecnica/flows/service-order-governance.flow";
 import { approvalsManifest } from "@/modules/approvals/manifest";
 import {
@@ -42,6 +43,10 @@ import {
   createMaintenancePlanKernelAction,
   generateMaintenanceOrderKernelAction,
 } from "@/modules/maintenance-plans/kernel-actions";
+import { inventoryManifest } from "@/modules/inventory/manifest";
+import { adjustStockKernelAction } from "@/modules/inventory/kernel-actions";
+import { complianceManifest } from "@/modules/compliance/manifest";
+import { createAuditKernelAction } from "@/modules/compliance/kernel-actions";
 import { shiftsManifest } from "@/modules/shifts/manifest";
 import {
   addShiftLogEntryKernelAction,
@@ -62,6 +67,8 @@ import { globalSearchManifest } from "@/modules/global-search/manifest";
 import { globalSearchKernelAction } from "@/modules/global-search/kernel-actions";
 import { dashboardManifest } from "@/modules/dashboard/manifest";
 import { getDashboardSummaryKernelAction } from "@/modules/dashboard/kernel-actions";
+import { workspaceConfigManifest } from "@/modules/workspace-config/manifest";
+import { toggleModuleKernelAction } from "@/modules/workspace-config/kernel-actions";
 import { registerAction } from "@/platform/actions";
 import { registerDefaultEvents } from "@/platform/events/default-events";
 import { registerFlow } from "@/platform/flows";
@@ -79,8 +86,11 @@ export function initializePlatformKernel() {
   registerModule(workforceManifest);
   registerModule(schedulesManifest);
   registerModule(maintenancePlansManifest);
+  registerModule(inventoryManifest);
+  registerModule(complianceManifest);
   registerModule(globalSearchManifest);
   registerModule(dashboardManifest);
+  registerModule(workspaceConfigManifest);
   registerModule(reportsManifest);
   registerModule(automationsManifest);
   registerModule(documentsManifest);
@@ -107,12 +117,15 @@ export function initializePlatformKernel() {
   registerAction(createScheduleKernelAction);
   registerAction(createMaintenancePlanKernelAction);
   registerAction(generateMaintenanceOrderKernelAction);
+  registerAction(adjustStockKernelAction);
+  registerAction(createAuditKernelAction);
   registerAction(openShiftKernelAction);
   registerAction(closeShiftKernelAction);
   registerAction(createTechnicianKernelAction);
   registerAction(createTeamKernelAction);
   registerAction(globalSearchKernelAction);
   registerAction(getDashboardSummaryKernelAction);
+  registerAction(toggleModuleKernelAction);
   registerAction(attachEvidenceKernelAction);
   registerAction(requestApprovalKernelAction);
   registerAction(decideApprovalKernelAction);
@@ -122,6 +135,7 @@ export function initializePlatformKernel() {
   registerFlow(new ServiceOrderGovernanceFlow());
   registerFlow(new ServiceOrderApprovedDocumentFlow());
   registerFlow(new PeriodicMaintenanceGeneratorFlow());
+  registerFlow(new InventoryUsageFlow());
 
   initialized = true;
 }

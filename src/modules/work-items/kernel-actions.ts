@@ -101,6 +101,9 @@ export const transitionWorkItemKernelAction: ActionDefinition<
 > = {
   key: "work_items.transition",
   moduleKey: "work-items",
+  targetEntity: "work_item",
+  uiLabel: "Alterar Status",
+  showInActionBar: true,
   description: "Transiciona o status de uma demanda.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(

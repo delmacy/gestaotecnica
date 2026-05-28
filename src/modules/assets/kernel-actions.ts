@@ -118,6 +118,9 @@ export const updateAssetStatusKernelAction: ActionDefinition<
 > = {
   key: "assets.update_status",
   moduleKey: "assets",
+  targetEntity: "asset",
+  uiLabel: "Alterar Status",
+  showInActionBar: true,
   description: "Atualiza o status de um ativo.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(

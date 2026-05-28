@@ -1,39 +1,39 @@
-# Modulo WorkItems
+# Módulo WorkItems
 
-WorkItem representa a necessidade antes da execucao autorizada por OS.
+WorkItem representa a necessidade antes da execução autorizada por OS.
 
 ## Implementado
 
 - Rota `/work-items`
 - Rota `/work-items/[id]`
-- Listagem das ultimas 50 demandas
-- Formulario de criacao de demanda
+- Listagem das últimas 50 demandas
+- Formulário de criação de demanda
 - Campos iniciais:
-  - titulo
+  - título
   - tipo
   - prioridade
-  - descricao
+  - descrição
   - ativo vinculado
   - solicitante
   - contato
-- Criacao automatica de evento `work_item.created`
-- Alteracao de status com evento `work_item.status_changed`
+- Criação automática de evento `work_item.created`
+- Alteração de status com evento `work_item.status_changed`
 - Tela de detalhe com contexto, solicitante, contato, cards de status e timeline de eventos
-- Exibicao do ativo vinculado na listagem e no detalhe
+- Exibição do ativo vinculado na listagem e no detalhe
 - Cards de resumo:
   - demandas
   - abertas
-  - criticas
+  - críticas
   - eventos criados
 
-## Decisao de dominio
+## Decisão de domínio
 
-A demanda nasce como `work_items.status = open`. Ela ainda nao e uma OS. A proxima evolucao natural e permitir triagem, atribuicao de equipe e criacao de uma `service_order` a partir da demanda.
+A demanda nasce como `work_items.status = open`. Ela ainda não é uma OS. A próxima evolução natural é permitir triagem, atribuição de equipe e criação de uma `service_order` a partir da demanda.
 
-## Proximos passos
+## Próximos passos
 
 - Tela de detalhe do WorkItem
 - Triagem
-- Vinculo com ativo
-- Criacao de OS a partir de WorkItem
-- Historico de eventos por demanda
+- Vínculo com ativo
+- Criação de OS a partir de WorkItem
+- Histórico de eventos por demanda

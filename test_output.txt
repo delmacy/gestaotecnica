@@ -1,9 +1,0 @@
---- Iniciando Teste do Ciclo de Ouro ---
-Contexto resolvido: secao-tecnica (db558585-5582-49c6-a651-aa9489006a73)
-Executando: service_orders.create...
-OS criada: adc4e72a-953e-4fc7-b342-45642a19c3c2
-Executando: service_orders.complete (isso deve disparar o Flow)...
-[flow:service-order-completed-notification] Flow executado com sucesso.
-OS completada com sucesso.
-Verifique os logs acima para mensagens de [notifications.send] disparadas pelo Flow.
---- Teste Concluído ---

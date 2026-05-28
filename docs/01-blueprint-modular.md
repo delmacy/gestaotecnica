@@ -1,8 +1,8 @@
-# Blueprint Modular da Plataforma de Gestao Tecnica
+# Blueprint Modular da Plataforma de Gestão Técnica
 
-> Nota: este blueprint representa a primeira visao modular da plataforma.
-> A versao arquitetural atualizada, com core reutilizavel, workspaces e
-> adaptacoes por cliente, esta em
+> Nota: este blueprint representa a primeira visão modular da plataforma.
+> A versão arquitetural atualizada, com core reutilizável, workspaces e
+> adaptações por cliente, está em
 > `docs/07-blueprint-core-workspaces-adaptacoes.md`.
 
 Stack alvo:
@@ -17,16 +17,16 @@ Stack alvo:
 
 ## 1. Foundation
 
-Objetivo: prover a base tecnica e organizacional da aplicacao.
+Objetivo: prover a base técnica e organizacional da aplicação.
 
 Responsabilidades:
 
-- autenticacao;
-- usuarios;
-- organizacoes/unidades;
-- configuracoes globais;
-- auditoria basica;
-- padroes de status, prioridade e classificacao.
+- autenticação;
+- usuários;
+- organizações/unidades;
+- configurações globais;
+- auditoria básica;
+- padrões de status, prioridade e classificação.
 
 Entidades iniciais:
 
@@ -41,16 +41,16 @@ Prioridade: MVP.
 
 ## 2. Workforce
 
-Objetivo: modelar pessoas tecnicas, niveis de competencia e disponibilidade operacional.
+Objetivo: modelar pessoas técnicas, níveis de competência e disponibilidade operacional.
 
 Responsabilidades:
 
-- cadastro de tecnicos;
-- nivel profissional: trainee, pleno, especialista, supervisor;
+- cadastro de técnicos;
+- nível profissional: trainee, pleno, especialista, supervisor;
 - equipes;
 - habilidades;
 - disponibilidade;
-- responsaveis por execucao ou validacao.
+- responsáveis por execução ou validação.
 
 Entidades iniciais:
 
@@ -64,7 +64,7 @@ Prioridade: MVP parcial.
 
 ## 3. WorkItems / Demandas
 
-Objetivo: ser o envelope universal de entrada e circulacao de necessidades.
+Objetivo: ser o envelope universal de entrada e circulação de necessidades.
 
 Responsabilidades:
 
@@ -72,15 +72,15 @@ Responsabilidades:
 - classificar tipo, prioridade e origem;
 - manter status;
 - vincular solicitante, ativo, equipe ou OS;
-- sustentar demandas que ainda nao viraram execucao.
+- sustentar demandas que ainda não viraram execução.
 
 Exemplos de WorkItem:
 
 - incidente operacional;
-- solicitacao administrativa;
+- solicitação administrativa;
 - vistoria;
-- manutencao;
-- pendencia de turno;
+- manutenção;
+- pendência de turno;
 - auditoria;
 - atividade planejada.
 
@@ -96,27 +96,27 @@ Prioridade: MVP.
 
 ## 4. Service Orders / OS
 
-Objetivo: representar a execucao autorizada de mao de obra tecnica.
+Objetivo: representar a execução autorizada de mão de obra técnica.
 
 Responsabilidades:
 
 - criar OS a partir de WorkItem;
-- atribuir tecnico/equipe;
+- atribuir técnico/equipe;
 - controlar status;
 - registrar tempo;
-- registrar diagnostico, execucao e evidencias;
-- permitir validacao e encerramento.
+- registrar diagnóstico, execução e evidências;
+- permitir validação e encerramento.
 
-Decisao importante: a OS deve ser end-to-end por objetivo, nao necessariamente fragmentada por especialidade.
+Decisão importante: a OS deve ser end-to-end por objetivo, não necessariamente fragmentada por especialidade.
 
 Exemplo:
 
 ```text
 OS: restabelecer equipamento inoperante
-├── diagnostico telecom
-├── verificacao eletrica
+├── diagnóstico telecom
+├── verificação elétrica
 ├── teste funcional
-└── validacao
+└── validação
 ```
 
 Entidades iniciais:
@@ -132,16 +132,16 @@ Prioridade: MVP.
 
 ## 5. Assets
 
-Objetivo: representar ativos fisicos, digitais e infraestrutura tecnica.
+Objetivo: representar ativos físicos, digitais e infraestrutura técnica.
 
 Responsabilidades:
 
 - cadastro de ativos;
-- classificacao;
+- classificação;
 - criticidade;
-- localizacao;
-- historico de manutencao;
-- vinculo com OS, evidencias e eventos.
+- localização;
+- histórico de manutenção;
+- vínculo com OS, evidências e eventos.
 
 Entidades iniciais:
 
@@ -151,17 +151,17 @@ Entidades iniciais:
 - AssetStatus
 - AssetEvent
 
-Prioridade: MVP basico.
+Prioridade: MVP básico.
 
 ## 6. Event Log
 
-Objetivo: registrar a memoria operacional do sistema.
+Objetivo: registrar a memória operacional do sistema.
 
 Responsabilidades:
 
 - registrar eventos relevantes;
 - manter rastreabilidade;
-- alimentar livro de turno, relatorios e historico de ativos;
+- alimentar livro de turno, relatórios e histórico de ativos;
 - apoiar auditoria.
 
 Eventos exemplos:
@@ -184,14 +184,14 @@ Prioridade: MVP.
 
 ## 7. Shift Log / Livro de Turno
 
-Objetivo: consolidar a operacao por turno.
+Objetivo: consolidar a operação por turno.
 
 Responsabilidades:
 
-- registrar ocorrencias;
+- registrar ocorrências;
 - vincular OS, WorkItems, ativos e eventos;
-- registrar pendencias;
-- apoiar passagem de servico;
+- registrar pendências;
+- apoiar passagem de serviço;
 - gerar resumo do turno.
 
 Entidades iniciais:
@@ -205,16 +205,16 @@ Prioridade: MVP simples.
 
 ## 8. Scheduling / Escalas
 
-Objetivo: organizar escala, plantao, expediente e sobreaviso.
+Objetivo: organizar escala, plantão, expediente e sobreaviso.
 
 Responsabilidades:
 
-- disponibilidade de tecnicos;
+- disponibilidade de técnicos;
 - escalas;
-- plantoes;
+- plantões;
 - sobreaviso;
 - conflitos de agenda;
-- apoio a atribuicao de OS.
+- apoio à atribuição de OS.
 
 Entidades futuras:
 
@@ -227,18 +227,18 @@ Prioridade: fase 2.
 
 ## 9. Documentation Workflow
 
-Objetivo: separar execucao tecnica de preparacao documental.
+Objetivo: separar execução técnica de preparação documental.
 
 Responsabilidades:
 
 - rascunhos;
 - despachos;
-- relatorios;
-- revisao por secretario tecnico-operacional;
-- validacao por tecnico;
-- aprovacao por supervisor;
-- geracao de documento final;
-- preparacao para sistema legado.
+- relatórios;
+- revisão por secretário técnico-operacional;
+- validação por técnico;
+- aprovação por supervisor;
+- geração de documento final;
+- preparação para sistema legado.
 
 Estados sugeridos:
 
@@ -263,17 +263,17 @@ Prioridade: fase 2.
 
 ## 10. Supervision / Approvals
 
-Objetivo: formalizar decisao, delegacao, validacao e aprovacao.
+Objetivo: formalizar decisão, delegação, validação e aprovação.
 
 Responsabilidades:
 
 - aprovar OS;
-- validar relatorios;
+- validar relatórios;
 - revisar livro de turno;
 - priorizar demandas;
 - remanejar equipe;
 - escalonar problemas;
-- diferenciar execucao de aprovacao.
+- diferenciar execução de aprovação.
 
 Entidades futuras:
 
@@ -290,14 +290,14 @@ Objetivo: transformar dados operacionais em planejamento setorial.
 
 Responsabilidades:
 
-- plano anual de manutencao;
-- substituicao de ativos;
+- plano anual de manutenção;
+- substituição de ativos;
 - necessidades de pessoal;
 - necessidades de ferramentas;
-- capacitacao;
-- aquisicoes;
-- projetos tecnicos;
-- priorizacao por criticidade.
+- capacitação;
+- aquisições;
+- projetos técnicos;
+- priorização por criticidade.
 
 Entidades futuras:
 
@@ -310,18 +310,18 @@ Prioridade: fase 3.
 
 ## 12. Reports / BI
 
-Objetivo: consolidar dados para gestao e decisao.
+Objetivo: consolidar dados para gestão e decisão.
 
 Responsabilidades:
 
-- relatorio mensal;
+- relatório mensal;
 - indicadores de OS;
-- horas tecnicas;
-- ativos mais problematicos;
-- pendencias;
+- horas técnicas;
+- ativos mais problemáticos;
+- pendências;
 - produtividade;
 - indisponibilidades;
-- exportacao de dados.
+- exportação de dados.
 
 Entidades futuras:
 
@@ -329,7 +329,7 @@ Entidades futuras:
 - ReportTemplate
 - ReportSnapshot
 
-Prioridade: MVP basico, evoluindo na fase 2.
+Prioridade: MVP básico, evoluindo na fase 2.
 
 ## 13. Legacy Integration
 
@@ -338,9 +338,9 @@ Objetivo: manter ponte com o sistema oficial/legado.
 Responsabilidades:
 
 - registrar protocolo oficial;
-- controlar se foi lancado no legado;
+- controlar se foi lançado no legado;
 - guardar status externo;
-- preparar resumos para lancamento manual;
+- preparar resumos para lançamento manual;
 - no futuro, automatizar por API, RPA ou n8n.
 
 Campos importantes:
@@ -353,7 +353,7 @@ Campos importantes:
 - legacy_exported_by
 - legacy_sync_status
 
-Prioridade: fase 2, com registro manual no inicio.
+Prioridade: fase 2, com registro manual no início.
 
 ## 14. Acquisitions / Necessidades de Compra
 
@@ -363,7 +363,7 @@ Responsabilidades:
 
 - necessidade;
 - justificativa;
-- vinculo com ativo, OS ou planejamento;
+- vínculo com ativo, OS ou planejamento;
 - status;
 - documentos anexos.
 

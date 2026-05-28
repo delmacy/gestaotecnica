@@ -43,3 +43,10 @@ dev-server.*.log
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# script outputs
+*_output*.txt
+test_output.txt
+gateway_output.txt
+discovery_output*.txt
+verify_output*.txt

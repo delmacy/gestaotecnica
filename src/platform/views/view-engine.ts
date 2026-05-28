@@ -20,16 +20,22 @@ export async function getAvailableActionsForEntity(
 
   return allActions
     .filter(action => {
-      // Check if action matches entity type
-      // entityType = service_order, action.key = service_orders.complete
-      const [actionModule] = action.key.split('.');
-      const entityPrefix = entityType.replace(/_/g, '');
-      const actionPrefix = actionModule.replace(/s$/, '').replace(/_/g, '');
+      // Prioritize explicit targetEntity metadata
+      if (action.targetEntity) {
+        if (action.targetEntity !== entityType) return false;
+      } else {
+        // Fallback to naming convention
+        const [actionModule] = action.key.split('.');
+        const entityPrefix = entityType.replace(/_/g, '');
+        const actionPrefix = actionModule.replace(/s$/, '').replace(/_/g, '');
 
-      if (!action.key.startsWith(entityType) && !actionPrefix.startsWith(entityPrefix)) {
-        // Fallback for simple pluralization (e.g. work_item -> work_items)
-        if (!action.key.startsWith(`${entityType}s.`)) return false;
+        if (!action.key.startsWith(entityType) && !actionPrefix.startsWith(entityPrefix)) {
+          if (!action.key.startsWith(`${entityType}s.`)) return false;
+        }
       }
+
+      // Explicitly check if it should be shown in ActionBar
+      if (action.showInActionBar === false) return false;
 
       // Check if module is enabled
       if (!context.enabledModules.includes(action.moduleKey)) return false;
@@ -46,8 +52,8 @@ export async function getAvailableActionsForEntity(
     })
     .map(action => ({
       key: action.key,
-      label: action.description || action.key,
-      description: action.description,
+      label: action.uiLabel || action.description || action.key,
+      description: action.uiDescription || action.description,
       moduleKey: action.moduleKey,
       source: "kernel",
     }));

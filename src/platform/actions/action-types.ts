@@ -54,6 +54,10 @@ export type ActionDefinition<TInput = unknown, TOutput = unknown> = {
   outputSchema?: ActionJsonSchema;
   emits?: string[];
   idempotent?: boolean;
+  targetEntity?: string;
   allowedStatuses?: string[];
+  uiLabel?: string;
+  uiDescription?: string;
+  showInActionBar?: boolean;
   handler: ActionHandler<TInput, TOutput>;
 };

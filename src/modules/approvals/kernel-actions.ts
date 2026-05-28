@@ -110,9 +110,12 @@ export const decideApprovalKernelAction: ActionDefinition<
 > = {
   key: "approvals.decide",
   moduleKey: "approvals",
+  targetEntity: "service_order",
+  allowedStatuses: ["waiting_review"],
+  uiLabel: "Aprovar/Rejeitar Execução",
+  showInActionBar: true,
   description: "Registra decisão (aprovação/rejeição) sobre uma OS.",
   callableBy: ["ui", "integration", "automation", "system"],
-  allowedStatuses: ["waiting_review"],
   inputSchema: actionObjectSchema(
     {
       serviceOrderId: uuidProperty("OS que será decidida."),

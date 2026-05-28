@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { getDb } from "../db";
 import { eventLogs, flowRuns } from "../db/schema";
 import { initializePlatformKernel } from "../platform";
@@ -84,6 +84,34 @@ async function verifyIntegrity() {
   }, context);
   if (!entryResult.success) throw new Error("Falha na Action shift_logs.add_entry");
   console.log("   OK: Entrada de log adicionada ao turno.");
+
+  // 7. Testar Fluxo de Governança (Fase 5)
+  console.log("5. Testando Governança (OS -> Aprovação -> Documento)...");
+  // Assumindo que temos uma OS criada no passo 2: OS automática
+  const [lastSO] = await db.select().from(eventLogs).where(eq(eventLogs.eventType, "service_order.created")).orderBy(desc(eventLogs.occurredAt)).limit(1);
+  const soId = lastSO.entityId!;
+
+  console.log(`   Completando OS ${soId} para disparar Governança...`);
+  await runAction("service_orders.complete", { serviceOrderId: soId, conclusion: "Concluída para governança" }, context);
+
+  // Pequeno delay para flows
+  await new Promise(r => setTimeout(r, 1000));
+
+  // Verificar se aprovação foi solicitada pelo flow 'service-order-governance'
+  const [approvalRequest] = await db.select().from(eventLogs).where(and(eq(eventLogs.entityId, soId), eq(eventLogs.eventType, "approval.requested"))).limit(1);
+  if (!approvalRequest) throw new Error("Flow de governança não solicitou aprovação.");
+  console.log("   OK: Aprovação solicitada automaticamente.");
+
+  // Decidir aprovação (Aprovar)
+  console.log("   Decidindo aprovação (Aprovar)...");
+  await runAction("approvals.decide", { serviceOrderId: soId, decision: "approve", note: "Aprovado no teste" }, context);
+
+  await new Promise(r => setTimeout(r, 1000));
+
+  // Verificar se documento foi gerado pelo flow 'service-order-approved-document'
+  const [docEvent] = await db.select().from(eventLogs).where(eq(eventLogs.eventType, "document.generated")).orderBy(desc(eventLogs.occurredAt)).limit(1);
+  if (!docEvent || (docEvent.payload as { serviceOrderId: string }).serviceOrderId !== soId) throw new Error("Documento técnico não foi gerado após aprovação.");
+  console.log(`   OK: Documento gerado automaticamente: ${(docEvent.payload as { title: string }).title}`);
 
   console.log("\n--- Integridade Verificada com Sucesso! ---");
 }

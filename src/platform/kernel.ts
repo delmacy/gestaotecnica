@@ -1,7 +1,14 @@
 import { ServiceOrderCompletedNotificationFlow } from "@/adaptations/secao-tecnica/flows/service-order-completed-notification.flow";
 import { WorkItemAutoServiceOrderFlow } from "@/adaptations/secao-tecnica/flows/work-item-auto-service-order.flow";
+import {
+  ServiceOrderGovernanceFlow,
+  ServiceOrderApprovedDocumentFlow,
+} from "@/adaptations/secao-tecnica/flows/service-order-governance.flow";
 import { approvalsManifest } from "@/modules/approvals/manifest";
-import { requestApprovalKernelAction } from "@/modules/approvals/kernel-actions";
+import {
+  requestApprovalKernelAction,
+  decideApprovalKernelAction,
+} from "@/modules/approvals/kernel-actions";
 import { automationsManifest } from "@/modules/automations/manifest";
 import { runAutomationKernelAction } from "@/modules/automations/kernel-actions";
 import { assetsManifest } from "@/modules/assets/manifest";
@@ -10,7 +17,10 @@ import {
   updateAssetStatusKernelAction,
 } from "@/modules/assets/kernel-actions";
 import { documentsManifest } from "@/modules/documents/manifest";
-import { generateDocumentKernelAction } from "@/modules/documents/kernel-actions";
+import {
+  generateDocumentKernelAction,
+  transitionDocumentKernelAction,
+} from "@/modules/documents/kernel-actions";
 import { evidencesManifest } from "@/modules/evidences/manifest";
 import { attachEvidenceKernelAction } from "@/modules/evidences/kernel-actions";
 import { legacyManifest } from "@/modules/legacy/manifest";
@@ -78,6 +88,7 @@ export function initializePlatformKernel() {
   registerAction(generateOperationalReportKernelAction);
   registerAction(runAutomationKernelAction);
   registerAction(generateDocumentKernelAction);
+  registerAction(transitionDocumentKernelAction);
   registerAction(createLegacyRecordKernelAction);
   registerAction(addShiftLogEntryKernelAction);
   registerAction(openShiftKernelAction);
@@ -87,9 +98,12 @@ export function initializePlatformKernel() {
   registerAction(globalSearchKernelAction);
   registerAction(attachEvidenceKernelAction);
   registerAction(requestApprovalKernelAction);
+  registerAction(decideApprovalKernelAction);
 
   registerFlow(new ServiceOrderCompletedNotificationFlow());
   registerFlow(new WorkItemAutoServiceOrderFlow());
+  registerFlow(new ServiceOrderGovernanceFlow());
+  registerFlow(new ServiceOrderApprovedDocumentFlow());
 
   initialized = true;
 }

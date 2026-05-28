@@ -1,0 +1,26 @@
+--- Verificação de Integridade da Plataforma ---
+1. Criando WorkItem via Kernel...
+[flow:work-item-auto-service-order] Flow executado com sucesso.
+   OK: WorkItem 8559c545-a94f-47df-a8ba-973cc31d5f78 criado.
+   OK: Evento registrado: work_item.created
+2. Verificando disparo de Flow Automático (Auto-OS)...
+   OK: FlowRun encontrado: work-item-auto-service-order (succeeded)
+   OK: OS automática criada: OS-20260528071241-e75bad
+3. Testando Módulo de Ativos...
+   OK: Ativo aebe2555-0cca-4ea7-b3c0-1025e6ff4bb1 criado.
+   OK: Status do ativo atualizado.
+4. Testando Módulo de Turnos...
+   OK: Turno 190901f0-f3c6-4ca2-9b89-7e83be3927c9 aberto.
+   OK: Entrada de log adicionada ao turno.
+5. Testando Governança (OS -> Aprovação -> Documento)...
+   Completando OS bb3ae70b-85ee-4b81-85b6-5eee29125ab3 para disparar Governança...
+[flow:service-order-completed-notification] Flow executado com sucesso.
+[flow:service-order-governance] Solicitação de aprovação enviada.
+[flow:service-order-governance] Flow executado com sucesso.
+   OK: Aprovação solicitada automaticamente.
+   Decidindo aprovação (Aprovar)...
+[flow:service-order-approved-document] Documento técnico gerado.
+[flow:service-order-approved-document] Flow executado com sucesso.
+   OK: Documento gerado automaticamente: Relatório Técnico: OS-20260528071241-e75bad
+
+--- Integridade Verificada com Sucesso! ---

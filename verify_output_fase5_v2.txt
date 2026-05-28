@@ -1,0 +1,24 @@
+--- Verificação de Integridade da Plataforma ---
+1. Criando WorkItem via Kernel...
+[flow:work-item-auto-service-order] Flow executado com sucesso.
+   OK: WorkItem 83f7b4ed-c27b-48e0-b61f-de1fcab957fc criado.
+   OK: Evento registrado: work_item.created
+2. Verificando disparo de Flow Automático (Auto-OS)...
+   OK: FlowRun encontrado: work-item-auto-service-order (succeeded)
+   OK: OS automática criada: OS-20260528070402-42c3c0
+3. Testando Módulo de Ativos...
+   OK: Ativo 57389013-f21e-459d-a2c3-b2c1efe839a4 criado.
+   OK: Status do ativo atualizado.
+4. Testando Módulo de Turnos...
+   OK: Turno 1d49b7c7-93cc-42b2-a693-74aa83f0f681 aberto.
+   OK: Entrada de log adicionada ao turno.
+5. Testando Governança (OS -> Aprovação -> Documento)...
+   Completando OS 8111839a-f4e1-4696-a177-521e23bfc211 para disparar Governança...
+[flow:service-order-completed-notification] Flow executado com sucesso.
+[flow:service-order-governance] Solicitação de aprovação enviada.
+[flow:service-order-governance] Flow executado com sucesso.
+
+--- FALHA NA VERIFICAÇÃO ---
+Error: Flow de governança não solicitou aprovação.
+    at verifyIntegrity (/app/src/scripts/verify-integrity.ts:102:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)

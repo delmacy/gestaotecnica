@@ -16,6 +16,11 @@ export const booleanProperty = (description?: string): ActionSchemaProperty => (
   description,
 });
 
+export const integerProperty = (description?: string): ActionSchemaProperty => ({
+  type: "integer",
+  description,
+});
+
 export const objectProperty = (description?: string): ActionSchemaProperty => ({
   type: "object",
   description,

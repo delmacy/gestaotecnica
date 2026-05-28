@@ -5,7 +5,10 @@ import { requestApprovalKernelAction } from "@/modules/approvals/kernel-actions"
 import { automationsManifest } from "@/modules/automations/manifest";
 import { runAutomationKernelAction } from "@/modules/automations/kernel-actions";
 import { assetsManifest } from "@/modules/assets/manifest";
-import { createAssetKernelAction } from "@/modules/assets/kernel-actions";
+import {
+  createAssetKernelAction,
+  updateAssetStatusKernelAction,
+} from "@/modules/assets/kernel-actions";
 import { documentsManifest } from "@/modules/documents/manifest";
 import { generateDocumentKernelAction } from "@/modules/documents/kernel-actions";
 import { evidencesManifest } from "@/modules/evidences/manifest";
@@ -22,12 +25,21 @@ import {
   createServiceOrderKernelAction,
 } from "@/modules/service-orders/kernel-actions";
 import { shiftsManifest } from "@/modules/shifts/manifest";
-import { addShiftLogEntryKernelAction } from "@/modules/shifts/kernel-actions";
+import {
+  addShiftLogEntryKernelAction,
+  closeShiftKernelAction,
+  openShiftKernelAction,
+} from "@/modules/shifts/kernel-actions";
 import { workItemsManifest } from "@/modules/work-items/manifest";
 import {
   createWorkItemKernelAction,
   transitionWorkItemKernelAction,
 } from "@/modules/work-items/kernel-actions";
+import { workforceManifest } from "@/modules/workforce/manifest";
+import {
+  createTeamKernelAction,
+  createTechnicianKernelAction,
+} from "@/modules/workforce/kernel-actions";
 import { registerAction } from "@/platform/actions";
 import { registerDefaultEvents } from "@/platform/events/default-events";
 import { registerFlow } from "@/platform/flows";
@@ -42,6 +54,7 @@ export function initializePlatformKernel() {
   registerModule(serviceOrdersManifest);
   registerModule(notificationsManifest);
   registerModule(assetsManifest);
+  registerModule(workforceManifest);
   registerModule(reportsManifest);
   registerModule(automationsManifest);
   registerModule(documentsManifest);
@@ -58,11 +71,16 @@ export function initializePlatformKernel() {
   registerAction(completeServiceOrderKernelAction);
   registerAction(sendNotificationKernelAction);
   registerAction(createAssetKernelAction);
+  registerAction(updateAssetStatusKernelAction);
   registerAction(generateOperationalReportKernelAction);
   registerAction(runAutomationKernelAction);
   registerAction(generateDocumentKernelAction);
   registerAction(createLegacyRecordKernelAction);
   registerAction(addShiftLogEntryKernelAction);
+  registerAction(openShiftKernelAction);
+  registerAction(closeShiftKernelAction);
+  registerAction(createTechnicianKernelAction);
+  registerAction(createTeamKernelAction);
   registerAction(attachEvidenceKernelAction);
   registerAction(requestApprovalKernelAction);
 

@@ -1,10 +1,9 @@
 "use server";
 
-import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
-import { assets, eventLogs } from "@/db/schema";
+import { runAction } from "@/platform/actions";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   type AssetCriticalityValue,
   type AssetStatusValue,
@@ -64,35 +63,27 @@ export async function createAsset(formData: FormData) {
     assetCriticalities,
     "medium",
   );
-  const db = getDb();
 
-  const newAsset: typeof assets.$inferInsert = {
-    code,
-    name,
-    type,
-    location,
-    description,
-    status,
-    criticality,
-    metadata: {},
-  };
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const result = await runAction(
+    "assets.create",
+    {
+      code,
+      name,
+      type,
+      location,
+      description,
+      status,
+      criticality,
+    },
+    context,
+  );
 
-  const [asset] = await db.insert(assets).values(newAsset).returning({
-    id: assets.id,
-    code: assets.code,
-    name: assets.name,
-    type: assets.type,
-    status: assets.status,
-    criticality: assets.criticality,
-  });
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao criar ativo.");
+  }
 
-  await db.insert(eventLogs).values({
-    eventType: "asset.created",
-    entityType: "asset",
-    entityId: asset.id,
-    assetId: asset.id,
-    payload: asset,
-  });
+  const asset = result.data as { id: string };
 
   revalidatePath("/");
   revalidatePath("/assets");
@@ -108,47 +99,21 @@ export async function updateAssetStatus(formData: FormData) {
     "active",
   );
   const note = readOptionalText(formData, "note");
-  const db = getDb();
 
-  const [previous] = await db
-    .select({
-      id: assets.id,
-      name: assets.name,
-      status: assets.status,
-    })
-    .from(assets)
-    .where(eq(assets.id, id))
-    .limit(1);
-
-  if (!previous) {
-    throw new Error("Ativo nao encontrado.");
-  }
-
-  const [updated] = await db
-    .update(assets)
-    .set({
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const result = await runAction(
+    "assets.update_status",
+    {
+      assetId: id,
       status,
-      updatedAt: new Date(),
-    })
-    .where(eq(assets.id, id))
-    .returning({
-      id: assets.id,
-      name: assets.name,
-      status: assets.status,
-    });
-
-  await db.insert(eventLogs).values({
-    eventType: "asset.status_changed",
-    entityType: "asset",
-    entityId: updated.id,
-    assetId: updated.id,
-    payload: {
-      name: updated.name,
-      from: previous.status,
-      to: updated.status,
       note,
     },
-  });
+    context,
+  );
+
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao atualizar status do ativo.");
+  }
 
   revalidatePath("/");
   revalidatePath("/assets");

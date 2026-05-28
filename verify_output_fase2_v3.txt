@@ -1,0 +1,17 @@
+--- Verificação de Integridade da Plataforma ---
+1. Criando WorkItem via Kernel...
+[flow:work-item-auto-service-order] Flow executado com sucesso.
+   OK: WorkItem ac5a59ba-56c9-4526-902d-a3a1e3a82dcf criado.
+   OK: Evento registrado: work_item.created
+2. Verificando disparo de Flow Automático (Auto-OS)...
+   OK: FlowRun encontrado: work-item-auto-service-order (succeeded)
+   OK: OS automática criada: OS-20260528000115-c904b8
+3. Testando Módulo de Ativos...
+   OK: Ativo 0194c3aa-e0b6-4698-b324-aa65d2b272d1 criado.
+   OK: Status do ativo atualizado.
+4. Testando Módulo de Turnos...
+
+--- FALHA NA VERIFICAÇÃO ---
+Error: Falha na Action shifts.open
+    at verifyIntegrity (/app/src/scripts/verify-integrity.ts:73:35)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)

@@ -4,9 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
+import { runAction } from "@/platform/actions";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   eventLogs,
-  teams,
   technicianProfiles,
   technicianUnavailabilities,
   users,
@@ -72,28 +73,20 @@ function readEnum<T extends string>(
 export async function createTeam(formData: FormData) {
   const name = readRequiredText(formData, "name");
   const description = readOptionalText(formData, "description");
-  const db = getDb();
+  const context = await resolveWorkspaceContext({ source: "ui" });
 
-  const [team] = await db
-    .insert(teams)
-    .values({
+  const result = await runAction(
+    "workforce.create_team",
+    {
       name,
       description,
-      isActive: true,
-    })
-    .returning({
-      id: teams.id,
-      name: teams.name,
-      description: teams.description,
-      isActive: teams.isActive,
-    });
+    },
+    context,
+  );
 
-  await db.insert(eventLogs).values({
-    eventType: "team.created",
-    entityType: "team",
-    entityId: team.id,
-    payload: team,
-  });
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao criar equipe.");
+  }
 
   revalidatePath("/");
   revalidatePath("/workforce");
@@ -113,8 +106,9 @@ export async function createTechnician(formData: FormData) {
     technicianLevels,
     "trainee",
   );
-  const db = getDb();
 
+  const db = getDb();
+  // Criação de usuário ainda é direta por enquanto, até termos auth kernel actions
   const [user] = await db
     .insert(users)
     .values({
@@ -122,42 +116,30 @@ export async function createTechnician(formData: FormData) {
       email,
       status: "active",
     })
+    .onConflictDoUpdate({
+      target: users.email,
+      set: { updatedAt: new Date() },
+    })
     .returning({
       id: users.id,
-      name: users.name,
-      email: users.email,
-      status: users.status,
     });
 
-  const [technician] = await db
-    .insert(technicianProfiles)
-    .values({
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const result = await runAction(
+    "workforce.create_technician",
+    {
       userId: user.id,
       teamId,
       level,
       registrationCode,
       specialty,
-      isAvailable: true,
-    })
-    .returning({
-      id: technicianProfiles.id,
-      userId: technicianProfiles.userId,
-      teamId: technicianProfiles.teamId,
-      level: technicianProfiles.level,
-      registrationCode: technicianProfiles.registrationCode,
-      specialty: technicianProfiles.specialty,
-      isAvailable: technicianProfiles.isAvailable,
-    });
-
-  await db.insert(eventLogs).values({
-    eventType: "technician.created",
-    entityType: "technician_profile",
-    entityId: technician.id,
-    payload: {
-      ...technician,
-      user,
     },
-  });
+    context,
+  );
+
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao criar técnico.");
+  }
 
   revalidatePath("/");
   revalidatePath("/workforce");

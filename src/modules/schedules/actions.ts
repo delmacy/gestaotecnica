@@ -2,11 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
-import { eventLogs, schedules } from "@/db/schema";
+import { runAction } from "@/platform/actions";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
-  scheduleStatuses,
-  type ScheduleStatusValue,
   type ScheduleTypeValue,
 } from "./constants";
 import { getScheduleTypeOptions } from "./queries";
@@ -20,12 +18,6 @@ function readRequiredText(formData: FormData, field: string) {
 function readOptionalText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
   return value.length > 0 ? value : undefined;
-}
-
-function readDate(formData: FormData, field: string) {
-  const date = new Date(readRequiredText(formData, field));
-  if (Number.isNaN(date.getTime())) throw new Error(`Data invalida: ${field}`);
-  return date;
 }
 
 function readEnum<T extends string>(
@@ -42,8 +34,8 @@ export async function createSchedule(formData: FormData) {
   const title = readRequiredText(formData, "title");
   const technicianProfileId = readOptionalText(formData, "technicianProfileId");
   const teamId = readOptionalText(formData, "teamId");
-  const startsAt = readDate(formData, "startsAt");
-  const endsAt = readDate(formData, "endsAt");
+  const startsAt = readRequiredText(formData, "startsAt");
+  const endsAt = readRequiredText(formData, "endsAt");
   const notes = readOptionalText(formData, "notes");
   const scheduleTypes = await getScheduleTypeOptions();
   const type = readEnum<ScheduleTypeValue>(
@@ -52,21 +44,11 @@ export async function createSchedule(formData: FormData) {
     scheduleTypes,
     "expediente",
   );
-  const status = readEnum<ScheduleStatusValue>(
-    formData,
-    "status",
-    scheduleStatuses,
-    "planned",
-  );
 
-  if (endsAt <= startsAt) {
-    throw new Error("Fim da escala precisa ser posterior ao inicio.");
-  }
-
-  const db = getDb();
-  const [schedule] = await db
-    .insert(schedules)
-    .values({
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const result = await runAction(
+    "schedules.create",
+    {
       title,
       technicianProfileId,
       teamId,
@@ -74,23 +56,13 @@ export async function createSchedule(formData: FormData) {
       endsAt,
       notes,
       type,
-      status,
-    })
-    .returning({
-      id: schedules.id,
-      title: schedules.title,
-      type: schedules.type,
-      status: schedules.status,
-      startsAt: schedules.startsAt,
-      endsAt: schedules.endsAt,
-    });
+    },
+    context,
+  );
 
-  await db.insert(eventLogs).values({
-    eventType: "schedule.created",
-    entityType: "schedule",
-    entityId: schedule.id,
-    payload: schedule,
-  });
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao criar escala.");
+  }
 
   revalidatePath("/");
   revalidatePath("/schedules");

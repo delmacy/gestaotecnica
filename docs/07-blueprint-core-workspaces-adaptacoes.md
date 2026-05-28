@@ -1,7 +1,8 @@
-# Blueprint Core, Workspaces e Adaptações
+# Blueprint da System Builder Platform
 
-Este blueprint organiza a plataforma como um **core operacional reutilizável**,
-capaz de receber adaptações por cliente/setor através de workspaces.
+Este blueprint organiza a plataforma como uma **system builder platform**:
+um core operacional reutilizável capaz de receber módulos, packs contextuais,
+plugins e adaptações por cliente através de workspaces.
 
 A primeira adaptação real é a **seção técnica**, mas ela não deve ser tratada
 como o produto inteiro. Ela é o primeiro pacote de configuração sobre um core
@@ -10,20 +11,21 @@ replicável.
 ## 1. Tese arquitetural
 
 ```text
-Core replicavel
-+ modulos reutilizaveis
+Core replicável
++ módulos reutilizáveis
++ packs contextuais
 + workspace do cliente
-+ adaptacao/configuracao local
-= sistema operacional sob medida
++ adaptação/configuração local
+= sistema operacional sob medida para um cliente, setor ou operação
 ```
 
 O objetivo é permitir que a plataforma seja usada futuramente como:
 
-- aplicação da sala/seção técnica;
+- system builder operacional para PMEs e equipes internas;
 - base open source reutilizável;
-- system builder operacional para PMEs;
 - pacote hospedado e mantido como serviço recorrente;
-- base para futuros repositórios `gestaotecnica-core` e `sala-tecnica-app`.
+- fábrica de aplicações por workspace, cliente e domínio;
+- base para futuros repositórios `system-builder-core` e apps/packs por cliente.
 
 Regra central:
 
@@ -34,7 +36,7 @@ Regra central:
 
 ### 2.1 Core Platform
 
-Camada universal, sem conhecimento da seção técnica.
+Camada universal, sem conhecimento de qualquer cliente específico.
 
 Responsabilidades:
 
@@ -45,8 +47,8 @@ Responsabilidades:
 - filas;
 - documentos;
 - relatórios;
-- notificacoes futuras;
-- comentarios futuros;
+- notificações futuras;
+- comentários futuros;
 - configuração de módulos;
 - contratos públicos entre módulos.
 
@@ -60,14 +62,14 @@ Não deve conter termos como:
 - secretario técnico-operacional;
 - sistema oficial específico.
 
-Esses termos pertencem a adaptação.
+Esses termos pertencem à adaptação.
 
 ### 2.2 Domain Modules
 
 Módulos reutilizáveis de domínio operacional.
 
-Eles podem ser usados pela seção técnica ou por outro cliente com configuração
-diferente.
+Eles podem ser usados por qualquer cliente, setor ou departamento com
+configuração diferente.
 
 Módulos atuais:
 
@@ -101,12 +103,12 @@ Módulos atuais:
 
 ### 2.3 Workspace
 
-Workspace e a unidade de cliente, setor ou operacao.
+Workspace é a unidade de cliente, setor ou operação.
 
 No início existira:
 
 ```text
-workspace: secao-tecnica
+workspace: exemplo-secao-tecnica
 ```
 
 O workspace deve permitir:
@@ -216,9 +218,10 @@ Separar apenas quando:
 ### 4.1 Futuro monorepo
 
 ```text
-gestaotecnica/
+system-builder-platform/
 |-- apps/
-|   `-- sala-tecnica/
+|   |-- secao-tecnica/
+|   `-- cliente-x/
 |-- packages/
 |   |-- core/
 |   |-- work-items/
@@ -233,8 +236,8 @@ gestaotecnica/
 ### 4.2 Futuro multi-repo
 
 ```text
-gestaotecnica-core
-sala-tecnica-app
+system-builder-core
+secao-tecnica-app
 cliente-x-app
 cliente-y-app
 ```
@@ -559,7 +562,7 @@ Workspace inicial:
 
 ```text
 key: secao-tecnica
-name: Secao Tecnica
+name: Seção Técnica
 ```
 
 ### 7.1 Tipos de demanda

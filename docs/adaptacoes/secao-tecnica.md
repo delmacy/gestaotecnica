@@ -1,17 +1,18 @@
-# Adaptacao: Secao Tecnica
+# Adaptação: Seção Técnica
 
 ## 1. Objetivo
 
-Esta e a primeira adaptacao real da plataforma. Ela representa a gestao
-operacional de uma secao tecnica, incluindo demandas, ordens de servico,
-ativos, mao de obra, escalas, livro de turno, documentos tecnicos, sistema
-legado, planejamento e aquisicoes.
+Esta é a primeira adaptação real da system builder platform.
+
+Ela representa uma operação de seção técnica e serve como estudo de caso para
+validar o core, os módulos, os packs contextuais e o modelo de configuração por
+workspace. Ela não deve ser confundida com a identidade principal do produto.
 
 ## 2. Workspace
 
 - Chave: `secao-tecnica`
-- Nome da adaptacao: `Secao Tecnica`
-- Nome do workspace: `Sala Tecnica`
+- Nome da adaptação: `Seção Técnica`
+- Nome do workspace: `Sala Técnica`
 
 ## 3. Arquivos
 

@@ -1,6 +1,8 @@
-# Gestao Tecnica
+# System Builder Platform
 
-Plataforma modular para gestao operacional de secao tecnica.
+Plataforma modular para montar sistemas operacionais sob medida por workspace,
+packs contextuais, módulos reutilizáveis, actions, events, flows e adaptações
+por cliente.
 
 ## Desenvolvimento
 
@@ -10,7 +12,7 @@ npm run dev
 
 Abra `http://localhost:3000`.
 
-## Documentacao
+## Documentação
 
 Os documentos de arquitetura ficam em `docs/`:
 
@@ -36,22 +38,25 @@ Os documentos de arquitetura ficam em `docs/`:
 
 ## Arquitetura
 
-O projeto esta evoluindo de uma aplicacao unica da secao tecnica para um
-**core operacional reutilizavel**, com modulos de dominio e adaptacoes por
-workspace.
+O projeto deve ser lido como uma **system builder platform**, não como um
+sistema único de gestão técnica. A Seção Técnica é a primeira adaptação real,
+usada para validar o core, mas não define o limite do produto.
+
+A plataforma combina um core operacional reutilizável, módulos de domínio,
+packs contextuais e adaptações por workspace.
 
 Camadas:
 
 - `src/platform`: capacidades universais do core.
-- `src/modules`: modulos reutilizaveis.
-- `src/adaptations`: configuracoes por cliente/setor.
-- `secao-tecnica`: primeira adaptacao real da plataforma.
-- `/workspace-config`: leitura da adaptacao ativa e mapa dos modulos.
-- `/auth/login` e `/auth/setup`: autenticacao local inicial.
-- `/admin`: administracao de usuarios, workspace, workflows, permissoes e filas.
+- `src/modules`: módulos reutilizáveis.
+- `src/adaptations`: configurações por cliente, setor ou operação.
+- `secao-tecnica`: primeira adaptação real, tratada como client/domain pack.
+- `/workspace-config`: leitura da adaptação ativa e mapa dos módulos.
+- `/auth/login` e `/auth/setup`: autenticação local inicial.
+- `/admin`: administração de usuários, workspace, workflows, permissões e filas.
 
-A diretriz central e: o modulo universal nao conhece o cliente; a adaptacao
-ensina o modulo a operar naquele cliente.
+A diretriz central é: o módulo universal não conhece o cliente; a adaptação
+ensina o módulo a operar naquele cliente.
 
 ## Stack
 
@@ -62,7 +67,7 @@ ensina o modulo a operar naquele cliente.
 
 ## Fases
 
-1. Fundacao tecnica.
+1. Fundação técnica.
 2. MVP operacional.
-3. Governanca e documentacao.
-4. Planejamento, integracoes e BI.
+3. Governança e documentação.
+4. Planejamento, integrações e BI.

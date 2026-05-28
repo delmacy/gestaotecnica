@@ -1,6 +1,8 @@
-# MVP Implementavel
+# MVP Implementável
 
-Objetivo do MVP: provar o fluxo central da secao tecnica com o menor numero de modulos, mantendo o esqueleto arquitetural correto para crescer depois.
+Objetivo do MVP: provar o ciclo central da system builder platform com o menor
+número de módulos, mantendo a arquitetura correta para replicar a solução em
+outros clientes. A Seção Técnica entra como primeira adaptação real do MVP.
 
 ## Fluxo principal
 
@@ -8,39 +10,39 @@ Objetivo do MVP: provar o fluxo central da secao tecnica com o menor numero de m
 Abrir demanda
 → classificar WorkItem
 → gerar OS
-→ atribuir tecnico/equipe
-→ registrar execucao e tempo
+→ atribuir técnico/equipe
+→ registrar execução e tempo
 → vincular ativo
 → gerar eventos
 → aparecer no livro de turno
-→ gerar relatorio basico
+→ gerar relatório básico
 ```
 
-## Modulos que entram no MVP
+## Módulos que entram no MVP
 
 1. Foundation
-2. Workforce basico
+2. Workforce básico
 3. WorkItems / Demandas
 4. Service Orders / OS
-5. Assets basico
+5. Assets básico
 6. Event Log
 7. Shift Log simples
-8. Reports basico
+8. Reports básico
 
 ## Fora do MVP
 
-Estes pontos ficam planejados, mas nao devem bloquear a primeira versao:
+Estes pontos ficam planejados, mas não devem bloquear a primeira versão:
 
 - escala completa;
 - sobreaviso;
 - workflow documental complexo;
 - assinatura;
-- integracao automatica com legado;
-- aquisicoes;
+- integração automática com legado;
+- aquisições;
 - planejamento anual;
-- dashboards avancados;
-- automacoes externas;
-- permissoes muito granulares.
+- dashboards avançados;
+- automações externas;
+- permissões muito granulares.
 
 ## Entidades minimas
 
@@ -61,11 +63,11 @@ Estes pontos ficam planejados, mas nao devem bloquear a primeira versao:
 ## Regras iniciais
 
 - WorkItem representa a necessidade.
-- ServiceOrder representa a execucao autorizada.
-- Toda acao relevante deve gerar EventLog.
-- Ativos podem existir de forma simples no inicio.
-- Livro de turno deve ser uma consolidacao operacional, nao apenas texto solto.
-- Relatorio basico pode ser gerado a partir de eventos, OS e apontamentos de tempo.
+- ServiceOrder representa a execução autorizada.
+- Toda ação relevante deve gerar EventLog.
+- Ativos podem existir de forma simples no início.
+- Livro de turno deve ser uma consolidação operacional, não apenas texto solto.
+- Relatório básico pode ser gerado a partir de eventos, OS e apontamentos de tempo.
 - `.env`, `.vercel/` e ferramentas locais devem permanecer fora do Git.
 
 ## Roadmap sugerido

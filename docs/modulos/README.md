@@ -1,6 +1,8 @@
-# Módulos da Plataforma
+# Módulos da System Builder Platform
 
-Os módulos são blocos reutilizáveis do ecossistema operacional.
+Os módulos são blocos reutilizáveis do ecossistema operacional. Eles devem ser
+descritos como capacidades de uma plataforma de montagem, não como partes de um
+único sistema de gestão técnica.
 
 ## Módulos implementados
 
@@ -44,10 +46,10 @@ Cada módulo deve registrar:
 
 ## Regra
 
-Se uma variacao pertence ao cliente, ela deve entrar em `src/adaptations`.
-Se ela pertence ao comportamento reutilizavel, deve entrar em `src/modules`.
+Se uma variação pertence ao cliente, ela deve entrar em `src/adaptations`.
+Se ela pertence ao comportamento reutilizável, deve entrar em `src/modules`.
 
-## Documentos especificos
+## Documentos específicos
 
 - `docs/modulos/auth.md`
 - `docs/modulos/admin.md`

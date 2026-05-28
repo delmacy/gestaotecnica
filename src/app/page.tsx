@@ -27,52 +27,52 @@ export const dynamic = "force-dynamic";
 const mvpModules = [
   {
     name: "Centro Operacional",
-    description: "Painel de filas, pendencias, tecnicos disponiveis e eventos recentes.",
+    description: "Painel de filas, pendências, responsáveis disponíveis e eventos recentes.",
     status: "MVP",
   },
   {
     name: "Busca Global",
-    description: "Localizacao rapida de OS, demandas, ativos e tecnicos.",
+    description: "Localização rápida de OS, demandas, ativos e responsáveis.",
     status: "MVP",
   },
   {
     name: "Planejamento",
-    description: "Backlog, execucao, revisao e carga tecnica em visao de quadro.",
+    description: "Backlog, execução, revisão e carga operacional em visão de quadro.",
     status: "MVP",
   },
   {
     name: "Escalas",
-    description: "Expediente, plantao, sobreaviso e ausencias da equipe tecnica.",
+    description: "Expediente, plantão, sobreaviso e ausências da equipe.",
     status: "Fase 2",
   },
   {
     name: "Documentos",
-    description: "Workflow documental tecnico, revisao, aprovacao e exportacao.",
+    description: "Workflow documental, revisão, aprovação e exportação.",
     status: "Fase 2",
   },
   {
     name: "Legado",
-    description: "Protocolos e status de sincronizacao com sistemas oficiais.",
+    description: "Protocolos e status de sincronização com sistemas oficiais.",
     status: "Fase 2",
   },
   {
-    name: "Planos de Manutencao",
-    description: "Planejamento preventivo por ativo, periodo, equipe e prioridade.",
+    name: "Planos de Manutenção",
+    description: "Planejamento preventivo por ativo, período, equipe e prioridade.",
     status: "Fase 3",
   },
   {
-    name: "Projetos Tecnicos",
-    description: "Modernizacoes, melhorias, substituicoes e implantacoes tecnicas.",
+    name: "Projetos Técnicos",
+    description: "Modernizações, melhorias, substituições e implantações.",
     status: "Fase 3",
   },
   {
-    name: "Aquisicoes",
+    name: "Aquisições",
     description: "Necessidades de compra, justificativas e status administrativo.",
     status: "Fase 3",
   },
   {
-    name: "Competencias",
-    description: "Catalogo de habilidades, matriz tecnica e treinamentos.",
+    name: "Competências",
+    description: "Catálogo de habilidades, matriz de competências e treinamentos.",
     status: "Fase 4",
   },
   {
@@ -81,78 +81,78 @@ const mvpModules = [
     status: "Fase 4",
   },
   {
-    name: "Automacoes",
-    description: "Registro governado de gatilhos, endpoints e rotinas de integracao.",
+    name: "Automações",
+    description: "Registro governado de gatilhos, endpoints e rotinas de integração.",
     status: "Fase 4",
   },
   {
     name: "Fornecedores",
-    description: "Cadastro, contatos, status e contratos de apoio tecnico.",
+    description: "Cadastro, contatos, status e contratos de apoio.",
     status: "Fase 5",
   },
   {
     name: "Estoque",
-    description: "Itens, saldos, minimo operacional e movimentacoes por OS.",
+    description: "Itens, saldos, mínimo operacional e movimentações por OS.",
     status: "Fase 5",
   },
   {
     name: "Conformidade",
-    description: "Auditorias, achados, riscos e acoes corretivas rastreaveis.",
+    description: "Auditorias, achados, riscos e ações corretivas rastreáveis.",
     status: "Fase 5",
   },
   {
     name: "Workspace Config",
-    description: "Adaptacao ativa, catalogo de modulos, filas, papeis e templates por cliente.",
+    description: "Adaptação ativa, catálogo de módulos, filas, papéis e templates por cliente.",
     status: "Fase 6",
   },
   {
     name: "WorkItems",
-    description: "Entrada, triagem e priorizacao das demandas antes de virarem OS.",
+    description: "Entrada, triagem e priorização das demandas antes de virarem OS.",
     status: "MVP",
   },
   {
-    name: "Ordens de Servico",
-    description: "Execucao autorizada, atribuicao tecnica, tempo e evidencias.",
+    name: "Ordens de Serviço",
+    description: "Execução autorizada, atribuição, tempo e evidências.",
     status: "MVP",
   },
   {
     name: "Ativos",
-    description: "Equipamentos, sistemas e infraestrutura ligados ao historico operacional.",
+    description: "Equipamentos, sistemas e infraestrutura ligados ao histórico operacional.",
     status: "MVP",
   },
   {
     name: "Workforce",
-    description: "Equipes, perfis tecnicos, especialidades e disponibilidade para atribuicao de OS.",
+    description: "Equipes, perfis, especialidades e disponibilidade para atribuição de OS.",
     status: "MVP",
   },
   {
-    name: "Revisao Tecnica",
-    description: "Fila de aprovacao, retorno e aceite das OS concluidas.",
+    name: "Revisão Operacional",
+    description: "Fila de aprovação, retorno e aceite das OS concluídas.",
     status: "MVP",
   },
   {
     name: "Event Log",
-    description: "Memoria rastreavel de tudo que muda no fluxo tecnico.",
+    description: "Memória rastreável de tudo que muda no fluxo operacional.",
     status: "MVP",
   },
   {
-    name: "Evidencias",
-    description: "Biblioteca de comprovantes, fotos, documentos e links tecnicos.",
+    name: "Evidências",
+    description: "Biblioteca de comprovantes, fotos, documentos e links.",
     status: "MVP",
   },
   {
     name: "Horas",
-    description: "Apontamentos de tempo, produtividade tecnica e esforco por OS.",
+    description: "Apontamentos de tempo, produtividade e esforço por OS.",
     status: "MVP",
   },
   {
     name: "Livro de Turno",
-    description: "Consolidacao de ocorrencias, pendencias e passagem de servico.",
+    description: "Consolidação de ocorrências, pendências e passagem de serviço.",
     status: "MVP",
   },
   {
-    name: "Relatorios",
-    description: "Leitura basica de OS, horas, ativos afetados e pendencias.",
+    name: "Relatórios",
+    description: "Leitura básica de OS, horas, ativos afetados e pendências.",
     status: "MVP",
   },
 ];
@@ -164,35 +164,35 @@ const moduleLinks: Record<string, string> = {
   Escalas: "/schedules",
   Documentos: "/documents",
   Legado: "/legacy",
-  "Planos de Manutencao": "/maintenance-plans",
-  "Projetos Tecnicos": "/technical-projects",
-  Aquisicoes: "/acquisitions",
-  Competencias: "/skills",
+  "Planos de Manutenção": "/maintenance-plans",
+  "Projetos Técnicos": "/technical-projects",
+  Aquisições: "/acquisitions",
+  Competências: "/skills",
   Recursos: "/resource-needs",
-  Automacoes: "/automations",
+  Automações: "/automations",
   Fornecedores: "/suppliers",
   Estoque: "/inventory",
   Conformidade: "/compliance",
   "Workspace Config": "/workspace-config",
   WorkItems: "/work-items",
   Ativos: "/assets",
-  "Ordens de Servico": "/service-orders",
+  "Ordens de Serviço": "/service-orders",
   Workforce: "/workforce",
-  "Revisao Tecnica": "/approvals",
+  "Revisão Operacional": "/approvals",
   "Event Log": "/events",
-  Evidencias: "/evidences",
+  Evidências: "/evidences",
   Horas: "/timesheets",
   "Livro de Turno": "/shifts",
-  Relatorios: "/reports",
+  Relatórios: "/reports",
 };
 
 const phases = [
-  "Fundacao Next.js, TypeScript, Vercel e documentacao viva",
-  "Nucleo operacional com WorkItems, OS, ativos e eventos",
-  "Governanca com aprovacoes, secretaria tecnica e documentos",
-  "Planejamento, escalas, legado, automacoes e BI",
-  "Capacitacao, recursos, integracoes e governanca operacional",
-  "Suprimentos, estoque tecnico, conformidade e contratos",
+  "Fundação Next.js, TypeScript, Vercel e documentação viva",
+  "Núcleo operacional com WorkItems, OS, ativos e eventos",
+  "Governança com aprovações, documentos e integrações",
+  "Planejamento, escalas, legado, automações e BI",
+  "Capacitação, recursos, integrações e governança operacional",
+  "Suprimentos, estoque, conformidade e contratos",
 ];
 
 const statusTone: Record<string, "default" | "secondary" | "outline"> = {
@@ -205,7 +205,7 @@ const statusTone: Record<string, "default" | "secondary" | "outline"> = {
 };
 
 const quickLinks = [
-  { href: "/operations", label: "Operacao", icon: Gauge },
+  { href: "/operations", label: "Operação", icon: Gauge },
   { href: "/search", label: "Busca", icon: Search },
   { href: "/workspace-config", label: "Config", icon: Settings2 },
   { href: "/inventory", label: "Estoque", icon: Boxes },
@@ -228,11 +228,12 @@ export default async function Home() {
               </Badge>
               <div className="space-y-3">
                 <h1 className="max-w-4xl text-4xl font-semibold tracking-normal text-foreground sm:text-5xl">
-                  Gestao Tecnica
+                  System Builder Platform
                 </h1>
                 <p className="max-w-3xl text-base leading-7 text-muted-foreground">
-                  Base operacional para demandas, ordens de servico, ativos,
-                  evidencias, livro de turno, suprimentos e governanca tecnica.
+                  Base para montar sistemas operacionais por workspace, com
+                  módulos, packs contextuais, plugins, automações e adaptações
+                  por cliente.
                 </p>
               </div>
             </div>
@@ -284,7 +285,7 @@ export default async function Home() {
             ) : (
               <Card className="sm:col-span-3 lg:col-span-5" size="sm">
                 <CardContent className="text-sm text-muted-foreground">
-                Banco indisponivel no momento. A estrutura da aplicacao continua
+                Banco indisponível no momento. A estrutura da aplicação continua
                 carregando normalmente.
                 </CardContent>
               </Card>
@@ -297,17 +298,17 @@ export default async function Home() {
         <aside>
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm uppercase">Execucao atual</CardTitle>
+              <CardTitle className="text-sm uppercase">Execução atual</CardTitle>
               <CardDescription>
-                Camadas do produto ja incorporadas na arquitetura.
+                Camadas do produto já incorporadas na arquitetura.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-              <p>Fundacao Next.js, TypeScript, Tailwind, Vercel e Postgres.</p>
+              <p>Fundação Next.js, TypeScript, Tailwind, Vercel e Postgres.</p>
               <Separator />
-              <p>Nucleo operacional, planejamento, secretaria tecnica e eventos.</p>
+              <p>Kernel, módulos operacionais, packs contextuais e eventos.</p>
               <Separator />
-              <p>Governanca com recursos, automacoes, contratos, estoque e conformidade.</p>
+              <p>Governança com recursos, automações, contratos, estoque e conformidade.</p>
             </CardContent>
           </Card>
         </aside>
@@ -315,11 +316,11 @@ export default async function Home() {
         <div>
           <div className="mb-5 flex flex-col gap-1">
             <h2 className="text-2xl font-semibold">
-              Modulos da plataforma
+              Módulos da plataforma
             </h2>
             <p className="text-sm leading-6 text-muted-foreground">
-              Um mapa navegavel da operacao tecnica, agora com uma base visual
-              shadcn para evoluir os demais fluxos com mais consistencia.
+              Um mapa navegável das capacidades que podem compor diferentes
+              sistemas por workspace, cliente, departamento ou operação.
             </p>
           </div>
 
@@ -340,7 +341,7 @@ export default async function Home() {
                       {module.description}
                     </p>
                     <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
-                      Abrir modulo
+                      Abrir módulo
                       <ArrowRight className="size-4" />
                     </span>
                   </CardContent>

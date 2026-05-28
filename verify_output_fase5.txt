@@ -1,0 +1,23 @@
+--- Verificação de Integridade da Plataforma ---
+1. Criando WorkItem via Kernel...
+[flow:work-item-auto-service-order] Flow executado com sucesso.
+   OK: WorkItem a5c82d99-3acc-4581-9f41-85b74b108e55 criado.
+   OK: Evento registrado: work_item.created
+2. Verificando disparo de Flow Automático (Auto-OS)...
+   OK: FlowRun encontrado: work-item-auto-service-order (succeeded)
+   OK: OS automática criada: OS-20260528070243-8047c5
+3. Testando Módulo de Ativos...
+   OK: Ativo 6aeb5582-9373-4e6f-b754-ebd17c82fc55 criado.
+   OK: Status do ativo atualizado.
+4. Testando Módulo de Turnos...
+   OK: Turno 619384b6-0ee2-47c1-8282-32c11ac0588e aberto.
+   OK: Entrada de log adicionada ao turno.
+5. Testando Governança (OS -> Aprovação -> Documento)...
+   Completando OS e3c90260-d0c5-45b7-8f63-9a566e021b88 para disparar Governança...
+[flow:service-order-completed-notification] Flow executado com sucesso.
+[flow:service-order-governance] Solicitação de aprovação enviada.
+[flow:service-order-governance] Flow executado com sucesso.
+
+--- FALHA NA VERIFICAÇÃO ---
+ReferenceError: and is not defined
+    at verifyIntegrity (/app/src/scripts/verify-integrity.ts:101:61)

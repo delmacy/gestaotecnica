@@ -114,6 +114,7 @@ export const completeServiceOrderKernelAction: ActionDefinition<
 > = {
   key: "service_orders.complete",
   moduleKey: "service-orders",
+  allowedStatuses: ["assigned", "in_progress", "waiting_review"],
   description: "Conclui uma ordem de serviço.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(

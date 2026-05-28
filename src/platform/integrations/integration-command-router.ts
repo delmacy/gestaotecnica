@@ -17,8 +17,8 @@ export async function routeIntegrationCommand(
     source: "integration",
     actor: {
       type: "api_key",
-      id: "dev-api-key",
-      name: "Development API Key",
+      id: "gateway-api-key",
+      name: "Integration Gateway",
     },
     scopes: ["*"],
   });

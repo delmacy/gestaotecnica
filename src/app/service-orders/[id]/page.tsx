@@ -36,6 +36,9 @@ import {
 } from "@/modules/comments/queries";
 import { getWorkflowInstancesForTarget } from "@/modules/workflow-engine/queries";
 import { WorkflowInstancePanel } from "@/modules/workflow-engine/workflow-instance-panel";
+import { ActionBar } from "@/components/action-bar";
+import { getAvailableActionsForEntity } from "@/platform/views";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +93,13 @@ export default async function ServiceOrderDetailPage({
     notFound();
   }
 
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const availableActions = await getAvailableActionsForEntity(
+    "service_order",
+    serviceOrder.status,
+    context,
+  );
+
   return (
     <main className="min-h-screen bg-[#f6f7f4] text-[#1c211b]">
       <section className="border-b border-[#d7dccf] bg-[#fbfcf8]">
@@ -102,12 +112,15 @@ export default async function ServiceOrderDetailPage({
               </h1>
               <p className="mt-2 text-lg text-[#273025]">{serviceOrder.title}</p>
             </div>
-            <Link
+            <div className="flex flex-col gap-2 items-end">
+              <ActionBar actions={availableActions} entityId={serviceOrder.id} path={`/service-orders/${serviceOrder.id}`} />
+              <Link
               className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
-              href="/service-orders"
-            >
-              Voltar para OS
-            </Link>
+                href="/service-orders"
+              >
+                Voltar para OS
+              </Link>
+            </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

@@ -1,10 +1,13 @@
 import { initializePlatformKernel } from "@/platform";
-import { routeIntegrationCommand } from "@/platform/integrations";
+import { routeIntegrationCommand, validateGatewayRequest } from "@/platform/integrations";
 import type { IntegrationCommandRequest } from "@/platform/integrations";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const authResponse = validateGatewayRequest(request);
+  if (authResponse) return authResponse;
+
   initializePlatformKernel();
 
   const body = (await request.json().catch(() => ({}))) as Partial<IntegrationCommandRequest>;

@@ -1,10 +1,9 @@
 "use server";
 
-import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
-import { eventLogs, serviceOrders } from "@/db/schema";
+import { runAction } from "@/platform/actions";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -21,154 +20,79 @@ function readOptionalText(formData: FormData, field: string) {
   return value.length > 0 ? value : undefined;
 }
 
-async function getServiceOrderForReview(id: string) {
-  const db = getDb();
-  const [serviceOrder] = await db
-    .select({
-      id: serviceOrders.id,
-      code: serviceOrders.code,
-      status: serviceOrders.status,
-      workItemId: serviceOrders.workItemId,
-      assetId: serviceOrders.assetId,
-    })
-    .from(serviceOrders)
-    .where(eq(serviceOrders.id, id))
-    .limit(1);
-
-  if (!serviceOrder) {
-    throw new Error("OS nao encontrada.");
-  }
-
-  return serviceOrder;
-}
-
-function revalidateServiceOrderSurfaces(serviceOrder: {
-  id: string;
-  workItemId: string | null;
-  assetId: string | null;
-}) {
-  revalidatePath("/");
-  revalidatePath("/approvals");
-  revalidatePath("/service-orders");
-  revalidatePath(`/service-orders/${serviceOrder.id}`);
-  if (serviceOrder.workItemId) {
-    revalidatePath(`/work-items/${serviceOrder.workItemId}`);
-  }
-  if (serviceOrder.assetId) {
-    revalidatePath(`/assets/${serviceOrder.assetId}`);
-  }
-}
-
 export async function submitServiceOrderForReview(formData: FormData) {
   const id = readRequiredText(formData, "id");
   const note = readOptionalText(formData, "note");
-  const db = getDb();
-  const previous = await getServiceOrderForReview(id);
+  const context = await resolveWorkspaceContext({ source: "ui" });
 
-  if (previous.status === "approved" || previous.status === "cancelled") {
-    throw new Error("OS aprovada ou cancelada nao pode ser enviada para revisao.");
-  }
-
-  await db
-    .update(serviceOrders)
-    .set({
-      status: "waiting_review",
-      completedAt: previous.status === "completed" ? undefined : new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(serviceOrders.id, previous.id));
-
-  await db.insert(eventLogs).values({
-    eventType: "service_order.review_requested",
-    entityType: "service_order",
-    entityId: previous.id,
-    serviceOrderId: previous.id,
-    workItemId: previous.workItemId,
-    assetId: previous.assetId,
-    payload: {
-      code: previous.code,
-      from: previous.status,
-      to: "waiting_review",
+  const result = await runAction(
+    "approvals.request",
+    {
+      serviceOrderId: id,
       note,
     },
-  });
+    context,
+  );
 
-  revalidateServiceOrderSurfaces(previous);
-  redirect(`/service-orders/${previous.id}`);
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao enviar para revisão.");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/approvals");
+  revalidatePath("/service-orders");
+  revalidatePath(`/service-orders/${id}`);
+  redirect(`/service-orders/${id}`);
 }
 
 export async function approveServiceOrder(formData: FormData) {
   const id = readRequiredText(formData, "id");
   const note = readOptionalText(formData, "note");
-  const db = getDb();
-  const previous = await getServiceOrderForReview(id);
+  const context = await resolveWorkspaceContext({ source: "ui" });
 
-  if (previous.status !== "waiting_review" && previous.status !== "completed") {
-    throw new Error("Apenas OS em revisao ou concluidas podem ser aprovadas.");
-  }
-
-  await db
-    .update(serviceOrders)
-    .set({
-      status: "approved",
-      approvedAt: new Date(),
-      completedAt: new Date(),
-      updatedAt: new Date(),
-    })
-    .where(eq(serviceOrders.id, previous.id));
-
-  await db.insert(eventLogs).values({
-    eventType: "service_order.approved",
-    entityType: "service_order",
-    entityId: previous.id,
-    serviceOrderId: previous.id,
-    workItemId: previous.workItemId,
-    assetId: previous.assetId,
-    payload: {
-      code: previous.code,
-      from: previous.status,
-      to: "approved",
+  const result = await runAction(
+    "approvals.decide",
+    {
+      serviceOrderId: id,
+      decision: "approve",
       note,
     },
-  });
+    context,
+  );
 
-  revalidateServiceOrderSurfaces(previous);
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao aprovar.");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/approvals");
+  revalidatePath("/service-orders");
+  revalidatePath(`/service-orders/${id}`);
   redirect("/approvals");
 }
 
 export async function returnServiceOrderForExecution(formData: FormData) {
   const id = readRequiredText(formData, "id");
   const note = readRequiredText(formData, "note");
-  const db = getDb();
-  const previous = await getServiceOrderForReview(id);
+  const context = await resolveWorkspaceContext({ source: "ui" });
 
-  if (previous.status !== "waiting_review" && previous.status !== "completed") {
-    throw new Error("Apenas OS em revisao ou concluidas podem voltar para execucao.");
-  }
-
-  await db
-    .update(serviceOrders)
-    .set({
-      status: "in_progress",
-      updatedAt: new Date(),
-    })
-    .where(eq(serviceOrders.id, previous.id));
-
-  await db.insert(eventLogs).values({
-    eventType: "service_order.review_returned",
-    entityType: "service_order",
-    entityId: previous.id,
-    serviceOrderId: previous.id,
-    workItemId: previous.workItemId,
-    assetId: previous.assetId,
-    payload: {
-      code: previous.code,
-      from: previous.status,
-      to: "in_progress",
+  const result = await runAction(
+    "approvals.decide",
+    {
+      serviceOrderId: id,
+      decision: "reject",
       note,
     },
-  });
+    context,
+  );
 
-  revalidateServiceOrderSurfaces(previous);
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao retornar.");
+  }
+
+  revalidatePath("/");
+  revalidatePath("/approvals");
+  revalidatePath("/service-orders");
+  revalidatePath(`/service-orders/${id}`);
   redirect("/approvals");
 }

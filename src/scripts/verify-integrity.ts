@@ -113,6 +113,22 @@ async function verifyIntegrity() {
   if (!docEvent || (docEvent.payload as { serviceOrderId: string }).serviceOrderId !== soId) throw new Error("Documento técnico não foi gerado após aprovação.");
   console.log(`   OK: Documento gerado automaticamente: ${(docEvent.payload as { title: string }).title}`);
 
+  // 8. Testar Módulo de Planejamento (Fase 6)
+  console.log("6. Testando Planejamento (Planos de Manutenção)...");
+  const planResult = await runAction("maintenance_plans.create", {
+    title: "Plano Preventiva Ar-Condicionado",
+    objective: "Limpeza mensal dos filtros."
+  }, context);
+  if (!planResult.success) throw new Error("Falha na Action maintenance_plans.create");
+  const planId = (planResult.data as { id: string }).id;
+  console.log(`   OK: Plano de manutenção ${planId} criado.`);
+
+  // Verificar se a OS preventiva foi gerada pelo flow 'periodic-maintenance-generator'
+  await new Promise(r => setTimeout(r, 1000));
+  const [prevSO] = await db.select().from(eventLogs).where(eq(eventLogs.eventType, "maintenance_plan.order_generated")).orderBy(desc(eventLogs.occurredAt)).limit(1);
+  if (!prevSO || prevSO.entityId !== planId) throw new Error("OS preventiva automática não foi gerada.");
+  console.log(`   OK: OS preventiva gerada automaticamente: ${(prevSO.payload as { code: string }).code}`);
+
   console.log("\n--- Integridade Verificada com Sucesso! ---");
 }
 

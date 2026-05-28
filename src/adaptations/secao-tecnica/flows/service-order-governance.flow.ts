@@ -42,3 +42,19 @@ export class ServiceOrderApprovedDocumentFlow extends Flow {
     ctx.logger.info("Documento técnico gerado.");
   }
 }
+
+export class PeriodicMaintenanceGeneratorFlow extends Flow {
+  key = "periodic-maintenance-generator";
+  name = "Gerador de manutenção periódica";
+  version = "0.1.0";
+  trigger = { eventType: "maintenance_plan.created" };
+
+  async run(ctx: FlowContext) {
+    // Simulação: Quando um plano é criado, geramos a primeira OS imediatamente
+    await ctx.actions.run("maintenance_plans.generate_order", {
+      planId: ctx.event.entityId,
+    });
+
+    ctx.logger.info("Primeira OS de manutenção preventiva gerada.");
+  }
+}

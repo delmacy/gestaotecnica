@@ -4,6 +4,8 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
+import { runAction } from "@/platform/actions";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   acquisitionNeeds,
   eventLogs,
@@ -61,36 +63,26 @@ export async function createMaintenancePlan(formData: FormData) {
   const objective = readOptionalText(formData, "objective");
   const assetId = readOptionalText(formData, "assetId");
   const ownerTeamId = readOptionalText(formData, "ownerTeamId");
-  const periodStart = readOptionalDate(formData, "periodStart");
-  const periodEnd = readOptionalDate(formData, "periodEnd");
-  const status = readEnum<PlanningStatusValue>(formData, "status", planningStatuses, "draft");
-  const priority = readEnum<PriorityValue>(formData, "priority", priorities, "medium");
-  const db = getDb();
+  const periodStart = readOptionalText(formData, "periodStart");
+  const periodEnd = readOptionalText(formData, "periodEnd");
 
-  const [plan] = await db.insert(maintenancePlans).values({
-    title,
-    objective,
-    assetId,
-    ownerTeamId,
-    periodStart,
-    periodEnd,
-    status,
-    priority,
-    checklist: [],
-  }).returning({
-    id: maintenancePlans.id,
-    title: maintenancePlans.title,
-    status: maintenancePlans.status,
-    assetId: maintenancePlans.assetId,
-  });
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const result = await runAction(
+    "maintenance_plans.create",
+    {
+      title,
+      objective,
+      assetId,
+      ownerTeamId,
+      periodStart,
+      periodEnd,
+    },
+    context,
+  );
 
-  await db.insert(eventLogs).values({
-    eventType: "maintenance_plan.created",
-    entityType: "maintenance_plan",
-    entityId: plan.id,
-    assetId: plan.assetId,
-    payload: plan,
-  });
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao criar plano.");
+  }
 
   revalidatePath("/");
   revalidatePath("/maintenance-plans");

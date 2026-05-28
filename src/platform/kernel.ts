@@ -3,6 +3,7 @@ import { WorkItemAutoServiceOrderFlow } from "@/adaptations/secao-tecnica/flows/
 import {
   ServiceOrderGovernanceFlow,
   ServiceOrderApprovedDocumentFlow,
+  PeriodicMaintenanceGeneratorFlow,
 } from "@/adaptations/secao-tecnica/flows/service-order-governance.flow";
 import { approvalsManifest } from "@/modules/approvals/manifest";
 import {
@@ -34,6 +35,13 @@ import {
   completeServiceOrderKernelAction,
   createServiceOrderKernelAction,
 } from "@/modules/service-orders/kernel-actions";
+import { schedulesManifest } from "@/modules/schedules/manifest";
+import { createScheduleKernelAction } from "@/modules/schedules/kernel-actions";
+import { maintenancePlansManifest } from "@/modules/maintenance-plans/manifest";
+import {
+  createMaintenancePlanKernelAction,
+  generateMaintenanceOrderKernelAction,
+} from "@/modules/maintenance-plans/kernel-actions";
 import { shiftsManifest } from "@/modules/shifts/manifest";
 import {
   addShiftLogEntryKernelAction,
@@ -52,6 +60,8 @@ import {
 } from "@/modules/workforce/kernel-actions";
 import { globalSearchManifest } from "@/modules/global-search/manifest";
 import { globalSearchKernelAction } from "@/modules/global-search/kernel-actions";
+import { dashboardManifest } from "@/modules/dashboard/manifest";
+import { getDashboardSummaryKernelAction } from "@/modules/dashboard/kernel-actions";
 import { registerAction } from "@/platform/actions";
 import { registerDefaultEvents } from "@/platform/events/default-events";
 import { registerFlow } from "@/platform/flows";
@@ -67,7 +77,10 @@ export function initializePlatformKernel() {
   registerModule(notificationsManifest);
   registerModule(assetsManifest);
   registerModule(workforceManifest);
+  registerModule(schedulesManifest);
+  registerModule(maintenancePlansManifest);
   registerModule(globalSearchManifest);
+  registerModule(dashboardManifest);
   registerModule(reportsManifest);
   registerModule(automationsManifest);
   registerModule(documentsManifest);
@@ -91,11 +104,15 @@ export function initializePlatformKernel() {
   registerAction(transitionDocumentKernelAction);
   registerAction(createLegacyRecordKernelAction);
   registerAction(addShiftLogEntryKernelAction);
+  registerAction(createScheduleKernelAction);
+  registerAction(createMaintenancePlanKernelAction);
+  registerAction(generateMaintenanceOrderKernelAction);
   registerAction(openShiftKernelAction);
   registerAction(closeShiftKernelAction);
   registerAction(createTechnicianKernelAction);
   registerAction(createTeamKernelAction);
   registerAction(globalSearchKernelAction);
+  registerAction(getDashboardSummaryKernelAction);
   registerAction(attachEvidenceKernelAction);
   registerAction(requestApprovalKernelAction);
   registerAction(decideApprovalKernelAction);
@@ -104,6 +121,7 @@ export function initializePlatformKernel() {
   registerFlow(new WorkItemAutoServiceOrderFlow());
   registerFlow(new ServiceOrderGovernanceFlow());
   registerFlow(new ServiceOrderApprovedDocumentFlow());
+  registerFlow(new PeriodicMaintenanceGeneratorFlow());
 
   initialized = true;
 }

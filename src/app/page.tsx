@@ -7,7 +7,9 @@ import {
   Search,
   Settings2,
 } from "lucide-react";
-import { getDashboardSummary } from "@/modules/dashboard/queries";
+import { runAction } from "@/platform/actions";
+import { resolveWorkspaceContext } from "@/platform/workspace";
+import type { DashboardSummary } from "@/modules/dashboard/queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -211,7 +213,9 @@ const quickLinks = [
 ];
 
 export default async function Home() {
-  const dashboard = await getDashboardSummary();
+  const context = await resolveWorkspaceContext({ source: "system" });
+  const result = await runAction("dashboard.get_summary", {}, context);
+  const dashboard = result.success ? (result.data as DashboardSummary) : { available: false, metrics: [] };
 
   return (
     <main className="min-h-screen bg-background text-foreground">

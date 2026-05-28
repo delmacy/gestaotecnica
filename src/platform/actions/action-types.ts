@@ -54,5 +54,6 @@ export type ActionDefinition<TInput = unknown, TOutput = unknown> = {
   outputSchema?: ActionJsonSchema;
   emits?: string[];
   idempotent?: boolean;
+  allowedStatuses?: string[];
   handler: ActionHandler<TInput, TOutput>;
 };

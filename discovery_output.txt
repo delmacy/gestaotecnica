@@ -1,0 +1,11 @@
+--- Verificação de Descoberta de Ações (View Engine) ---
+1. Testando ações para WorkItem em estado 'open'...
+   Ações encontradas: []
+
+2. Testando ações para Service Order em estado 'assigned'...
+   Ações encontradas (assigned): []
+
+--- FALHA NA VERIFICAÇÃO DE DESCOBERTA ---
+Error: Action service_orders.complete deveria estar disponível para 'assigned'
+    at verifyDiscovery (/app/src/scripts/verify-discovery.ts:22:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)

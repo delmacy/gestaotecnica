@@ -22,6 +22,9 @@ import {
   getEntityAttachments,
   getEntityComments,
 } from "@/modules/comments/queries";
+import { ActionBar } from "@/components/action-bar";
+import { getAvailableActionsForEntity } from "@/platform/views";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +65,13 @@ export default async function WorkItemDetailPage({
     notFound();
   }
 
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const availableActions = await getAvailableActionsForEntity(
+    "work_item",
+    workItem.status,
+    context,
+  );
+
   return (
     <main className="min-h-screen bg-[#f6f7f4] text-[#1c211b]">
       <section className="border-b border-[#d7dccf] bg-[#fbfcf8]">
@@ -78,12 +88,15 @@ export default async function WorkItemDetailPage({
                 {workItem.id}
               </p>
             </div>
-            <Link
+            <div className="flex flex-col gap-2 items-end">
+              <ActionBar actions={availableActions} entityId={workItem.id} path={`/work-items/${workItem.id}`} />
+              <Link
               className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
-              href="/work-items"
-            >
-              Voltar para WorkItems
-            </Link>
+                href="/work-items"
+              >
+                Voltar para WorkItems
+              </Link>
+            </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

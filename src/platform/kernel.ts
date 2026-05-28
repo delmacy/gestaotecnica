@@ -40,6 +40,8 @@ import {
   createTeamKernelAction,
   createTechnicianKernelAction,
 } from "@/modules/workforce/kernel-actions";
+import { globalSearchManifest } from "@/modules/global-search/manifest";
+import { globalSearchKernelAction } from "@/modules/global-search/kernel-actions";
 import { registerAction } from "@/platform/actions";
 import { registerDefaultEvents } from "@/platform/events/default-events";
 import { registerFlow } from "@/platform/flows";
@@ -55,6 +57,7 @@ export function initializePlatformKernel() {
   registerModule(notificationsManifest);
   registerModule(assetsManifest);
   registerModule(workforceManifest);
+  registerModule(globalSearchManifest);
   registerModule(reportsManifest);
   registerModule(automationsManifest);
   registerModule(documentsManifest);
@@ -81,6 +84,7 @@ export function initializePlatformKernel() {
   registerAction(closeShiftKernelAction);
   registerAction(createTechnicianKernelAction);
   registerAction(createTeamKernelAction);
+  registerAction(globalSearchKernelAction);
   registerAction(attachEvidenceKernelAction);
   registerAction(requestApprovalKernelAction);
 

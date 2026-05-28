@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "Gestao Tecnica",
-  description: "Plataforma modular para gestao operacional de secao tecnica.",
+  title: "System Builder Platform",
+  description: "Plataforma modular para montar sistemas operacionais por workspace.",
 };
 
 export default function RootLayout({

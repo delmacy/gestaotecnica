@@ -1,56 +1,65 @@
-# Packs Contextuais e Adaptacoes por Cliente
+# Packs Contextuais e Adaptações por Cliente
 
 ## Objetivo
 
-Embora cada modulo possa existir individualmente, a implantacao real deve ser feita por packs contextuais. Isso evita vender ou ativar um modulo sem as dependencias operacionais necessarias.
+Embora cada módulo possa existir individualmente, a implantação real deve ser
+feita por packs contextuais. Isso evita vender ou ativar um módulo sem as
+dependências operacionais necessárias.
 
-Exemplo: um cliente que usa `workforce` normalmente precisa de `schedules` e `shifts` para lancamento de horarios, escala, turno e disponibilidade.
+Exemplo: um cliente que usa `workforce` normalmente precisa de `schedules` e
+`shifts` para lançamento de horários, escala, turno e disponibilidade.
 
-## Operacoes Tecnicas
+## Operações de Campo e Atendimento
 
-Departamento: Operacao / Sala Tecnica.
+Contexto: operação técnica, campo, manutenção, suporte interno, facilities ou
+atendimento operacional.
 
-Obrigatorios: `work-items`, `service-orders`, `assets`, `workforce`, `schedules`, `shifts`.
+Obrigatórios: `work-items`, `service-orders`, `assets`, `workforce`, `schedules`, `shifts`.
 
 Recomendados: `evidences`, `comments`, `events`, `reports`, `workflow-engine`.
 
 ## Planejamento e Recursos
 
-Departamento: Planejamento / Gestao Tecnica.
+Contexto: planejamento operacional, engenharia, recursos, manutenção preventiva
+ou gestão de capacidade.
 
-Obrigatorios: `maintenance-plans`, `technical-projects`, `acquisitions`, `resource-needs`.
+Obrigatórios: `maintenance-plans`, `technical-projects`, `acquisitions`, `resource-needs`.
 
 Recomendados: `suppliers`, `inventory`, `reports`, `documents`, `workflow-engine`.
 
-## Governanca Documental
+## Governança Documental
 
-Departamento: Secretaria Tecnica / Qualidade.
+Contexto: qualidade, secretaria operacional, conformidade, auditoria ou
+governança documental.
 
-Obrigatorios: `documents`, `reports`, `approvals`, `legacy`.
+Obrigatórios: `documents`, `reports`, `approvals`, `legacy`.
 
 Recomendados: `evidences`, `compliance`, `automations`, `events`.
 
-## Integracoes e Automacoes
+## Integrações e Automações
 
-Departamento: TI / Integracoes.
+Contexto: TI, integrações, automações, conectores, RPA e sistemas legados.
 
-Obrigatorios: `automations`, `legacy`, `events`.
+Obrigatórios: `automations`, `legacy`, `events`.
 
 Recomendados: `reports`, `documents`, `workflow-engine`, `workspace-config`.
 
-## Manual de adaptacao
+## Manual de adaptação
 
 1. Escolha o pack contextual principal.
-2. Ative os modulos obrigatorios.
-3. Escolha modulos recomendados conforme maturidade do cliente.
+2. Ative os módulos obrigatórios.
+3. Escolha módulos recomendados conforme maturidade do cliente.
 4. Configure terminologia em `src/adaptations/<cliente>/terminology.ts`.
 5. Configure tipos, status, filas, workflows e templates.
-6. Exponha apenas as APIs necessarias via gateway.
+6. Exponha apenas as APIs necessárias via gateway.
 7. Registre plugins externos em `integration_plugins`.
 8. Use webhooks e eventos para integrar sem acoplar o core ao sistema do cliente.
 
-## Regra de decisao
+## Regra de decisão
 
-Modulo e capacidade. Pack e contexto operacional. Adaptacao e linguagem/regra do cliente.
+Módulo é capacidade. Pack é contexto operacional. Adaptação é linguagem e regra
+do cliente.
 
-Essa separacao permite que a plataforma funcione como builder expansivel, semelhante a extensoes de navegador: o core fornece contratos, os packs organizam capacidades e os plugins ampliam a execucao.
+Essa separação permite que a plataforma funcione como builder expansível,
+semelhante a extensões de navegador: o core fornece contratos, os packs
+organizam capacidades e os plugins ampliam a execução.

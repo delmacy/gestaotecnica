@@ -1,6 +1,8 @@
-# Blueprint Modular da Plataforma de Gestão Técnica
+# Blueprint Modular da System Builder Platform
 
-> Nota: este blueprint representa a primeira visão modular da plataforma.
+> Nota: este blueprint representa a primeira visão modular da plataforma como
+> system builder operacional. A Seção Técnica é a primeira adaptação usada para
+> validar o modelo, não a identidade principal do produto.
 > A versão arquitetural atualizada, com core reutilizável, workspaces e
 > adaptações por cliente, está em
 > `docs/07-blueprint-core-workspaces-adaptacoes.md`.

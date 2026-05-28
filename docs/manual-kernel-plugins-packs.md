@@ -1,14 +1,18 @@
-# Manual: Kernel, Plugins e Packs de Adaptação
+# Manual: System Builder, Kernel, Plugins e Packs
 
 ## 1. Conceito
 
-A plataforma é montada por capacidades.
+A plataforma é um system builder operacional montado por capacidades.
 
 - Módulos declaram actions, events, views e dependências.
 - Actions executam trabalho e emitem events.
 - Events entram em `event_logs` e `outbox_events`.
 - Flows reagem a events e chamam outras actions.
+- Packs contextuais agrupam módulos que precisam operar juntos.
 - Adaptações configuram comportamento por cliente/workspace.
+
+A Seção Técnica é uma adaptação inicial. Ela não deve determinar o vocabulário
+do core, dos módulos ou dos manuais gerais.
 
 ## 2. Criar uma action
 
@@ -107,6 +111,8 @@ Exemplos:
 - Módulos não devem conhecer regra local de cliente.
 - Adaptações devem compor actions existentes antes de pedir novas regras internas.
 - Integrações externas devem chamar actions pelo gateway, não tabelas diretamente.
+- Manuais gerais devem falar em plataforma, cliente, workspace, pack e módulo.
+- Termos como Seção Técnica, sala técnica, plantão e livro de turno devem ficar em documentação da adaptação.
 
 ## 9. Próxima maturidade
 

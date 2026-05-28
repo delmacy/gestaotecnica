@@ -1,8 +1,10 @@
-# Modulos da Plataforma
+# Módulos da System Builder Platform
 
-Os modulos sao blocos reutilizaveis do ecossistema operacional.
+Os módulos são blocos reutilizáveis do ecossistema operacional. Eles devem ser
+descritos como capacidades de uma plataforma de montagem, não como partes de um
+único sistema de gestão técnica.
 
-## Modulos implementados
+## Módulos implementados
 
 - WorkItems
 - ServiceOrders
@@ -25,29 +27,29 @@ Os modulos sao blocos reutilizaveis do ecossistema operacional.
 - ResourceNeeds
 - Skills
 
-## Padrao de documentacao por modulo
+## Padrão de documentação por módulo
 
-Cada modulo deve registrar:
+Cada módulo deve registrar:
 
 1. Objetivo
 2. Responsabilidades
-3. O que e universal
+3. O que é universal
 4. O que pode ser adaptado por cliente
 5. Entidades/tabelas atuais
 6. Actions/use cases
 7. Queries principais
 8. Eventos emitidos
-9. Dependencias
-10. Limitacoes atuais
-11. Evolucao futura
-12. Possiveis alteracoes de base
+9. Dependências
+10. Limitações atuais
+11. Evolução futura
+12. Possíveis alterações de base
 
 ## Regra
 
-Se uma variacao pertence ao cliente, ela deve entrar em `src/adaptations`.
-Se ela pertence ao comportamento reutilizavel, deve entrar em `src/modules`.
+Se uma variação pertence ao cliente, ela deve entrar em `src/adaptations`.
+Se ela pertence ao comportamento reutilizável, deve entrar em `src/modules`.
 
-## Documentos especificos
+## Documentos específicos
 
 - `docs/modulos/auth.md`
 - `docs/modulos/admin.md`

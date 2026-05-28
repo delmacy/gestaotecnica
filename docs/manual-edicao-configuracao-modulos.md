@@ -1,6 +1,9 @@
 # Manual de Edição e Configuração de Módulos por Cliente
 
-Este manual explica como adaptar a plataforma para um cliente sem quebrar o core.
+Este manual explica como adaptar a system builder platform para um cliente sem
+quebrar o core. O objetivo não é configurar um único sistema de gestão técnica,
+mas montar soluções operacionais sob medida a partir de módulos, packs,
+workspaces e adaptações.
 
 ## 1. Regra principal
 
@@ -17,7 +20,7 @@ Antes de alterar código, classifique a mudança:
 
 ## 2. Onde editar cada coisa
 
-Use `src/adaptations/secao-tecnica` para a primeira adaptação:
+Use `src/adaptations/secao-tecnica` como primeira adaptação de referência:
 
 - `terminology.ts`: nomes exibidos para entidades.
 - `demand-types.ts`: tipos de demanda e comportamento de triagem.
@@ -72,6 +75,11 @@ Se a mudança for label, descrição, ativação ou uma opção local simples, u
 `/workspace-config`. Se a nova chave precisar fazer parte do produto-base ou
 ser reaproveitada em futuros clientes, adicione também na adaptação versionada
 para que o bootstrap continue documentando a intenção original.
+
+Em manuais gerais, use linguagem neutra de plataforma: cliente, workspace,
+operação, módulo, pack, action, event e flow. Termos específicos como sala
+técnica, plantão, sobreaviso e livro de turno devem aparecer apenas na
+documentação da adaptação correspondente.
 
 Exemplo:
 

@@ -69,7 +69,7 @@ export function WorkflowInstancePanel({
                       <input name="workflowInstanceId" type="hidden" value={instance.id} />
                       <input name="returnTo" type="hidden" value={returnTo} />
                       <select className="h-10 border border-[#c8d0bf] bg-white px-3 text-sm" name="toState" defaultValue={instance.currentState}>
-                        {states.map((state) => (
+                        {states.map((state: any) => (
                           <option key={state} value={state}>{state}</option>
                         ))}
                       </select>

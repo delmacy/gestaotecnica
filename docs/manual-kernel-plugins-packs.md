@@ -11,7 +11,7 @@ A plataforma é um system builder operacional montado por capacidades.
 - Packs contextuais agrupam módulos que precisam operar juntos.
 - Adaptações configuram comportamento por cliente/workspace.
 
-A Seção Operacional é uma adaptação inicial. Ela não deve determinar o vocabulário
+A Seção Técnica é uma adaptação inicial. Ela não deve determinar o vocabulário
 do core, dos módulos ou dos manuais gerais.
 
 ## 2. Criar uma action
@@ -112,7 +112,7 @@ Exemplos:
 - Adaptações devem compor actions existentes antes de pedir novas regras internas.
 - Integrações externas devem chamar actions pelo gateway, não tabelas diretamente.
 - Manuais gerais devem falar em plataforma, cliente, workspace, pack e módulo.
-- Termos como Seção Operacional, sala operacional, plantão e livro de turno devem ficar em documentação da adaptação.
+- Termos como Seção Técnica, sala técnica, plantão e livro de turno devem ficar em documentação da adaptação.
 
 ## 9. Próxima maturidade
 

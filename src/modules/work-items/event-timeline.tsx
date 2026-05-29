@@ -41,7 +41,7 @@ export function WorkItemEventTimeline({ events }: { events: WorkItemEvent[] }) {
     <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Historico</h2>
       <ol className="mt-5 space-y-4">
-        {events.map((event) => (
+        {events.map((event: any) => (
           <li className="border-l border-[#b9c6ac] pl-4" key={event.id}>
             <p className="font-mono text-xs text-[#6e7a66]">
               {formatDate(event.occurredAt)}

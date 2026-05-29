@@ -39,7 +39,7 @@ export function ShiftEntriesList({ entries }: { entries: ShiftEntryRow[] }) {
 
   return (
     <div className="space-y-3">
-      {entries.map((entry) => (
+      {entries.map((entry: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={entry.id}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -63,7 +63,7 @@ export function ShiftEntriesList({ entries }: { entries: ShiftEntryRow[] }) {
 
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
             <div>
-              <p className="font-mono text-xs text-[#6e7a66]">execucao</p>
+              <p className="font-mono text-xs text-[#6e7a66]">OS</p>
               {entry.serviceOrderId && entry.serviceOrderCode ? (
                 <Link
                   className="mt-1 block text-[#273025] underline-offset-4 hover:underline"

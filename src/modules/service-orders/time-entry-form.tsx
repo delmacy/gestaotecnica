@@ -34,13 +34,13 @@ export function ServiceOrderTimeEntryForm({
           Apontar tempo
         </h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Registre a execucao realizada por um responsavel atribuido.
+          Registre a execucao realizada por um tecnico atribuido.
         </p>
       </div>
 
       <div className="space-y-4">
         <label className="block">
-          <span className="text-sm font-medium text-[#273025]">Responsavel</span>
+          <span className="text-sm font-medium text-[#273025]">Tecnico</span>
           <select
             className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
             disabled={activeAssignments.length === 0}
@@ -48,7 +48,7 @@ export function ServiceOrderTimeEntryForm({
             required
           >
             <option value="">Selecione</option>
-            {activeAssignments.map((assignment) => (
+            {activeAssignments.map((assignment: any) => (
               <option
                 key={assignment.id}
                 value={assignment.technicianProfileId}
@@ -86,13 +86,13 @@ export function ServiceOrderTimeEntryForm({
           <textarea
             className="mt-1 min-h-24 w-full resize-y border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm leading-6 outline-none focus:border-[#6b7d5d]"
             name="notes"
-            placeholder="Resumo responsavel, impedimentos, medicao ou atividade realizada."
+            placeholder="Resumo tecnico, impedimentos, medicao ou atividade realizada."
           />
         </label>
 
         {activeAssignments.length === 0 ? (
           <p className="text-sm leading-6 text-[#5b6655]">
-            Atribua um responsavel ativo antes de apontar tempo.
+            Atribua um tecnico ativo antes de apontar tempo.
           </p>
         ) : null}
 

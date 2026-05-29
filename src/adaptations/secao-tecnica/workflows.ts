@@ -1,0 +1,48 @@
+export const workflows = [
+  {
+    key: "work_item_default",
+    label: "Fluxo Padrao de Demanda",
+    target: "work_item",
+    states: [
+      "draft",
+      "open",
+      "triaged",
+      "planned",
+      "in_progress",
+      "blocked",
+      "resolved",
+      "cancelled",
+    ],
+  },
+  {
+    key: "service_order_default",
+    label: "Fluxo Padrao de Ordem de Servico",
+    target: "service_order",
+    states: [
+      "draft",
+      "open",
+      "assigned",
+      "in_progress",
+      "waiting_review",
+      "completed",
+      "approved",
+      "cancelled",
+    ],
+  },
+  {
+    key: "technical_document_default",
+    label: "Fluxo Padrao de Documento Tecnico",
+    target: "technical_document",
+    states: [
+      "draft",
+      "prepared_by_secretary",
+      "waiting_technician_review",
+      "waiting_supervisor_approval",
+      "approved",
+      "signed",
+      "exported_to_legacy",
+      "archived",
+      "returned_for_correction",
+    ],
+  },
+] as const;

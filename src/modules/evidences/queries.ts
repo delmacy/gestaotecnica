@@ -45,7 +45,7 @@ export async function getEvidenceSummary() {
 
   return [
     { label: "Evidencias", value: totalRow.value },
-    { label: "Com execucao", value: serviceOrderRow.value },
+    { label: "Com OS", value: serviceOrderRow.value },
     { label: "Com ativo", value: assetRow.value },
   ];
 }

@@ -1,6 +1,5 @@
 import { activeAdaptation } from "@/adaptations/active";
-
-type DemandTypeKey = (typeof activeAdaptation.demandTypes)[number]["key"];
+import type { DemandTypeKey } from "@/adaptations/secao-tecnica/demand-types";
 
 export const workItemTypes = activeAdaptation.demandTypes.map((item) => ({
   value: item.key,

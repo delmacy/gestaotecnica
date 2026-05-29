@@ -31,7 +31,7 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
           Nenhum ativo cadastrado
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Cadastre o primeiro ativo para vincular demandas e futuras execucao.
+          Cadastre o primeiro ativo para vincular demandas e futuras OS.
         </p>
       </div>
     );
@@ -52,7 +52,7 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e0e5d9] text-sm">
-            {assets.map((asset) => (
+            {assets.map((asset: any) => (
               <tr key={asset.id}>
                 <td className="px-4 py-4 align-top">
                   <Link

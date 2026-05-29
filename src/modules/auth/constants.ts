@@ -1,1 +1,1 @@
-export const AUTH_COOKIE = "system_builder_session";
+export const AUTH_COOKIE = "gestaotecnica_session";

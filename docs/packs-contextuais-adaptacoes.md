@@ -11,7 +11,7 @@ Exemplo: um cliente que usa `workforce` normalmente precisa de `schedules` e
 
 ## Operações de Campo e Atendimento
 
-Contexto: operação operacional, campo, manutenção, suporte interno, facilities ou
+Contexto: operação técnica, campo, manutenção, suporte interno, facilities ou
 atendimento operacional.
 
 Obrigatórios: `work-items`, `service-orders`, `assets`, `workforce`, `schedules`, `shifts`.

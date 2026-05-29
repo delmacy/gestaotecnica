@@ -31,7 +31,7 @@ export function LegacyTable({ records }: { records: LegacyRecord[] }) {
 
   return (
     <div className="space-y-3">
-      {records.map((record) => (
+      {records.map((record: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={record.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -44,7 +44,7 @@ export function LegacyTable({ records }: { records: LegacyRecord[] }) {
             <form action={updateLegacySyncStatus} className="flex flex-col gap-2 sm:flex-row">
               <input name="id" type="hidden" value={record.id} />
               <select className="h-10 border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="syncStatus" defaultValue={record.syncStatus}>
-                {legacySyncStatuses.map((status) => (
+                {legacySyncStatuses.map((status: any) => (
                   <option key={status.value} value={status.value}>{status.label}</option>
                 ))}
               </select>
@@ -54,7 +54,7 @@ export function LegacyTable({ records }: { records: LegacyRecord[] }) {
           </div>
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
             <div>
-              <p className="font-mono text-xs text-[#6e7a66]">execucao</p>
+              <p className="font-mono text-xs text-[#6e7a66]">OS</p>
               {record.serviceOrderId && record.serviceOrderCode ? (
                 <Link className="mt-1 block underline-offset-4 hover:underline" href={`/service-orders/${record.serviceOrderId}`}>{record.serviceOrderCode} - {record.serviceOrderTitle}</Link>
               ) : <p className="mt-1 text-[#273025]">Nao vinculada</p>}

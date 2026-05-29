@@ -26,7 +26,7 @@ export function WorkItemForm({
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-[#111510]">Nova demanda</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Registre a necessidade antes de decidir se ela vira execucao.
+          Registre a necessidade antes de decidir se ela vira OS.
         </p>
       </div>
 
@@ -49,7 +49,7 @@ export function WorkItemForm({
               defaultValue="solicitacao"
               name="type"
             >
-              {workItemTypes.map((type) => (
+              {workItemTypes.map((type: any) => (
                 <option key={type.value} value={type.value}>
                   {type.label}
                 </option>
@@ -64,7 +64,7 @@ export function WorkItemForm({
               defaultValue="medium"
               name="priority"
             >
-              {workItemPriorities.map((priority) => (
+              {workItemPriorities.map((priority: any) => (
                 <option key={priority.value} value={priority.value}>
                   {priority.label}
                 </option>
@@ -90,7 +90,7 @@ export function WorkItemForm({
             name="assetId"
           >
             <option value="">Sem ativo vinculado</option>
-            {assets.map((asset) => (
+            {assets.map((asset: any) => (
               <option key={asset.id} value={asset.id}>
                 {asset.code} - {asset.name}
               </option>

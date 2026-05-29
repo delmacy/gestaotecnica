@@ -13,8 +13,8 @@ export default async function AdminPermissionsPage() {
   const { grants, permissions, roles } = await getPermissionMatrix();
   const grantKeys = new Set(
     grants
-      .filter((grant) => grant.isAllowed)
-      .map((grant) => `${grant.roleId}:${grant.permissionId}`),
+      .filter((grant: any) => grant.isAllowed)
+      .map((grant: any) => `${grant.roleId}:${grant.permissionId}`),
   );
 
   return (
@@ -30,12 +30,12 @@ export default async function AdminPermissionsPage() {
         </div>
         <h1 className="mt-6 text-3xl font-semibold">Permissoes</h1>
         <div className="mt-4 space-y-4">
-          {roles.map((role) => (
+          {roles.map((role: any) => (
             <Card key={role.id}>
               <CardContent className="p-4">
                 <h2 className="font-semibold">{role.label}</h2>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {permissions.map((permission) => (
+                  {permissions.map((permission: any) => (
                     <form action={toggleRolePermission} key={permission.id}>
                       <input name="roleId" type="hidden" value={role.id} />
                       <input

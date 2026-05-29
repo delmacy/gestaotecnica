@@ -23,14 +23,14 @@ export function WorkItemServiceOrdersList({
   if (serviceOrders.length === 0) {
     return (
       <div className="border border-[#d7dccf] bg-white p-5 text-sm text-[#5b6655] shadow-sm">
-        Nenhuma execucao criada a partir desta demanda.
+        Nenhuma OS criada a partir desta demanda.
       </div>
     );
   }
 
   return (
     <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-[#111510]">execucao vinculadas</h2>
+      <h2 className="text-lg font-semibold text-[#111510]">OS vinculadas</h2>
       <div className="mt-4 space-y-3">
         {serviceOrders.map((serviceOrder) => (
           <Link

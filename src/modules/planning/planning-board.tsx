@@ -96,9 +96,9 @@ export function PlanningBoard({
         <h2 className="text-lg font-semibold text-[#111510]">Planejadas</h2>
         <div className="mt-4 space-y-3">
           {plannedOrders.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Sem execucao planejadas.</p>
+            <p className="text-sm text-[#5b6655]">Sem OS planejadas.</p>
           ) : (
-            plannedOrders.map((order) => (
+            plannedOrders.map((order: any) => (
               <ServiceOrderCard key={order.id} order={order} />
             ))
           )}
@@ -109,9 +109,9 @@ export function PlanningBoard({
         <h2 className="text-lg font-semibold text-[#111510]">Execucao</h2>
         <div className="mt-4 space-y-3">
           {executionOrders.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Sem execucao em execucao.</p>
+            <p className="text-sm text-[#5b6655]">Sem OS em execucao.</p>
           ) : (
-            executionOrders.map((order) => (
+            executionOrders.map((order: any) => (
               <ServiceOrderCard key={order.id} order={order} />
             ))
           )}
@@ -122,9 +122,9 @@ export function PlanningBoard({
         <h2 className="text-lg font-semibold text-[#111510]">Revisao</h2>
         <div className="mt-4 space-y-3">
           {reviewOrders.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Sem execucao em revisao.</p>
+            <p className="text-sm text-[#5b6655]">Sem OS em revisao.</p>
           ) : (
-            reviewOrders.map((order) => (
+            reviewOrders.map((order: any) => (
               <ServiceOrderCard key={order.id} order={order} />
             ))
           )}

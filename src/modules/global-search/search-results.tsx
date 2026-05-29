@@ -28,7 +28,7 @@ export function SearchResults({
           Digite pelo menos 2 caracteres
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Busque por codigo, titulo, ativo, responsavel, solicitante ou especialidade.
+          Busque por codigo, titulo, ativo, tecnico, solicitante ou especialidade.
         </p>
       </div>
     );
@@ -42,7 +42,7 @@ export function SearchResults({
           {results.workItems.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Sem demandas encontradas.</p>
           ) : (
-            results.workItems.map((item) => (
+            results.workItems.map((item: any) => (
               <Link
                 className="block border border-[#e0e5d9] bg-[#fbfcf8] p-4 hover:bg-[#f1f3ed]"
                 href={`/work-items/${item.id}`}
@@ -60,12 +60,12 @@ export function SearchResults({
       </section>
 
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">execucao</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">OS</h2>
         <div className="mt-4 space-y-3">
           {results.serviceOrders.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Sem execucao encontradas.</p>
+            <p className="text-sm text-[#5b6655]">Sem OS encontradas.</p>
           ) : (
-            results.serviceOrders.map((order) => (
+            results.serviceOrders.map((order: any) => (
               <Link
                 className="block border border-[#e0e5d9] bg-[#fbfcf8] p-4 hover:bg-[#f1f3ed]"
                 href={`/service-orders/${order.id}`}
@@ -89,7 +89,7 @@ export function SearchResults({
           {results.assets.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Sem ativos encontrados.</p>
           ) : (
-            results.assets.map((asset) => (
+            results.assets.map((asset: any) => (
               <Link
                 className="block border border-[#e0e5d9] bg-[#fbfcf8] p-4 hover:bg-[#f1f3ed]"
                 href={`/assets/${asset.id}`}
@@ -107,12 +107,12 @@ export function SearchResults({
       </section>
 
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">Responsavels</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">Tecnicos</h2>
         <div className="mt-4 space-y-3">
           {results.technicians.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Sem responsavels encontrados.</p>
+            <p className="text-sm text-[#5b6655]">Sem tecnicos encontrados.</p>
           ) : (
-            results.technicians.map((technician) => (
+            results.technicians.map((technician: any) => (
               <div className="border border-[#e0e5d9] bg-[#fbfcf8] p-4" key={technician.id}>
                 <p className="font-semibold text-[#182017]">{technician.name}</p>
                 <p className="mt-1 text-sm text-[#5b6655]">{technician.email}</p>

@@ -16,7 +16,7 @@ export function TeamsList({ teams }: { teams: TeamRow[] }) {
 
   return (
     <div className="space-y-3">
-      {teams.map((team) => (
+      {teams.map((team: any) => (
         <article className="border border-[#d7dccf] bg-white p-4 shadow-sm" key={team.id}>
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-semibold text-[#182017]">{team.name}</h3>

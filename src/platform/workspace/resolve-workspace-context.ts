@@ -40,11 +40,8 @@ const fallbackEnabledModules = [
 export async function resolveWorkspaceContext(
   input: ResolveWorkspaceContextInput = {},
 ): Promise<WorkspaceContext> {
-  const workspaceKey = input.workspaceKey ?? "system-builder";
-  const lookupKeys =
-    workspaceKey === "system-builder"
-      ? ["system-builder", "system-builder-dev"]
-      : [workspaceKey];
+  const workspaceKey = input.workspaceKey ?? "sala-tecnica";
+  const lookupKeys = workspaceKey === "sala-tecnica" ? ["sala-tecnica", "secao-tecnica"] : [workspaceKey];
   const db = getDb();
 
   let [workspace] = await db
@@ -57,7 +54,7 @@ export async function resolveWorkspaceContext(
     .where(and(inArray(workspaces.key, lookupKeys), eq(workspaces.isActive, true)))
     .limit(1);
 
-  if (!workspace && workspaceKey === "system-builder") {
+  if (!workspace && workspaceKey === "sala-tecnica") {
     const seededWorkspace = await ensureActiveWorkspaceConfig();
     workspace = {
       id: seededWorkspace.id,
@@ -82,7 +79,7 @@ export async function resolveWorkspaceContext(
   return {
     workspaceId: workspace?.id ?? workspaceKey,
     workspaceKey: workspace?.key ?? workspaceKey,
-    adaptationKey: workspace?.adaptationKey ?? "system-builder",
+    adaptationKey: workspace?.adaptationKey ?? "secao-tecnica",
     actor: {
       type: input.actor?.type ?? "system",
       id: input.actor?.id,

@@ -26,14 +26,14 @@ export function TechnicianTimeList({
   if (technicians.length === 0) {
     return (
       <div className="border border-[#d7dccf] bg-white p-5 text-sm text-[#5b6655] shadow-sm">
-        Sem horas consolidadas por responsavel.
+        Sem horas consolidadas por tecnico.
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      {technicians.map((technician) => (
+      {technicians.map((technician: any) => (
         <article
           className="border border-[#d7dccf] bg-white p-4 shadow-sm"
           key={technician.technicianProfileId}

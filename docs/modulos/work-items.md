@@ -6,4 +6,4 @@ Tipos de demanda ficam em `work_item_type_definitions` e podem ser editados em `
 
 ## Adaptacao por cliente
 
-Configure tipo, label, fila padrao, prioridade inicial e se pode gerar execucao ou aparecer no livro de turno.
+Configure tipo, label, fila padrao, prioridade inicial e se pode gerar OS ou aparecer no livro de turno.

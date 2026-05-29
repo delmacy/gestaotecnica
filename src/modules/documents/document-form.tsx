@@ -25,7 +25,7 @@ export async function DocumentForm() {
         <label className="block">
           <span className="text-sm font-medium text-[#273025]">Tipo</span>
           <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="documentType" defaultValue="technical_report">
-            {documentTypes.map((type) => (
+            {documentTypes.map((type: any) => (
               <option key={type.value} value={type.value}>{type.label}</option>
             ))}
           </select>
@@ -35,10 +35,10 @@ export async function DocumentForm() {
           <textarea className="mt-1 min-h-32 w-full resize-y border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm leading-6 outline-none focus:border-[#6b7d5d]" name="content" />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-[#273025]">execucao</span>
+          <span className="text-sm font-medium text-[#273025]">OS</span>
           <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="serviceOrderId" defaultValue="">
-            <option value="">Sem execucao</option>
-            {options.serviceOrders.map((order) => (
+            <option value="">Sem OS</option>
+            {options.serviceOrders.map((order: any) => (
               <option key={order.id} value={order.id}>{order.code} - {order.title}</option>
             ))}
           </select>
@@ -47,7 +47,7 @@ export async function DocumentForm() {
           <span className="text-sm font-medium text-[#273025]">Demanda</span>
           <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="workItemId" defaultValue="">
             <option value="">Sem demanda</option>
-            {options.workItems.map((item) => (
+            {options.workItems.map((item: any) => (
               <option key={item.id} value={item.id}>{item.title}</option>
             ))}
           </select>
@@ -56,7 +56,7 @@ export async function DocumentForm() {
           <span className="text-sm font-medium text-[#273025]">Ativo</span>
           <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="assetId" defaultValue="">
             <option value="">Sem ativo</option>
-            {options.assets.map((asset) => (
+            {options.assets.map((asset: any) => (
               <option key={asset.id} value={asset.id}>{asset.code} - {asset.name}</option>
             ))}
           </select>

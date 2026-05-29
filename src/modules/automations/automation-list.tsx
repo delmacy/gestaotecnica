@@ -46,7 +46,7 @@ export function AutomationRulesList({ rules }: { rules: AutomationRule[] }) {
   if (rules.length === 0) return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhuma automacao registrada.</div>;
   return (
     <div className="space-y-3">
-      {rules.map((rule) => (
+      {rules.map((rule: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={rule.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -74,7 +74,7 @@ export function AutomationRunsList({ runs }: { runs: AutomationRun[] }) {
 
   return (
     <div className="space-y-3">
-      {runs.map((run) => (
+      {runs.map((run: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={run.id}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -102,7 +102,7 @@ export function AutomationRunLogsList({ logs }: { logs: AutomationRunLog[] }) {
 
   return (
     <div className="space-y-2">
-      {logs.map((log) => (
+      {logs.map((log: any) => (
         <article className="border border-[#e1e5db] bg-white p-4 text-sm shadow-sm" key={log.id}>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
             <p className="font-medium text-[#111510]">{log.message}</p>

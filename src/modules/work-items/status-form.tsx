@@ -27,7 +27,7 @@ export function WorkItemStatusForm({
             defaultValue={currentStatus}
             name="status"
           >
-            {workItemStatuses.map((status) => (
+            {workItemStatuses.map((status: any) => (
               <option key={status.value} value={status.value}>
                 {status.label}
               </option>

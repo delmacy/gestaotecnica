@@ -18,10 +18,10 @@ export function ServiceOrderReviewRequestForm({
 
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-[#111510]">
-          Fechamento responsavel
+          Fechamento tecnico
         </h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Envie a execucao para revisao apos registrar execucao e evidencias.
+          Envie a OS para revisao apos registrar execucao e evidencias.
         </p>
       </div>
 

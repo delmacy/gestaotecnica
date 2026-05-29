@@ -35,10 +35,10 @@ export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
     return (
       <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
         <h2 className="text-lg font-semibold text-[#111510]">
-          Nenhuma execucao aguardando revisao
+          Nenhuma OS aguardando revisao
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          As execucao enviadas para revisao operacional aparecem aqui.
+          As OS enviadas para revisao tecnica aparecem aqui.
         </p>
       </div>
     );
@@ -46,7 +46,7 @@ export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
 
   return (
     <div className="space-y-4">
-      {items.map((item) => (
+      {items.map((item: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={item.id}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -102,7 +102,7 @@ export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
                 className="h-10 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]"
                 type="submit"
               >
-                Aprovar execucao
+                Aprovar OS
               </button>
             </form>
 

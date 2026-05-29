@@ -23,7 +23,7 @@ export default async function TimesheetsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="font-mono text-xs uppercase text-[#65705f]">
-                Produtividade operacional
+                Produtividade tecnica
               </p>
               <h1 className="mt-2 text-4xl font-semibold text-[#111510]">
                 Horas e Timesheet
@@ -42,7 +42,7 @@ export default async function TimesheetsPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            {summary.map((item) => (
+            {summary.map((item: any) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}
@@ -64,7 +64,7 @@ export default async function TimesheetsPage() {
               Apontamentos
             </h2>
             <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-              Ultimos registros de inicio, fim e duracao por execucao.
+              Ultimos registros de inicio, fim e duracao por OS.
             </p>
           </div>
           <TimesheetTable entries={entries} />
@@ -73,7 +73,7 @@ export default async function TimesheetsPage() {
         <aside>
           <div className="mb-4">
             <h2 className="text-2xl font-semibold text-[#111510]">
-              Por responsavel
+              Por tecnico
             </h2>
             <p className="mt-1 text-sm leading-6 text-[#5b6655]">
               Total de horas e quantidade de apontamentos por profissional.

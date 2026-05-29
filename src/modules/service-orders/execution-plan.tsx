@@ -44,7 +44,7 @@ export function ServiceOrderExecutionPlan({
               {stages.length === 0 ? (
                 <p className="text-sm text-[#5b6655]">Nenhuma etapa registrada.</p>
               ) : (
-                stages.map((stage) => (
+                stages.map((stage: any) => (
                   <article className="border border-[#e1e5db] bg-[#fbfcf8] p-3" key={stage.id}>
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -54,7 +54,7 @@ export function ServiceOrderExecutionPlan({
                       <form action={updateServiceOrderStageStatus} className="flex gap-2">
                         <input name="id" type="hidden" value={stage.id} />
                         <select className="h-8 border border-[#c8d0bf] bg-white px-2 text-xs" name="status" defaultValue={stage.status}>
-                          {serviceOrderStageStatuses.map((status) => (
+                          {serviceOrderStageStatuses.map((status: any) => (
                             <option key={status.value} value={status.value}>{status.label}</option>
                           ))}
                         </select>
@@ -74,7 +74,7 @@ export function ServiceOrderExecutionPlan({
               {tasks.length === 0 ? (
                 <p className="text-sm text-[#5b6655]">Nenhuma tarefa registrada.</p>
               ) : (
-                tasks.map((task) => (
+                tasks.map((task: any) => (
                   <article className="border border-[#e1e5db] bg-[#fbfcf8] p-3" key={task.id}>
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -86,7 +86,7 @@ export function ServiceOrderExecutionPlan({
                       <form action={updateServiceOrderTaskStatus} className="flex gap-2">
                         <input name="id" type="hidden" value={task.id} />
                         <select className="h-8 border border-[#c8d0bf] bg-white px-2 text-xs" name="status" defaultValue={task.status}>
-                          {serviceOrderTaskStatuses.map((status) => (
+                          {serviceOrderTaskStatuses.map((status: any) => (
                             <option key={status.value} value={status.value}>{status.label}</option>
                           ))}
                         </select>
@@ -107,7 +107,7 @@ export function ServiceOrderExecutionPlan({
               {targets.length === 0 ? (
                 <p className="text-sm text-[#5b6655]">Nenhum alvo registrado.</p>
               ) : (
-                targets.map((target) => (
+                targets.map((target: any) => (
                   <article className="border border-[#e1e5db] bg-[#fbfcf8] p-3" key={target.id}>
                     <p className="font-medium text-[#111510]">{target.title}</p>
                     <p className="mt-1 text-xs text-[#65705f]">{getServiceOrderTargetTypeLabel(target.targetType)}</p>

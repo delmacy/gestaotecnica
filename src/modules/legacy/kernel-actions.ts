@@ -36,10 +36,10 @@ export const createLegacyRecordKernelAction: ActionDefinition<
     externalRecordId: stringProperty("Identificador externo."),
     externalStatus: stringProperty("Status externo conhecido."),
     notes: stringProperty("Observações do vínculo."),
-    serviceOrderId: uuidProperty("execucao relacionada."),
+    serviceOrderId: uuidProperty("OS relacionada."),
     workItemId: uuidProperty("Demanda relacionada."),
     assetId: uuidProperty("Ativo relacionado."),
-    documentId: uuidProperty("Documento operacional relacionado."),
+    documentId: uuidProperty("Documento técnico relacionado."),
     payload: objectProperty("Payload de integração."),
   }),
   outputSchema: actionObjectSchema({

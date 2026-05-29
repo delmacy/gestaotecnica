@@ -26,16 +26,16 @@ export function ServiceOrderAssignmentForm({
 
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-[#111510]">
-          Atribuir responsavel
+          Atribuir tecnico
         </h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Defina o responsavel responsavel pela execucao desta execucao.
+          Defina o responsavel tecnico pela execucao desta OS.
         </p>
       </div>
 
       <div className="space-y-4">
         <label className="block">
-          <span className="text-sm font-medium text-[#273025]">Responsavel</span>
+          <span className="text-sm font-medium text-[#273025]">Tecnico</span>
           <select
             className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
             disabled={technicians.length === 0}
@@ -43,7 +43,7 @@ export function ServiceOrderAssignmentForm({
             required
           >
             <option value="">Selecione</option>
-            {technicians.map((technician) => (
+            {technicians.map((technician: any) => (
               <option key={technician.id} value={technician.id}>
                 {technician.name}
                 {technician.teamName ? ` - ${technician.teamName}` : ""}
@@ -64,7 +64,7 @@ export function ServiceOrderAssignmentForm({
 
         {technicians.length === 0 ? (
           <p className="text-sm leading-6 text-[#5b6655]">
-            Cadastre um responsavel disponivel no modulo Workforce antes de atribuir.
+            Cadastre um tecnico disponivel no modulo Workforce antes de atribuir.
           </p>
         ) : null}
 
@@ -73,7 +73,7 @@ export function ServiceOrderAssignmentForm({
           disabled={technicians.length === 0}
           type="submit"
         >
-          Atribuir responsavel
+          Atribuir tecnico
         </button>
       </div>
     </form>

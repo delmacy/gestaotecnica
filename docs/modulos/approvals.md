@@ -2,7 +2,7 @@
 
 ## Configuracao
 
-Revisoes usam status de execucao e eventos.
+Revisoes usam status de OS e eventos.
 
 ## Adaptacao por cliente
 

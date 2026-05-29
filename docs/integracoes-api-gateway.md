@@ -6,12 +6,12 @@ A plataforma expoe os modulos por um gateway de API para permitir uso externo po
 
 ## Autenticacao
 
-Defina `SYSTEM_BUILDER_API_KEY` no ambiente.
+Defina `GESTAOTECNICA_API_KEY` no ambiente.
 
 Clientes externos devem enviar:
 
 ```http
-x-system-builder-api-key: <token>
+x-gestaotecnica-api-key: <token>
 ```
 
 ou:
@@ -69,7 +69,7 @@ Exemplos:
   "provider": "external-pdf-service",
   "templateKey": "service_order_summary",
   "reportId": "uuid-opcional",
-  "title": "Resumo de execucao",
+  "title": "Resumo de OS",
   "callbackUrl": "https://cliente.exemplo/callback",
   "payload": {}
 }

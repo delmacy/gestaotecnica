@@ -39,7 +39,7 @@ export default async function AdminWorkflowsPage() {
                 </CardContent>
               </Card>
             ) : (
-              instances.map((instance) => (
+              instances.map((instance: any) => (
                 <Card key={instance.id}>
                   <CardContent className="grid gap-2 p-4 md:grid-cols-[1fr_auto] md:items-center">
                     <div>
@@ -65,7 +65,7 @@ export default async function AdminWorkflowsPage() {
 
         <h2 className="mt-8 text-xl font-semibold">Templates</h2>
         <div className="mt-4 space-y-3">
-          {workflows.map((workflow) => (
+          {workflows.map((workflow: any) => (
             <Card key={workflow.id}>
               <CardContent className="p-4">
                 <form action={updateWorkflowTemplate} className="grid gap-3">

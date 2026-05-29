@@ -1,0 +1,18 @@
+export const terminology = {
+  workItem: "Demanda",
+  workItems: "Demandas",
+  serviceOrder: "Ordem de Servico",
+  serviceOrders: "Ordens de Servico",
+  asset: "Ativo",
+  assets: "Ativos",
+  technician: "Tecnico",
+  technicians: "Tecnicos",
+  workforce: "Mao de Obra",
+  shift: "Turno",
+  shifts: "Turnos",
+  shiftLog: "Livro de Turno",
+  shiftLogs: "Livros de Turno",
+  supervisor: "Supervisor",
+  technicalSecretary: "Secretario Tecnico-Operacional",
+  legacySystem: "Sistema Oficial",
+} as const;

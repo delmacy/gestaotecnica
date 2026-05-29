@@ -12,7 +12,7 @@ Configure estados, nomes, ordem, target do fluxo e regras futuras de transicao. 
 
 ## Uso atual
 
-Ordens de servico podem iniciar uma instancia de workflow configurada para `service_order`. A tela de detalhe da execucao exibe o painel de workflow, permite iniciar a instancia e avancar estados com nota.
+Ordens de servico podem iniciar uma instancia de workflow configurada para `service_order`. A tela de detalhe da OS exibe o painel de workflow, permite iniciar a instancia e avancar estados com nota.
 
 ## Evolucao futura
 

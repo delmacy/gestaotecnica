@@ -104,7 +104,7 @@ function EditableCatalogCard({
           <Button type="submit">Adicionar</Button>
         </form>
 
-        {items.map((item) => (
+        {items.map((item: any) => (
           <form
             action={updateWorkspaceCatalogItem}
             className="grid gap-3 border p-3 md:grid-cols-[160px_1fr_1fr_92px_auto] md:items-end"
@@ -227,7 +227,7 @@ export default async function WorkspaceConfigPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {modules.map((item) => (
+                  {modules.map((item: any) => (
                     <TableRow key={item.moduleKey}>
                       <TableCell>
                         <div>
@@ -275,14 +275,14 @@ export default async function WorkspaceConfigPage() {
 
           <EditableCatalogCard
             catalog="serviceOrderType"
-            description="Classificacoes usadas ao criar uma execucao."
+            description="Classificacoes usadas ao criar uma ordem de servico."
             items={catalogs.serviceOrderTypes}
-            title="Tipos de execucao"
+            title="Tipos de OS"
           />
 
           <EditableCatalogCard
             catalog="assetType"
-            description="Familias de ativos disponiveis no cadastro responsavel."
+            description="Familias de ativos disponiveis no cadastro tecnico."
             items={catalogs.assetTypes}
             title="Tipos de ativo"
           />
@@ -328,7 +328,7 @@ export default async function WorkspaceConfigPage() {
               <div>
                 <p className="text-sm font-medium">Filas</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {catalogs.queues.map((queue) => (
+                  {catalogs.queues.map((queue: any) => (
                     <Badge key={queue.key} variant="outline">
                       {queue.label}
                     </Badge>
@@ -338,7 +338,7 @@ export default async function WorkspaceConfigPage() {
               <div>
                 <p className="text-sm font-medium">Tipos de demanda</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {catalogs.demandTypes.map((type) => (
+                  {catalogs.demandTypes.map((type: any) => (
                     <Badge key={type.key} variant="secondary">
                       {type.label}
                     </Badge>

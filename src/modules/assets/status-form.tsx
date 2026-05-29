@@ -27,7 +27,7 @@ export function AssetStatusForm({
             defaultValue={currentStatus}
             name="status"
           >
-            {assetStatuses.map((status) => (
+            {assetStatuses.map((status: any) => (
               <option key={status.value} value={status.value}>
                 {status.label}
               </option>

@@ -112,7 +112,7 @@ export default async function AssetDetailPage({ params }: AssetDetailPageProps) 
                   {asset.location ?? "Nao informada"}
                 </p>
               </div>
-              {relations.map((relation) => (
+              {relations.map((relation: any) => (
                 <div key={relation.label}>
                   <p className="font-mono text-xs text-[#6e7a66]">
                     {relation.label}

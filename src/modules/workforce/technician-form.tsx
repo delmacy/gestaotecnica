@@ -21,9 +21,9 @@ export function TechnicianForm({
   return (
     <form action={createTechnician} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-[#111510]">Novo responsavel</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">Novo tecnico</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Crie o usuario operacional e o perfil responsavel em uma unica etapa.
+          Crie o usuario operacional e o perfil tecnico em uma unica etapa.
         </p>
       </div>
 
@@ -57,7 +57,7 @@ export function TechnicianForm({
               defaultValue="pleno"
               name="level"
             >
-              {technicianLevels.map((level) => (
+              {technicianLevels.map((level: any) => (
                 <option key={level.value} value={level.value}>
                   {level.label}
                 </option>
@@ -73,7 +73,7 @@ export function TechnicianForm({
               defaultValue=""
             >
               <option value="">Sem equipe</option>
-              {teams.map((team) => (
+              {teams.map((team: any) => (
                 <option key={team.id} value={team.id}>
                   {team.name}
                 </option>
@@ -106,7 +106,7 @@ export function TechnicianForm({
           className="h-11 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]"
           type="submit"
         >
-          Criar responsavel
+          Criar tecnico
         </button>
       </div>
     </form>

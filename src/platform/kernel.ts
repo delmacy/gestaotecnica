@@ -1,3 +1,11 @@
+import { ServiceOrderCompletedNotificationFlow } from "@/adaptations/secao-tecnica/flows/service-order-completed-notification.flow";
+import { WorkItemAutoServiceOrderFlow } from "@/adaptations/secao-tecnica/flows/work-item-auto-service-order.flow";
+import {
+  ServiceOrderGovernanceFlow,
+  ServiceOrderApprovedDocumentFlow,
+  PeriodicMaintenanceGeneratorFlow,
+  InventoryUsageFlow,
+} from "@/adaptations/secao-tecnica/flows/service-order-governance.flow";
 import { approvalsManifest } from "@/modules/approvals/manifest";
 import {
   requestApprovalKernelAction,
@@ -63,6 +71,7 @@ import { workspaceConfigManifest } from "@/modules/workspace-config/manifest";
 import { toggleModuleKernelAction } from "@/modules/workspace-config/kernel-actions";
 import { registerAction } from "@/platform/actions";
 import { registerDefaultEvents } from "@/platform/events/default-events";
+import { registerFlow } from "@/platform/flows";
 import { registerModule } from "@/platform/modules";
 
 let initialized = false;
@@ -120,6 +129,13 @@ export function initializePlatformKernel() {
   registerAction(attachEvidenceKernelAction);
   registerAction(requestApprovalKernelAction);
   registerAction(decideApprovalKernelAction);
+
+  registerFlow(new ServiceOrderCompletedNotificationFlow());
+  registerFlow(new WorkItemAutoServiceOrderFlow());
+  registerFlow(new ServiceOrderGovernanceFlow());
+  registerFlow(new ServiceOrderApprovedDocumentFlow());
+  registerFlow(new PeriodicMaintenanceGeneratorFlow());
+  registerFlow(new InventoryUsageFlow());
 
   initialized = true;
 }

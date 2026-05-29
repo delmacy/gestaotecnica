@@ -32,7 +32,7 @@ export default async function WorkItemsPage() {
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
                 Demandas sao o envelope inicial da operacao. Elas preservam a
-                necessidade antes da criacao de uma execucao.
+                necessidade antes da criacao de uma ordem de servico.
               </p>
             </div>
             <Link
@@ -44,7 +44,7 @@ export default async function WorkItemsPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {summary.map((item) => (
+            {summary.map((item: any) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}

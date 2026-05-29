@@ -26,19 +26,19 @@ export const requestApprovalKernelAction: ActionDefinition<
 > = {
   key: "approvals.request",
   moduleKey: "approvals",
-  description: "Envia uma execucao para revisão/aprovação.",
+  description: "Envia uma ordem de serviço para revisão/aprovação.",
   callableBy: ["ui", "integration", "automation", "system"],
   requiredModules: ["service-orders"],
   inputSchema: actionObjectSchema(
     {
-      serviceOrderId: uuidProperty("execucao que será enviada para aprovação."),
+      serviceOrderId: uuidProperty("OS que será enviada para aprovação."),
       note: stringProperty("Observação para o revisor."),
     },
     ["serviceOrderId"],
   ),
   outputSchema: actionObjectSchema({
-    id: uuidProperty("Identificador da execucao."),
-    code: stringProperty("Codigo da execucao."),
+    id: uuidProperty("Identificador da OS."),
+    code: stringProperty("Código da OS."),
     status: stringProperty("Status final."),
   }),
   emits: ["approval.requested"],
@@ -65,7 +65,7 @@ export const requestApprovalKernelAction: ActionDefinition<
       .limit(1);
 
     if (!previous) {
-      return { success: false, error: { code: "NOT_FOUND", message: "execucao não encontrada." } };
+      return { success: false, error: { code: "NOT_FOUND", message: "OS não encontrada." } };
     }
 
     const [updated] = await db
@@ -114,18 +114,18 @@ export const decideApprovalKernelAction: ActionDefinition<
   allowedStatuses: ["waiting_review"],
   uiLabel: "Aprovar/Rejeitar Execução",
   showInActionBar: true,
-  description: "Registra decisão (aprovação/rejeição) sobre uma execucao.",
+  description: "Registra decisão (aprovação/rejeição) sobre uma OS.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
-      serviceOrderId: uuidProperty("execucao que será decidida."),
+      serviceOrderId: uuidProperty("OS que será decidida."),
       decision: enumProperty(["approve", "reject"], "Decisão tomada."),
       note: stringProperty("Justificativa ou comentário."),
     },
     ["serviceOrderId", "decision"],
   ),
   outputSchema: actionObjectSchema({
-    id: uuidProperty("Identificador da execucao."),
+    id: uuidProperty("Identificador da OS."),
     status: stringProperty("Status final após decisão."),
   }),
   emits: ["approval.decided"],
@@ -152,7 +152,7 @@ export const decideApprovalKernelAction: ActionDefinition<
       .limit(1);
 
     if (!previous) {
-      return { success: false, error: { code: "NOT_FOUND", message: "execucao não encontrada." } };
+      return { success: false, error: { code: "NOT_FOUND", message: "OS não encontrada." } };
     }
 
     const status = input.decision === "approve" ? "approved" : "open";

@@ -24,7 +24,7 @@ export function RecentOrdersTable({ orders }: { orders: RecentOrderRow[] }) {
   if (orders.length === 0) {
     return (
       <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">Sem execucao recentes</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">Sem OS recentes</h2>
       </div>
     );
   }
@@ -35,14 +35,14 @@ export function RecentOrdersTable({ orders }: { orders: RecentOrderRow[] }) {
         <table className="w-full min-w-[760px] border-collapse text-left">
           <thead className="bg-[#f1f3ed] text-xs uppercase text-[#65705f]">
             <tr>
-              <th className="px-4 py-3 font-semibold">execucao</th>
+              <th className="px-4 py-3 font-semibold">OS</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Prioridade</th>
               <th className="px-4 py-3 font-semibold">Criada em</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e0e5d9] text-sm">
-            {orders.map((order) => (
+            {orders.map((order: any) => (
               <tr key={order.id}>
                 <td className="px-4 py-4 align-top">
                   <Link

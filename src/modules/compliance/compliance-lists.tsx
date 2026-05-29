@@ -31,7 +31,7 @@ export function ComplianceAuditsList({ audits }: { audits: Audit[] }) {
   if (audits.length === 0) return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhuma auditoria registrada.</div>;
   return (
     <div className="space-y-3">
-      {audits.map((audit) => (
+      {audits.map((audit: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={audit.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -53,7 +53,7 @@ export function ComplianceFindingsList({ findings }: { findings: Finding[] }) {
   if (findings.length === 0) return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhum achado registrado.</div>;
   return (
     <div className="space-y-3">
-      {findings.map((finding) => (
+      {findings.map((finding: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={finding.id}>
           <h2 className="text-lg font-semibold text-[#111510]">{finding.title}</h2>
           <p className="mt-1 text-sm text-[#5b6655]">{getFindingSeverityLabel(finding.severity)} | {getFindingStatusLabel(finding.status)} | Auditoria: {finding.auditTitle}</p>

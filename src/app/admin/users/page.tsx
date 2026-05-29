@@ -19,7 +19,7 @@ export default async function AdminUsersPage() {
           </Button>
           <h1 className="mt-6 text-3xl font-semibold">Usuarios</h1>
           <div className="mt-4 space-y-3">
-            {users.map((user) => (
+            {users.map((user: any) => (
               <Card key={user.id}>
                 <CardContent className="flex items-center justify-between p-4">
                   <div>

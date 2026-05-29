@@ -137,6 +137,30 @@ async function verifyIntegrity() {
     testIds.serviceOrders.push((prevSO.payload as { serviceOrderId: string }).serviceOrderId);
     console.log(`   OK: execucao preventiva gerada automaticamente: ${(prevSO.payload as { code: string }).code}`);
 
+    // 9. Testar Módulo de Inventário (Fase 7)
+    console.log("7. Testando Inventário (Ajuste de Estoque)...");
+    const [invItem] = await db.insert(schema.inventoryItems).values({
+      sku: `SKU-${Date.now()}`,
+      name: "Cabo de Fibra Teste",
+      quantityOnHand: 100,
+    }).returning();
+
+    const stockResult = await runAction("inventory.adjust_stock", {
+      itemId: invItem.id,
+      movementType: "outbound",
+      quantity: 5,
+      notes: "Retirada teste integridade"
+    }, context);
+    if (!stockResult.success) {
+      console.error("Erro no ajuste de estoque:", stockResult.error);
+      throw new Error("Falha na Action inventory.adjust_stock");
+    }
+    console.log(`   OK: Estoque ajustado. Novo saldo: ${(stockResult.data as { newQuantity: number }).newQuantity}`);
+
+    // Limpeza imediata do item de inventário
+    await db.delete(schema.inventoryMovements).where(eq(schema.inventoryMovements.itemId, invItem.id));
+    await db.delete(schema.inventoryItems).where(eq(schema.inventoryItems.id, invItem.id));
+
     console.log("\n--- Integridade Verificada com Sucesso! ---");
   } finally {
     console.log("\n--- Realizando Limpeza (Cleanup) ---");

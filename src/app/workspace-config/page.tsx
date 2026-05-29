@@ -223,6 +223,7 @@ export default async function WorkspaceConfigPage() {
                     <TableHead>Modulo</TableHead>
                     <TableHead>Camada</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Habilitado</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -243,6 +244,20 @@ export default async function WorkspaceConfigPage() {
                       <TableCell>
                         {statusLabels[item.status as keyof typeof statusLabels] ??
                           item.status}
+                      </TableCell>
+                      <TableCell>
+                        <form action={updateWorkspaceCatalogItem}>
+                          <input name="catalog" type="hidden" value="module" />
+                          <input name="id" type="hidden" value={item.id} />
+                          <input name="label" type="hidden" value={item.name} />
+                          <input
+                            className="size-4"
+                            defaultChecked={item.isEnabled}
+                            name="isActive"
+                            onChange={(e) => e.target.form?.requestSubmit()}
+                            type="checkbox"
+                          />
+                        </form>
                       </TableCell>
                     </TableRow>
                   ))}

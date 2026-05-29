@@ -1,55 +1,25 @@
-# System Builder Manifesto
+# Manifesto System Builder
 
-System Builder e uma plataforma de modelagem operacional empresarial orientada a
-capacidades e processos.
+## Filosofia
+O System Builder não é um ERP, não é apenas um BPM, não é um gerador de CRUDs e não é somente uma ferramenta de automação. O System Builder é uma **plataforma de modelagem operacional empresarial orientada a capacidades e processos**.
 
-Ele nao e um ERP, nao e apenas um BPM, nao e um gerador de CRUDs e nao e
-somente uma ferramenta de automacao.
+Seu objetivo é permitir que organizações representem, executem, rastreiem e evoluam seus protocolos digitais de forma fiel à sua realidade operacional.
 
-Seu objetivo e permitir que organizacoes representem, executem, rastreiem e
-evoluam seus protocolos digitais de forma fiel a sua realidade operacional.
+## Princípio Central
+**A tecnologia deve adaptar-se à operação. A operação não deve adaptar-se à tecnologia.**
 
-## Frases-guia
+Sempre que houver conflito entre uma abstração técnica e a realidade operacional, a prioridade deve ser sempre a realidade operacional.
 
-- Follow the Process.
-- The Principle is the Process.
-- Understand. Mirror. Evolve.
+## Método Oficial
+Toda modelagem deve seguir rigorosamente esta ordem:
+1. **Compreender**
+2. **Espelhar**
+3. **Estabilizar**
+4. **Medir**
+5. **Melhorar**
+6. **Automatizar**
 
-## Principio central
-
-A tecnologia deve adaptar-se a operacao.
-
-A operacao nao deve adaptar-se a tecnologia.
-
-Sempre que houver conflito entre uma abstracao tecnica e a realidade
-operacional, priorize a realidade operacional.
-
-## Metodo oficial
-
-Toda modelagem deve seguir esta ordem:
-
-1. Compreender.
-2. Espelhar.
-3. Estabilizar.
-4. Medir.
-5. Melhorar.
-6. Automatizar.
-
-Nao automatize processos nao compreendidos.
-
-Nao otimize processos que ainda nao foram representados corretamente.
-
-## Regra final
-
-Toda funcionalidade criada deve fortalecer:
-
-- modularidade;
-- rastreabilidade;
-- auditabilidade;
-- adaptabilidade;
-- interoperabilidade;
-- governanca;
-- evolucao continua.
-
-Se uma proposta enfraquecer qualquer um desses pilares, ela deve ser
-reconsiderada.
+### Regras de Ouro do Método
+- Não automatize processos não compreendidos.
+- Não otimize processos que ainda não foram representados corretamente.
+- A tecnologia serve para fortalecer a operação, não para substituí-la arbitrariamente.

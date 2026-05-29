@@ -1,60 +1,48 @@
-# Ontologia Oficial
+# Ontologia Oficial: System Builder
 
-## Organizacao
+A ontologia define o vocabulário e os conceitos fundamentais que estruturam o System Builder.
 
-Sistema vivo composto por pessoas, responsabilidades, capacidades, recursos,
-informacoes e processos.
+## Conceitos Estruturais
 
-## Capacidade
+### Organização
+Um sistema vivo composto por pessoas, responsabilidades, capacidades, recursos, informações e processos.
 
-Algo que a organizacao e capaz de realizar.
+### Capacidade
+Algo que a organização é capaz de realizar (ex: Gestão de Ativos, Gestão Documental).
 
-## Modulo
+### Módulo
+A representação digital de uma capacidade organizacional. Módulos representam capacidades, nunca departamentos.
 
-Representacao digital de uma capacidade organizacional.
+### Blueprint
+Estrutura reutilizável que encapsula conhecimento operacional. Blueprints orientam a construção de sistemas específicos, mas nunca se impõem sobre a realidade.
 
-Modulos representam capacidades, nunca departamentos.
+## Conceitos Operacionais
 
-## Processo
+### Processo
+A manifestação operacional de uma capacidade. Representa como a organização produz determinado resultado.
 
-Manifestacao operacional de uma capacidade.
+### Fluxo
+A sequência lógica de execução de um processo.
 
-Representa como a organizacao produz determinado resultado.
+### Estado
+A condição atual de uma instância de processo em determinado momento.
 
-## Fluxo
+### Transição
+A mudança entre dois estados em um fluxo.
 
-Sequencia logica de execucao de um processo.
+### Ação (Action)
+Uma operação executável por um usuário, automação ou integração.
 
-## Estado
+### Evento (Event)
+O registro imutável de algo que ocorreu na plataforma.
 
-Condicao atual de uma instancia de processo.
+## Conceitos de Dados e Evidências
 
-## Transicao
+### Entidade
+Um elemento que a organização precisa conhecer, controlar ou rastrear (ex: Ativo, Técnico).
 
-Mudanca entre estados.
+### Documento
+Um registro formal associado à operação.
 
-## Evento
-
-Registro imutavel de algo que ocorreu.
-
-## Acao
-
-Operacao executavel por usuario, automacao ou integracao.
-
-## Entidade
-
-Elemento que a organizacao precisa conhecer, controlar ou rastrear.
-
-## Documento
-
-Registro formal associado a operacao.
-
-## Protocolo Digital
-
-Formalizacao executavel de uma regra, procedimento ou pratica organizacional.
-
-## Blueprint
-
-Estrutura reutilizavel que encapsula conhecimento operacional.
-
-Blueprints orientam, nunca impoem.
+### Protocolo Digital
+A formalização executável de uma regra, procedimento ou prática organizacional.

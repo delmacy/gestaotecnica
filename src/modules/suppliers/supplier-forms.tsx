@@ -1,6 +1,7 @@
 import { createSupplier, createSupplierContract } from "./actions";
 import { contractStatuses, supplierStatuses } from "./constants";
-import type { SupplierOptions } from "./queries";
+
+type Options = Awaited<ReturnType<typeof import("./queries").getSupplierOptions>>;
 
 export function SupplierForm() {
   return (
@@ -25,7 +26,7 @@ export function SupplierForm() {
   );
 }
 
-export function SupplierContractForm({ options }: { options: SupplierOptions }) {
+export function SupplierContractForm({ options }: { options: Options }) {
   return (
     <form action={createSupplierContract} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Novo contrato</h2>

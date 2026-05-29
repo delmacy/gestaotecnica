@@ -1,5 +1,4 @@
 import { getAction, runAction } from "@/platform/actions";
-import { resolveWorkspaceContext } from "@/platform/workspace";
 import { WorkflowRepository } from "../infra/workflow.repository";
 import { ActionResult } from "../domain/types";
 
@@ -29,21 +28,15 @@ export class ActionExecutorService {
     }
 
     try {
-      const context = await resolveWorkspaceContext({
+      const result = await runAction(params.actionKey, params.input, {
         workspaceId: params.workspaceId,
-        actor: {
-          type: params.actorId ? "user" : "system",
-          id: params.actorId,
-        },
-        source: "system",
+        actorId: params.actorId,
       });
-
-      // 2. Run the Kernel Action with the resolved workspace context.
-      const result = await runAction(params.actionKey, params.input, context);
 
       return {
         success: result.success,
-        payload: result.data as Record<string, unknown>,
+        message: result.message,
+        payload: result.payload as Record<string, unknown>,
         error: result.error,
       };
     } catch (error) {

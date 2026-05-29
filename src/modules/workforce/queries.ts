@@ -13,21 +13,6 @@ import {
 import { getWorkspaceTechnicianLevelOptions } from "@/platform/workspaces/catalogs";
 import type { TechnicianLevelValue } from "./constants";
 
-export type WorkforceAllocationOptions = {
-  technicians: Array<{
-    id: string;
-    name: string;
-    email: string;
-    teamName: string | null;
-    level: string;
-    specialty: string | null;
-    registrationCode: string | null;
-  }>;
-  serviceOrders: Array<{ id: string; code: string; title: string }>;
-  workItems: Array<{ id: string; title: string }>;
-  schedules: Array<{ id: string; title: string }>;
-};
-
 export async function getTeams() {
   const db = getDb();
 
@@ -174,7 +159,7 @@ export async function getTechnicianUnavailabilities() {
     .limit(80);
 }
 
-export async function getWorkforceAllocationOptions(): Promise<WorkforceAllocationOptions> {
+export async function getWorkforceAllocationOptions() {
   const db = getDb();
 
   const [technicians, serviceOrdersRows, workItemsRows, schedulesRows] = await Promise.all([

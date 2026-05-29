@@ -1,8 +1,9 @@
 import { createComplianceAudit, createComplianceFinding } from "./actions";
 import { auditStatuses, findingSeverities, findingStatuses, priorities } from "./constants";
-import type { ComplianceOptions } from "./queries";
 
-export function ComplianceAuditForm({ options }: { options: ComplianceOptions }) {
+type Options = Awaited<ReturnType<typeof import("./queries").getComplianceOptions>>;
+
+export function ComplianceAuditForm({ options }: { options: Options }) {
   return (
     <form action={createComplianceAudit} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Nova auditoria</h2>
@@ -28,7 +29,7 @@ export function ComplianceAuditForm({ options }: { options: ComplianceOptions })
   );
 }
 
-export function ComplianceFindingForm({ options }: { options: ComplianceOptions }) {
+export function ComplianceFindingForm({ options }: { options: Options }) {
   return (
     <form action={createComplianceFinding} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Novo achado</h2>

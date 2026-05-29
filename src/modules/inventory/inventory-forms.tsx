@@ -1,8 +1,9 @@
 import { createInventoryItem, createInventoryMovement } from "./actions";
 import { inventoryItemStatuses, inventoryMovementTypes } from "./constants";
-import type { InventoryOptions } from "./queries";
 
-export function InventoryItemForm({ options }: { options: InventoryOptions }) {
+type Options = Awaited<ReturnType<typeof import("./queries").getInventoryOptions>>;
+
+export function InventoryItemForm({ options }: { options: Options }) {
   return (
     <form action={createInventoryItem} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Novo item</h2>
@@ -32,7 +33,7 @@ export function InventoryItemForm({ options }: { options: InventoryOptions }) {
   );
 }
 
-export function InventoryMovementForm({ options }: { options: InventoryOptions }) {
+export function InventoryMovementForm({ options }: { options: Options }) {
   return (
     <form action={createInventoryMovement} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Nova movimentacao</h2>

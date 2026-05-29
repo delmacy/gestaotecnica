@@ -1,6 +1,7 @@
 import { assignTechnicianSkill, createSkill, createTrainingRecord } from "./actions";
 import { skillProficiencies, trainingStatuses } from "./constants";
-import type { SkillsOptions } from "./queries";
+
+type Options = Awaited<ReturnType<typeof import("./queries").getSkillsOptions>>;
 
 export function SkillForm() {
   return (
@@ -16,7 +17,7 @@ export function SkillForm() {
   );
 }
 
-export function TechnicianSkillForm({ options }: { options: SkillsOptions }) {
+export function TechnicianSkillForm({ options }: { options: Options }) {
   return (
     <form action={assignTechnicianSkill} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Vincular tecnico</h2>
@@ -43,7 +44,7 @@ export function TechnicianSkillForm({ options }: { options: SkillsOptions }) {
   );
 }
 
-export function TrainingRecordForm({ options }: { options: SkillsOptions }) {
+export function TrainingRecordForm({ options }: { options: Options }) {
   return (
     <form action={createTrainingRecord} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Registrar treinamento</h2>

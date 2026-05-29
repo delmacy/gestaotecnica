@@ -23,10 +23,10 @@ export default async function SuppliersPage() {
         <header>
           <p className="font-mono text-xs uppercase text-[#65705f]">Governanca de suprimentos</p>
           <h1 className="mt-2 text-3xl font-semibold text-[#111510]">Fornecedores e contratos</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5b6655]">Cadastro de fornecedores, contatos, categorias e contratos ligados a equipes operacionais.</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5b6655]">Cadastro de fornecedores, contatos, categorias e contratos ligados a equipes tecnicas.</p>
         </header>
         <section className="grid gap-3 sm:grid-cols-3">
-          {summary.map((metric) => (
+          {summary.map((metric: any) => (
             <div className="border border-[#d7dccf] bg-white p-4 shadow-sm" key={metric.label}>
               <p className="font-mono text-xs text-[#6e7a66]">{metric.label}</p>
               <p className="mt-2 text-3xl font-semibold text-[#111510]">{metric.value}</p>

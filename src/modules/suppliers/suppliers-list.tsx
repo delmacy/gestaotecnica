@@ -34,7 +34,7 @@ export function SuppliersList({ suppliers }: { suppliers: Supplier[] }) {
   if (suppliers.length === 0) return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhum fornecedor cadastrado.</div>;
   return (
     <div className="space-y-3">
-      {suppliers.map((supplier) => (
+      {suppliers.map((supplier: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={supplier.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -56,7 +56,7 @@ export function SupplierContractsList({ contracts }: { contracts: Contract[] }) 
   if (contracts.length === 0) return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhum contrato registrado.</div>;
   return (
     <div className="space-y-3">
-      {contracts.map((contract) => (
+      {contracts.map((contract: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={contract.id}>
           <h2 className="text-lg font-semibold text-[#111510]">{contract.title}</h2>
           <p className="mt-1 text-sm text-[#5b6655]">{getContractStatusLabel(contract.status)} | {contract.supplierName} | {formatMoney(contract.valueCents)}</p>

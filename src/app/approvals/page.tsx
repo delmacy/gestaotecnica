@@ -23,10 +23,10 @@ export default async function ApprovalsPage() {
                 Governanca operacional
               </p>
               <h1 className="mt-2 text-4xl font-semibold text-[#111510]">
-                Revisao operacional
+                Revisao tecnica
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                Fila de execucao concluidas ou enviadas para revisao, com aprovacao e
+                Fila de OS concluidas ou enviadas para revisao, com aprovacao e
                 retorno para execucao.
               </p>
             </div>
@@ -39,7 +39,7 @@ export default async function ApprovalsPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            {summary.map((item) => (
+            {summary.map((item: any) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}

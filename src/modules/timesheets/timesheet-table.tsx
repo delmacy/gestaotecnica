@@ -48,7 +48,7 @@ export function TimesheetTable({ entries }: { entries: TimesheetEntry[] }) {
           Nenhum apontamento registrado
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Os tempos lancados nas execucao aparecem aqui automaticamente.
+          Os tempos lancados nas OS aparecem aqui automaticamente.
         </p>
       </div>
     );
@@ -60,8 +60,8 @@ export function TimesheetTable({ entries }: { entries: TimesheetEntry[] }) {
         <table className="w-full min-w-[980px] border-collapse text-left">
           <thead className="bg-[#f1f3ed] text-xs uppercase text-[#65705f]">
             <tr>
-              <th className="px-4 py-3 font-semibold">Responsavel</th>
-              <th className="px-4 py-3 font-semibold">execucao</th>
+              <th className="px-4 py-3 font-semibold">Tecnico</th>
+              <th className="px-4 py-3 font-semibold">OS</th>
               <th className="px-4 py-3 font-semibold">Inicio</th>
               <th className="px-4 py-3 font-semibold">Fim</th>
               <th className="px-4 py-3 font-semibold">Duracao</th>
@@ -69,7 +69,7 @@ export function TimesheetTable({ entries }: { entries: TimesheetEntry[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e0e5d9] text-sm">
-            {entries.map((entry) => (
+            {entries.map((entry: any) => (
               <tr key={entry.id}>
                 <td className="px-4 py-4 align-top">
                   <p className="font-semibold text-[#182017]">{entry.technicianName}</p>

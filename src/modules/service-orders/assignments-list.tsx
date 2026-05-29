@@ -29,20 +29,20 @@ export function ServiceOrderAssignmentsList({
     <article className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-[#111510]">
-          Responsaveis responsavels
+          Responsaveis tecnicos
         </h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Historico de atribuicoes ativas ou ja liberadas nesta execucao.
+          Historico de atribuicoes ativas ou ja liberadas nesta OS.
         </p>
       </div>
 
       {assignments.length === 0 ? (
         <p className="text-sm leading-6 text-[#5b6655]">
-          Nenhum responsavel atribuido a esta execucao.
+          Nenhum tecnico atribuido a esta OS.
         </p>
       ) : (
         <div className="space-y-3">
-          {assignments.map((assignment) => (
+          {assignments.map((assignment: any) => (
             <div
               className="border border-[#e0e5d9] bg-[#fbfcf8] p-4"
               key={assignment.id}

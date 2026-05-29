@@ -43,7 +43,7 @@ export function SchedulesTable({ schedules }: { schedules: ScheduleRow[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e0e5d9] text-sm">
-            {schedules.map((schedule) => (
+            {schedules.map((schedule: any) => (
               <tr key={schedule.id}>
                 <td className="px-4 py-4 align-top">
                   <p className="font-semibold text-[#182017]">{schedule.title}</p>

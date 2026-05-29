@@ -36,10 +36,10 @@ export function ServiceOrdersTable({
     return (
       <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
         <h2 className="text-lg font-semibold text-[#111510]">
-          Nenhuma execucao registrada
+          Nenhuma OS registrada
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Crie uma execucao a partir do detalhe de um WorkItem.
+          Crie uma OS a partir do detalhe de um WorkItem.
         </p>
       </div>
     );
@@ -51,7 +51,7 @@ export function ServiceOrdersTable({
         <table className="w-full min-w-[820px] border-collapse text-left">
           <thead className="bg-[#f1f3ed] text-xs uppercase text-[#65705f]">
             <tr>
-              <th className="px-4 py-3 font-semibold">execucao</th>
+              <th className="px-4 py-3 font-semibold">OS</th>
               <th className="px-4 py-3 font-semibold">Tipo</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Prioridade</th>

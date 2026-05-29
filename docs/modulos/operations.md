@@ -2,7 +2,7 @@
 
 ## Configuracao
 
-Operacoes consolida demandas, execucao, pendencias, eventos e disponibilidade.
+Operacoes consolida demandas, OS, pendencias, eventos e disponibilidade.
 
 ## Adaptacao por cliente
 

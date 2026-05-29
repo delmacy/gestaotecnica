@@ -28,7 +28,7 @@ export default async function ReportsPage() {
                 Relatorios
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                Visao consolidada de demandas, execucao, ativos, horas apontadas e
+                Visao consolidada de demandas, OS, ativos, horas apontadas e
                 pendencias de turno.
               </p>
             </div>
@@ -41,7 +41,7 @@ export default async function ReportsPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {data.cards.map((item) => (
+            {data.cards.map((item: any) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}
@@ -61,14 +61,14 @@ export default async function ReportsPage() {
           <div>
             <div className="mb-4">
               <h2 className="text-2xl font-semibold text-[#111510]">
-                Status das execucao
+                Status das OS
               </h2>
               <p className="mt-1 text-sm leading-6 text-[#5b6655]">
                 Distribuicao atual por etapa operacional.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {data.serviceOrders.map((item) => (
+              {data.serviceOrders.map((item: any) => (
                 <div
                   className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                   key={item.label}
@@ -85,7 +85,7 @@ export default async function ReportsPage() {
           <div>
             <div className="mb-4">
               <h2 className="text-2xl font-semibold text-[#111510]">
-                execucao recentes
+                OS recentes
               </h2>
               <p className="mt-1 text-sm leading-6 text-[#5b6655]">
                 Ultimas ordens abertas no fluxo operacional.

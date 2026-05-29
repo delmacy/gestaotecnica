@@ -246,7 +246,7 @@ export async function getServiceOrderSummary() {
     .where(eq(serviceOrders.status, "completed"));
 
   return [
-    { label: "execucao", value: totalRow.value },
+    { label: "OS", value: totalRow.value },
     { label: "Abertas", value: openRow.value },
     { label: "Em execucao", value: inProgressRow.value },
     { label: "Concluidas", value: completedRow.value },

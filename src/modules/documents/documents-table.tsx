@@ -25,12 +25,12 @@ function formatDate(date: Date) {
 
 export function DocumentsTable({ documents }: { documents: DocumentRow[] }) {
   if (documents.length === 0) {
-    return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhum documento responsavel registrado.</div>;
+    return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhum documento tecnico registrado.</div>;
   }
 
   return (
     <div className="space-y-3">
-      {documents.map((document) => (
+      {documents.map((document: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={document.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -41,7 +41,7 @@ export function DocumentsTable({ documents }: { documents: DocumentRow[] }) {
             <form action={updateDocumentStatus} className="flex flex-col gap-2 sm:flex-row">
               <input name="id" type="hidden" value={document.id} />
               <select className="h-10 border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="status" defaultValue={document.status}>
-                {documentStatuses.map((status) => (
+                {documentStatuses.map((status: any) => (
                   <option key={status.value} value={status.value}>{status.label}</option>
                 ))}
               </select>
@@ -52,7 +52,7 @@ export function DocumentsTable({ documents }: { documents: DocumentRow[] }) {
           {document.content ? <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#4d5848]">{document.content}</p> : null}
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
             <div>
-              <p className="font-mono text-xs text-[#6e7a66]">execucao</p>
+              <p className="font-mono text-xs text-[#6e7a66]">OS</p>
               {document.serviceOrderId && document.serviceOrderCode ? (
                 <Link className="mt-1 block underline-offset-4 hover:underline" href={`/service-orders/${document.serviceOrderId}`}>{document.serviceOrderCode} - {document.serviceOrderTitle}</Link>
               ) : <p className="mt-1 text-[#273025]">Nao vinculada</p>}

@@ -30,7 +30,7 @@ export default async function AssetsPage() {
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
                 Ativos representam equipamentos, sistemas e infraestrutura que
-                sustentam demandas, execucao, evidencias e historico operacional.
+                sustentam demandas, OS, evidencias e historico operacional.
               </p>
             </div>
             <Link
@@ -42,7 +42,7 @@ export default async function AssetsPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {summary.map((item) => (
+            {summary.map((item: any) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}

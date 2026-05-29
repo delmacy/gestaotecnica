@@ -6,4 +6,4 @@ Turnos e registros ficam em `shifts` e `shift_log_entries`.
 
 ## Adaptacao por cliente
 
-Configure tipos de passagem, pendencias, vinculos com demanda/execucao/ativo e formato futuro de livro/PDF.
+Configure tipos de passagem, pendencias, vinculos com demanda/OS/ativo e formato futuro de livro/PDF.

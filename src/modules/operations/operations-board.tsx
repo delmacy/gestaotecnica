@@ -83,7 +83,7 @@ export function OperationsBoard({
           {criticalWorkItems.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Nenhuma demanda critica na fila.</p>
           ) : (
-            criticalWorkItems.map((item) => (
+            criticalWorkItems.map((item: any) => (
               <Link
                 className="block border border-[#e0e5d9] bg-[#fbfcf8] p-4 transition hover:bg-[#f1f3ed]"
                 href={`/work-items/${item.id}`}
@@ -104,12 +104,12 @@ export function OperationsBoard({
       </section>
 
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">execucao ativas</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">OS ativas</h2>
         <div className="mt-4 space-y-3">
           {activeOrders.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Nenhuma execucao ativa no momento.</p>
+            <p className="text-sm text-[#5b6655]">Nenhuma OS ativa no momento.</p>
           ) : (
-            activeOrders.map((order) => (
+            activeOrders.map((order: any) => (
               <Link
                 className="block border border-[#e0e5d9] bg-[#fbfcf8] p-4 transition hover:bg-[#f1f3ed]"
                 href={`/service-orders/${order.id}`}
@@ -133,7 +133,7 @@ export function OperationsBoard({
           {pendingShiftEntries.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Nenhuma pendencia marcada.</p>
           ) : (
-            pendingShiftEntries.map((entry) => (
+            pendingShiftEntries.map((entry: any) => (
               <Link
                 className="block border border-[#e0e5d9] bg-[#fbfcf8] p-4 transition hover:bg-[#f1f3ed]"
                 href={`/shifts/${entry.shiftId}`}
@@ -143,7 +143,7 @@ export function OperationsBoard({
                 <p className="mt-1 text-sm text-[#5b6655]">{entry.shiftName}</p>
                 {entry.serviceOrderCode ? (
                   <p className="mt-1 text-sm text-[#5b6655]">
-                    execucao {entry.serviceOrderCode}
+                    OS {entry.serviceOrderCode}
                   </p>
                 ) : null}
               </Link>
@@ -153,12 +153,12 @@ export function OperationsBoard({
       </section>
 
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">Responsavels disponiveis</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">Tecnicos disponiveis</h2>
         <div className="mt-4 space-y-3">
           {technicians.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Nenhum responsavel disponivel.</p>
+            <p className="text-sm text-[#5b6655]">Nenhum tecnico disponivel.</p>
           ) : (
-            technicians.map((technician) => (
+            technicians.map((technician: any) => (
               <div className="border border-[#e0e5d9] bg-[#fbfcf8] p-4" key={technician.id}>
                 <p className="font-semibold text-[#182017]">{technician.name}</p>
                 <p className="mt-1 text-sm text-[#5b6655]">{technician.email}</p>
@@ -178,7 +178,7 @@ export function OperationsBoard({
           {recentEvents.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Sem eventos recentes.</p>
           ) : (
-            recentEvents.map((event) => (
+            recentEvents.map((event: any) => (
               <div className="border border-[#e0e5d9] bg-[#fbfcf8] p-4" key={event.id}>
                 <p className="font-semibold text-[#182017]">{event.eventType}</p>
                 <p className="mt-1 font-mono text-xs text-[#7a8474]">
@@ -186,7 +186,7 @@ export function OperationsBoard({
                 </p>
                 <p className="mt-1 text-sm text-[#5b6655]">
                   {event.entityType}
-                  {event.serviceOrderCode ? ` | execucao ${event.serviceOrderCode}` : ""}
+                  {event.serviceOrderCode ? ` | OS ${event.serviceOrderCode}` : ""}
                 </p>
               </div>
             ))

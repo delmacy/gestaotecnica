@@ -29,7 +29,7 @@ export async function ReportForm() {
           name="type"
           defaultValue="monthly_operational_summary"
         >
-          {reportTypes.map((type) => (
+          {reportTypes.map((type: any) => (
             <option key={type.value} value={type.value}>
               {type.label}
             </option>

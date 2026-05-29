@@ -24,7 +24,7 @@ export default async function LegacyPage() {
             <Link className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]" href="/">Voltar ao painel</Link>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
-            {summary.map((item) => (
+            {summary.map((item: any) => (
               <div className="border border-[#d7dccf] bg-white p-4 shadow-sm" key={item.label}>
                 <p className="font-mono text-xs text-[#6e7a66]">{item.label}</p>
                 <p className="mt-2 text-3xl font-semibold text-[#111510]">{item.value}</p>

@@ -6,7 +6,7 @@ export function TeamForm() {
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-[#111510]">Nova equipe</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Agrupe responsavels por turno, especialidade ou area operacional.
+          Agrupe tecnicos por turno, especialidade ou area operacional.
         </p>
       </div>
 

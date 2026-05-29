@@ -23,10 +23,10 @@ export default async function ServiceOrdersPage() {
                 Modulo operacional
               </p>
               <h1 className="mt-2 text-4xl font-semibold text-[#111510]">
-                Execucoes
+                Ordens de Servico
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                execucao representa execucao autorizada de mao de obra operacional,
+                OS representa execucao autorizada de mao de obra tecnica,
                 derivada preferencialmente de uma demanda.
               </p>
             </div>
@@ -39,7 +39,7 @@ export default async function ServiceOrdersPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {summary.map((item) => (
+            {summary.map((item: any) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}
@@ -57,10 +57,10 @@ export default async function ServiceOrdersPage() {
       <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
         <div className="mb-4">
           <h2 className="text-2xl font-semibold text-[#111510]">
-            execucao registradas
+            OS registradas
           </h2>
           <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-            Listagem das ultimas 50 execucoes criadas no sistema.
+            Listagem das ultimas 50 ordens de servico criadas no sistema.
           </p>
         </div>
         <ServiceOrdersTable serviceOrders={serviceOrders} />

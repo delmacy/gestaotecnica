@@ -12,7 +12,7 @@ export function AssetForm({ assetTypes }: { assetTypes: AssetTypeOption[] }) {
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-[#111510]">Novo ativo</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Cadastre equipamentos, sistemas ou infraestrutura que podem receber demandas e execucao.
+          Cadastre equipamentos, sistemas ou infraestrutura que podem receber demandas e OS.
         </p>
       </div>
 
@@ -36,7 +36,7 @@ export function AssetForm({ assetTypes }: { assetTypes: AssetTypeOption[] }) {
               defaultValue="equipment"
               required
             >
-              {assetTypes.map((type) => (
+              {assetTypes.map((type: any) => (
                 <option key={type.value} value={type.value}>
                   {type.label}
                 </option>
@@ -50,7 +50,7 @@ export function AssetForm({ assetTypes }: { assetTypes: AssetTypeOption[] }) {
           <input
             className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
             name="name"
-            placeholder="Ex.: Radio base sala operacional"
+            placeholder="Ex.: Radio base sala tecnica"
             required
           />
         </label>
@@ -63,7 +63,7 @@ export function AssetForm({ assetTypes }: { assetTypes: AssetTypeOption[] }) {
               defaultValue="active"
               name="status"
             >
-              {assetStatuses.map((status) => (
+              {assetStatuses.map((status: any) => (
                 <option key={status.value} value={status.value}>
                   {status.label}
                 </option>
@@ -78,7 +78,7 @@ export function AssetForm({ assetTypes }: { assetTypes: AssetTypeOption[] }) {
               defaultValue="medium"
               name="criticality"
             >
-              {assetCriticalities.map((criticality) => (
+              {assetCriticalities.map((criticality: any) => (
                 <option key={criticality.value} value={criticality.value}>
                   {criticality.label}
                 </option>
@@ -92,7 +92,7 @@ export function AssetForm({ assetTypes }: { assetTypes: AssetTypeOption[] }) {
           <input
             className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
             name="location"
-            placeholder="Ex.: Sala operacional, torre, rack, setor"
+            placeholder="Ex.: Sala tecnica, torre, rack, setor"
           />
         </label>
 

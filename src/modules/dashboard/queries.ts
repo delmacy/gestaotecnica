@@ -58,10 +58,10 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
       metrics: [
         { label: "Usuarios", value: usersCount },
         { label: "Equipes", value: teamsCount },
-        { label: "Responsavels", value: technicianProfilesCount },
+        { label: "Tecnicos", value: technicianProfilesCount },
         { label: "Ativos", value: assetsCount },
         { label: "Demandas", value: workItemsCount },
-        { label: "execucao", value: serviceOrdersCount },
+        { label: "OS", value: serviceOrdersCount },
         { label: "Eventos", value: eventLogsCount },
         { label: "Turnos", value: shiftsCount },
         { label: "Registros de turno", value: shiftLogEntriesCount },

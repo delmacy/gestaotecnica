@@ -34,7 +34,7 @@ export default async function ShiftsPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            {summary.map((item) => (
+            {summary.map((item: any) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}
@@ -56,7 +56,7 @@ export default async function ShiftsPage() {
               Turnos registrados
             </h2>
             <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-              Ultimos turnos abertos ou encerrados pela equipe operacional.
+              Ultimos turnos abertos ou encerrados pela equipe tecnica.
             </p>
           </div>
           <ShiftsTable shifts={shifts} />

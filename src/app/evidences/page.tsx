@@ -23,14 +23,14 @@ export default async function EvidencesPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="font-mono text-xs uppercase text-[#65705f]">
-                Documentacao operacional
+                Documentacao tecnica
               </p>
               <h1 className="mt-2 text-4xl font-semibold text-[#111510]">
                 Evidencias
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
                 Biblioteca de comprovantes, fotos, documentos, links e registros
-                conectados a execucao, demandas e ativos.
+                conectados a OS, demandas e ativos.
               </p>
             </div>
             <Link
@@ -42,7 +42,7 @@ export default async function EvidencesPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            {summary.map((item) => (
+            {summary.map((item: any) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}

@@ -34,7 +34,7 @@ export function ActionBar({ actions, entityId, path }: ActionBarProps) {
         alert(`Erro: ${result.error?.message}`);
       }
     } catch {
-      alert(`Falha operacional ao executar ação.`);
+      alert(`Falha técnica ao executar ação.`);
     } finally {
       setLoading(null);
     }

@@ -37,7 +37,7 @@ export async function ScheduleForm() {
           <label className="block">
             <span className="text-sm font-medium text-[#273025]">Tipo</span>
             <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="type" defaultValue="expediente">
-              {scheduleTypes.map((item) => (
+              {scheduleTypes.map((item: any) => (
                 <option key={item.value} value={item.value}>{item.label}</option>
               ))}
             </select>
@@ -45,7 +45,7 @@ export async function ScheduleForm() {
           <label className="block">
             <span className="text-sm font-medium text-[#273025]">Status</span>
             <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="status" defaultValue="planned">
-              {scheduleStatuses.map((item) => (
+              {scheduleStatuses.map((item: any) => (
                 <option key={item.value} value={item.value}>{item.label}</option>
               ))}
             </select>
@@ -64,10 +64,10 @@ export async function ScheduleForm() {
         </div>
 
         <label className="block">
-          <span className="text-sm font-medium text-[#273025]">Responsavel</span>
+          <span className="text-sm font-medium text-[#273025]">Tecnico</span>
           <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="technicianProfileId" defaultValue="">
-            <option value="">Sem responsavel especifico</option>
-            {technicians.map((technician) => (
+            <option value="">Sem tecnico especifico</option>
+            {technicians.map((technician: any) => (
               <option key={technician.id} value={technician.id}>{technician.name}</option>
             ))}
           </select>
@@ -77,7 +77,7 @@ export async function ScheduleForm() {
           <span className="text-sm font-medium text-[#273025]">Equipe</span>
           <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="teamId" defaultValue="">
             <option value="">Sem equipe</option>
-            {teams.map((team) => (
+            {teams.map((team: any) => (
               <option key={team.id} value={team.id}>{team.name}</option>
             ))}
           </select>

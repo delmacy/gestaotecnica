@@ -23,7 +23,7 @@ export function ReportsList({ reports }: { reports: ReportRow[] }) {
 
   return (
     <div className="space-y-3">
-      {reports.map((report) => (
+      {reports.map((report: any) => (
         <article className="border border-[#d7dccf] bg-white p-4 shadow-sm" key={report.id}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>

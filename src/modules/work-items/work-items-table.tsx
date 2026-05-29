@@ -35,7 +35,7 @@ export function WorkItemsTable({ workItems }: { workItems: WorkItemRow[] }) {
           Nenhuma demanda registrada
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Crie a primeira demanda para iniciar o fluxo WorkItem {"->"} execucao.
+          Crie a primeira demanda para iniciar o fluxo WorkItem {"->"} OS.
         </p>
       </div>
     );

@@ -1,110 +1,22 @@
-# Database Strategy
+# Estratégia de Banco de Dados
 
-## Decisao
+Para garantir a integridade e evitar a contaminação de dados, o System Builder separa os dados estruturais da plataforma dos dados operacionais dos clientes.
 
-Criar bancos separados para plataforma e runtime aplicado.
+## 1. Bases de Dados Separadas (Desenvolvimento)
 
-## Desenvolvimento
+- **`system_builder_dev`**: Guarda a plataforma, não a operação.
+- **`gestao_tecnica_dev`**: Guarda a operação real do primeiro caso de uso.
 
-```text
-system_builder_dev
-gestao_tecnica_dev
-```
+### Por que separar?
+1. **Evolução Independente:** Mudanças no metamodelo da plataforma não devem corromper dados operacionais sem uma migração controlada.
+2. **Escalabilidade Multi-tenant:** Facilita a futura migração para um modelo onde cada cliente possui seu próprio banco de dados (Tenant Isolation).
+3. **Segurança:** Isola configurações globais e registros de módulos de payloads sensíveis dos clientes.
 
-## Producao futura
+## 2. Row Level Security (RLS)
+Futuramente, utilizaremos RLS no PostgreSQL para garantir que um workspace nunca acesse dados de outro, mesmo que compartilhem o mesmo banco runtime.
 
-```text
-system_builder_prod
-gestao_tecnica_prod
-```
-
-## Multi-cliente futuro
-
-Modelo com banco por tenant:
-
-```text
-system_builder_prod
-tenant_cliente_a
-tenant_cliente_b
-tenant_cliente_c
-```
-
-Modelo com runtime multi-tenant:
-
-```text
-system_builder_prod
-system_builder_runtime_prod
-```
-
-No runtime multi-tenant, `workspace_id` e obrigatorio em todas as tabelas
-operacionais e nenhuma consulta operacional pode ocorrer sem filtro de
-workspace.
-
-## Banco System Builder
-
-Guarda a plataforma, nao a operacao especifica do cliente:
-
-- registry de modulos;
-- capacidades;
-- blueprints;
-- versoes de blueprints;
-- templates;
-- metamodelo global;
-- catalogo de actions;
-- catalogo de integracoes;
-- configuracoes globais;
-- marketplace;
-- versoes da engine;
-- auditoria estrutural.
-
-Schemas recomendados:
-
-```text
-builder
-blueprints
-registry
-modules
-integrations
-audit
-```
-
-## Banco cliente/runtime
-
-Guarda a operacao real:
-
-- usuarios;
-- workspaces;
-- processos ativos;
-- instancias;
-- payloads;
-- documentos;
-- eventos;
-- auditoria;
-- permissoes;
-- dados operacionais;
-- integracoes configuradas;
-- historico de execucao.
-
-Schemas recomendados:
-
-```text
-identity
-workspace
-workflow
-documents
-storage
-audit
-integrations
-notifications
-```
-
-## Regra de modelagem
-
-PostgreSQL e a fonte da verdade.
-
-MinIO guarda arquivos.
-
-Use tabelas relacionais para o esqueleto operacional e JSONB para payloads,
-campos dinamicos, regras condicionais, layouts, snapshots e payloads externos.
-
-JSONB nao substitui modelagem.
+## 3. MinIO e Armazenamento
+Arquivos nunca são armazenados no PostgreSQL.
+- O banco guarda metadados e referências.
+- O MinIO guarda os blobs/bytes.
+- Toda referência de arquivo deve conter o `workspace_id`.

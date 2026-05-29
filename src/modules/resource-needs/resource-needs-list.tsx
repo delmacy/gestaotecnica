@@ -23,7 +23,7 @@ export function ResourceNeedsList({ needs }: { needs: ResourceNeed[] }) {
   if (needs.length === 0) return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhuma necessidade de recurso registrada.</div>;
   return (
     <div className="space-y-3">
-      {needs.map((need) => (
+      {needs.map((need: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={need.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>

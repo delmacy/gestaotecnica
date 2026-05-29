@@ -38,7 +38,7 @@ export default async function AdminPage() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {summary.map((item) => (
+          {summary.map((item: any) => (
             <Card key={item.label}>
               <CardHeader>
                 <CardTitle className="text-sm text-muted-foreground">
@@ -53,7 +53,7 @@ export default async function AdminPage() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-          {links.map((link) => (
+          {links.map((link: any) => (
             <Button asChild key={link.href} variant="outline">
               <Link href={link.href}>{link.label}</Link>
             </Button>

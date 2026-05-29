@@ -39,7 +39,7 @@ export function MaintenancePlansList({ plans }: { plans: Plan[] }) {
   if (plans.length === 0) return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhum plano registrado.</div>;
   return (
     <div className="space-y-3">
-      {plans.map((plan) => (
+      {plans.map((plan: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={plan.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -60,7 +60,7 @@ export function TechnicalProjectsList({ projects }: { projects: Project[] }) {
   if (projects.length === 0) return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhum projeto registrado.</div>;
   return (
     <div className="space-y-3">
-      {projects.map((project) => (
+      {projects.map((project: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={project.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -84,7 +84,7 @@ export function AcquisitionNeedsList({ needs }: { needs: Acquisition[] }) {
   if (needs.length === 0) return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhuma necessidade registrada.</div>;
   return (
     <div className="space-y-3">
-      {needs.map((need) => (
+      {needs.map((need: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={need.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>

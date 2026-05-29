@@ -73,8 +73,8 @@ export const ecosystemModules: WorkspaceModuleConfig[] = [
   },
   {
     key: "approvals",
-    name: "Revisão Operacional",
-    description: "Fluxos de aprovação, aceite e retorno responsável de execuções.",
+    name: "Revisão Técnica",
+    description: "Fluxos de aprovação, aceite e retorno técnico de execuções.",
     layer: "module",
     status: "implemented",
   },
@@ -123,8 +123,15 @@ export const ecosystemModules: WorkspaceModuleConfig[] = [
   {
     key: "evidences",
     name: "Evidências",
-    description: "Biblioteca de comprovantes, fotos, documentos e links responsávels.",
+    description: "Biblioteca de comprovantes, fotos, documentos e links técnicos.",
     layer: "module",
+    status: "implemented",
+  },
+  {
+    key: "secao-tecnica",
+    name: "Adaptação Seção Técnica",
+    description: "Vocabulário, tipos, filas, papéis, workflows e templates do primeiro client pack.",
+    layer: "adaptation",
     status: "implemented",
   },
 ];

@@ -11,7 +11,7 @@ workspaces e adaptacoes simultaneas.
 Futuro: `work_item_types`.
 
 Motivo: tipos de demanda variam por cliente e podem precisar de prioridade,
-fila padrao, regras de execucao e exibicao no livro de turno.
+fila padrao, regras de OS e exibicao no livro de turno.
 
 ### schedule_type
 
@@ -24,7 +24,7 @@ sobreposicao, bloqueio e obrigatoriedade de livro de turno.
 
 Futuro: `business_roles` e `role_assignments`.
 
-Motivo: nivel responsavel, papel operacional e permissao nao sao a mesma coisa.
+Motivo: nivel tecnico, papel operacional e permissao nao sao a mesma coisa.
 
 ## 2. Tabelas futuras recomendadas
 

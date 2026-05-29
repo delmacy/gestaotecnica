@@ -68,7 +68,7 @@ export function EventsTable({ events }: { events: EventRow[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e0e5d9] text-sm">
-            {events.map((event) => (
+            {events.map((event: any) => (
               <tr key={event.id}>
                 <td className="px-4 py-4 align-top">
                   <p className="font-semibold text-[#182017]">{event.eventType}</p>

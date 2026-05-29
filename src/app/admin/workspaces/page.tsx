@@ -17,7 +17,7 @@ export default async function AdminWorkspacesPage() {
         </Button>
         <h1 className="mt-6 text-3xl font-semibold">{workspace.name}</h1>
         <div className="mt-4 space-y-3">
-          {modules.map((module) => (
+          {modules.map((module: any) => (
             <Card key={module.id}>
               <CardContent className="p-4">
                 <form

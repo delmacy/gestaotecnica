@@ -47,7 +47,7 @@ export function ShiftsTable({ shifts }: { shifts: ShiftRow[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e0e5d9] text-sm">
-            {shifts.map((shift) => (
+            {shifts.map((shift: any) => (
               <tr key={shift.id}>
                 <td className="px-4 py-4 align-top">
                   <Link

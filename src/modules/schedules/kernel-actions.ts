@@ -27,7 +27,7 @@ export const createScheduleKernelAction: ActionDefinition<
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
-      technicianProfileId: uuidProperty("Responsável escalado."),
+      technicianProfileId: uuidProperty("Técnico escalado."),
       teamId: uuidProperty("Equipe escalada."),
       title: stringProperty("Título do período (ex: Plantão FDS)."),
       type: stringProperty("Tipo de escala (expediente, plantão, etc)."),

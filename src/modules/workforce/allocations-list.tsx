@@ -27,7 +27,7 @@ export function WorkforceAllocationsList({ allocations }: { allocations: Allocat
 
   return (
     <div className="space-y-3">
-      {allocations.map((allocation) => (
+      {allocations.map((allocation: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={allocation.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -46,7 +46,7 @@ export function WorkforceAllocationsList({ allocations }: { allocations: Allocat
             <p>Esforco: {allocation.effortMinutes ? `${allocation.effortMinutes} min` : "Nao estimado"}</p>
             {allocation.serviceOrderId ? (
               <Link className="underline-offset-4 hover:underline" href={`/service-orders/${allocation.serviceOrderId}`}>
-                execucao: {allocation.serviceOrderCode} - {allocation.serviceOrderTitle}
+                OS: {allocation.serviceOrderCode} - {allocation.serviceOrderTitle}
               </Link>
             ) : null}
             {allocation.workItemId ? (
@@ -74,7 +74,7 @@ export function TechnicianUnavailabilitiesList({ unavailabilities }: { unavailab
 
   return (
     <div className="space-y-3">
-      {unavailabilities.map((item) => (
+      {unavailabilities.map((item: any) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={item.id}>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>

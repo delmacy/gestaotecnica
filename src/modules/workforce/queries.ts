@@ -90,7 +90,7 @@ export async function getWorkforceSummary() {
     .where(eq(technicianProfiles.level, "supervisor"));
 
   return [
-    { label: "Responsavels", value: techniciansRow.value },
+    { label: "Tecnicos", value: techniciansRow.value },
     { label: "Disponiveis", value: availableRow.value },
     { label: "Equipes", value: teamsRow.value },
     { label: "Supervisores", value: supervisorsRow.value },

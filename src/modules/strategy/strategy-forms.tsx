@@ -80,7 +80,7 @@ export function AcquisitionNeedForm({ options }: { options: Options }) {
           <input className="h-11 border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="estimatedCost" type="number" min="0" placeholder="Custo estimado" />
         </div>
         <label className="block"><span className="text-sm font-medium text-[#273025]">Ativo</span>{selects.asset}</label>
-        <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="serviceOrderId" defaultValue=""><option value="">Sem execucao</option>{options.serviceOrders.map((o) => <option key={o.id} value={o.id}>{o.code} - {o.title}</option>)}</select>
+        <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="serviceOrderId" defaultValue=""><option value="">Sem OS</option>{options.serviceOrders.map((o) => <option key={o.id} value={o.id}>{o.code} - {o.title}</option>)}</select>
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="projectId" defaultValue=""><option value="">Sem projeto</option>{options.projects.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}</select>
         <textarea className="min-h-24 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm" name="justification" placeholder="Justificativa" />
         <button className="h-11 w-full bg-[#1f2a1c] text-sm font-semibold text-white" type="submit">Criar necessidade</button>

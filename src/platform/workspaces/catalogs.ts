@@ -91,7 +91,7 @@ export async function getWorkspaceTechnicianLevelOptions(): Promise<CatalogOptio
 
   return rows
     .filter((row): row is { value: string; label: string } => Boolean(row.value))
-    .map((row) => ({ value: row.value, label: row.label }));
+    .map((row: any) => ({ value: row.value, label: row.label }));
 }
 
 export async function getWorkspaceAssetTypeOptions(): Promise<CatalogOption[]> {

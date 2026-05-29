@@ -50,7 +50,7 @@ export default async function BlueprintsAdminPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {list.map((bp) => (
+              {list.map((bp: any) => (
                 <TableRow key={bp.id}>
                   <TableCell className="font-medium">{bp.name}</TableCell>
                   <TableCell className="font-mono text-xs">{bp.key}</TableCell>

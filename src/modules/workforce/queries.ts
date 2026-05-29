@@ -201,7 +201,7 @@ export async function getWorkforceAllocationOptions() {
 
 export async function getTechnicianLevelOptions() {
   const options = await getWorkspaceTechnicianLevelOptions();
-  return options.map((option) => ({
+  return options.map((option: any) => ({
     ...option,
     value: option.value as TechnicianLevelValue,
   }));

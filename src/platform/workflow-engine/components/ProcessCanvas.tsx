@@ -33,7 +33,7 @@ export function ProcessCanvas({ states, transitions }: ProcessCanvasProps) {
     },
   }));
 
-  const edges: Edge[] = transitions.map((t) => ({
+  const edges: Edge[] = transitions.map((t: any) => ({
     id: t.key,
     source: t.from,
     target: t.to,

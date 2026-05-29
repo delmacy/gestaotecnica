@@ -1,4 +1,5 @@
 import { runtimeDb } from "@/db";
+import { connection } from "next/server";
 import {
   processDefinitions,
   processVersions,
@@ -15,6 +16,8 @@ import { TimelineService, TimelineItem } from "@/platform/timeline/application/t
 import { ProcessInstanceTimeline } from "@/platform/timeline/components/ProcessInstanceTimeline";
 
 export default async function WorkflowLabPage() {
+  await connection();
+
   const definitions = await runtimeDb.select().from(processDefinitions);
 
   // Get first published version of simple-request for the demo

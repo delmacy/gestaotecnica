@@ -205,6 +205,7 @@ const statusTone: Record<string, "default" | "secondary" | "outline"> = {
 };
 
 const quickLinks = [
+  { href: "/builder", label: "Builder", icon: Settings2 },
   { href: "/operations", label: "Operação", icon: Gauge },
   { href: "/search", label: "Busca", icon: Search },
   { href: "/workspace-config", label: "Config", icon: Settings2 },

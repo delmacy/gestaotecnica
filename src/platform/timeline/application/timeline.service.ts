@@ -2,8 +2,6 @@ import { runtimeDb } from "@/db";
 import { events } from "@/db/runtime/schema/workflow";
 import { eq, desc } from "drizzle-orm";
 
-type WorkflowEventRow = typeof events.$inferSelect;
-
 export interface TimelineItem {
   id: string;
   type: string;
@@ -16,7 +14,7 @@ export interface TimelineItem {
 
 export class TimelineService {
   async getProcessInstanceTimeline(workspaceId: string, instanceId: string): Promise<TimelineItem[]> {
-    const rawEvents: WorkflowEventRow[] = await runtimeDb
+    const rawEvents = await runtimeDb
       .select()
       .from(events)
       .where(eq(events.instanceId, instanceId))
@@ -27,7 +25,7 @@ export class TimelineService {
       type: event.eventType,
       title: this.formatTitle(event.eventType),
       occurredAt: event.createdAt,
-      actorId: event.actorId ?? undefined,
+      actorId: event.actorId,
       payload: event.payload as Record<string, unknown>,
     }));
   }

@@ -86,7 +86,7 @@ export async function runFlowsForEvent(
           },
         },
         logger,
-        skip: (reason) => {
+        skip: (reason: any) => {
           skipped = true;
           skippedReason = reason;
           logger.info(`Skipped: ${reason}`);

@@ -14,7 +14,7 @@ export const assetCriticalities = [
   { value: "critical", label: "Critica" },
 ] as const;
 
-export const assetTypeSuggestions = activeAdaptation.assetTypes.map((type) => ({
+export const assetTypeSuggestions = activeAdaptation.assetTypes.map((type: any) => ({
   value: type.key,
   label: type.label,
 }));

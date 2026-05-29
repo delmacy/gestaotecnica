@@ -5,7 +5,6 @@ import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 import type { ActorType, ExecutionSource, WorkspaceContext } from "./workspace-context";
 
 type ResolveWorkspaceContextInput = {
-  workspaceId?: string;
   workspaceKey?: string;
   actor?: {
     type?: ActorType;
@@ -52,11 +51,7 @@ export async function resolveWorkspaceContext(
       adaptationKey: workspaces.adaptationKey,
     })
     .from(workspaces)
-    .where(
-      input.workspaceId
-        ? and(eq(workspaces.id, input.workspaceId), eq(workspaces.isActive, true))
-        : and(inArray(workspaces.key, lookupKeys), eq(workspaces.isActive, true)),
-    )
+    .where(and(inArray(workspaces.key, lookupKeys), eq(workspaces.isActive, true)))
     .limit(1);
 
   if (!workspace && workspaceKey === "sala-tecnica") {
@@ -68,7 +63,7 @@ export async function resolveWorkspaceContext(
     };
   }
 
-  const enabledModuleRows: Array<{ moduleKey: string }> = workspace
+  const enabledModules = workspace
     ? await db
         .select({ moduleKey: workspaceModuleConfigs.moduleKey })
         .from(workspaceModuleConfigs)
@@ -78,10 +73,7 @@ export async function resolveWorkspaceContext(
             eq(workspaceModuleConfigs.isEnabled, true),
           ),
         )
-    : [];
-
-  const enabledModules = workspace
-    ? enabledModuleRows.map((row) => row.moduleKey)
+        .then((rows) => rows.map((row) => row.moduleKey))
     : fallbackEnabledModules;
 
   return {

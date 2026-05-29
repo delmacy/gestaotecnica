@@ -97,7 +97,7 @@ export async function getWorkItemSummary() {
 
 export async function getWorkItemTypeOptions() {
   const options = await getWorkspaceWorkItemTypeOptions();
-  return options.map((option) => ({
+  return options.map((option: any) => ({
     ...option,
     value: option.value as WorkItemTypeValue,
   }));

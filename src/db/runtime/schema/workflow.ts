@@ -7,7 +7,7 @@ import {
   jsonb,
 } from "drizzle-orm/pg-core";
 import { workspaces } from "./workspace";
-import { users } from "./identity";
+import { usersTable as users } from "./identity";
 
 export const workflowSchema = pgSchema("workflow");
 

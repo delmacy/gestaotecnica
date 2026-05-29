@@ -1,6 +1,6 @@
 import { runtimeDb } from "@/db";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import {
-  workspaces,
   processDefinitions,
   processVersions,
   states,

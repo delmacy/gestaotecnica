@@ -2,6 +2,11 @@ import { count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { supplierContracts, suppliers, teams } from "@/db/schema";
 
+export type SupplierOptions = {
+  suppliers: Array<{ id: string; name: string }>;
+  teams: Array<{ id: string; name: string }>;
+};
+
 export async function getSuppliers() {
   const db = getDb();
   return db.select({
@@ -51,7 +56,7 @@ export async function getSupplierSummary() {
   ];
 }
 
-export async function getSupplierOptions() {
+export async function getSupplierOptions(): Promise<SupplierOptions> {
   const db = getDb();
   const [supplierRows, teamRows] = await Promise.all([
     db.select({ id: suppliers.id, name: suppliers.name }).from(suppliers).orderBy(desc(suppliers.createdAt)).limit(80),

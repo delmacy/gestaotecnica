@@ -1,4 +1,5 @@
 import { runtimeDb } from "@/db";
+import { connection } from "next/server";
 import {
   processDefinitions,
   processVersions,
@@ -13,6 +14,8 @@ import { LabClient } from "./LabClient";
 import { FieldDefinition } from "@/platform/forms/application/build-zod-schema";
 
 export default async function WorkflowLabPage() {
+  await connection();
+
   const definitions = await runtimeDb.select().from(processDefinitions);
 
   // Get first published version of simple-request for the demo

@@ -10,6 +10,14 @@ import {
   workItems,
 } from "@/db/schema";
 
+export type StrategyOptions = {
+  assets: Array<{ id: string; code: string; name: string }>;
+  teams: Array<{ id: string; name: string }>;
+  workItems: Array<{ id: string; title: string }>;
+  serviceOrders: Array<{ id: string; code: string; title: string }>;
+  projects: Array<{ id: string; title: string }>;
+};
+
 export async function getMaintenancePlans() {
   const db = getDb();
   return db.select({
@@ -116,7 +124,7 @@ export async function getAcquisitionSummary() {
   ];
 }
 
-export async function getStrategyOptions() {
+export async function getStrategyOptions(): Promise<StrategyOptions> {
   const db = getDb();
   const [assetRows, teamRows, workItemRows, serviceOrderRows, projectRows] = await Promise.all([
     db.select({ id: assets.id, code: assets.code, name: assets.name }).from(assets).orderBy(desc(assets.createdAt)).limit(50),

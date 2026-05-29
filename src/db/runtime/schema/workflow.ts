@@ -79,7 +79,7 @@ export const processPayloads = workflowSchema.table("process_payloads", {
   id: uuid("id").primaryKey().defaultRandom(),
   instanceId: uuid("instance_id").notNull().references(() => processInstances.id),
   workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
-  schemaVersion: text("schema_version").notNull().default("1.0"),
+  schema_version: text("schema_version").notNull().default("1.0"),
   data: jsonb("data").notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -95,13 +95,13 @@ export const events = workflowSchema.table("events", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-// New tables for Forms and Field Definitions
+// Form and Field Definitions
 export const fieldDefinitions = workflowSchema.table("field_definitions", {
   id: uuid("id").primaryKey().defaultRandom(),
   workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
   key: text("key").notNull(),
   label: text("label").notNull(),
-  type: text("type").notNull(), // text, textarea, number, date, select, boolean, file_reference
+  type: text("type").notNull(),
   config: jsonb("config").notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

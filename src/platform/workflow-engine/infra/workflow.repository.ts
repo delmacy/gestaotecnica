@@ -114,18 +114,12 @@ export class WorkflowRepository {
     const transitionIds = availableTransitions.map(t => t.id);
 
     // Get actions for those transitions
-    const availableActions: ActionRow[] = await runtimeDb
+    const allActions: ActionRow[] = await runtimeDb
       .select()
       .from(actions)
-      .where(
-        and(
-          eq(actions.processVersionId, instance.processVersionId),
-          // Using inArray would be better but let's keep it simple for now if there's only one or few
-          // Or filter after fetch
-        )
-      );
+      .where(eq(actions.processVersionId, instance.processVersionId));
 
-    return availableActions.filter(a => a.transitionId && transitionIds.includes(a.transitionId));
+    return allActions.filter(a => a.transitionId && transitionIds.includes(a.transitionId));
   }
 
   async getInitialState(processVersionId: string) {

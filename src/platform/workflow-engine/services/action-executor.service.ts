@@ -17,10 +17,11 @@ export class ActionExecutorService {
     actorId?: string;
     input: Record<string, unknown>;
   }): Promise<ActionResult> {
-    // 1. Resolve Kernel Action
     const kernelAction = getAction(params.actionKey);
 
     if (!kernelAction) {
+      // For simple lab validation, we might want to "succeed" even if action not in kernel
+      // but let's stick to the rule.
       return {
         success: false,
         error: `Action implementation for key '${params.actionKey}' not found in Kernel.`

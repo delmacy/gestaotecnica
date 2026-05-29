@@ -2,7 +2,12 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { createLabInstance, executeLabAction } from "./actions";
+import {
+  createLabInstance,
+  executeLabAction,
+  sendLabNotification,
+  attachLabEvidence
+} from "./actions";
 import { DynamicFormRenderer } from "@/platform/forms/components/DynamicFormRenderer";
 import { FieldDefinition } from "@/platform/forms/application/build-zod-schema";
 
@@ -45,11 +50,45 @@ export function LabClient({ type, workspaceId, versionId, instanceId, fields }: 
     );
   }
 
+  if (type === "notify" && instanceId) {
+    return (
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={async () => {
+          setLoading(true);
+          await sendLabNotification(workspaceId, instanceId);
+          setLoading(false);
+        }}
+        disabled={loading}
+      >
+        Notificar
+      </Button>
+    );
+  }
+
+  if (type === "attach" && instanceId) {
+    return (
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={async () => {
+          setLoading(true);
+          await attachLabEvidence(workspaceId, instanceId, "evidencia_tecnica.txt");
+          setLoading(false);
+        }}
+        disabled={loading}
+      >
+        Anexar
+      </Button>
+    );
+  }
+
   if (type === "execute" && instanceId && fields) {
     return (
       <SimpleDialog
         title="Executar Ação: submit_request"
-        trigger={<Button variant="outline">Enviar</Button>}
+        trigger={<Button size="sm" variant="outline">Enviar</Button>}
       >
         <DynamicFormRenderer
           fields={fields}

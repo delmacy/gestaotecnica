@@ -2,7 +2,7 @@
 
 Os módulos são blocos reutilizáveis do ecossistema operacional. Eles devem ser
 descritos como capacidades de uma plataforma de montagem, não como partes de um
-único sistema de gestão técnica.
+único sistema de gestão operacional.
 
 ## Módulos implementados
 

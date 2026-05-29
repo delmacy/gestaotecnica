@@ -54,7 +54,7 @@ export function LegacyTable({ records }: { records: LegacyRecord[] }) {
           </div>
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
             <div>
-              <p className="font-mono text-xs text-[#6e7a66]">OS</p>
+              <p className="font-mono text-xs text-[#6e7a66]">execucao</p>
               {record.serviceOrderId && record.serviceOrderCode ? (
                 <Link className="mt-1 block underline-offset-4 hover:underline" href={`/service-orders/${record.serviceOrderId}`}>{record.serviceOrderCode} - {record.serviceOrderTitle}</Link>
               ) : <p className="mt-1 text-[#273025]">Nao vinculada</p>}

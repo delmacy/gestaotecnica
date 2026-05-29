@@ -23,10 +23,10 @@ export default async function SkillsPage() {
     <main className="min-h-screen bg-[#f6f7f4] px-6 py-8 text-[#1c211b] lg:px-8">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
         <header>
-          <p className="font-mono text-xs uppercase text-[#65705f]">Capacitacao tecnica</p>
+          <p className="font-mono text-xs uppercase text-[#65705f]">Capacitacao operacional</p>
           <h1 className="mt-2 text-3xl font-semibold text-[#111510]">Competencias e treinamentos</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5b6655]">
-            Catalogo de habilidades, matriz tecnica e trilha de capacitacao conectadas ao planejamento operacional.
+            Catalogo de habilidades, matriz operacional e trilha de capacitacao conectadas ao planejamento operacional.
           </p>
         </header>
 
@@ -52,7 +52,7 @@ export default async function SkillsPage() {
 
         <section className="grid gap-6 xl:grid-cols-2">
           <div>
-            <h2 className="mb-4 text-xl font-semibold text-[#111510]">Matriz tecnica</h2>
+            <h2 className="mb-4 text-xl font-semibold text-[#111510]">Matriz operacional</h2>
             <TechnicianSkillsList matrix={matrix} />
           </div>
           <div>

@@ -64,9 +64,9 @@ export async function ScheduleForm() {
         </div>
 
         <label className="block">
-          <span className="text-sm font-medium text-[#273025]">Tecnico</span>
+          <span className="text-sm font-medium text-[#273025]">Responsavel</span>
           <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="technicianProfileId" defaultValue="">
-            <option value="">Sem tecnico especifico</option>
+            <option value="">Sem responsavel especifico</option>
             {technicians.map((technician) => (
               <option key={technician.id} value={technician.id}>{technician.name}</option>
             ))}

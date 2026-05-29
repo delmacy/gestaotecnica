@@ -55,8 +55,8 @@ export default async function WorkforcePage() {
                 Workforce
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                Equipes, perfis tecnicos, especialidades e disponibilidade para
-                transformar OS abertas em execucao atribuida.
+                Equipes, perfis responsavels, especialidades e disponibilidade para
+                transformar execucao abertas em execucao atribuida.
               </p>
             </div>
             <Link
@@ -91,7 +91,7 @@ export default async function WorkforcePage() {
                 Alocacoes
               </h2>
               <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-                Capacidade planejada por tecnico, OS, demanda ou escala.
+                Capacidade planejada por responsavel, execucao, demanda ou escala.
               </p>
             </div>
             <WorkforceAllocationsList allocations={allocations} />
@@ -112,10 +112,10 @@ export default async function WorkforcePage() {
           <div>
             <div className="mb-4">
               <h2 className="text-2xl font-semibold text-[#111510]">
-                Tecnicos cadastrados
+                Responsavels cadastrados
               </h2>
               <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-                Listagem dos perfis tecnicos disponiveis para assumir ordens de
+                Listagem dos perfis responsavels disponiveis para assumir ordens de
                 servico.
               </p>
             </div>
@@ -127,7 +127,7 @@ export default async function WorkforcePage() {
               <h2 className="text-2xl font-semibold text-[#111510]">Equipes</h2>
               <p className="mt-1 text-sm leading-6 text-[#5b6655]">
                 Times operacionais usados para organizar responsabilidade e
-                cobertura tecnica.
+                cobertura operacional.
               </p>
             </div>
             <TeamsList teams={teams} />

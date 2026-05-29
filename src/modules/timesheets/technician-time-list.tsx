@@ -26,7 +26,7 @@ export function TechnicianTimeList({
   if (technicians.length === 0) {
     return (
       <div className="border border-[#d7dccf] bg-white p-5 text-sm text-[#5b6655] shadow-sm">
-        Sem horas consolidadas por tecnico.
+        Sem horas consolidadas por responsavel.
       </div>
     );
   }

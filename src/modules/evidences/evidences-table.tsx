@@ -32,7 +32,7 @@ export function EvidencesTable({ evidences }: { evidences: EvidenceRow[] }) {
           Nenhuma evidencia registrada
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Evidencias adicionadas em OS ou por esta biblioteca aparecem aqui.
+          Evidencias adicionadas em execucao ou por esta biblioteca aparecem aqui.
         </p>
       </div>
     );
@@ -66,7 +66,7 @@ export function EvidencesTable({ evidences }: { evidences: EvidenceRow[] }) {
 
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
             <div>
-              <p className="font-mono text-xs text-[#6e7a66]">OS</p>
+              <p className="font-mono text-xs text-[#6e7a66]">execucao</p>
               {evidence.serviceOrderId && evidence.serviceOrderCode ? (
                 <Link
                   className="mt-1 block underline-offset-4 hover:underline"

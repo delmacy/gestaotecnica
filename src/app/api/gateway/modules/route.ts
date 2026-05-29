@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    gateway: "gestaotecnica",
+    gateway: "system-builder",
     version: "v1",
     modules: gatewayModules,
   });

@@ -26,7 +26,7 @@ export function WorkItemForm({
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-[#111510]">Nova demanda</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Registre a necessidade antes de decidir se ela vira OS.
+          Registre a necessidade antes de decidir se ela vira execucao.
         </p>
       </div>
 

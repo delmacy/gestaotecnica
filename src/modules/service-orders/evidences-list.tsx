@@ -26,13 +26,13 @@ export function ServiceOrderEvidencesList({
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-[#111510]">Evidencias</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Registros documentais vinculados a execucao da OS.
+          Registros documentais vinculados a execucao da execucao.
         </p>
       </div>
 
       {evidences.length === 0 ? (
         <p className="text-sm leading-6 text-[#5b6655]">
-          Nenhuma evidencia registrada nesta OS.
+          Nenhuma evidencia registrada nesta execucao.
         </p>
       ) : (
         <div className="space-y-3">

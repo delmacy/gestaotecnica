@@ -37,7 +37,7 @@ export function ServiceOrderEventTimeline({
   if (events.length === 0) {
     return (
       <div className="border border-[#d7dccf] bg-white p-5 text-sm text-[#5b6655] shadow-sm">
-        Nenhum evento registrado para esta OS.
+        Nenhum evento registrado para esta execucao.
       </div>
     );
   }

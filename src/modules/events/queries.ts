@@ -49,7 +49,7 @@ export async function getEventSummary() {
 
   return [
     { label: "Eventos", value: totalRow.value },
-    { label: "OS", value: serviceOrderRow.value },
+    { label: "execucao", value: serviceOrderRow.value },
     { label: "Demandas", value: workItemRow.value },
     { label: "Ativos", value: assetRow.value },
   ];

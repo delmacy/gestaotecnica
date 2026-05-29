@@ -1,5 +1,6 @@
 import { activeAdaptation } from "@/adaptations/active";
-import type { ShiftTypeKey } from "@/adaptations/secao-tecnica/shift-types";
+
+type ShiftTypeKey = (typeof activeAdaptation.shiftTypes)[number]["key"];
 
 export const scheduleTypes = activeAdaptation.shiftTypes.map((item) => ({
   value: item.key,

@@ -30,7 +30,7 @@ export default async function AssetsPage() {
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
                 Ativos representam equipamentos, sistemas e infraestrutura que
-                sustentam demandas, OS, evidencias e historico operacional.
+                sustentam demandas, execucao, evidencias e historico operacional.
               </p>
             </div>
             <Link

@@ -88,7 +88,7 @@ export async function getAssetRelationsSummary(id: string) {
 
   return [
     { label: "Demandas vinculadas", value: workItemsRow.value },
-    { label: "OS vinculadas", value: serviceOrdersRow.value },
+    { label: "execucao vinculadas", value: serviceOrdersRow.value },
   ];
 }
 

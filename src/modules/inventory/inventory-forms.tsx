@@ -44,7 +44,7 @@ export function InventoryMovementForm({ options }: { options: Options }) {
           <input className="h-11 border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="quantity" type="number" min="1" placeholder="Quantidade" required />
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <select className="h-11 border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="serviceOrderId" defaultValue=""><option value="">Sem OS</option>{options.serviceOrders.map((o) => <option key={o.id} value={o.id}>{o.code} - {o.title}</option>)}</select>
+          <select className="h-11 border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="serviceOrderId" defaultValue=""><option value="">Sem execucao</option>{options.serviceOrders.map((o) => <option key={o.id} value={o.id}>{o.code} - {o.title}</option>)}</select>
           <select className="h-11 border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="acquisitionNeedId" defaultValue=""><option value="">Sem aquisicao</option>{options.acquisitions.map((a) => <option key={a.id} value={a.id}>{a.title}</option>)}</select>
         </div>
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="performedById" defaultValue=""><option value="">Responsavel nao definido</option>{options.users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}</select>

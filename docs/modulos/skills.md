@@ -2,7 +2,7 @@
 
 ## Configuracao
 
-Competencias, matriz tecnica e treinamentos ficam nos modulos de skills.
+Competencias, matriz operacional e treinamentos ficam nos modulos de skills.
 
 ## Adaptacao por cliente
 

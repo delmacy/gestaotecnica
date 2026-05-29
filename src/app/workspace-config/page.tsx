@@ -260,14 +260,14 @@ export default async function WorkspaceConfigPage() {
 
           <EditableCatalogCard
             catalog="serviceOrderType"
-            description="Classificacoes usadas ao criar uma ordem de servico."
+            description="Classificacoes usadas ao criar uma execucao."
             items={catalogs.serviceOrderTypes}
-            title="Tipos de OS"
+            title="Tipos de execucao"
           />
 
           <EditableCatalogCard
             catalog="assetType"
-            description="Familias de ativos disponiveis no cadastro tecnico."
+            description="Familias de ativos disponiveis no cadastro responsavel."
             items={catalogs.assetTypes}
             title="Tipos de ativo"
           />

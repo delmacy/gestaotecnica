@@ -63,7 +63,7 @@ export function ShiftEntriesList({ entries }: { entries: ShiftEntryRow[] }) {
 
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
             <div>
-              <p className="font-mono text-xs text-[#6e7a66]">OS</p>
+              <p className="font-mono text-xs text-[#6e7a66]">execucao</p>
               {entry.serviceOrderId && entry.serviceOrderCode ? (
                 <Link
                   className="mt-1 block text-[#273025] underline-offset-4 hover:underline"

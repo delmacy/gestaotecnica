@@ -28,7 +28,7 @@ export default async function ReportsPage() {
                 Relatorios
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                Visao consolidada de demandas, OS, ativos, horas apontadas e
+                Visao consolidada de demandas, execucao, ativos, horas apontadas e
                 pendencias de turno.
               </p>
             </div>
@@ -61,7 +61,7 @@ export default async function ReportsPage() {
           <div>
             <div className="mb-4">
               <h2 className="text-2xl font-semibold text-[#111510]">
-                Status das OS
+                Status das execucao
               </h2>
               <p className="mt-1 text-sm leading-6 text-[#5b6655]">
                 Distribuicao atual por etapa operacional.
@@ -85,7 +85,7 @@ export default async function ReportsPage() {
           <div>
             <div className="mb-4">
               <h2 className="text-2xl font-semibold text-[#111510]">
-                OS recentes
+                execucao recentes
               </h2>
               <p className="mt-1 text-sm leading-6 text-[#5b6655]">
                 Ultimas ordens abertas no fluxo operacional.

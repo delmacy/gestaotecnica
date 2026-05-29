@@ -57,13 +57,13 @@ export function EvidenceForm({ options }: { options: EvidenceOptions }) {
 
         <div className="grid gap-3">
           <label className="block">
-            <span className="text-sm font-medium text-[#273025]">OS</span>
+            <span className="text-sm font-medium text-[#273025]">execucao</span>
             <select
               className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
               defaultValue=""
               name="serviceOrderId"
             >
-              <option value="">Sem OS</option>
+              <option value="">Sem execucao</option>
               {options.serviceOrders.map((serviceOrder) => (
                 <option key={serviceOrder.id} value={serviceOrder.id}>
                   {serviceOrder.code} - {serviceOrder.title}

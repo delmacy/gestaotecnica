@@ -3,7 +3,7 @@ import { activeAdaptation } from "@/adaptations/active";
 export const documentStatuses = [
   { value: "draft", label: "Rascunho" },
   { value: "prepared_by_secretary", label: "Preparado pela secretaria" },
-  { value: "waiting_technician_review", label: "Aguardando revisao tecnica" },
+  { value: "waiting_technician_review", label: "Aguardando revisao operacional" },
   { value: "waiting_supervisor_approval", label: "Aguardando aprovacao" },
   { value: "approved", label: "Aprovado" },
   { value: "signed", label: "Assinado" },

@@ -31,7 +31,7 @@ export const attachEvidenceKernelAction: ActionDefinition<
       description: stringProperty("Descrição da evidência."),
       fileUrl: stringProperty("URL do arquivo."),
       mimeType: stringProperty("MIME type do arquivo."),
-      serviceOrderId: uuidProperty("OS relacionada."),
+      serviceOrderId: uuidProperty("execucao relacionada."),
       workItemId: uuidProperty("Demanda relacionada."),
       assetId: uuidProperty("Ativo relacionado."),
     },

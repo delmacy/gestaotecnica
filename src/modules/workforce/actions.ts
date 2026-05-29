@@ -138,7 +138,7 @@ export async function createTechnician(formData: FormData) {
   );
 
   if (!result.success) {
-    throw new Error(result.error?.message ?? "Falha ao criar técnico.");
+    throw new Error(result.error?.message ?? "Falha ao criar responsável.");
   }
 
   revalidatePath("/");
@@ -179,7 +179,7 @@ export async function createWorkforceAllocation(formData: FormData) {
     .where(eq(technicianProfiles.id, technicianProfileId))
     .limit(1);
 
-  if (!technician) throw new Error("Tecnico nao encontrado.");
+  if (!technician) throw new Error("Responsavel nao encontrado.");
 
   const [allocation] = await db
     .insert(workforceAllocations)

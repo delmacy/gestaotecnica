@@ -23,7 +23,7 @@ export default async function SuppliersPage() {
         <header>
           <p className="font-mono text-xs uppercase text-[#65705f]">Governanca de suprimentos</p>
           <h1 className="mt-2 text-3xl font-semibold text-[#111510]">Fornecedores e contratos</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5b6655]">Cadastro de fornecedores, contatos, categorias e contratos ligados a equipes tecnicas.</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5b6655]">Cadastro de fornecedores, contatos, categorias e contratos ligados a equipes operacionais.</p>
         </header>
         <section className="grid gap-3 sm:grid-cols-3">
           {summary.map((metric) => (

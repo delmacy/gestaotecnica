@@ -24,10 +24,10 @@ export function TechniciansTable({ technicians }: { technicians: TechnicianRow[]
     return (
       <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
         <h2 className="text-lg font-semibold text-[#111510]">
-          Nenhum tecnico cadastrado
+          Nenhum responsavel cadastrado
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Cadastre tecnicos para atribuir responsaveis as OS.
+          Cadastre responsavels para atribuir responsaveis as execucao.
         </p>
       </div>
     );
@@ -39,7 +39,7 @@ export function TechniciansTable({ technicians }: { technicians: TechnicianRow[]
         <table className="w-full min-w-[820px] border-collapse text-left">
           <thead className="bg-[#f1f3ed] text-xs uppercase text-[#65705f]">
             <tr>
-              <th className="px-4 py-3 font-semibold">Tecnico</th>
+              <th className="px-4 py-3 font-semibold">Responsavel</th>
               <th className="px-4 py-3 font-semibold">Nivel</th>
               <th className="px-4 py-3 font-semibold">Equipe</th>
               <th className="px-4 py-3 font-semibold">Especialidade</th>

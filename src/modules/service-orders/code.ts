@@ -7,5 +7,5 @@ export function generateServiceOrderCode(date = new Date()) {
   ).padStart(2, "0")}${String(date.getSeconds()).padStart(2, "0")}`;
   const suffix = crypto.randomUUID().slice(0, 6).toUpperCase();
 
-  return `OS-${year}${month}${day}-${time}-${suffix}`;
+  return `EXE-${year}${month}${day}-${time}-${suffix}`;
 }

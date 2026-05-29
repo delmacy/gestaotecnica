@@ -31,7 +31,7 @@ export function AssetsTable({ assets }: { assets: AssetRow[] }) {
           Nenhum ativo cadastrado
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Cadastre o primeiro ativo para vincular demandas e futuras OS.
+          Cadastre o primeiro ativo para vincular demandas e futuras execucao.
         </p>
       </div>
     );

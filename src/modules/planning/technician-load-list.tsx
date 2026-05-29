@@ -27,10 +27,10 @@ export function TechnicianLoadList({
 }) {
   return (
     <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-[#111510]">Carga tecnica</h2>
+      <h2 className="text-lg font-semibold text-[#111510]">Carga operacional</h2>
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {technicians.length === 0 ? (
-          <p className="text-sm text-[#5b6655]">Sem tecnicos cadastrados.</p>
+          <p className="text-sm text-[#5b6655]">Sem responsavels cadastrados.</p>
         ) : (
           technicians.map((technician) => (
             <article
@@ -44,7 +44,7 @@ export function TechnicianLoadList({
                 {getTechnicianLevelLabel(technician.level)}
               </p>
               <p className="mt-3 font-mono text-xs text-[#7a8474]">
-                {Number(technician.activeAssignments)} OS ativas
+                {Number(technician.activeAssignments)} execucao ativas
               </p>
               <p className="mt-1 font-mono text-xs text-[#7a8474]">
                 {formatDuration(Number(technician.minutes))}

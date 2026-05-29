@@ -1,6 +1,6 @@
 export const contextualPacks = [
   {
-    key: "operacoes-tecnicas",
+    key: "operacoes-operacionais",
     name: "Operações de Campo e Atendimento",
     department: "Operação / Atendimento / Campo",
     requiredModules: ["work-items", "service-orders", "assets", "workforce", "schedules", "shifts"],

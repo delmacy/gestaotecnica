@@ -40,13 +40,13 @@ export function ServiceOrderTimeEntriesList({
           Tempo de execucao
         </h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Apontamentos realizados pelos tecnicos responsaveis.
+          Apontamentos realizados pelos responsavels responsaveis.
         </p>
       </div>
 
       {timeEntries.length === 0 ? (
         <p className="text-sm leading-6 text-[#5b6655]">
-          Nenhum tempo apontado nesta OS.
+          Nenhum tempo apontado nesta execucao.
         </p>
       ) : (
         <div className="overflow-hidden border border-[#e0e5d9]">
@@ -54,7 +54,7 @@ export function ServiceOrderTimeEntriesList({
             <table className="w-full min-w-[720px] border-collapse text-left text-sm">
               <thead className="bg-[#f1f3ed] text-xs uppercase text-[#65705f]">
                 <tr>
-                  <th className="px-4 py-3 font-semibold">Tecnico</th>
+                  <th className="px-4 py-3 font-semibold">Responsavel</th>
                   <th className="px-4 py-3 font-semibold">Inicio</th>
                   <th className="px-4 py-3 font-semibold">Fim</th>
                   <th className="px-4 py-3 font-semibold">Duracao</th>

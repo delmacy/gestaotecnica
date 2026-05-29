@@ -21,7 +21,7 @@ export const technicianLevels = activeAdaptation.businessRoles.flatMap((role) =>
 export type TechnicianLevelValue = LegacyTechnicianLevel;
 
 export const workforceAllocationTypes = [
-  { value: "service_order", label: "Ordem de Servico" },
+  { value: "service_order", label: "Execucao" },
   { value: "work_item", label: "Demanda" },
   { value: "schedule", label: "Escala" },
   { value: "training", label: "Treinamento" },

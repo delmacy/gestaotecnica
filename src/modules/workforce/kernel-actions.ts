@@ -31,20 +31,20 @@ export const createTechnicianKernelAction: ActionDefinition<
 > = {
   key: "workforce.create_technician",
   moduleKey: "workforce",
-  description: "Cria um perfil de técnico para um usuário.",
+  description: "Cria um perfil de responsável para um usuário.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
-      userId: uuidProperty("Usuário que receberá o perfil técnico."),
+      userId: uuidProperty("Usuário que receberá o perfil responsável."),
       teamId: uuidProperty("Equipe inicial."),
-      level: enumProperty(technicianLevels.map((l) => l.value), "Nível técnico."),
+      level: enumProperty(technicianLevels.map((l) => l.value), "Nível responsável."),
       registrationCode: stringProperty("Matrícula ou código funcional."),
       specialty: stringProperty("Especialidade principal."),
     },
     ["userId"],
   ),
   outputSchema: actionObjectSchema({
-    id: uuidProperty("Identificador do perfil técnico."),
+    id: uuidProperty("Identificador do perfil responsável."),
     userId: uuidProperty("Usuário relacionado."),
     level: stringProperty("Nível atribuído."),
   }),
@@ -102,7 +102,7 @@ export const createTeamKernelAction: ActionDefinition<
 > = {
   key: "workforce.create_team",
   moduleKey: "workforce",
-  description: "Cria uma equipe técnica.",
+  description: "Cria uma equipe operacional.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {

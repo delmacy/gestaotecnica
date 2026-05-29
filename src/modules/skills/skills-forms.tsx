@@ -20,10 +20,10 @@ export function SkillForm() {
 export function TechnicianSkillForm({ options }: { options: Options }) {
   return (
     <form action={assignTechnicianSkill} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-[#111510]">Vincular tecnico</h2>
+      <h2 className="text-lg font-semibold text-[#111510]">Vincular responsavel</h2>
       <div className="mt-4 space-y-4">
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="technicianProfileId" required defaultValue="">
-          <option value="">Selecione o tecnico</option>
+          <option value="">Selecione o responsavel</option>
           {options.technicians.map((technician) => <option key={technician.id} value={technician.id}>{technician.name} {technician.teamName ? `- ${technician.teamName}` : ""}</option>)}
         </select>
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="skillId" required defaultValue="">
@@ -55,7 +55,7 @@ export function TrainingRecordForm({ options }: { options: Options }) {
           {trainingStatuses.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}
         </select>
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="technicianProfileId" defaultValue="">
-          <option value="">Sem tecnico definido</option>
+          <option value="">Sem responsavel definido</option>
           {options.technicians.map((technician) => <option key={technician.id} value={technician.id}>{technician.name}</option>)}
         </select>
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="skillId" defaultValue="">

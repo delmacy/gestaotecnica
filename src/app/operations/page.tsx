@@ -28,7 +28,7 @@ export default async function OperationsPage() {
                 Centro Operacional
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                Painel de filas, pendencias, tecnicos disponiveis e eventos
+                Painel de filas, pendencias, responsavels disponiveis e eventos
                 recentes para acompanhamento em tempo real.
               </p>
             </div>

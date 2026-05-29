@@ -27,8 +27,8 @@ export default async function PlanningPage() {
                 Planejamento
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                Visao de backlog, OS planejadas, execucao, revisao e carga
-                tecnica para orientar proximas acoes.
+                Visao de backlog, execucao planejadas, execucao, revisao e carga
+                operacional para orientar proximas acoes.
               </p>
             </div>
             <Link

@@ -17,91 +17,84 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { Search, Copy, MoreVertical, LayoutTemplate, Building2 } from "lucide-react";
+
 type TreeItem = {
   id: string;
   label: string;
   icon?: any;
   children?: TreeItem[];
-  type?: "workspace" | "capability" | "process" | "blueprint" | "action" | "group";
+  type?: "organization" | "workspace" | "capability" | "process" | "blueprint" | "action" | "group" | "template";
 };
 
 const BUILDER_TREE_DATA: TreeItem[] = [
   {
-    id: "workspace-1",
-    label: "Acme Corp",
-    type: "workspace",
+    id: "orgs",
+    label: "Organizações",
+    icon: Building2,
+    type: "group",
     children: [
       {
-        id: "capabilities",
-        label: "Capacidades",
-        icon: Box,
-        type: "group",
+        id: "org-acme",
+        label: "Acme Holding",
+        type: "organization",
         children: [
-          { id: "cap-finance", label: "Financeiro", type: "capability" },
-          { id: "cap-rh", label: "RH", type: "capability" },
-          { id: "cap-ops", label: "Operações", type: "capability" },
-          { id: "cap-manutencao", label: "Manutenção", type: "capability" },
+          {
+            id: "workspace-acme-prod",
+            label: "Produção Brasil",
+            type: "workspace",
+            children: [
+              {
+                id: "capabilities-acme",
+                label: "Capacidades",
+                icon: Box,
+                type: "group",
+                children: [
+                  { id: "cap-finance", label: "Financeiro", type: "capability" },
+                  { id: "cap-ops", label: "Operações", type: "capability" },
+                ]
+              },
+              {
+                id: "processes-acme",
+                label: "Processos",
+                icon: Workflow,
+                type: "group",
+                children: [
+                  { id: "proc-buy", label: "Aprovação de Compra", type: "process" },
+                ]
+              },
+            ]
+          },
+          {
+            id: "workspace-acme-log",
+            label: "Logística Global",
+            type: "workspace",
+          }
         ]
       },
       {
-        id: "processes",
-        label: "Processos",
-        icon: Workflow,
-        type: "group",
+        id: "org-stark",
+        label: "Stark Industries",
+        type: "organization",
         children: [
-          { id: "proc-buy", label: "Aprovação de Compra", type: "process" },
-          { id: "proc-hire", label: "Admissão", type: "process" },
-          { id: "proc-refund", label: "Reembolso", type: "process" },
-          { id: "proc-preventiva", label: "Preventiva Automática", type: "process" },
+          {
+            id: "workspace-stark-rd",
+            label: "R&D Lab",
+            type: "workspace",
+          }
         ]
-      },
-      {
-        id: "blueprints",
-        label: "Blueprints",
-        icon: FileText,
-        type: "group",
-        children: [
-          { id: "bp-so", label: "Ordem de Serviço", type: "blueprint" },
-          { id: "bp-asset", label: "Ativo", type: "blueprint" },
-          { id: "bp-work-item", label: "Demanda", type: "blueprint" },
-        ]
-      },
-      {
-        id: "forms",
-        label: "Formulários",
-        icon: FileText,
-        type: "group",
-      },
-      {
-        id: "actions",
-        label: "Ações",
-        icon: Zap,
-        type: "group",
-      },
-      {
-        id: "integrations",
-        label: "Integrações",
-        icon: Database,
-        type: "group",
-      },
-      {
-        id: "documents",
-        label: "Documentos",
-        icon: FileText,
-        type: "group",
-      },
-      {
-        id: "responsibilities",
-        label: "Responsabilidades",
-        icon: ShieldCheck,
-        type: "group",
-      },
-      {
-        id: "events",
-        label: "Eventos",
-        icon: History,
-        type: "group",
       }
+    ]
+  },
+  {
+    id: "templates",
+    label: "Templates",
+    icon: LayoutTemplate,
+    type: "group",
+    children: [
+      { id: "tmpl-erp-base", label: "ERP Foundation", type: "template" },
+      { id: "tmpl-maint", label: "Maintenance Pack", type: "template" },
+      { id: "tmpl-gov", label: "Governance Workflow", type: "template" },
     ]
   }
 ];
@@ -112,7 +105,7 @@ function TreeItemNode({ item, level = 0, onSelect, selectedId }: {
   onSelect: (item: TreeItem) => void;
   selectedId?: string;
 }) {
-  const [isOpen, setIsOpen] = useState(level === 0);
+  const [isOpen, setIsOpen] = useState(level < 2);
   const hasChildren = item.children && item.children.length > 0;
   const Icon = item.icon || (hasChildren ? Folder : FileText);
   const isSelected = selectedId === item.id;
@@ -160,19 +153,46 @@ export function BuilderExplorer({ onSelect, selectedId }: {
   selectedId?: string;
 }) {
   return (
-    <aside className="w-64 border-r bg-card/50 flex flex-col shrink-0">
-      <div className="h-10 flex items-center px-4 border-b shrink-0">
-        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Explorer</span>
+    <aside className="w-72 border-r bg-card/50 flex flex-col shrink-0">
+      <div className="h-10 flex items-center justify-between px-4 border-b shrink-0 bg-muted/20">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Platform Explorer</span>
+        <div className="flex items-center gap-1">
+          <div className="p-1 hover:bg-muted rounded cursor-pointer transition-colors" title="Duplicate selection">
+            <Copy className="size-3 text-muted-foreground" />
+          </div>
+          <div className="p-1 hover:bg-muted rounded cursor-pointer transition-colors">
+            <MoreVertical className="size-3 text-muted-foreground" />
+          </div>
+        </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-2">
-        {BUILDER_TREE_DATA.map(item => (
-          <TreeItemNode
-            key={item.id}
-            item={item}
-            onSelect={onSelect}
-            selectedId={selectedId}
+
+      <div className="p-2 border-b">
+        <div className="relative group">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <input
+            type="text"
+            placeholder="Search architecture..."
+            className="w-full bg-background border rounded-md py-1.5 pl-7 pr-2 text-xs outline-none focus:ring-1 focus:ring-primary transition-all shadow-sm"
           />
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-2 space-y-4">
+        {BUILDER_TREE_DATA.map(item => (
+          <div key={item.id}>
+             <TreeItemNode
+              item={item}
+              onSelect={onSelect}
+              selectedId={selectedId}
+            />
+          </div>
         ))}
+      </div>
+
+      <div className="p-3 border-t bg-muted/10 shrink-0">
+        <button className="w-full border border-dashed border-muted-foreground/30 rounded-md py-2 text-[10px] font-bold uppercase text-muted-foreground hover:bg-white hover:border-primary/50 hover:text-primary transition-all">
+          + New Organization
+        </button>
       </div>
     </aside>
   );

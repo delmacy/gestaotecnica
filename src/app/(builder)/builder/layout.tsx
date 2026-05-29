@@ -16,14 +16,24 @@ export default function BuilderLayout({
       <header className="flex h-12 items-center justify-between border-b px-4 shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="size-6 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">
+            <div className="size-6 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs shadow-sm">
               SB
             </div>
-            <span className="text-sm font-semibold tracking-tight">System Builder</span>
+            <span className="text-sm font-bold tracking-tight">Platform Manager</span>
           </div>
-          <div className="h-4 w-px bg-border" />
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="hover:text-foreground cursor-pointer transition-colors">Workspace: Acme Corp</span>
+          <div className="h-4 w-px bg-border mx-2" />
+          <div className="flex items-center gap-3">
+            <select className="bg-transparent text-xs font-medium outline-none cursor-pointer hover:text-primary transition-colors">
+              <option>All Organizations</option>
+              <option>Acme Holding</option>
+              <option>Stark Industries</option>
+            </select>
+            <span className="text-muted-foreground text-[10px]">/</span>
+            <select className="bg-transparent text-xs font-medium outline-none cursor-pointer hover:text-primary transition-colors">
+              <option>Global View</option>
+              <option>Produção Brasil</option>
+              <option>Logística Global</option>
+            </select>
           </div>
         </div>
         <div className="flex items-center gap-3">

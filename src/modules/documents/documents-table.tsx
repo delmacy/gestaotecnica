@@ -25,7 +25,7 @@ function formatDate(date: Date) {
 
 export function DocumentsTable({ documents }: { documents: DocumentRow[] }) {
   if (documents.length === 0) {
-    return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhum documento tecnico registrado.</div>;
+    return <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">Nenhum documento responsavel registrado.</div>;
   }
 
   return (
@@ -52,7 +52,7 @@ export function DocumentsTable({ documents }: { documents: DocumentRow[] }) {
           {document.content ? <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#4d5848]">{document.content}</p> : null}
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
             <div>
-              <p className="font-mono text-xs text-[#6e7a66]">OS</p>
+              <p className="font-mono text-xs text-[#6e7a66]">execucao</p>
               {document.serviceOrderId && document.serviceOrderCode ? (
                 <Link className="mt-1 block underline-offset-4 hover:underline" href={`/service-orders/${document.serviceOrderId}`}>{document.serviceOrderCode} - {document.serviceOrderTitle}</Link>
               ) : <p className="mt-1 text-[#273025]">Nao vinculada</p>}

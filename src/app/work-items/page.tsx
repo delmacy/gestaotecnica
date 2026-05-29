@@ -32,7 +32,7 @@ export default async function WorkItemsPage() {
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
                 Demandas sao o envelope inicial da operacao. Elas preservam a
-                necessidade antes da criacao de uma ordem de servico.
+                necessidade antes da criacao de uma execucao.
               </p>
             </div>
             <Link

@@ -35,9 +35,9 @@ export async function DocumentForm() {
           <textarea className="mt-1 min-h-32 w-full resize-y border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm leading-6 outline-none focus:border-[#6b7d5d]" name="content" />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-[#273025]">OS</span>
+          <span className="text-sm font-medium text-[#273025]">execucao</span>
           <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="serviceOrderId" defaultValue="">
-            <option value="">Sem OS</option>
+            <option value="">Sem execucao</option>
             {options.serviceOrders.map((order) => (
               <option key={order.id} value={order.id}>{order.code} - {order.title}</option>
             ))}

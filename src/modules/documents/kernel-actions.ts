@@ -23,14 +23,14 @@ export const generateDocumentKernelAction: ActionDefinition<
 > = {
   key: "documents.generate",
   moduleKey: "documents",
-  description: "Gera um documento técnico em rascunho.",
+  description: "Gera um documento operacional em rascunho.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
       title: stringProperty("Título do documento."),
-      documentType: stringProperty("Tipo do documento técnico."),
+      documentType: stringProperty("Tipo do documento operacional."),
       content: stringProperty("Conteúdo inicial."),
-      serviceOrderId: uuidProperty("OS relacionada."),
+      serviceOrderId: uuidProperty("execucao relacionada."),
       workItemId: uuidProperty("Demanda relacionada."),
       assetId: uuidProperty("Ativo relacionado."),
     },
@@ -102,7 +102,7 @@ export const transitionDocumentKernelAction: ActionDefinition<
 > = {
   key: "documents.transition",
   moduleKey: "documents",
-  description: "Transiciona o status de um documento técnico.",
+  description: "Transiciona o status de um documento operacional.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {

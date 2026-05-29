@@ -106,7 +106,7 @@ export default async function ServiceOrderDetailPage({
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-8 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="font-mono text-xs uppercase text-[#65705f]">OS</p>
+              <p className="font-mono text-xs uppercase text-[#65705f]">execucao</p>
               <h1 className="mt-2 max-w-4xl text-4xl font-semibold text-[#111510]">
                 {serviceOrder.code}
               </h1>
@@ -118,7 +118,7 @@ export default async function ServiceOrderDetailPage({
               className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
                 href="/service-orders"
               >
-                Voltar para OS
+                Voltar para execucao
               </Link>
             </div>
           </div>

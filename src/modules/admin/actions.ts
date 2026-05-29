@@ -96,7 +96,7 @@ export async function ensureBasePermissions() {
     ["admin.manage", "admin", "manage", "Gerenciar administracao"],
     ["workspace.configure", "workspace", "configure", "Configurar workspace"],
     ["work-items.manage", "work-items", "manage", "Gerenciar demandas"],
-    ["service-orders.manage", "service-orders", "manage", "Gerenciar OS"],
+    ["service-orders.manage", "service-orders", "manage", "Gerenciar execucao"],
     ["reports.read", "reports", "read", "Ler relatorios"],
   ] as const;
 

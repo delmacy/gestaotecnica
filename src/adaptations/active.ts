@@ -1,1 +1,1 @@
-export { secaoTecnicaAdaptation as activeAdaptation } from "./secao-tecnica";
+export { systemBuilderAdaptation as activeAdaptation } from "./system-builder";

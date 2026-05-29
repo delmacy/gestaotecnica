@@ -8,14 +8,14 @@ async function verifyGateway() {
 
   // 1. Configurar API Key para o teste
   const TEST_KEY = "test-integration-key-123";
-  process.env.GESTAOTECNICA_API_KEY = TEST_KEY;
+  process.env.SYSTEM_BUILDER_API_KEY = TEST_KEY;
 
   const createRequest = (body: Record<string, unknown>, key?: string) => {
     return new Request("http://localhost/api/integrations/commands", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(key ? { "x-gestaotecnica-api-key": key } : {}),
+        ...(key ? { "x-system-builder-api-key": key } : {}),
       },
       body: JSON.stringify(body),
     });

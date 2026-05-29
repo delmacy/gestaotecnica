@@ -31,7 +31,7 @@ export const adjustStockKernelAction: ActionDefinition<
       movementType: stringProperty("Tipo: inbound, outbound ou adjustment."),
       quantity: integerProperty("Quantidade da movimentação."),
       notes: stringProperty("Observações."),
-      serviceOrderId: uuidProperty("OS relacionada (se houver)."),
+      serviceOrderId: uuidProperty("Execucao relacionada (se houver)."),
     },
     ["itemId", "movementType", "quantity"],
   ),

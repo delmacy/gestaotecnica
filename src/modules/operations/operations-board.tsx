@@ -104,10 +104,10 @@ export function OperationsBoard({
       </section>
 
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">OS ativas</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">execucao ativas</h2>
         <div className="mt-4 space-y-3">
           {activeOrders.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Nenhuma OS ativa no momento.</p>
+            <p className="text-sm text-[#5b6655]">Nenhuma execucao ativa no momento.</p>
           ) : (
             activeOrders.map((order) => (
               <Link
@@ -143,7 +143,7 @@ export function OperationsBoard({
                 <p className="mt-1 text-sm text-[#5b6655]">{entry.shiftName}</p>
                 {entry.serviceOrderCode ? (
                   <p className="mt-1 text-sm text-[#5b6655]">
-                    OS {entry.serviceOrderCode}
+                    execucao {entry.serviceOrderCode}
                   </p>
                 ) : null}
               </Link>
@@ -153,10 +153,10 @@ export function OperationsBoard({
       </section>
 
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">Tecnicos disponiveis</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">Responsavels disponiveis</h2>
         <div className="mt-4 space-y-3">
           {technicians.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Nenhum tecnico disponivel.</p>
+            <p className="text-sm text-[#5b6655]">Nenhum responsavel disponivel.</p>
           ) : (
             technicians.map((technician) => (
               <div className="border border-[#e0e5d9] bg-[#fbfcf8] p-4" key={technician.id}>
@@ -186,7 +186,7 @@ export function OperationsBoard({
                 </p>
                 <p className="mt-1 text-sm text-[#5b6655]">
                   {event.entityType}
-                  {event.serviceOrderCode ? ` | OS ${event.serviceOrderCode}` : ""}
+                  {event.serviceOrderCode ? ` | execucao ${event.serviceOrderCode}` : ""}
                 </p>
               </div>
             ))

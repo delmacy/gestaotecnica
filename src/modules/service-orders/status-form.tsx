@@ -12,7 +12,7 @@ export function ServiceOrderStatusForm({
     <form action={updateServiceOrderStatus} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <input name="id" type="hidden" value={serviceOrderId} />
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-[#111510]">Status da OS</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">Status da execucao</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
           Atualize o andamento da execucao e registre no historico.
         </p>

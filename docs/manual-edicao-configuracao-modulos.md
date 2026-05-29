@@ -1,7 +1,7 @@
 # Manual de Edição e Configuração de Módulos por Cliente
 
 Este manual explica como adaptar a system builder platform para um cliente sem
-quebrar o core. O objetivo não é configurar um único sistema de gestão técnica,
+quebrar o core. O objetivo não é configurar um único sistema operacional aplicado,
 mas montar soluções operacionais sob medida a partir de módulos, packs,
 workspaces e adaptações.
 
@@ -20,11 +20,11 @@ Antes de alterar código, classifique a mudança:
 
 ## 2. Onde editar cada coisa
 
-Use `src/adaptations/secao-tecnica` como primeira adaptação de referência:
+Use `src/adaptations/system-builder` como primeira adaptação de referência:
 
 - `terminology.ts`: nomes exibidos para entidades.
 - `demand-types.ts`: tipos de demanda e comportamento de triagem.
-- `service-order-types.ts`: tipos de ordem de serviço.
+- `service-order-types.ts`: tipos de execucao.
 - `asset-types.ts`: famílias de ativos.
 - `shift-types.ts`: tipos de escala e regras simples.
 - `roles.ts`: papéis de negócio.
@@ -35,7 +35,7 @@ Use `src/adaptations/secao-tecnica` como primeira adaptação de referência:
 - `legacy.ts`: configuração do sistema oficial/legado.
 
 O app deve importar `activeAdaptation` de `src/adaptations/active.ts`.
-Componentes e actions não devem importar `secao-tecnica` diretamente.
+Componentes e actions não devem importar `system-builder` diretamente.
 
 Depois que o bootstrap cria os registros no banco, edições operacionais de
 labels e descrições podem ser feitas em `/workspace-config`. Essa tela atualiza
@@ -49,7 +49,7 @@ aparecer nos formulários dos módulos.
 ## 3. Como criar uma nova adaptação
 
 1. Crie uma pasta em `src/adaptations/<cliente>`.
-2. Copie a estrutura de `src/adaptations/secao-tecnica`.
+2. Copie a estrutura de `src/adaptations/system-builder`.
 3. Ajuste labels, tipos, filas, papéis, workflows e templates.
 4. Troque `src/adaptations/active.ts` para exportar a nova adaptação.
 5. Rode lint e build.
@@ -78,7 +78,7 @@ para que o bootstrap continue documentando a intenção original.
 
 Em manuais gerais, use linguagem neutra de plataforma: cliente, workspace,
 operação, módulo, pack, action, event e flow. Termos específicos como sala
-técnica, plantão, sobreaviso e livro de turno devem aparecer apenas na
+operacional, plantão, sobreaviso e livro de turno devem aparecer apenas na
 documentação da adaptação correspondente.
 
 Exemplo:
@@ -112,7 +112,7 @@ Migre para tabelas quando:
 - Definir nome do workspace.
 - Definir vocabulário do cliente.
 - Mapear tipos de demanda.
-- Mapear tipos de OS.
+- Mapear tipos de execucao.
 - Mapear tipos de ativo.
 - Mapear escalas, turnos e indisponibilidades.
 - Mapear papéis de negócio.
@@ -136,7 +136,7 @@ Migre para tabelas quando:
 - Validar `/admin/queues`
 - Validar formulários de demandas
 - Validar formulários de escalas
-- Validar cadastro de técnicos
+- Validar cadastro de responsávels
 - Revisar documentação da adaptação
 - Registrar futuras alterações de schema em `docs/base`
 
@@ -144,11 +144,11 @@ Migre para tabelas quando:
 
 - WorkItems: tipos de demanda lidos de `work_item_type_definitions`.
 - Schedules: tipos de escala lidos de `schedule_type_definitions`.
-- Workforce: papéis técnicos compatíveis lidos de `business_role_definitions`.
+- Workforce: papéis responsávels compatíveis lidos de `business_role_definitions`.
 - Assets: tipos de ativo lidos de `asset_type_definitions`.
 - Documents: templates documentais lidos de `document_template_definitions`.
 - Reports: templates de relatório lidos de `report_template_definitions`.
-- ServiceOrders: tipos de OS lidos de `service_order_type_definitions`.
+- ServiceOrders: tipos de execucao lidos de `service_order_type_definitions`.
 - Workspace Config: leitura do pacote ativo, catálogo de módulos e configuração.
 
 A adaptação em código continua sendo a origem versionada do bootstrap. Depois

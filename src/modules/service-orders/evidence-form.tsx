@@ -15,7 +15,7 @@ export function ServiceOrderEvidenceForm({
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-[#111510]">Nova evidencia</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Registre comprovantes, fotos, documentos ou links tecnicos da execucao.
+          Registre comprovantes, fotos, documentos ou links responsavels da execucao.
         </p>
       </div>
 

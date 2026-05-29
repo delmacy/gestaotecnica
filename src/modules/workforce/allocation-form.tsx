@@ -15,7 +15,7 @@ export function WorkforceAllocationForm({ options }: { options: Options }) {
       <h2 className="text-lg font-semibold text-[#111510]">Nova alocacao</h2>
       <div className="mt-4 space-y-4">
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="technicianProfileId" required defaultValue="">
-          <option value="">Selecione o tecnico</option>
+          <option value="">Selecione o responsavel</option>
           {options.technicians.map((technician) => (
             <option key={technician.id} value={technician.id}>{technician.name}</option>
           ))}
@@ -29,7 +29,7 @@ export function WorkforceAllocationForm({ options }: { options: Options }) {
           </select>
         </div>
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="serviceOrderId" defaultValue="">
-          <option value="">Sem OS vinculada</option>
+          <option value="">Sem execucao vinculada</option>
           {options.serviceOrders.map((order) => (
             <option key={order.id} value={order.id}>{order.code} - {order.title}</option>
           ))}
@@ -64,7 +64,7 @@ export function TechnicianUnavailabilityForm({ options }: { options: Options }) 
       <h2 className="text-lg font-semibold text-[#111510]">Indisponibilidade</h2>
       <div className="mt-4 space-y-4">
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="technicianProfileId" required defaultValue="">
-          <option value="">Selecione o tecnico</option>
+          <option value="">Selecione o responsavel</option>
           {options.technicians.map((technician) => (
             <option key={technician.id} value={technician.id}>{technician.name}</option>
           ))}

@@ -20,7 +20,7 @@ export default async function SchedulesPage() {
               <p className="font-mono text-xs uppercase text-[#65705f]">Fase 2</p>
               <h1 className="mt-2 text-4xl font-semibold text-[#111510]">Escalas</h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                Expediente, plantao, sobreaviso e ausencias para apoiar atribuicao e capacidade tecnica.
+                Expediente, plantao, sobreaviso e ausencias para apoiar atribuicao e capacidade operacional.
               </p>
             </div>
             <Link className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]" href="/">
@@ -41,7 +41,7 @@ export default async function SchedulesPage() {
         <div>
           <div className="mb-4">
             <h2 className="text-2xl font-semibold text-[#111510]">Escalas registradas</h2>
-            <p className="mt-1 text-sm leading-6 text-[#5b6655]">Agenda operacional de equipes e tecnicos.</p>
+            <p className="mt-1 text-sm leading-6 text-[#5b6655]">Agenda operacional de equipes e responsavels.</p>
           </div>
           <SchedulesTable schedules={schedules} />
         </div>

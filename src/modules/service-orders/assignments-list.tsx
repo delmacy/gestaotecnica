@@ -29,16 +29,16 @@ export function ServiceOrderAssignmentsList({
     <article className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-[#111510]">
-          Responsaveis tecnicos
+          Responsaveis responsavels
         </h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Historico de atribuicoes ativas ou ja liberadas nesta OS.
+          Historico de atribuicoes ativas ou ja liberadas nesta execucao.
         </p>
       </div>
 
       {assignments.length === 0 ? (
         <p className="text-sm leading-6 text-[#5b6655]">
-          Nenhum tecnico atribuido a esta OS.
+          Nenhum responsavel atribuido a esta execucao.
         </p>
       ) : (
         <div className="space-y-3">

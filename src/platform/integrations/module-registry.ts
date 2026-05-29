@@ -19,12 +19,12 @@ import {
 } from "@/modules/workforce/queries";
 
 export const gatewayModules = [
-  { key: "work-items", name: "Work Items", methods: ["GET"], packHints: ["operacoes-tecnicas"] },
-  { key: "service-orders", name: "Service Orders", methods: ["GET"], packHints: ["operacoes-tecnicas"] },
-  { key: "assets", name: "Assets", methods: ["GET"], packHints: ["operacoes-tecnicas"] },
-  { key: "workforce", name: "Workforce", methods: ["GET"], packHints: ["operacoes-tecnicas"] },
-  { key: "schedules", name: "Schedules", methods: ["GET"], packHints: ["operacoes-tecnicas"] },
-  { key: "shifts", name: "Shifts", methods: ["GET"], packHints: ["operacoes-tecnicas"] },
+  { key: "work-items", name: "Work Items", methods: ["GET"], packHints: ["operacoes-operacionais"] },
+  { key: "service-orders", name: "Service Orders", methods: ["GET"], packHints: ["operacoes-operacionais"] },
+  { key: "assets", name: "Assets", methods: ["GET"], packHints: ["operacoes-operacionais"] },
+  { key: "workforce", name: "Workforce", methods: ["GET"], packHints: ["operacoes-operacionais"] },
+  { key: "schedules", name: "Schedules", methods: ["GET"], packHints: ["operacoes-operacionais"] },
+  { key: "shifts", name: "Shifts", methods: ["GET"], packHints: ["operacoes-operacionais"] },
   { key: "documents", name: "Documents", methods: ["GET"], packHints: ["governanca-documental"] },
   { key: "reports", name: "Reports", methods: ["GET"], packHints: ["governanca-documental"] },
   { key: "legacy", name: "Legacy Records", methods: ["GET"], packHints: ["governanca-documental", "integracoes-automacoes"] },

@@ -22,8 +22,8 @@ export default async function InventoryPage() {
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
         <header>
           <p className="font-mono text-xs uppercase text-[#65705f]">Materiais e ferramentas</p>
-          <h1 className="mt-2 text-3xl font-semibold text-[#111510]">Estoque tecnico</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5b6655]">Controle de itens, saldos, minimo operacional e movimentacoes conectadas a OS e aquisicoes.</p>
+          <h1 className="mt-2 text-3xl font-semibold text-[#111510]">Estoque responsavel</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5b6655]">Controle de itens, saldos, minimo operacional e movimentacoes conectadas a execucao e aquisicoes.</p>
         </header>
         <section className="grid gap-3 sm:grid-cols-3">
           {summary.map((metric) => (

@@ -45,7 +45,7 @@ export const createWorkItemKernelAction: ActionDefinition<CreateWorkItemInput, {
       description: stringProperty("Descrição livre da demanda."),
       type: enumProperty(workItemTypes.map((type) => type.value), "Tipo de demanda."),
       priority: enumProperty(workItemPriorities.map((priority) => priority.value), "Prioridade inicial."),
-      autoCreateServiceOrder: booleanProperty("Quando verdadeiro, a adaptação pode gerar uma OS por flow."),
+      autoCreateServiceOrder: booleanProperty("Quando verdadeiro, a adaptação pode gerar uma execucao por flow."),
     },
     ["title"],
   ),

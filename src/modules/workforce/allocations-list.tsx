@@ -46,7 +46,7 @@ export function WorkforceAllocationsList({ allocations }: { allocations: Allocat
             <p>Esforco: {allocation.effortMinutes ? `${allocation.effortMinutes} min` : "Nao estimado"}</p>
             {allocation.serviceOrderId ? (
               <Link className="underline-offset-4 hover:underline" href={`/service-orders/${allocation.serviceOrderId}`}>
-                OS: {allocation.serviceOrderCode} - {allocation.serviceOrderTitle}
+                execucao: {allocation.serviceOrderCode} - {allocation.serviceOrderTitle}
               </Link>
             ) : null}
             {allocation.workItemId ? (

@@ -8,4 +8,4 @@ Use a porta publica `src/modules/maintenance-plans` para forms, listas, actions 
 
 ## Adaptacao por cliente
 
-Configure periodicidade, ativo, equipe responsavel, checklist e geracao futura de OS.
+Configure periodicidade, ativo, equipe responsavel, checklist e geracao futura de execucao.

@@ -32,7 +32,7 @@ const mvpModules = [
   },
   {
     name: "Busca Global",
-    description: "Localização rápida de OS, demandas, ativos e responsáveis.",
+    description: "Localização rápida de execucao, demandas, ativos e responsáveis.",
     status: "MVP",
   },
   {
@@ -61,7 +61,7 @@ const mvpModules = [
     status: "Fase 3",
   },
   {
-    name: "Projetos Técnicos",
+    name: "Projetos Responsávels",
     description: "Modernizações, melhorias, substituições e implantações.",
     status: "Fase 3",
   },
@@ -92,7 +92,7 @@ const mvpModules = [
   },
   {
     name: "Estoque",
-    description: "Itens, saldos, mínimo operacional e movimentações por OS.",
+    description: "Itens, saldos, mínimo operacional e movimentações por execucao.",
     status: "Fase 5",
   },
   {
@@ -107,7 +107,7 @@ const mvpModules = [
   },
   {
     name: "WorkItems",
-    description: "Entrada, triagem e priorização das demandas antes de virarem OS.",
+    description: "Entrada, triagem e priorização das demandas antes de virarem execucao.",
     status: "MVP",
   },
   {
@@ -122,12 +122,12 @@ const mvpModules = [
   },
   {
     name: "Workforce",
-    description: "Equipes, perfis, especialidades e disponibilidade para atribuição de OS.",
+    description: "Equipes, perfis, especialidades e disponibilidade para atribuição de execucao.",
     status: "MVP",
   },
   {
     name: "Revisão Operacional",
-    description: "Fila de aprovação, retorno e aceite das OS concluídas.",
+    description: "Fila de aprovação, retorno e aceite das execucao concluídas.",
     status: "MVP",
   },
   {
@@ -142,7 +142,7 @@ const mvpModules = [
   },
   {
     name: "Horas",
-    description: "Apontamentos de tempo, produtividade e esforço por OS.",
+    description: "Apontamentos de tempo, produtividade e esforço por execucao.",
     status: "MVP",
   },
   {
@@ -152,7 +152,7 @@ const mvpModules = [
   },
   {
     name: "Relatórios",
-    description: "Leitura básica de OS, horas, ativos afetados e pendências.",
+    description: "Leitura básica de execucao, horas, ativos afetados e pendências.",
     status: "MVP",
   },
 ];
@@ -165,7 +165,7 @@ const moduleLinks: Record<string, string> = {
   Documentos: "/documents",
   Legado: "/legacy",
   "Planos de Manutenção": "/maintenance-plans",
-  "Projetos Técnicos": "/technical-projects",
+  "Projetos Responsávels": "/technical-projects",
   Aquisições: "/acquisitions",
   Competências: "/skills",
   Recursos: "/resource-needs",
@@ -188,7 +188,7 @@ const moduleLinks: Record<string, string> = {
 
 const phases = [
   "Fundação Next.js, TypeScript, Vercel e documentação viva",
-  "Núcleo operacional com WorkItems, OS, ativos e eventos",
+  "Núcleo operacional com WorkItems, execucao, ativos e eventos",
   "Governança com aprovações, documentos e integrações",
   "Planejamento, escalas, legado, automações e BI",
   "Capacitação, recursos, integrações e governança operacional",

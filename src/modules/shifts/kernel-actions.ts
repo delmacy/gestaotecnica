@@ -36,7 +36,7 @@ export const addShiftLogEntryKernelAction: ActionDefinition<
       description: stringProperty("Descrição do registro."),
       isPending: booleanProperty("Indica se a entrada vira pendência."),
       workItemId: uuidProperty("Demanda relacionada."),
-      serviceOrderId: uuidProperty("OS relacionada."),
+      serviceOrderId: uuidProperty("execucao relacionada."),
       assetId: uuidProperty("Ativo relacionado."),
     },
     ["shiftId", "title"],

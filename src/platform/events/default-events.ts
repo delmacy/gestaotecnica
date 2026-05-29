@@ -14,12 +14,12 @@ export function registerDefaultEvents() {
   registerEvent({
     key: "service_order.created",
     moduleKey: "service-orders",
-    description: "Ordem de serviço criada.",
+    description: "Execucao criada.",
   });
   registerEvent({
     key: "service_order.completed",
     moduleKey: "service-orders",
-    description: "Ordem de serviço concluída.",
+    description: "Execucao concluída.",
   });
   registerEvent({
     key: "notification.sent",
@@ -44,7 +44,7 @@ export function registerDefaultEvents() {
   registerEvent({
     key: "document.generated",
     moduleKey: "documents",
-    description: "Documento técnico gerado.",
+    description: "Documento operacional gerado.",
   });
   registerEvent({
     key: "legacy_record.created",

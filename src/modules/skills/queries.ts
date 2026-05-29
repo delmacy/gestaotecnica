@@ -71,7 +71,7 @@ export async function getSkillsSummary() {
   const [activeTrainings] = await db.select({ value: count() }).from(trainingRecords).where(eq(trainingRecords.status, "in_progress"));
   return [
     { label: "Competencias", value: skills.value },
-    { label: "Vinculos tecnicos", value: assignments.value },
+    { label: "Vinculos responsavels", value: assignments.value },
     { label: "Treinamentos ativos", value: activeTrainings.value },
   ];
 }

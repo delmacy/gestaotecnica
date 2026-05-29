@@ -28,7 +28,7 @@ export function SearchResults({
           Digite pelo menos 2 caracteres
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Busque por codigo, titulo, ativo, tecnico, solicitante ou especialidade.
+          Busque por codigo, titulo, ativo, responsavel, solicitante ou especialidade.
         </p>
       </div>
     );
@@ -60,10 +60,10 @@ export function SearchResults({
       </section>
 
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">OS</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">execucao</h2>
         <div className="mt-4 space-y-3">
           {results.serviceOrders.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Sem OS encontradas.</p>
+            <p className="text-sm text-[#5b6655]">Sem execucao encontradas.</p>
           ) : (
             results.serviceOrders.map((order) => (
               <Link
@@ -107,10 +107,10 @@ export function SearchResults({
       </section>
 
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">Tecnicos</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">Responsavels</h2>
         <div className="mt-4 space-y-3">
           {results.technicians.length === 0 ? (
-            <p className="text-sm text-[#5b6655]">Sem tecnicos encontrados.</p>
+            <p className="text-sm text-[#5b6655]">Sem responsavels encontrados.</p>
           ) : (
             results.technicians.map((technician) => (
               <div className="border border-[#e0e5d9] bg-[#fbfcf8] p-4" key={technician.id}>

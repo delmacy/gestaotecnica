@@ -56,7 +56,7 @@ export default async function ShiftsPage() {
               Turnos registrados
             </h2>
             <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-              Ultimos turnos abertos ou encerrados pela equipe tecnica.
+              Ultimos turnos abertos ou encerrados pela equipe operacional.
             </p>
           </div>
           <ShiftsTable shifts={shifts} />

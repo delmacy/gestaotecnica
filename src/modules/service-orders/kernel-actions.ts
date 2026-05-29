@@ -29,7 +29,7 @@ function createServiceOrderCode() {
     .replace(/[-:TZ.]/g, "")
     .slice(0, 14);
   const suffix = globalThis.crypto?.randomUUID?.().slice(0, 6) ?? String(Date.now()).slice(-6);
-  return `OS-${timestamp}-${suffix}`;
+  return `execucao-${timestamp}-${suffix}`;
 }
 
 export const createServiceOrderKernelAction: ActionDefinition<
@@ -38,13 +38,13 @@ export const createServiceOrderKernelAction: ActionDefinition<
 > = {
   key: "service_orders.create",
   moduleKey: "service-orders",
-  description: "Cria uma ordem de serviço operacional.",
+  description: "Cria uma execucao operacional.",
   callableBy: ["ui", "integration", "automation", "system"],
   requiredModules: ["work-items"],
   inputSchema: actionObjectSchema(
     {
-      title: stringProperty("Título da ordem de serviço."),
-      type: stringProperty("Tipo operacional da ordem de serviço."),
+      title: stringProperty("Título da execucao."),
+      type: stringProperty("Tipo operacional da execucao."),
       objective: stringProperty("Objetivo ou escopo da execução."),
       priority: enumProperty(["low", "medium", "high", "critical"], "Prioridade inicial."),
       workItemId: uuidProperty("Demanda de origem."),
@@ -53,9 +53,9 @@ export const createServiceOrderKernelAction: ActionDefinition<
     ["title"],
   ),
   outputSchema: actionObjectSchema({
-    id: uuidProperty("Identificador da OS."),
-    code: stringProperty("Código da OS."),
-    title: stringProperty("Título da OS."),
+    id: uuidProperty("Identificador da execucao."),
+    code: stringProperty("Codigo da execucao."),
+    title: stringProperty("Título da execucao."),
     status: stringProperty("Status final."),
   }),
   emits: ["service_order.created"],
@@ -118,18 +118,18 @@ export const completeServiceOrderKernelAction: ActionDefinition<
   allowedStatuses: ["assigned", "in_progress", "waiting_review"],
   uiLabel: "Concluir Execução",
   showInActionBar: true,
-  description: "Conclui uma ordem de serviço.",
+  description: "Conclui uma execucao.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
-      serviceOrderId: uuidProperty("Ordem de serviço a ser concluída."),
+      serviceOrderId: uuidProperty("Execucao a ser concluída."),
       conclusion: stringProperty("Descrição da conclusão."),
     },
     ["serviceOrderId"],
   ),
   outputSchema: actionObjectSchema({
-    id: uuidProperty("Identificador da OS."),
-    code: stringProperty("Código da OS."),
+    id: uuidProperty("Identificador da execucao."),
+    code: stringProperty("Codigo da execucao."),
     status: stringProperty("Status final."),
   }),
   emits: ["service_order.completed"],
@@ -158,7 +158,7 @@ export const completeServiceOrderKernelAction: ActionDefinition<
     if (!serviceOrder) {
       return {
         success: false,
-        error: { code: "NOT_FOUND", message: "OS não encontrada." },
+        error: { code: "NOT_FOUND", message: "execucao não encontrada." },
       };
     }
 

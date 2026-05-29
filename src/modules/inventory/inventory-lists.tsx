@@ -37,7 +37,7 @@ export function InventoryMovementsList({ movements }: { movements: Movement[] })
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={movement.id}>
           <h2 className="text-lg font-semibold text-[#111510]">{getMovementTypeLabel(movement.movementType)} de {movement.quantity}</h2>
           <p className="mt-1 text-sm text-[#5b6655]">{movement.itemSku} - {movement.itemName} | {formatDate(movement.occurredAt)}</p>
-          <p className="mt-3 text-sm text-[#5b6655]">OS: {movement.serviceOrderCode ?? "Nao vinculada"} | Aquisicao: {movement.acquisitionTitle ?? "Nao vinculada"} | Responsavel: {movement.performedByName ?? "Nao informado"}</p>
+          <p className="mt-3 text-sm text-[#5b6655]">execucao: {movement.serviceOrderCode ?? "Nao vinculada"} | Aquisicao: {movement.acquisitionTitle ?? "Nao vinculada"} | Responsavel: {movement.performedByName ?? "Nao informado"}</p>
           {movement.notes ? <p className="mt-2 text-sm leading-6 text-[#4d5848]">{movement.notes}</p> : null}
         </article>
       ))}

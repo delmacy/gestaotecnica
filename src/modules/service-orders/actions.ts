@@ -215,7 +215,7 @@ export async function updateServiceOrderStatus(formData: FormData) {
     );
 
     if (!result.success) {
-      throw new Error(result.error?.message ?? "Falha ao concluir OS.");
+      throw new Error(result.error?.message ?? "Falha ao concluir execucao.");
     }
   } else {
     // Para outros status, por enquanto mantemos o comportamento direto ou implementamos novas actions.
@@ -234,7 +234,7 @@ export async function updateServiceOrderStatus(formData: FormData) {
       .limit(1);
 
     if (!previous) {
-      throw new Error("OS nao encontrada.");
+      throw new Error("execucao nao encontrada.");
     }
 
     const approvedAt = status === "approved" ? new Date() : undefined;
@@ -301,7 +301,7 @@ export async function assignTechnicianToServiceOrder(formData: FormData) {
     .limit(1);
 
   if (!serviceOrder) {
-    throw new Error("OS nao encontrada.");
+    throw new Error("execucao nao encontrada.");
   }
 
   const [technician] = await db
@@ -317,7 +317,7 @@ export async function assignTechnicianToServiceOrder(formData: FormData) {
     .limit(1);
 
   if (!technician) {
-    throw new Error("Tecnico nao encontrado.");
+    throw new Error("Responsavel nao encontrado.");
   }
 
   const [existingAssignment] = await db
@@ -335,7 +335,7 @@ export async function assignTechnicianToServiceOrder(formData: FormData) {
     .limit(1);
 
   if (existingAssignment) {
-    throw new Error("Este tecnico ja esta atribuido a esta OS.");
+    throw new Error("Este responsavel ja esta atribuido a esta execucao.");
   }
 
   const [assignment] = await db
@@ -372,7 +372,7 @@ export async function assignTechnicianToServiceOrder(formData: FormData) {
       serviceOrderId: serviceOrder.id,
       allocationType: "service_order",
       status: statusTo === "in_progress" ? "active" : "planned",
-      notes: `Atribuicao ${assignment.role} criada pela OS ${serviceOrder.code}.`,
+      notes: `Atribuicao ${assignment.role} criada pela execucao ${serviceOrder.code}.`,
     })
     .returning({
       id: workforceAllocations.id,
@@ -439,7 +439,7 @@ export async function createServiceOrderTimeEntry(formData: FormData) {
     .limit(1);
 
   if (!serviceOrder) {
-    throw new Error("OS nao encontrada.");
+    throw new Error("execucao nao encontrada.");
   }
 
   const [assignment] = await db
@@ -463,7 +463,7 @@ export async function createServiceOrderTimeEntry(formData: FormData) {
     .limit(1);
 
   if (!assignment) {
-    throw new Error("Tecnico precisa estar atribuido ativamente a esta OS.");
+    throw new Error("Responsavel precisa estar atribuido ativamente a esta execucao.");
   }
 
   const durationMinutes = endedAt
@@ -556,7 +556,7 @@ export async function createServiceOrderEvidence(formData: FormData) {
     .limit(1);
 
   if (!serviceOrder) {
-    throw new Error("OS nao encontrada.");
+    throw new Error("execucao nao encontrada.");
   }
 
   const [evidence] = await db
@@ -626,7 +626,7 @@ export async function createServiceOrderStage(formData: FormData) {
     .where(eq(serviceOrders.id, serviceOrderId))
     .limit(1);
 
-  if (!serviceOrder) throw new Error("OS nao encontrada.");
+  if (!serviceOrder) throw new Error("execucao nao encontrada.");
 
   const [stage] = await db
     .insert(serviceOrderStages)
@@ -730,7 +730,7 @@ export async function createServiceOrderTask(formData: FormData) {
     .where(eq(serviceOrders.id, serviceOrderId))
     .limit(1);
 
-  if (!serviceOrder) throw new Error("OS nao encontrada.");
+  if (!serviceOrder) throw new Error("execucao nao encontrada.");
 
   const [task] = await db
     .insert(serviceOrderTasks)
@@ -846,7 +846,7 @@ export async function createServiceOrderTarget(formData: FormData) {
     .where(eq(serviceOrders.id, serviceOrderId))
     .limit(1);
 
-  if (!serviceOrder) throw new Error("OS nao encontrada.");
+  if (!serviceOrder) throw new Error("execucao nao encontrada.");
 
   const [target] = await db
     .insert(serviceOrderTargets)

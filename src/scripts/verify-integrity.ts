@@ -40,8 +40,8 @@ async function verifyIntegrity() {
     if (!event || event.eventType !== "work_item.created") throw new Error("Evento work_item.created não encontrado.");
     console.log(`   OK: Evento registrado: ${event.eventType}`);
 
-    // 3. Verificar se o Flow de Auto-OS disparou
-    console.log("2. Verificando disparo de Flow Automático (Auto-OS)...");
+    // 3. Verificar se o Flow de Auto-execucao disparou
+    console.log("2. Verificando disparo de Flow Automático (Auto-execucao)...");
 
     await new Promise(r => setTimeout(r, 500));
 
@@ -49,11 +49,11 @@ async function verifyIntegrity() {
     if (!flowRun) throw new Error("FlowRun não encontrado para o evento de criação.");
     console.log(`   OK: FlowRun encontrado: ${flowRun.flowKey} (${flowRun.status})`);
 
-    // 4. Verificar se a OS foi criada pela Action disparada pelo Flow
+    // 4. Verificar se a execucao foi criada pela Action disparada pelo Flow
     const [so] = await db.select().from(schema.eventLogs).where(eq(schema.eventLogs.eventType, "service_order.created")).orderBy(desc(schema.eventLogs.occurredAt)).limit(1);
-    if (!so || (so.payload as { workItemId: string }).workItemId !== wiId) throw new Error("OS automática não encontrada ou vinculada incorretamente.");
+    if (!so || (so.payload as { workItemId: string }).workItemId !== wiId) throw new Error("execucao automática não encontrada ou vinculada incorretamente.");
     testIds.serviceOrders.push(so.entityId!);
-    console.log(`   OK: OS automática criada: ${(so.payload as { code: string }).code}`);
+    console.log(`   OK: execucao automática criada: ${(so.payload as { code: string }).code}`);
 
     // 5. Testar Action de Ativos
     console.log("3. Testando Módulo de Ativos...");
@@ -98,10 +98,10 @@ async function verifyIntegrity() {
     console.log("   OK: Entrada de log adicionada ao turno.");
 
     // 7. Testar Fluxo de Governança (Fase 5)
-    console.log("5. Testando Governança (OS -> Aprovação -> Documento)...");
+    console.log("5. Testando Governança (execucao -> Aprovação -> Documento)...");
     const soId = so.entityId!;
 
-    console.log(`   Completando OS ${soId} para disparar Governança...`);
+    console.log(`   Completando execucao ${soId} para disparar Governança...`);
     await runAction("service_orders.complete", { serviceOrderId: soId, conclusion: "Concluída para governança" }, context);
 
     await new Promise(r => setTimeout(r, 1000));
@@ -116,7 +116,7 @@ async function verifyIntegrity() {
     await new Promise(r => setTimeout(r, 1000));
 
     const [docEvent] = await db.select().from(schema.eventLogs).where(eq(schema.eventLogs.eventType, "document.generated")).orderBy(desc(schema.eventLogs.occurredAt)).limit(1);
-    if (!docEvent || (docEvent.payload as { serviceOrderId: string }).serviceOrderId !== soId) throw new Error("Documento técnico não foi gerado após aprovação.");
+    if (!docEvent || (docEvent.payload as { serviceOrderId: string }).serviceOrderId !== soId) throw new Error("Documento operacional não foi gerado após aprovação.");
     testIds.documents.push(docEvent.entityId!);
     console.log(`   OK: Documento gerado automaticamente: ${(docEvent.payload as { title: string }).title}`);
 
@@ -133,9 +133,9 @@ async function verifyIntegrity() {
 
     await new Promise(r => setTimeout(r, 1000));
     const [prevSO] = await db.select().from(schema.eventLogs).where(eq(schema.eventLogs.eventType, "maintenance_plan.order_generated")).orderBy(desc(schema.eventLogs.occurredAt)).limit(1);
-    if (!prevSO || prevSO.entityId !== planId) throw new Error("OS preventiva automática não foi gerada.");
+    if (!prevSO || prevSO.entityId !== planId) throw new Error("execucao preventiva automática não foi gerada.");
     testIds.serviceOrders.push((prevSO.payload as { serviceOrderId: string }).serviceOrderId);
-    console.log(`   OK: OS preventiva gerada automaticamente: ${(prevSO.payload as { code: string }).code}`);
+    console.log(`   OK: execucao preventiva gerada automaticamente: ${(prevSO.payload as { code: string }).code}`);
 
     // 9. Testar Módulo de Inventário (Fase 7)
     console.log("7. Testando Inventário (Ajuste de Estoque)...");

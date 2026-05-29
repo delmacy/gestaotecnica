@@ -1,8 +1,8 @@
 # System Builder Platform
 
 Plataforma modular para montar sistemas operacionais sob medida por workspace,
-packs contextuais, módulos reutilizáveis, actions, events, flows e adaptações
-por cliente.
+blueprints, módulos reutilizáveis, actions, events, workflows e adaptações por
+cliente.
 
 ## Desenvolvimento
 
@@ -16,14 +16,14 @@ Abra `http://localhost:3000`.
 
 Os documentos de arquitetura ficam em `docs/`:
 
-- `docs/00-analise-da-conversa.md`
-- `docs/01-blueprint-modular.md`
-- `docs/02-mvp-implementavel.md`
+- `docs/00-system-builder-essencia.md`
+- `docs/foundation/MANIFESTO.md`
+- `docs/foundation/AI_CONSTITUTION.md`
+- `docs/foundation/ONTOLOGY.md`
+- `docs/foundation/MASTER_BLUEPRINT_PROMPT.md`
+- `docs/database/DATABASE_STRATEGY.md`
+- `docs/roadmap/IMPLEMENTATION_PLAN.md`
 - `docs/03-modelo-de-dados.md`
-- `docs/04-modulo-workitems.md`
-- `docs/05-modulo-assets.md`
-- `docs/06-modulo-service-orders.md`
-- `docs/07-blueprint-core-workspaces-adaptacoes.md`
 - `docs/manual-edicao-configuracao-modulos.md`
 - `docs/manual-kernel-plugins-packs.md`
 - `docs/architecture/platform-kernel.md`
@@ -33,14 +33,14 @@ Os documentos de arquitetura ficam em `docs/`:
 - `docs/modulos/workspace-config.md`
 - `docs/modulos/*.md`
 - `docs/adaptacoes/README.md`
-- `docs/adaptacoes/secao-tecnica.md`
 - `docs/base/possiveis-alteracoes-de-schema.md`
 
 ## Arquitetura
 
 O projeto deve ser lido como uma **system builder platform**, não como um
-sistema único de gestão técnica. A Seção Técnica é a primeira adaptação real,
-usada para validar o core, mas não define o limite do produto.
+sistema operacional aplicado único. A plataforma e seus blueprints devem permanecer
+separados: o core representa capacidades, processos, eventos, documentos,
+actions e governança; clientes e setores entram como adaptações aplicadas.
 
 A plataforma combina um core operacional reutilizável, módulos de domínio,
 packs contextuais e adaptações por workspace.
@@ -50,13 +50,14 @@ Camadas:
 - `src/platform`: capacidades universais do core.
 - `src/modules`: módulos reutilizáveis.
 - `src/adaptations`: configurações por cliente, setor ou operação.
-- `secao-tecnica`: primeira adaptação real, tratada como client/domain pack.
+- `system-builder`: adaptação baseline de desenvolvimento da própria plataforma.
 - `/workspace-config`: leitura da adaptação ativa e mapa dos módulos.
 - `/auth/login` e `/auth/setup`: autenticação local inicial.
 - `/admin`: administração de usuários, workspace, workflows, permissões e filas.
 
 A diretriz central é: o módulo universal não conhece o cliente; a adaptação
-ensina o módulo a operar naquele cliente.
+ensina o módulo a operar naquele cliente. A tecnologia deve espelhar a operação
+antes de estabilizar, medir, melhorar ou automatizar.
 
 ## Stack
 
@@ -67,7 +68,7 @@ ensina o módulo a operar naquele cliente.
 
 ## Fases
 
-1. Fundação técnica.
+1. Fundação da plataforma.
 2. MVP operacional.
 3. Governança e documentação.
 4. Planejamento, integrações e BI.

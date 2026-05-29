@@ -27,7 +27,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 Busca Global
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                Encontre demandas, OS, ativos e tecnicos em uma unica consulta.
+                Encontre demandas, execucao, ativos e responsavels em uma unica consulta.
               </p>
             </div>
             <Link
@@ -43,7 +43,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               className="h-12 flex-1 border border-[#c8d0bf] bg-white px-4 text-sm outline-none focus:border-[#6b7d5d]"
               defaultValue={q}
               name="q"
-              placeholder="Buscar por OS, ativo, demanda ou tecnico"
+              placeholder="Buscar por execucao, ativo, demanda ou responsavel"
             />
             <button
               className="h-12 bg-[#1f2a1c] px-6 text-sm font-semibold text-white transition hover:bg-[#31402d]"

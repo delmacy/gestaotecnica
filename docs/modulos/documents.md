@@ -6,4 +6,4 @@ Templates documentais ficam em `document_template_definitions`.
 
 ## Adaptacao por cliente
 
-Configure relatorio tecnico, minuta, despacho, registro para legado e etapas de revisao/aprovacao.
+Configure relatorio responsavel, minuta, despacho, registro para legado e etapas de revisao/aprovacao.

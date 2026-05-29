@@ -30,7 +30,7 @@ Flows chamam actions.
 
 Integrações externas chamam actions via API.
 
-O kernel não é um módulo de gestão técnica. Ele é a base reutilizável para que
+O kernel não é um módulo de operacao aplicada. Ele é a base reutilizável para que
 cada workspace monte seu próprio sistema operacional usando módulos, packs,
 flows, plugins e adaptações.
 
@@ -97,7 +97,7 @@ O processamento do outbox ainda ocorre no mesmo request. Isso preserva simplicid
 `resolveWorkspaceContext` resolve o workspace real em `workspaces` e carrega módulos ativos em `workspace_module_configs`.
 
 Se o workspace da adaptação inicial ainda não existir, a configuração ativa é
-semeada a partir da adaptação `secao-tecnica`. Esse comportamento é provisório e
+semeada a partir da adaptação `system-builder`. Esse comportamento é provisório e
 serve apenas para validar o primeiro client/domain pack.
 
 ## Contratos públicos de actions

@@ -37,10 +37,10 @@ export async function getOperationsSummary() {
 
   return [
     { label: "Demandas abertas", value: openWorkItems[0].value },
-    { label: "OS ativas", value: activeOrders[0].value },
+    { label: "execucao ativas", value: activeOrders[0].value },
     { label: "Em revisao", value: reviewOrders[0].value },
     { label: "Pendencias", value: pendingEntries[0].value },
-    { label: "Tecnicos disponiveis", value: availableTechs[0].value },
+    { label: "Responsavels disponiveis", value: availableTechs[0].value },
   ];
 }
 

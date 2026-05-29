@@ -23,7 +23,7 @@ export default async function ResourceNeedsPage() {
             <p className="font-mono text-xs uppercase text-[#65705f]">Recursos</p>
             <h1 className="mt-2 text-3xl font-semibold text-[#111510]">Necessidades de recursos</h1>
             <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-              Demanda estruturada de pessoas, materiais, ferramentas e apoio para execucao tecnica.
+              Demanda estruturada de pessoas, materiais, ferramentas e apoio para execucao operacional.
             </p>
           </header>
           <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">

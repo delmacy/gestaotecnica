@@ -33,7 +33,7 @@ export const createMaintenancePlanKernelAction: ActionDefinition<
       ownerTeamId: uuidProperty("Equipe responsável."),
       periodStart: stringProperty("Início do período."),
       periodEnd: stringProperty("Fim do período."),
-      objective: stringProperty("Objetivo técnico."),
+      objective: stringProperty("Objetivo responsável."),
     },
     ["title"],
   ),
@@ -93,7 +93,7 @@ export const generateMaintenanceOrderKernelAction: ActionDefinition<
 > = {
   key: "maintenance_plans.generate_order",
   moduleKey: "maintenance-plans",
-  description: "Gera uma OS a partir de um plano de manutenção.",
+  description: "Gera uma execucao a partir de um plano de manutenção.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
@@ -102,8 +102,8 @@ export const generateMaintenanceOrderKernelAction: ActionDefinition<
     ["planId"],
   ),
   outputSchema: actionObjectSchema({
-    id: uuidProperty("Identificador da OS criada."),
-    code: stringProperty("Código da OS."),
+    id: uuidProperty("Identificador da execucao criada."),
+    code: stringProperty("Codigo da execucao."),
   }),
   emits: ["maintenance_plan.order_generated"],
   async handler(input, context) {
@@ -120,7 +120,7 @@ export const generateMaintenanceOrderKernelAction: ActionDefinition<
       return { success: false, error: { code: "NOT_FOUND", message: "Plano não encontrado." } };
     }
 
-    // Chamamos a action de criação de OS
+    // Chamamos a action de criação de execucao
     const result = await runAction("service_orders.create", {
       title: `Preventiva: ${plan.title}`,
       type: "preventiva",

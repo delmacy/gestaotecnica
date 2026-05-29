@@ -35,10 +35,10 @@ export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
     return (
       <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
         <h2 className="text-lg font-semibold text-[#111510]">
-          Nenhuma OS aguardando revisao
+          Nenhuma execucao aguardando revisao
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          As OS enviadas para revisao tecnica aparecem aqui.
+          As execucao enviadas para revisao operacional aparecem aqui.
         </p>
       </div>
     );
@@ -102,7 +102,7 @@ export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
                 className="h-10 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]"
                 type="submit"
               >
-                Aprovar OS
+                Aprovar execucao
               </button>
             </form>
 

@@ -35,7 +35,7 @@ const MOCK_FLOW: { nodes: Node[]; edges: Edge[] } = {
 };
 
 export function BuilderCanvas({ activeItem }: { activeItem: any }) {
-  if (!activeItem || (activeItem.type !== 'process' && activeItem.type !== 'capability')) {
+  if (!activeItem || (activeItem.type !== 'process' && activeItem.type !== 'capability' && activeItem.type !== 'catalog_item')) {
     return (
       <div className="flex-1 bg-[#f8f9fa] relative overflow-hidden flex flex-col items-center justify-center text-center p-12">
         <div className="size-24 rounded-full bg-white border shadow-sm flex items-center justify-center mb-6">

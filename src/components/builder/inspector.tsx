@@ -74,16 +74,24 @@ export function BuilderInspector({ selectedItem }: { selectedItem: any }) {
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Zap className="size-3.5 text-muted-foreground" />
-              <h3 className="text-xs font-bold uppercase tracking-tight">Capabilities</h3>
+              <h3 className="text-xs font-bold uppercase tracking-tight">
+                {selectedItem.type === 'capability' ? 'Actions' : 'Capabilities'}
+              </h3>
             </div>
             <div className="space-y-1">
-              {['create', 'update', 'delete', 'archive'].map(act => (
-                <div key={act} className="flex items-center gap-2 text-xs p-1.5 hover:bg-muted/50 rounded cursor-pointer group">
-                  <div className="size-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
-                  <span className="font-mono text-muted-foreground">{selectedItem.id}.</span>
-                  <span className="font-medium">{act}</span>
+              {selectedItem.metadata?.key ? (
+                <div className="text-xs p-2 bg-muted/20 rounded border border-dashed border-muted-foreground/20 text-muted-foreground italic">
+                  Extending {selectedItem.metadata.key} core actions...
                 </div>
-              ))}
+              ) : (
+                ['create', 'update', 'delete', 'archive'].map(act => (
+                  <div key={act} className="flex items-center gap-2 text-xs p-1.5 hover:bg-muted/50 rounded cursor-pointer group">
+                    <div className="size-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
+                    <span className="font-mono text-muted-foreground">{selectedItem.id}.</span>
+                    <span className="font-medium">{act}</span>
+                  </div>
+                ))
+              )}
             </div>
           </section>
 

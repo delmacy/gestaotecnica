@@ -13,19 +13,38 @@ import {
   Database,
   Users,
   ShieldCheck,
-  History
+  History,
+  Search,
+  Copy,
+  MoreVertical,
+  LayoutTemplate,
+  Building2,
+  Library
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ecosystemModules } from "@/platform/workspaces/module-catalog";
 
-import { Search, Copy, MoreVertical, LayoutTemplate, Building2 } from "lucide-react";
-
-type TreeItem = {
+export type TreeItem = {
   id: string;
   label: string;
   icon?: any;
   children?: TreeItem[];
-  type?: "organization" | "workspace" | "capability" | "process" | "blueprint" | "action" | "group" | "template";
+  type?: "organization" | "workspace" | "capability" | "process" | "blueprint" | "action" | "group" | "template" | "catalog_item";
+  metadata?: any;
 };
+
+// Map real modules to tree items
+const REAL_CAPABILITIES: TreeItem[] = ecosystemModules.map(mod => ({
+  id: `mod-${mod.key}`,
+  label: mod.name,
+  type: "capability",
+  metadata: mod,
+  children: [
+    { id: `mod-${mod.key}-actions`, label: "Ações", type: "group", icon: Zap },
+    { id: `mod-${mod.key}-flows`, label: "Fluxos", type: "group", icon: Workflow },
+    { id: `mod-${mod.key}-events`, label: "Eventos", type: "group", icon: History },
+  ]
+}));
 
 const BUILDER_TREE_DATA: TreeItem[] = [
   {
@@ -46,13 +65,10 @@ const BUILDER_TREE_DATA: TreeItem[] = [
             children: [
               {
                 id: "capabilities-acme",
-                label: "Capacidades",
+                label: "Capacidades Ativas",
                 icon: Box,
                 type: "group",
-                children: [
-                  { id: "cap-finance", label: "Financeiro", type: "capability" },
-                  { id: "cap-ops", label: "Operações", type: "capability" },
-                ]
+                children: REAL_CAPABILITIES.slice(0, 5) // Mocking some active modules
               },
               {
                 id: "processes-acme",
@@ -64,37 +80,26 @@ const BUILDER_TREE_DATA: TreeItem[] = [
                 ]
               },
             ]
-          },
-          {
-            id: "workspace-acme-log",
-            label: "Logística Global",
-            type: "workspace",
-          }
-        ]
-      },
-      {
-        id: "org-stark",
-        label: "Stark Industries",
-        type: "organization",
-        children: [
-          {
-            id: "workspace-stark-rd",
-            label: "R&D Lab",
-            type: "workspace",
           }
         ]
       }
     ]
   },
   {
+    id: "catalog",
+    label: "Catálogo de Capacidades",
+    icon: Library,
+    type: "group",
+    children: REAL_CAPABILITIES.map(cap => ({ ...cap, type: "catalog_item", children: undefined }))
+  },
+  {
     id: "templates",
-    label: "Templates",
+    label: "Templates de Sistema",
     icon: LayoutTemplate,
     type: "group",
     children: [
       { id: "tmpl-erp-base", label: "ERP Foundation", type: "template" },
       { id: "tmpl-maint", label: "Maintenance Pack", type: "template" },
-      { id: "tmpl-gov", label: "Governance Workflow", type: "template" },
     ]
   }
 ];
@@ -177,9 +182,9 @@ export function BuilderExplorer({ onSelect, selectedId }: {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2 space-y-4">
+      <div className="flex-1 overflow-y-auto p-2">
         {BUILDER_TREE_DATA.map(item => (
-          <div key={item.id}>
+          <div key={item.id} className="mb-4">
              <TreeItemNode
               item={item}
               onSelect={onSelect}

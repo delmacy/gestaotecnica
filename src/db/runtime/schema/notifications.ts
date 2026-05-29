@@ -5,7 +5,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { workspaces } from "./workspace";
-import { users } from "./identity";
+import { usersTable as users } from "./identity";
 import { processInstances } from "./workflow";
 
 export const notificationsSchema = pgSchema("notifications");

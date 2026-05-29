@@ -8,7 +8,7 @@ import {
 
 export const identitySchema = pgSchema("identity");
 
-export const users = identitySchema.table("users", {
+export const usersTable = identitySchema.table("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
   name: text("name"),

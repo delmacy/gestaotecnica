@@ -19,7 +19,7 @@ export const globalSearchKernelAction: ActionDefinition<
     },
     ["query"],
   ),
-  handler: async (input: any) => {
+  handler: async (input) => {
     const results = await searchEverything(input.query);
     return {
       success: true,

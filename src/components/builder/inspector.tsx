@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Info, Settings, Shield, Zap, History } from "lucide-react";
 
-export function BuilderInspector({ selectedItem }: { selectedItem: any }) {
+export function BuilderInspector({ selectedItem, onUpdate }: { selectedItem: any; onUpdate?: (id: string, updates: any) => void }) {
   if (!selectedItem) {
     return (
       <aside className="w-80 border-l bg-card/50 flex flex-col shrink-0 items-center justify-center p-8 text-center">
@@ -39,7 +39,8 @@ export function BuilderInspector({ selectedItem }: { selectedItem: any }) {
                 <label className="text-[10px] text-muted-foreground font-medium uppercase">Display Name</label>
                 <input
                   className="w-full bg-background border rounded px-2 py-1 text-sm focus:ring-1 focus:ring-primary outline-none"
-                  defaultValue={selectedItem.label}
+                  value={selectedItem.label}
+                  onChange={(e) => onUpdate?.(selectedItem.id, { label: e.target.value })}
                 />
               </div>
               <div className="grid gap-1">

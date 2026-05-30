@@ -12,7 +12,7 @@ export const documentStatuses = [
   { value: "returned_for_correction", label: "Retornado para correcao" },
 ] as const;
 
-export const documentTypes = activeAdaptation.documentTemplates.map((template: any) => ({
+export const documentTypes = activeAdaptation.documentTemplates.map((template) => ({
   value: template.key,
   label: template.label,
 }));

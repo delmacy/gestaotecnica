@@ -9,6 +9,11 @@ import {
   users,
 } from "@/db/schema";
 
+export type SkillsOptions = {
+  skills: Array<{ id: string; name: string; category: string | null }>;
+  technicians: Array<{ id: string; name: string; teamName: string | null }>;
+};
+
 export async function getSkills() {
   const db = getDb();
   return db.select({
@@ -76,7 +81,7 @@ export async function getSkillsSummary() {
   ];
 }
 
-export async function getSkillsOptions() {
+export async function getSkillsOptions(): Promise<SkillsOptions> {
   const db = getDb();
   const [skillRows, technicianRows] = await Promise.all([
     db.select({ id: skillCatalog.id, name: skillCatalog.name, category: skillCatalog.category }).from(skillCatalog).orderBy(desc(skillCatalog.createdAt)).limit(80),

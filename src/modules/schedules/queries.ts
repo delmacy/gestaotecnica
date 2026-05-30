@@ -56,7 +56,7 @@ export async function getScheduleSummary() {
 
 export async function getScheduleTypeOptions() {
   const options = await getWorkspaceScheduleTypeOptions();
-  return options.map((option: any) => ({
+  return options.map((option) => ({
     ...option,
     value: option.value as ScheduleTypeValue,
   }));

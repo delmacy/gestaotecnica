@@ -15,6 +15,7 @@ import {
   workspaceQueues,
 } from "@/db/schema";
 import { ecosystemModules } from "./module-catalog";
+import { bootstrapPlatformRegistry } from "../registry/application/bootstrap";
 
 function roleFlag<T extends string>(
   role: (typeof activeAdaptation.businessRoles)[number],
@@ -357,6 +358,8 @@ export async function ensureActiveWorkspaceConfig() {
     .from(workspaces)
     .where(eq(workspaces.id, workspace.id))
     .limit(1);
+
+  await bootstrapPlatformRegistry();
 
   return persistedWorkspace;
 }

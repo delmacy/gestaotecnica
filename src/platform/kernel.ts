@@ -69,6 +69,11 @@ import { dashboardManifest } from "@/modules/dashboard/manifest";
 import { getDashboardSummaryKernelAction } from "@/modules/dashboard/kernel-actions";
 import { workspaceConfigManifest } from "@/modules/workspace-config/manifest";
 import { toggleModuleKernelAction } from "@/modules/workspace-config/kernel-actions";
+import {
+  saveBlueprintDraftKernelAction,
+  getLatestBlueprintKernelAction
+} from "@/platform/blueprints/actions/kernel-actions";
+import { listCapabilitiesKernelAction } from "@/platform/registry/actions/kernel-actions";
 import { registerAction } from "@/platform/actions";
 import { registerDefaultEvents } from "@/platform/events/default-events";
 import { registerFlow } from "@/platform/flows";
@@ -129,6 +134,9 @@ export function initializePlatformKernel() {
   registerAction(attachEvidenceKernelAction);
   registerAction(requestApprovalKernelAction);
   registerAction(decideApprovalKernelAction);
+  registerAction(saveBlueprintDraftKernelAction);
+  registerAction(getLatestBlueprintKernelAction);
+  registerAction(listCapabilitiesKernelAction);
 
   registerFlow(new ServiceOrderCompletedNotificationFlow());
   registerFlow(new WorkItemAutoServiceOrderFlow());

@@ -7,6 +7,7 @@ export interface StoredObject {
   mimeType: string;
   sizeBytes: number;
   checksumSha256: string;
+  uploadedById?: string | null;
   createdAt: Date;
 }
 

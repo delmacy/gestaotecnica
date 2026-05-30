@@ -21,7 +21,7 @@ export async function getWorkspaceWorkItemTypeOptions(): Promise<CatalogOption[]
   const workspace = await ensureActiveWorkspaceConfig();
   const db = getDb();
 
-  const rows = await db
+  const rows: CatalogOption[] = await db
     .select({
       value: workItemTypeDefinitions.key,
       label: workItemTypeDefinitions.label,
@@ -46,7 +46,7 @@ export async function getWorkspaceScheduleTypeOptions(): Promise<CatalogOption[]
   const workspace = await ensureActiveWorkspaceConfig();
   const db = getDb();
 
-  const rows = await db
+  const rows: CatalogOption[] = await db
     .select({
       value: scheduleTypeDefinitions.key,
       label: scheduleTypeDefinitions.label,
@@ -71,7 +71,7 @@ export async function getWorkspaceTechnicianLevelOptions(): Promise<CatalogOptio
   const workspace = await ensureActiveWorkspaceConfig();
   const db = getDb();
 
-  const rows = await db
+  const rows: Array<{ value: string | null; label: string }> = await db
     .select({
       value: businessRoleDefinitions.legacyLevel,
       label: businessRoleDefinitions.label,
@@ -91,7 +91,7 @@ export async function getWorkspaceTechnicianLevelOptions(): Promise<CatalogOptio
 
   return rows
     .filter((row): row is { value: string; label: string } => Boolean(row.value))
-    .map((row: any) => ({ value: row.value, label: row.label }));
+    .map((row) => ({ value: row.value, label: row.label }));
 }
 
 export async function getWorkspaceAssetTypeOptions(): Promise<CatalogOption[]> {

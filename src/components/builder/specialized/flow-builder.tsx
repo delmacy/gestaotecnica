@@ -20,7 +20,8 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { cn } from "@/lib/utils";
-import { Zap, Bell, Globe, BrainCircuit, Code, MessageSquare, ShieldAlert } from "lucide-react";
+import { Zap, Bell, Globe, BrainCircuit, Code, MessageSquare, ShieldAlert, Save, Loader2 } from "lucide-react";
+import { executeKernelAction } from "@/platform/actions/remote-actions";
 
 type FlowNodeData = {
   label: string;
@@ -85,14 +86,44 @@ const initialEdges: Edge[] = [
 export function FlowBuilder({ activeItem }: { activeItem: any }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
 
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const result = await executeKernelAction("flows.save_definition", {
+        workspaceId: "workspace-acme-prod", // Mocked
+        key: activeItem.id,
+        name: activeItem.label,
+        definition: { nodes, edges }
+      });
+      if (result.success) alert("Fluxo de automação salvo e registrado no Kernel!");
+    } catch (e) {
+      alert("Falha ao salvar fluxo.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="flex-1 h-full bg-[#1e1e20] pattern-dark">
+      <div className="absolute top-4 right-4 z-20">
+         <button
+           onClick={handleSave}
+           disabled={isSaving}
+           className="bg-white/10 text-white border border-white/20 text-xs font-bold py-2 px-4 rounded shadow-sm hover:bg-white/20 flex items-center gap-2"
+           data-testid="btn-save-flow"
+         >
+           {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
+           Save Automation
+         </button>
+      </div>
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -105,7 +136,7 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
         <Background variant={BackgroundVariant.Lines} gap={30} size={1} color="#333" />
         <Controls className="fill-white" />
 
-        <Panel position="top-right" className="bg-[#0f1115] p-3 border border-white/10 rounded-md shadow-2xl flex flex-col gap-2 w-48">
+        <Panel position="top-right" className="bg-[#0f1115] p-3 border border-white/10 rounded-md shadow-2xl flex flex-col gap-2 w-48 mt-12">
           <p className="text-[9px] font-bold text-white/40 uppercase tracking-tighter mb-1">Automation Nodes</p>
           <button className="text-[10px] p-2 bg-white/5 hover:bg-white/10 text-white rounded text-left flex items-center gap-2">
             <Zap className="size-3 text-amber-500" /> + Add Event

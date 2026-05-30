@@ -74,6 +74,15 @@ import {
   getLatestBlueprintKernelAction
 } from "@/platform/blueprints/actions/kernel-actions";
 import { listCapabilitiesKernelAction } from "@/platform/registry/actions/kernel-actions";
+import {
+  createOrganizationKernelAction,
+  createWorkspaceKernelAction,
+  installCapabilityKernelAction
+} from "@/platform/workspace/application/kernel-actions";
+import {
+  saveProcessDefinitionKernelAction,
+  saveFlowDefinitionKernelAction
+} from "@/platform/workflows/application/kernel-actions";
 import { registerAction } from "@/platform/actions";
 import { registerDefaultEvents } from "@/platform/events/default-events";
 import { registerFlow } from "@/platform/flows";
@@ -137,6 +146,11 @@ export function initializePlatformKernel() {
   registerAction(saveBlueprintDraftKernelAction);
   registerAction(getLatestBlueprintKernelAction);
   registerAction(listCapabilitiesKernelAction);
+  registerAction(createOrganizationKernelAction);
+  registerAction(createWorkspaceKernelAction);
+  registerAction(installCapabilityKernelAction);
+  registerAction(saveProcessDefinitionKernelAction);
+  registerAction(saveFlowDefinitionKernelAction);
 
   registerFlow(new ServiceOrderCompletedNotificationFlow());
   registerFlow(new WorkItemAutoServiceOrderFlow());

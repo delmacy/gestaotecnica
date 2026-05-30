@@ -44,6 +44,7 @@ export type TreeItem = {
     | "view"
     | "template"
     | "group"
+    | "subgroup"
     | "catalog_item";
   metadata?: any;
 };
@@ -73,7 +74,7 @@ function TreeItemNode({ item, level = 0, onSelect, selectedId, onRemove, onAdd }
   onRemove?: (id: string) => void;
   onAdd?: (parentId: string) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(level < 1);
+  const [isOpen, setIsOpen] = useState(level < 2);
   const hasChildren = item.children && item.children.length > 0;
 
   const Icon = (item.iconName && IconMap[item.iconName]) || item.icon || (hasChildren ? Folder : FileText);
@@ -104,7 +105,7 @@ function TreeItemNode({ item, level = 0, onSelect, selectedId, onRemove, onAdd }
 
         {/* Inline Actions */}
         <div className="hidden group-hover:flex items-center gap-1">
-          {onAdd && (item.type === 'group' || item.type === 'workspace' || item.type === 'organization') && (
+          {onAdd && (item.type === 'group' || item.type === 'subgroup' || item.type === 'workspace' || item.type === 'organization') && (
             <Plus
               className="size-3 text-muted-foreground hover:text-primary action-add"
               onClick={(e) => { e.stopPropagation(); onAdd(item.id); }}

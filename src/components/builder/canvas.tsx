@@ -22,7 +22,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { cn } from "@/lib/utils";
-import { Circle, Play, Box, Database, Save, Zap, Loader2 } from "lucide-react";
+import { Circle, Play, Box, Database, Save, Zap, Loader2, Trash2 } from "lucide-react";
 import { executeKernelAction } from "@/platform/actions/remote-actions";
 
 // --- Custom Node Types ---
@@ -89,7 +89,7 @@ function FlowCanvas({ activeItem }: { activeItem: any }) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isSaving, setIsSaving] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
-  const { fitView } = useReactFlow();
+  const { fitView, deleteElements } = useReactFlow();
 
   // Load blueprint on item selection
   useEffect(() => {
@@ -108,7 +108,6 @@ function FlowCanvas({ activeItem }: { activeItem: any }) {
           setEdges(data.edges || []);
           setTimeout(() => fitView(), 100);
         } else {
-          // Reset to default if not found
           setNodes(initialNodes);
           setEdges(initialEdges);
         }
@@ -160,6 +159,12 @@ function FlowCanvas({ activeItem }: { activeItem: any }) {
       },
     };
     setNodes((nds) => nds.concat(newNode));
+  };
+
+  const removeSelected = () => {
+    const selectedNodes = nodes.filter(n => n.selected);
+    const selectedEdges = edges.filter(e => e.selected);
+    deleteElements({ nodes: selectedNodes, edges: selectedEdges });
   };
 
   return (
@@ -227,6 +232,15 @@ function FlowCanvas({ activeItem }: { activeItem: any }) {
              >
                <Zap className="size-3" />
                + Add Action
+             </button>
+             <div className="h-px bg-border my-1" />
+             <button
+               onClick={removeSelected}
+               className="text-[10px] font-bold uppercase px-3 py-1.5 hover:bg-destructive/10 hover:text-destructive rounded text-left flex items-center gap-2 transition-colors"
+               data-testid="btn-remove-selected"
+             >
+               <Trash2 className="size-3" />
+               Delete Selected
              </button>
           </Panel>
         </ReactFlow>

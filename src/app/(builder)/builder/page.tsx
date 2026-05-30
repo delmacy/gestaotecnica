@@ -84,11 +84,12 @@ export default async function BuilderPage() {
                 },
                 {
                   id: "views-acme",
-                  label: "Telas e Views",
+                  label: "Telas e Formulários",
                   type: "group",
                   iconName: "Layout",
                   children: [
                     { id: "view-board", label: "Quadro Operacional", type: "view", iconName: "Layout" },
+                    { id: "view-form-demand", label: "Entrada de Demanda", type: "view", iconName: "FileText" },
                   ]
                 }
               ]

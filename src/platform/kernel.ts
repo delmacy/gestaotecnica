@@ -77,12 +77,16 @@ import { listCapabilitiesKernelAction } from "@/platform/registry/actions/kernel
 import {
   createOrganizationKernelAction,
   createWorkspaceKernelAction,
-  installCapabilityKernelAction
+  installCapabilityKernelAction,
+  publishWorkspaceKernelAction
 } from "@/platform/workspace/application/kernel-actions";
 import {
   saveProcessDefinitionKernelAction,
-  saveFlowDefinitionKernelAction
+  getProcessDefinitionKernelAction,
+  saveFlowDefinitionKernelAction,
+  getFlowDefinitionKernelAction
 } from "@/platform/workflows/application/kernel-actions";
+import { saveViewDefinitionKernelAction } from "@/platform/views/application/kernel-actions";
 import { registerAction } from "@/platform/actions";
 import { registerDefaultEvents } from "@/platform/events/default-events";
 import { registerFlow } from "@/platform/flows";
@@ -149,8 +153,12 @@ export function initializePlatformKernel() {
   registerAction(createOrganizationKernelAction);
   registerAction(createWorkspaceKernelAction);
   registerAction(installCapabilityKernelAction);
+  registerAction(publishWorkspaceKernelAction);
   registerAction(saveProcessDefinitionKernelAction);
+  registerAction(getProcessDefinitionKernelAction);
   registerAction(saveFlowDefinitionKernelAction);
+  registerAction(getFlowDefinitionKernelAction);
+  registerAction(saveViewDefinitionKernelAction);
 
   registerFlow(new ServiceOrderCompletedNotificationFlow());
   registerFlow(new WorkItemAutoServiceOrderFlow());

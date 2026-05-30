@@ -7,6 +7,7 @@ import { FlowBuilder } from './specialized/flow-builder';
 import { OrganizationBuilder } from './specialized/organization-builder';
 import { CapabilityBuilder } from './specialized/capability-builder';
 import { ViewBuilder } from './specialized/view-builder';
+import { FormBuilder } from './specialized/form-builder';
 import { Box, Database } from "lucide-react";
 
 export function BuilderCanvas({ activeItem }: { activeItem: any }) {
@@ -55,6 +56,10 @@ export function BuilderCanvas({ activeItem }: { activeItem: any }) {
         );
 
       case 'view':
+        // For simplicity, let's treat some views as forms in the assembler
+        if (activeItem.id?.includes('form')) {
+          return <FormBuilder activeItem={activeItem} />;
+        }
         return <ViewBuilder activeItem={activeItem} />;
 
       default:

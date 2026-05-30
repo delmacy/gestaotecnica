@@ -47,6 +47,35 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
     setSelectedItem(newItem);
   };
 
+  const activateCapability = (capability: TreeItem) => {
+    // Find a workspace to add to (or prompt/use default)
+    // For MVP: add to first workspace found or "Acme"
+    const addRecursive = (items: TreeItem[]): TreeItem[] => {
+      return items.map(item => {
+        if (item.id === "capabilities-acme") {
+          const alreadyHas = item.children?.some(c => c.metadata?.key === capability.metadata?.key);
+          if (alreadyHas) return item;
+
+          return {
+            ...item,
+            children: [...(item.children || []), {
+               ...capability,
+               id: "active-" + capability.id + "-" + Date.now(),
+               type: "capability"
+            }]
+          };
+        }
+        return {
+          ...item,
+          children: item.children ? addRecursive(item.children) : undefined
+        };
+      });
+    };
+
+    setTreeData(addRecursive(treeData));
+    alert(`Capacidade "${capability.label}" ativada no workspace!`);
+  };
+
   const updateItem = (id: string, updates: Partial<TreeItem>) => {
     const updateRecursive = (items: TreeItem[]): TreeItem[] => {
       return items.map(item => {
@@ -77,6 +106,7 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
       <BuilderInspector
         selectedItem={selectedItem}
         onUpdate={updateItem}
+        onActivate={activateCapability}
       />
     </>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -20,8 +20,8 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { cn } from "@/lib/utils";
-import { Zap, Bell, Globe, BrainCircuit, Code, MessageSquare, ShieldAlert, Save, Loader2 } from "lucide-react";
-import { executeKernelAction } from "@/platform/actions/remote-actions";
+import { Zap, Bell, Globe, BrainCircuit, Code, MessageSquare, ShieldAlert, Save, Loader2, Search, Plus } from "lucide-react";
+import { executeKernelAction, getPlatformDiscoveryData } from "@/platform/actions/remote-actions";
 
 type FlowNodeData = {
   label: string;
@@ -86,7 +86,13 @@ const initialEdges: Edge[] = [
 export function FlowBuilder({ activeItem }: { activeItem: any }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [isSaving, setIsSaving] = React.useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [discovery, setDiscovery] = useState<{ actions: any[], events: any[] }>({ actions: [], events: [] });
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    getPlatformDiscoveryData().then(setDiscovery);
+  }, []);
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
@@ -97,7 +103,7 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
     setIsSaving(true);
     try {
       const result = await executeKernelAction("flows.save_definition", {
-        workspaceId: "workspace-acme-prod", // Mocked
+        workspaceId: "workspace-acme-prod",
         key: activeItem.id,
         name: activeItem.label,
         definition: { nodes, edges }
@@ -110,52 +116,110 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
     }
   };
 
+  const addDiscoveryNode = (item: any, type: "action" | "event") => {
+    const id = `node-${Date.now()}`;
+    const newNode: Node<FlowNodeData> = {
+      id,
+      type: 'flow',
+      position: { x: 100, y: 100 },
+      data: { label: item.key, type }
+    };
+    setNodes(nds => nds.concat(newNode));
+  };
+
+  const filteredActions = discovery.actions.filter(a => a.key.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredEvents = discovery.events.filter(e => e.key.toLowerCase().includes(searchTerm.toLowerCase()));
+
   return (
-    <div className="flex-1 h-full bg-[#1e1e20] pattern-dark">
-      <div className="absolute top-4 right-4 z-20">
-         <button
-           onClick={handleSave}
-           disabled={isSaving}
-           className="bg-white/10 text-white border border-white/20 text-xs font-bold py-2 px-4 rounded shadow-sm hover:bg-white/20 flex items-center gap-2"
-           data-testid="btn-save-flow"
-         >
-           {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
-           Save Automation
-         </button>
+    <div className="flex-1 h-full bg-[#1e1e20] pattern-dark flex overflow-hidden">
+      <div className="flex-1 relative overflow-hidden">
+        <div className="absolute top-4 right-4 z-20">
+           <button
+             onClick={handleSave}
+             disabled={isSaving}
+             className="bg-white/10 text-white border border-white/20 text-xs font-bold py-2 px-4 rounded shadow-sm hover:bg-white/20 flex items-center gap-2"
+             data-testid="btn-save-flow"
+           >
+             {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
+             Save Automation
+           </button>
+        </div>
+
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          fitView
+        >
+          <Background variant={BackgroundVariant.Lines} gap={30} size={1} color="#333" />
+          <Controls className="fill-white" />
+
+          <Panel position="top-left" className="bg-emerald-500/10 border border-emerald-500/20 p-2 rounded text-emerald-500">
+             <div className="flex items-center gap-2">
+               <Zap className="size-3 animate-pulse" />
+               <span className="text-[10px] font-bold uppercase tracking-widest">Logic & Automation Builder</span>
+             </div>
+          </Panel>
+        </ReactFlow>
       </div>
 
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        fitView
-      >
-        <Background variant={BackgroundVariant.Lines} gap={30} size={1} color="#333" />
-        <Controls className="fill-white" />
+      {/* Discovery Catalog Sidebar (Right side of canvas) */}
+      <aside className="w-80 bg-[#0f1115] border-l border-white/10 flex flex-col shrink-0 overflow-hidden">
+         <div className="p-4 border-b border-white/10">
+            <h3 className="text-white text-xs font-bold uppercase tracking-wider mb-4">Platform Discovery</h3>
+            <div className="relative">
+               <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-white/40" />
+               <input
+                 type="text"
+                 placeholder="Search events or actions..."
+                 className="w-full bg-white/5 border border-white/10 rounded-md py-2 pl-8 pr-2 text-xs text-white outline-none focus:border-primary"
+                 value={searchTerm}
+                 onChange={e => setSearchTerm(e.target.value)}
+               />
+            </div>
+         </div>
 
-        <Panel position="top-right" className="bg-[#0f1115] p-3 border border-white/10 rounded-md shadow-2xl flex flex-col gap-2 w-48 mt-12">
-          <p className="text-[9px] font-bold text-white/40 uppercase tracking-tighter mb-1">Automation Nodes</p>
-          <button className="text-[10px] p-2 bg-white/5 hover:bg-white/10 text-white rounded text-left flex items-center gap-2">
-            <Zap className="size-3 text-amber-500" /> + Add Event
-          </button>
-          <button className="text-[10px] p-2 bg-white/5 hover:bg-white/10 text-white rounded text-left flex items-center gap-2">
-            <BrainCircuit className="size-3 text-purple-500" /> + AI Task
-          </button>
-          <button className="text-[10px] p-2 bg-white/5 hover:bg-white/10 text-white rounded text-left flex items-center gap-2">
-            <Globe className="size-3 text-blue-500" /> + Webhook
-          </button>
-        </Panel>
+         <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <section>
+               <h4 className="text-[10px] font-bold text-white/40 uppercase mb-3 flex items-center gap-2">
+                 <Zap className="size-3 text-amber-500" /> Emitted Events
+               </h4>
+               <div className="space-y-2">
+                  {filteredEvents.map(event => (
+                    <div
+                      key={event.key}
+                      onClick={() => addDiscoveryNode(event, 'event')}
+                      className="p-2 bg-white/5 border border-white/5 rounded hover:border-amber-500/50 hover:bg-amber-500/5 transition-all cursor-pointer group"
+                    >
+                       <div className="text-[11px] font-bold text-white group-hover:text-amber-500 transition-colors">{event.key}</div>
+                       <div className="text-[9px] text-white/40 truncate">{event.description || 'No description'}</div>
+                    </div>
+                  ))}
+               </div>
+            </section>
 
-        <Panel position="top-left" className="bg-emerald-500/10 border border-emerald-500/20 p-2 rounded text-emerald-500">
-           <div className="flex items-center gap-2">
-             <Zap className="size-3 animate-pulse" />
-             <span className="text-[10px] font-bold uppercase tracking-widest">Logic & Automation Builder</span>
-           </div>
-        </Panel>
-      </ReactFlow>
+            <section>
+               <h4 className="text-[10px] font-bold text-white/40 uppercase mb-3 flex items-center gap-2">
+                 <Plus className="size-3 text-emerald-500" /> Available Actions
+               </h4>
+               <div className="space-y-2">
+                  {filteredActions.map(action => (
+                    <div
+                      key={action.key}
+                      onClick={() => addDiscoveryNode(action, 'action')}
+                      className="p-2 bg-white/5 border border-white/5 rounded hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer group"
+                    >
+                       <div className="text-[11px] font-bold text-white group-hover:text-emerald-500 transition-colors">{action.key}</div>
+                       <div className="text-[9px] text-white/40 truncate">{action.description || 'No description'}</div>
+                    </div>
+                  ))}
+               </div>
+            </section>
+         </div>
+      </aside>
 
       <style jsx global>{`
         .pattern-dark {

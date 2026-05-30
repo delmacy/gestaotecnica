@@ -130,3 +130,33 @@ export const installCapabilityKernelAction: ActionDefinition<InstallCapabilityIn
     };
   },
 };
+
+type PublishWorkspaceInput = {
+  workspaceId: string;
+};
+
+export const publishWorkspaceKernelAction: ActionDefinition<PublishWorkspaceInput, any> = {
+  key: "workspaces.publish",
+  moduleKey: "workspace",
+  description: "Publica e finaliza a configuração de um workspace para uso em produção.",
+  callableBy: ["ui", "system"],
+  inputSchema: actionObjectSchema(
+    {
+       workspaceId: uuidProperty("ID do workspace.")
+    },
+    ["workspaceId"]
+  ),
+  async handler(input) {
+    const db = getRuntimeDb();
+    const [updated] = await db
+      .update(workspaces)
+      .set({ status: "active", updatedAt: new Date() })
+      .where(eq(workspaces.id, input.workspaceId))
+      .returning();
+
+    return {
+      success: true,
+      data: updated
+    };
+  }
+};

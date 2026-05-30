@@ -18,7 +18,10 @@ export const usersTable = identitySchema.table("users", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const responsibilities = identitySchema.table("responsibilities", {
+// Alias for backward compatibility and to avoid Turbopack circular definition errors
+export const users = usersTable;
+
+export const roles = identitySchema.table("roles", {
   id: uuid("id").primaryKey().defaultRandom(),
   workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
   key: text("key").notNull(),

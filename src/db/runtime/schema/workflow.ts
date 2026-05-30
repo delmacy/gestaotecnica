@@ -24,6 +24,18 @@ export const processDefinitions = workflowSchema.table("process_definitions", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const flowDefinitions = workflowSchema.table("flow_definitions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+  key: text("key").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  definition: jsonb("definition").notNull().default({}),
+  isActive: text("is_active").notNull().default("true"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const processVersions = workflowSchema.table("process_versions", {
   id: uuid("id").primaryKey().defaultRandom(),
   processDefinitionId: uuid("process_definition_id").notNull().references(() => processDefinitions.id),

@@ -20,7 +20,8 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { cn } from "@/lib/utils";
-import { Circle, Play, Box, Database, Save, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { Circle, Play, Box, Database, Save, CheckCircle2, AlertCircle, Clock, Loader2, Trash2 } from "lucide-react";
+import { executeKernelAction } from "@/platform/actions/remote-actions";
 
 type ProcessNodeData = {
   label: string;
@@ -38,7 +39,6 @@ const ProcessNode = ({ data, selected }: NodeProps<Node<ProcessNodeData>>) => {
       type === 'approval' && "border-amber-200 bg-amber-50/20",
       type === 'decision' && "border-blue-200 bg-blue-50/20 rotate-45 flex items-center justify-center"
     )}>
-      {/* Content wrapper to counter rotate decisions */}
       <div className={cn(type === 'decision' && "-rotate-45")}>
         <Handle type="target" position={Position.Left} className="!size-2 !bg-primary/30" />
 
@@ -92,14 +92,44 @@ const initialEdges: Edge[] = [
 export function ProcessBuilder({ activeItem }: { activeItem: any }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
 
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const result = await executeKernelAction("processes.save_definition", {
+        workspaceId: "workspace-acme-prod", // Mocked for demo
+        key: activeItem.id,
+        name: activeItem.label,
+        definition: { nodes, edges }
+      });
+      if (result.success) alert("Processo de negócio salvo no banco de dados!");
+    } catch (e) {
+      alert("Falha ao salvar processo.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="flex-1 h-full bg-[#fafafa]">
+      <div className="absolute top-4 right-4 z-20 flex gap-2">
+         <button
+           onClick={handleSave}
+           disabled={isSaving}
+           className="bg-white border text-xs font-bold py-2 px-4 rounded shadow-sm hover:bg-muted flex items-center gap-2"
+           data-testid="btn-save-process"
+         >
+           {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
+           Save Process
+         </button>
+      </div>
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -111,7 +141,7 @@ export function ProcessBuilder({ activeItem }: { activeItem: any }) {
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
         <Controls />
-        <Panel position="top-right" className="bg-white p-2 border rounded-md shadow-sm flex flex-col gap-1">
+        <Panel position="top-right" className="bg-white p-2 border rounded-md shadow-sm flex flex-col gap-1 mt-12">
           <p className="text-[10px] font-bold text-muted-foreground uppercase px-2 mb-1">Process Elements</p>
           <button className="text-[10px] p-2 hover:bg-muted rounded text-left">+ Add Task</button>
           <button className="text-[10px] p-2 hover:bg-muted rounded text-left">+ Add Decision</button>
@@ -120,7 +150,7 @@ export function ProcessBuilder({ activeItem }: { activeItem: any }) {
         <Panel position="top-left" className="bg-white/80 p-2 border rounded shadow-sm">
            <div className="flex items-center gap-2">
              <div className="size-2 rounded-full bg-blue-500 animate-pulse" />
-             <span className="text-[10px] font-bold uppercase tracking-tight">Process Modeler</span>
+             <span className="text-[10px] font-bold uppercase tracking-tight">Process Modeler (BPM)</span>
            </div>
         </Panel>
       </ReactFlow>

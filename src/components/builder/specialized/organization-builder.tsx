@@ -1,10 +1,40 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Globe, Users, ShieldCheck, Zap, Layers, Plus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Building2, Globe, Users, ShieldCheck, Zap, Layers, Plus, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { executeKernelAction } from "@/platform/actions/remote-actions";
 
 export function OrganizationBuilder({ activeItem }: { activeItem: any }) {
   const isWorkspace = activeItem.type === 'workspace';
+  const [isCreating, setIsCreating] = useState(false);
+  const [formData, setFormData] = useState({ name: activeItem.label, key: activeItem.metadata?.key || activeItem.id });
+
+  const handleCreateChild = async () => {
+    setIsCreating(true);
+    try {
+      if (activeItem.type === 'organization') {
+        const result = await executeKernelAction("workspaces.create", {
+          organizationId: activeItem.id,
+          key: "ws-" + Date.now(),
+          name: "Novo Workspace"
+        });
+        if (result.success) alert("Workspace criado com sucesso no banco de dados!");
+      } else {
+        const result = await executeKernelAction("organizations.create", {
+          key: "org-" + Date.now(),
+          name: "Nova Organização"
+        });
+        if (result.success) alert("Nova Organização registrada no tenant!");
+      }
+    } catch (e) {
+      alert("Falha ao persistir no banco.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   return (
     <div className="flex-1 overflow-y-auto bg-muted/20 p-8">
@@ -14,45 +44,51 @@ export function OrganizationBuilder({ activeItem }: { activeItem: any }) {
             <h1 className="text-3xl font-bold tracking-tight">{activeItem.label}</h1>
             <p className="text-muted-foreground mt-1">Configuração de {activeItem.type === 'organization' ? 'Tenant Organizacional' : 'Ambiente Operacional (Workspace)'}</p>
           </div>
-          <button className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-bold uppercase shadow-sm hover:opacity-90">
+          <button
+            onClick={handleCreateChild}
+            disabled={isCreating}
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-bold uppercase shadow-sm hover:opacity-90 flex items-center gap-2"
+          >
+            {isCreating && <Loader2 className="size-4 animate-spin" />}
             {activeItem.type === 'organization' ? '+ New Workspace' : 'Configure Domain'}
           </button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-mono uppercase text-muted-foreground flex items-center gap-2">
-                <Users className="size-3" /> Population
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">124</div>
-              <p className="text-[10px] text-muted-foreground">Active Users & Technical Staff</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-mono uppercase text-muted-foreground flex items-center gap-2">
-                <Layers className="size-3" /> Capacities
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">8</div>
-              <p className="text-[10px] text-muted-foreground">Installed Service Modules</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-mono uppercase text-muted-foreground flex items-center gap-2">
-                <Zap className="size-3" /> Integrations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">4</div>
-              <p className="text-[10px] text-muted-foreground">Active External Connections</p>
-            </CardContent>
-          </Card>
+        <div className="grid gap-6 md:grid-cols-2">
+           <Card>
+             <CardHeader><CardTitle className="text-sm">Metadata</CardTitle></CardHeader>
+             <CardContent className="space-y-4">
+                <div className="grid gap-2">
+                  <Label>Identificador (Key)</Label>
+                  <Input value={formData.key} readOnly className="bg-muted font-mono text-xs" />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Nome Amigável</Label>
+                  <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                </div>
+             </CardContent>
+           </Card>
+
+           <div className="grid gap-4">
+              <Card>
+                <CardContent className="p-4 flex items-center gap-4">
+                   <div className="size-10 rounded bg-blue-100 text-blue-700 flex items-center justify-center"><Users className="size-5" /></div>
+                   <div>
+                      <div className="text-2xl font-bold">124</div>
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Active Populations</p>
+                   </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 flex items-center gap-4">
+                   <div className="size-10 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center"><Layers className="size-5" /></div>
+                   <div>
+                      <div className="text-2xl font-bold">8</div>
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Activated Capabilities</p>
+                   </div>
+                </CardContent>
+              </Card>
+           </div>
         </div>
 
         <div className="space-y-4">

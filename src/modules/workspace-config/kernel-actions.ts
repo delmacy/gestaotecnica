@@ -35,7 +35,7 @@ export const toggleModuleKernelAction: ActionDefinition<
     moduleKey: stringProperty("Módulo alterado."),
     enabled: booleanProperty("Novo status."),
   }),
-  handler: async (input: any) => {
+  handler: async (input) => {
     const workspaceId = String(input.workspaceId ?? "").trim();
     const moduleKey = String(input.moduleKey ?? "").trim();
 

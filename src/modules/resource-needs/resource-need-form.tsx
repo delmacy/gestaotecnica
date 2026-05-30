@@ -1,9 +1,8 @@
 import { createResourceNeed } from "./actions";
 import { priorities, resourceNeedStatuses } from "./constants";
+import type { ResourceNeedOptions } from "./queries";
 
-type Options = Awaited<ReturnType<typeof import("./queries").getResourceNeedOptions>>;
-
-export function ResourceNeedForm({ options }: { options: Options }) {
+export function ResourceNeedForm({ options }: { options: ResourceNeedOptions }) {
   return (
     <form action={createResourceNeed} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Nova necessidade de recurso</h2>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -22,7 +22,8 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { cn } from "@/lib/utils";
-import { Circle, Play, Box, Database, Save, Zap } from "lucide-react";
+import { Circle, Play, Box, Database, Save, Zap, Loader2 } from "lucide-react";
+import { executeKernelAction } from "@/platform/actions/remote-actions";
 
 // --- Custom Node Types ---
 
@@ -86,27 +87,65 @@ const initialEdges: Edge[] = [
 function FlowCanvas({ activeItem }: { activeItem: any }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { screenToFlowPosition } = useReactFlow();
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const { fitView } = useReactFlow();
+
+  // Load blueprint on item selection
+  useEffect(() => {
+    async function loadBlueprint() {
+      if (!activeItem?.id) return;
+
+      setIsLoading(true);
+      try {
+        const result = await executeKernelAction("blueprints.get_latest", {
+          blueprintKey: activeItem.metadata?.key || activeItem.id
+        });
+
+        if (result.success && result.data && (result.data as any).nodes) {
+          const data = result.data as any;
+          setNodes(data.nodes);
+          setEdges(data.edges || []);
+          setTimeout(() => fitView(), 100);
+        } else {
+          // Reset to default if not found
+          setNodes(initialNodes);
+          setEdges(initialEdges);
+        }
+      } catch (e) {
+        console.error("Error loading blueprint", e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadBlueprint();
+  }, [activeItem?.id, setNodes, setEdges, fitView, activeItem.metadata?.key]);
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
 
-  const onSave = () => {
-    // In a real system, this would call an API to persist the architecture
-    const architecturalBlueprint = {
-      workspaceId: activeItem.id,
-      nodes,
-      edges,
-      version: '1.0.0-draft',
-      timestamp: new Date().toISOString(),
-    };
+  const onSave = async () => {
+    setIsSaving(true);
+    try {
+      const result = await executeKernelAction("blueprints.save_draft", {
+        blueprintKey: activeItem.metadata?.key || activeItem.id,
+        blueprintName: activeItem.label,
+        definition: { nodes, edges }
+      });
 
-    console.log('--- ARCHITECTURAL BLUEPRINT SAVED ---');
-    console.log(JSON.stringify(architecturalBlueprint, null, 2));
-
-    alert(`Arquitetura do componente "${activeItem.label}" salva com sucesso!\n\n${nodes.length} nós e ${edges.length} conexões registradas.`);
+      if (result.success) {
+        alert(`Arquitetura do componente "${activeItem.label}" salva no banco de dados!`);
+      } else {
+        alert("Erro ao salvar: " + (result.error?.message || "Erro desconhecido"));
+      }
+    } catch (e) {
+      alert("Falha técnica ao tentar salvar no Registry.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const addNode = (type: "state" | "trigger" | "action") => {
@@ -129,15 +168,20 @@ function FlowCanvas({ activeItem }: { activeItem: any }) {
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">Editor:</span>
           <span className="text-xs font-bold text-foreground uppercase tracking-tight">{activeItem.label}</span>
+          {isLoading && <Loader2 className="size-3 animate-spin text-muted-foreground ml-2" />}
         </div>
         <div className="flex items-center gap-4">
           <button
             onClick={onSave}
-            className="text-[10px] font-bold uppercase text-muted-foreground hover:text-primary flex items-center gap-1.5 transition-colors"
+            disabled={isSaving}
+            className={cn(
+              "text-[10px] font-bold uppercase flex items-center gap-1.5 transition-colors",
+              isSaving ? "text-muted-foreground cursor-not-allowed" : "text-muted-foreground hover:text-primary"
+            )}
             data-testid="btn-save-architecture"
           >
-            <Save className="size-3" />
-            Save Architecture
+            {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
+            {isSaving ? "Saving..." : "Save to Registry"}
           </button>
           <button className="text-[10px] font-bold uppercase text-muted-foreground hover:text-foreground transition-colors">Preview</button>
           <button className="text-[10px] font-bold uppercase text-primary transition-all hover:scale-105">Publish</button>
@@ -191,11 +235,11 @@ function FlowCanvas({ activeItem }: { activeItem: any }) {
       <div className="h-8 border-t bg-white flex items-center px-4 shrink-0 text-[10px] text-muted-foreground font-mono gap-4 z-10">
         <div className="flex items-center gap-1.5">
           <Database className="size-3" />
-          SYSTEM_BUILDER_MODE: ACTIVE
+          REGISTRY_SYNC: {activeItem.metadata?.key ? "CONNECTED" : "LOCAL_DRAFT"}
         </div>
         <div>NODES: {nodes.length}</div>
         <div>EDGES: {edges.length}</div>
-        <div className="ml-auto text-primary animate-pulse">ARCHITECTURE V1.0.4</div>
+        <div className="ml-auto text-primary animate-pulse uppercase">Architect Session Active</div>
       </div>
     </div>
   );

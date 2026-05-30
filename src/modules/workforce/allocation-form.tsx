@@ -6,17 +6,16 @@ import {
   workforceAllocationStatuses,
   workforceAllocationTypes,
 } from "./constants";
+import type { WorkforceAllocationOptions } from "./queries";
 
-type Options = Awaited<ReturnType<typeof import("./queries").getWorkforceAllocationOptions>>;
-
-export function WorkforceAllocationForm({ options }: { options: Options }) {
+export function WorkforceAllocationForm({ options }: { options: WorkforceAllocationOptions }) {
   return (
     <form action={createWorkforceAllocation} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Nova alocacao</h2>
       <div className="mt-4 space-y-4">
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="technicianProfileId" required defaultValue="">
           <option value="">Selecione o tecnico</option>
-          {options.technicians.map((technician: any) => (
+          {options.technicians.map((technician) => (
             <option key={technician.id} value={technician.id}>{technician.name}</option>
           ))}
         </select>
@@ -30,19 +29,19 @@ export function WorkforceAllocationForm({ options }: { options: Options }) {
         </div>
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="serviceOrderId" defaultValue="">
           <option value="">Sem OS vinculada</option>
-          {options.serviceOrders.map((order: any) => (
+          {options.serviceOrders.map((order) => (
             <option key={order.id} value={order.id}>{order.code} - {order.title}</option>
           ))}
         </select>
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="workItemId" defaultValue="">
           <option value="">Sem demanda vinculada</option>
-          {options.workItems.map((item: any) => (
+          {options.workItems.map((item) => (
             <option key={item.id} value={item.id}>{item.title}</option>
           ))}
         </select>
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="scheduleId" defaultValue="">
           <option value="">Sem escala vinculada</option>
-          {options.schedules.map((schedule: any) => (
+          {options.schedules.map((schedule) => (
             <option key={schedule.id} value={schedule.id}>{schedule.title}</option>
           ))}
         </select>
@@ -58,14 +57,14 @@ export function WorkforceAllocationForm({ options }: { options: Options }) {
   );
 }
 
-export function TechnicianUnavailabilityForm({ options }: { options: Options }) {
+export function TechnicianUnavailabilityForm({ options }: { options: WorkforceAllocationOptions }) {
   return (
     <form action={createTechnicianUnavailability} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Indisponibilidade</h2>
       <div className="mt-4 space-y-4">
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="technicianProfileId" required defaultValue="">
           <option value="">Selecione o tecnico</option>
-          {options.technicians.map((technician: any) => (
+          {options.technicians.map((technician) => (
             <option key={technician.id} value={technician.id}>{technician.name}</option>
           ))}
         </select>

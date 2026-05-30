@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   initializePlatformKernel();
 
-  const actions = listActions().map((action: any) => ({
+  const actions = listActions().map((action) => ({
     key: action.key,
     moduleKey: action.moduleKey,
     description: action.description,
@@ -22,7 +22,7 @@ export async function GET() {
     idempotent: action.idempotent ?? false,
   }));
 
-  const flows = listFlows().map((flow: any) => ({
+  const flows = listFlows().map((flow) => ({
     key: flow.key,
     name: flow.name,
     version: flow.version,

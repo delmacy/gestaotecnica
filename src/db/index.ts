@@ -9,7 +9,6 @@ import * as identitySchema from "./runtime/schema/identity";
 import * as notificationsSchema from "./runtime/schema/notifications";
 import * as storageSchema from "./runtime/schema/storage";
 import * as documentsSchema from "./runtime/schema/documents";
-import * as integrationsSchema from "./runtime/schema/integrations";
 
 const fullSchema = {
   ...legacySchema,
@@ -21,7 +20,6 @@ const fullSchema = {
   ...notificationsSchema,
   ...storageSchema,
   ...documentsSchema,
-  ...integrationsSchema,
 };
 
 let platformClient: postgres.Sql | null = null;

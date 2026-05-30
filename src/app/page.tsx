@@ -240,7 +240,7 @@ export default async function Home() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {quickLinks.map((item: any) => {
+              {quickLinks.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Button asChild key={item.href} variant="outline">

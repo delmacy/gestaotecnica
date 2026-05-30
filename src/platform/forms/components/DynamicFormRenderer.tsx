@@ -32,7 +32,7 @@ export function DynamicFormRenderer({
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
-          {fields.map((field: any) => (
+          {fields.map((field) => (
             <DynamicFieldRenderer key={field.id} field={field} />
           ))}
         </div>

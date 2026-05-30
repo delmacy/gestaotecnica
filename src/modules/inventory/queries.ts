@@ -10,6 +10,15 @@ import {
   users,
 } from "@/db/schema";
 
+export type InventoryOptions = {
+  items: Array<{ id: string; sku: string; name: string }>;
+  suppliers: Array<{ id: string; name: string }>;
+  assets: Array<{ id: string; code: string; name: string }>;
+  serviceOrders: Array<{ id: string; code: string; title: string }>;
+  acquisitions: Array<{ id: string; title: string }>;
+  users: Array<{ id: string; name: string }>;
+};
+
 export async function getInventoryItems() {
   const db = getDb();
   return db.select({
@@ -67,7 +76,7 @@ export async function getInventorySummary() {
   ];
 }
 
-export async function getInventoryOptions() {
+export async function getInventoryOptions(): Promise<InventoryOptions> {
   const db = getDb();
   const [itemRows, supplierRows, assetRows, orderRows, acquisitionRows, userRows] = await Promise.all([
     db.select({ id: inventoryItems.id, sku: inventoryItems.sku, name: inventoryItems.name }).from(inventoryItems).orderBy(desc(inventoryItems.createdAt)).limit(80),

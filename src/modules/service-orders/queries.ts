@@ -273,7 +273,7 @@ export async function getServiceOrdersForWorkItem(workItemId: string) {
 
 export async function getServiceOrderTypeOptions() {
   const options = await getWorkspaceServiceOrderTypeOptions();
-  return options.map((option: any) => ({
+  return options.map((option) => ({
     ...option,
     value: option.value as ServiceOrderTypeValue,
   }));

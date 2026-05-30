@@ -53,7 +53,7 @@ export function WorkflowInstancePanel({
         {instances.length === 0 ? (
           <p className="text-sm text-[#5b6655]">Nenhuma instancia iniciada.</p>
         ) : (
-          instances.map((instance: any) => {
+          instances.map((instance) => {
             const states = getStates(instance.snapshot);
             return (
               <article className="border border-[#e1e5db] bg-[#fbfcf8] p-4" key={instance.id}>

@@ -11,7 +11,7 @@ export function ProcessInstanceTimeline({ items }: ProcessInstanceTimelineProps)
   return (
     <div className="space-y-6">
       <div className="relative border-l-2 border-muted ml-4 pl-8 space-y-8">
-        {items.map((item: any) => (
+        {items.map((item) => (
           <div key={item.id} className="relative">
             <div className="absolute -left-[41px] top-1 bg-background p-1 border-2 border-muted rounded-full">
               <div className="w-2 h-2 bg-primary rounded-full" />

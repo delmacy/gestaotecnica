@@ -6,8 +6,10 @@ import { BuilderCanvas } from "@/components/builder/canvas";
 import { BuilderInspector } from "@/components/builder/inspector";
 import { BuilderTimeline, TimelineEntry } from "@/components/builder/timeline/platform-timeline";
 import { executeKernelAction } from "@/platform/actions/remote-actions";
-import { Loader2, CheckCircle2, ChevronUp, ChevronDown } from "lucide-react";
+import { getLiveTimelineEntries } from "@/platform/timeline/actions/remote-actions";
+import { Loader2, CheckCircle2, ChevronUp, ChevronDown, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] }) {
   const [selectedItem, setSelectedItem] = useState<TreeItem | null>(null);
@@ -15,10 +17,24 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
-  const [timelineEntries, setTimelineEntries] = useState<TimelineEntry[]>([
-    { id: "1", type: "system", title: "Builder Session Initialized", timestamp: "Agora", payload: { user: "Architect", mode: "IDE" } },
-    { id: "2", type: "action", title: "Organization Context Loaded", timestamp: "1m atrás", payload: { org: "Acme Holding" } },
-  ]);
+  const [timelineEntries, setTimelineEntries] = useState<TimelineEntry[]>([]);
+  const [isRefreshingTimeline, setIsRefreshingTimeline] = useState(false);
+
+  const refreshTimeline = async () => {
+    setIsRefreshingTimeline(true);
+    try {
+        const entries = await getLiveTimelineEntries("workspace-acme-prod");
+        setTimelineEntries(entries);
+    } finally {
+        setIsRefreshingTimeline(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshTimeline();
+    const interval = setInterval(refreshTimeline, 10000); // Live update every 10s
+    return () => clearInterval(interval);
+  }, []);
 
   const addTimelineEntry = (entry: Omit<TimelineEntry, "id" | "timestamp">) => {
     const newEntry: TimelineEntry = {
@@ -280,7 +296,13 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
                     className="h-8 flex items-center justify-between px-4 border-b shrink-0 cursor-pointer bg-muted/20"
                     onClick={() => setTimelineExpanded(false)}
                   >
-                    <span className="text-[10px] font-bold uppercase text-muted-foreground">Operational Memory</span>
+                    <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-bold uppercase text-muted-foreground">Operational Memory</span>
+                        <RefreshCw
+                          className={cn("size-3 text-muted-foreground hover:text-primary transition-all", isRefreshingTimeline && "animate-spin")}
+                          onClick={(e) => { e.stopPropagation(); refreshTimeline(); }}
+                        />
+                    </div>
                     <ChevronDown className="size-3 text-muted-foreground" />
                   </div>
                   <div className="flex-1 overflow-hidden">

@@ -1,6 +1,6 @@
 import { runtimeDb } from "@/db";
 import { events } from "@/db/runtime/schema/workflow";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 type WorkflowEventRow = typeof events.$inferSelect;
 
@@ -15,21 +15,45 @@ export interface TimelineItem {
 }
 
 export class TimelineService {
-  async getProcessInstanceTimeline(workspaceId: string, instanceId: string): Promise<TimelineItem[]> {
+  async getWorkspaceTimeline(workspaceId: string, limit = 20): Promise<TimelineItem[]> {
     const rawEvents: WorkflowEventRow[] = await runtimeDb
       .select()
       .from(events)
-      .where(eq(events.instanceId, instanceId))
-      .orderBy(desc(events.createdAt));
+      .where(eq(events.workspaceId, workspaceId))
+      .orderBy(desc(events.createdAt))
+      .limit(limit);
 
     return rawEvents.map(event => ({
       id: event.id,
-      type: event.eventType,
+      type: this.mapType(event.eventType),
       title: this.formatTitle(event.eventType),
       occurredAt: event.createdAt,
       actorId: event.actorId ?? undefined,
       payload: event.payload as Record<string, unknown>,
     }));
+  }
+
+  async getProcessInstanceTimeline(workspaceId: string, instanceId: string): Promise<TimelineItem[]> {
+    const rawEvents: WorkflowEventRow[] = await runtimeDb
+      .select()
+      .from(events)
+      .where(and(eq(events.workspaceId, workspaceId), eq(events.instanceId, instanceId)))
+      .orderBy(desc(events.createdAt));
+
+    return rawEvents.map(event => ({
+      id: event.id,
+      type: this.mapType(event.eventType),
+      title: this.formatTitle(event.eventType),
+      occurredAt: event.createdAt,
+      actorId: event.actorId ?? undefined,
+      payload: event.payload as Record<string, unknown>,
+    }));
+  }
+
+  private mapType(type: string): string {
+    if (type.includes("CREATED") || type.includes("UPDATED")) return "audit";
+    if (type.includes("ACTION")) return "action";
+    return "system";
   }
 
   private formatTitle(type: string): string {

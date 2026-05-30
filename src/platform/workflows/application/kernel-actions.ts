@@ -40,7 +40,7 @@ export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefi
         name: input.name,
       })
       .onConflictDoUpdate({
-        target: processDefinitions.key,
+        target: [processDefinitions.workspaceId, processDefinitions.key],
         set: { name: input.name, updatedAt: new Date() }
       })
       .returning();
@@ -100,7 +100,7 @@ export const saveFlowDefinitionKernelAction: ActionDefinition<SaveFlowDefinition
         definition: input.definition,
       })
       .onConflictDoUpdate({
-        target: flowDefinitions.key,
+        target: [flowDefinitions.workspaceId, flowDefinitions.key],
         set: { name: input.name, definition: input.definition, updatedAt: new Date() }
       })
       .returning();

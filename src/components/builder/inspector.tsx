@@ -76,15 +76,37 @@ export function BuilderInspector({ selectedItem, onUpdate, onActivate }: {
             </div>
             <div className="space-y-3">
               <div className="grid gap-1">
-                <label className="text-[10px] text-muted-foreground font-medium uppercase">Display Name</label>
+                <label className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Display Name</label>
                 <input
-                  className="w-full bg-background border rounded px-2 py-1 text-sm focus:ring-1 focus:ring-primary outline-none"
+                  className="w-full bg-background border rounded px-2 py-1 text-sm focus:ring-1 focus:ring-primary outline-none transition-all font-medium"
                   value={selectedItem.label}
                   onChange={(e) => onUpdate?.(selectedItem.id, { label: e.target.value })}
                 />
               </div>
+
+              {selectedItem.type === 'organization' && (
+                <div className="grid gap-1">
+                  <label className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Org Key (Slug)</label>
+                  <input
+                    className="w-full bg-muted/50 border rounded px-2 py-1 text-xs font-mono outline-none"
+                    defaultValue={selectedItem.metadata?.key || selectedItem.id}
+                  />
+                </div>
+              )}
+
+              {selectedItem.type === 'workspace' && (
+                <div className="grid gap-1">
+                  <label className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Environment Type</label>
+                  <select className="w-full bg-background border rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-primary">
+                    <option>Production</option>
+                    <option>Staging</option>
+                    <option>Development</option>
+                  </select>
+                </div>
+              )}
+
               <div className="grid gap-1">
-                <label className="text-[10px] text-muted-foreground font-medium uppercase">Description</label>
+                <label className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Description</label>
                 <textarea
                   className="w-full bg-background border rounded px-2 py-1 text-sm focus:ring-1 focus:ring-primary outline-none min-h-20 resize-none"
                   placeholder={`Descreva este(a) ${selectedItem.type || 'elemento'}...`}

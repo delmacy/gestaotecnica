@@ -4,8 +4,9 @@ import { useState } from "react";
 import { BuilderExplorer, TreeItem } from "@/components/builder/explorer";
 import { BuilderCanvas } from "@/components/builder/canvas";
 import { BuilderInspector } from "@/components/builder/inspector";
+import { BuilderTimeline, TimelineEntry } from "@/components/builder/timeline/platform-timeline";
 import { executeKernelAction } from "@/platform/actions/remote-actions";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2, ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] }) {
@@ -13,6 +14,20 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
   const [treeData, setTreeData] = useState<TreeItem[]>(initialTreeData);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
+  const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [timelineEntries, setTimelineEntries] = useState<TimelineEntry[]>([
+    { id: "1", type: "system", title: "Builder Session Initialized", timestamp: "Agora", payload: { user: "Architect", mode: "IDE" } },
+    { id: "2", type: "action", title: "Organization Context Loaded", timestamp: "1m atrás", payload: { org: "Acme Holding" } },
+  ]);
+
+  const addTimelineEntry = (entry: Omit<TimelineEntry, "id" | "timestamp">) => {
+    const newEntry: TimelineEntry = {
+      ...entry,
+      id: Date.now().toString(),
+      timestamp: "Agora"
+    };
+    setTimelineEntries(prev => [newEntry, ...prev].slice(0, 50));
+  };
 
   const removeItem = (id: string) => {
     const filterItems = (items: TreeItem[]): TreeItem[] => {
@@ -36,22 +51,47 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
 
       const result = await executeKernelAction("organizations.create", { key, name: label });
       if (result.success) {
-        const newItem: TreeItem = { id: (result.data as any).id, label, type: "organization", iconName: "Building2" };
+        addTimelineEntry({ type: "audit", title: `Created Organization: ${label}`, payload: { key, result: "SUCCESS" } });
+        const newItem: TreeItem = {
+          id: (result.data as any).id,
+          label,
+          type: "organization",
+          iconName: "Building2",
+          children: [
+            { id: "groups-" + (result.data as any).id, label: "Estruturas e Grupos", type: "group", iconName: "Folder", children: [] },
+            { id: "workspaces-" + (result.data as any).id, label: "Ambientes (Workspaces)", type: "group", iconName: "Globe", children: [] }
+          ]
+        };
         setTreeData(addRecursive(treeData, parentId, newItem));
         setSelectedItem(newItem);
       }
       return;
     }
 
-    if (parent?.type === 'organization') {
+    if (parent?.type === 'organization' || parentId.startsWith('workspaces-')) {
+        const orgId = parent?.type === 'organization' ? parentId : parentId.replace('workspaces-', '');
         const key = "ws-" + Date.now();
         const label = "Novo Workspace";
-        const result = await executeKernelAction("workspaces.create", { organizationId: parentId, key, name: label });
+        const result = await executeKernelAction("workspaces.create", { organizationId: orgId, key, name: label });
         if (result.success) {
+          addTimelineEntry({ type: "audit", title: `Provisioned Workspace: ${label}`, payload: { orgId, key } });
           const newItem: TreeItem = { id: (result.data as any).id, label, type: "workspace", iconName: "Globe" };
           setTreeData(addRecursive(treeData, parentId, newItem));
           setSelectedItem(newItem);
         }
+        return;
+    }
+
+    if (parent?.type === 'group' || parent?.type === 'subgroup') {
+        const newItem: TreeItem = {
+          id: "grp-" + Date.now(),
+          label: parent?.type === 'group' ? "Subgrupo" : "Novo Agrupamento",
+          type: "subgroup",
+          iconName: "Folder",
+          children: []
+        };
+        setTreeData(addRecursive(treeData, parentId, newItem));
+        setSelectedItem(newItem);
         return;
     }
 
@@ -101,6 +141,11 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
     });
 
     if (result.success) {
+      addTimelineEntry({
+        type: "action",
+        title: `Capability Installed: ${capability.label}`,
+        payload: { workspaceId: targetWorkspaceId, capability: capability.metadata?.key }
+      });
       const addRecursiveItems = (items: TreeItem[]): TreeItem[] => {
         return items.map(item => {
           if (item.id === "caps-acme") {
@@ -149,11 +194,13 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
   const handlePublish = async () => {
     setIsPublishing(true);
     try {
+      addTimelineEntry({ type: "system", title: "Publishing architectural changes...", payload: { target: "workspace-acme-prod" } });
       // For demo, publish acme production workspace
       const result = await executeKernelAction("workspaces.publish", {
         workspaceId: "workspace-acme-prod"
       });
       if (result.success) {
+        addTimelineEntry({ type: "system", title: "SUCCESS: Changes published to Runtime", payload: { status: "ACTIVE" } });
         setPublishSuccess(true);
         setTimeout(() => setPublishSuccess(false), 5000);
       }
@@ -199,20 +246,56 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <BuilderExplorer
-          treeData={treeData}
-          selectedId={selectedItem?.id}
-          onSelect={(item) => setSelectedItem(item)}
-          onRemove={removeItem}
-          onAdd={addItem}
-        />
-        <BuilderCanvas activeItem={selectedItem} />
-        <BuilderInspector
-          selectedItem={selectedItem}
-          onUpdate={updateItem}
-          onActivate={activateCapability}
-        />
+      <div className="flex flex-1 overflow-hidden relative">
+        <div className="flex flex-1 overflow-hidden">
+          <BuilderExplorer
+            treeData={treeData}
+            selectedId={selectedItem?.id}
+            onSelect={(item) => setSelectedItem(item)}
+            onRemove={removeItem}
+            onAdd={addItem}
+          />
+          <div className="flex-1 flex flex-col overflow-hidden relative">
+            <BuilderCanvas activeItem={selectedItem} />
+
+            {/* Timeline Panel */}
+            <div className={cn(
+              "absolute bottom-0 left-0 right-0 bg-background transition-all duration-300 ease-in-out border-t z-10",
+              timelineExpanded ? "h-1/3" : "h-8"
+            )}>
+              {!timelineExpanded ? (
+                <div
+                  className="h-full flex items-center justify-between px-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => setTimelineExpanded(true)}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="size-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Timeline Live</span>
+                  </div>
+                  <ChevronUp className="size-3 text-muted-foreground" />
+                </div>
+              ) : (
+                <div className="h-full flex flex-col">
+                  <div
+                    className="h-8 flex items-center justify-between px-4 border-b shrink-0 cursor-pointer bg-muted/20"
+                    onClick={() => setTimelineExpanded(false)}
+                  >
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground">Operational Memory</span>
+                    <ChevronDown className="size-3 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <BuilderTimeline entries={timelineEntries} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <BuilderInspector
+            selectedItem={selectedItem}
+            onUpdate={updateItem}
+            onActivate={activateCapability}
+          />
+        </div>
       </div>
     </div>
   );

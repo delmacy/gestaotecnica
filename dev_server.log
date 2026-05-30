@@ -1,0 +1,48 @@
+
+> gestaotecnica@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by an unknown process, using available port 3001 instead.
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         ht⨯ Error: PLATFORM_DATABASE_URL or DATABASE_URL is required.
+    at getPlatformDb (src/db/index.ts:38:13)
+    at module evaluation (src/db/index.ts:76:27)
+    at module evaluation (src/platform/registry/infra/registry.queries.ts:1:1)
+    at module evaluation (src/app/(builder)/builder/page.tsx:2:1)
+    at module evaluation (.next/dev/server/chunks/ssr/[root-of-the-server]__0d4~6ud._.js:266:47)
+  36 |
+  37 |     if (!databaseUrl) {
+> 38 |       throw new Error("PLATFORM_DATABASE_URL or DATABASE_URL is required.");
+     |             ^
+  39 |     }
+  40 |
+  41 |     platformClient = postgres(databaseUrl, {
+⨯ Error: PLATFORM_DATABASE_URL or DATABASE_URL is required.
+    at getPlatformDb (src/db/index.ts:38:13)
+    at module evaluation (src/db/index.ts:76:27)
+    at module evaluation (src/platform/registry/infra/registry.queries.ts:1:1)
+    at module evaluation (src/app/(builder)/builder/page.tsx:2:1)
+    at module evaluation (.next/dev/server/chunks/ssr/[root-of-the-server]__0d4~6ud._.js:266:47)
+  36 |
+  37 |     if (!databaseUrl) {
+> 38 |       throw new Error("PLATFORM_DATABASE_URL or DATABASE_URL is required.");
+     |             ^
+  39 |     }
+  40 |
+  41 |     platformClient = postgres(databaseUrl, { {
+  page: '/builder'
+}
+ GET /builder 500 in 2.1s (next.js: 1864ms, application-code: 280ms)
+[browser] Uncaught Error: PLATFORM_DATABASE_URL or DATABASE_URL is required.
+    at getPlatformDb (src/db/index.ts:38:13)
+    at module evaluation (src/db/index.ts:76:27)
+    at module evaluation (src/platform/registry/infra/registry.queries.ts:1:1)
+    at module evaluation (src/app/(builder)/builder/page.tsx:2:1)
+    at module evaluation (src/app/(builder)/builder/page.tsx:111:1)
+  36 |
+  37 |     if (!databaseUrl) {
+> 38 |       throw new Error("PLATFORM_DATABASE_URL or DATABASE_URL is required.");
+     |             ^
+  39 |     }
+  40 |
+  41 |     platformClient = postgres(databaseUrl, {

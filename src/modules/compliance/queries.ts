@@ -7,12 +7,6 @@ import {
   teams,
 } from "@/db/schema";
 
-export type ComplianceOptions = {
-  audits: Array<{ id: string; title: string }>;
-  teams: Array<{ id: string; name: string }>;
-  assets: Array<{ id: string; code: string; name: string }>;
-};
-
 export async function getComplianceAudits() {
   const db = getDb();
   return db.select({
@@ -65,7 +59,7 @@ export async function getComplianceSummary() {
   ];
 }
 
-export async function getComplianceOptions(): Promise<ComplianceOptions> {
+export async function getComplianceOptions() {
   const db = getDb();
   const [auditRows, teamRows, assetRows] = await Promise.all([
     db.select({ id: complianceAudits.id, title: complianceAudits.title }).from(complianceAudits).orderBy(desc(complianceAudits.createdAt)).limit(80),

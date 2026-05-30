@@ -41,7 +41,7 @@ export const serviceOrderTargetTypes = [
   { value: "other", label: "Outro" },
 ] as const;
 
-export const serviceOrderTypes = activeAdaptation.serviceOrderTypes.map((type) => ({
+export const serviceOrderTypes = activeAdaptation.serviceOrderTypes.map((type: any) => ({
   value: type.key,
   label: type.label,
 }));

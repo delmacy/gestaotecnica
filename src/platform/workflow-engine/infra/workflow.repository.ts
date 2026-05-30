@@ -9,9 +9,6 @@ import {
 } from "@/db/runtime/schema/workflow";
 import { eq, and } from "drizzle-orm";
 
-type TransitionRow = typeof transitions.$inferSelect;
-type ActionRow = typeof actions.$inferSelect;
-
 export class WorkflowRepository {
   async createInstance(data: {
     workspaceId: string;
@@ -99,7 +96,7 @@ export class WorkflowRepository {
     if (!instance || !instance.currentStateId) return [];
 
     // Find transitions from current state
-    const availableTransitions: TransitionRow[] = await runtimeDb
+    const availableTransitions = await runtimeDb
       .select()
       .from(transitions)
       .where(
@@ -114,7 +111,7 @@ export class WorkflowRepository {
     const transitionIds = availableTransitions.map(t => t.id);
 
     // Get actions for those transitions
-    const allActions: ActionRow[] = await runtimeDb
+    const allActions = await runtimeDb
       .select()
       .from(actions)
       .where(eq(actions.processVersionId, instance.processVersionId));

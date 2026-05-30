@@ -92,7 +92,7 @@ export function LabClient({ type, workspaceId, versionId, instanceId, fields }: 
       >
         <DynamicFormRenderer
           fields={fields}
-          onSubmit={async (data) => {
+          onSubmit={async (data: any) => {
             setLoading(true);
             await executeLabAction(workspaceId, instanceId, "submit_request", data);
             setLoading(false);

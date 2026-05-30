@@ -1,8 +1,9 @@
 import { createAcquisitionNeed, createMaintenancePlan, createTechnicalProject } from "./actions";
 import { acquisitionStatuses, planningStatuses, priorities } from "./constants";
-import type { StrategyOptions } from "./queries";
 
-function Selects({ options }: { options: StrategyOptions }) {
+type Options = Awaited<ReturnType<typeof import("./queries").getStrategyOptions>>;
+
+function Selects({ options }: { options: Options }) {
   return {
     asset: (
       <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="assetId" defaultValue="">
@@ -13,7 +14,7 @@ function Selects({ options }: { options: StrategyOptions }) {
   };
 }
 
-export function MaintenancePlanForm({ options }: { options: StrategyOptions }) {
+export function MaintenancePlanForm({ options }: { options: Options }) {
   const selects = Selects({ options });
   return (
     <form action={createMaintenancePlan} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
@@ -37,7 +38,7 @@ export function MaintenancePlanForm({ options }: { options: StrategyOptions }) {
   );
 }
 
-export function TechnicalProjectForm({ options }: { options: StrategyOptions }) {
+export function TechnicalProjectForm({ options }: { options: Options }) {
   const selects = Selects({ options });
   return (
     <form action={createTechnicalProject} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
@@ -63,7 +64,7 @@ export function TechnicalProjectForm({ options }: { options: StrategyOptions }) 
   );
 }
 
-export function AcquisitionNeedForm({ options }: { options: StrategyOptions }) {
+export function AcquisitionNeedForm({ options }: { options: Options }) {
   const selects = Selects({ options });
   return (
     <form action={createAcquisitionNeed} className="border border-[#d7dccf] bg-white p-5 shadow-sm">

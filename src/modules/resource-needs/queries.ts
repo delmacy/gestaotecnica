@@ -8,13 +8,6 @@ import {
   technicalProjects,
 } from "@/db/schema";
 
-export type ResourceNeedOptions = {
-  assets: Array<{ id: string; code: string; name: string }>;
-  teams: Array<{ id: string; name: string }>;
-  projects: Array<{ id: string; title: string }>;
-  acquisitions: Array<{ id: string; title: string }>;
-};
-
 export async function getResourceNeeds() {
   const db = getDb();
   return db.select({
@@ -51,7 +44,7 @@ export async function getResourceNeedsSummary() {
   ];
 }
 
-export async function getResourceNeedOptions(): Promise<ResourceNeedOptions> {
+export async function getResourceNeedOptions() {
   const db = getDb();
   const [assetRows, teamRows, projectRows, acquisitionRows] = await Promise.all([
     db.select({ id: assets.id, code: assets.code, name: assets.name }).from(assets).orderBy(desc(assets.createdAt)).limit(50),

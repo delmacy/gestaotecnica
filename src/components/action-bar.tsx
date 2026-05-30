@@ -43,7 +43,7 @@ export function ActionBar({ actions, entityId, path }: ActionBarProps) {
   return (
     <div className="flex flex-wrap gap-2 border border-[#d7dccf] bg-white p-4 shadow-sm">
       <h3 className="w-full mb-2 text-xs font-mono uppercase text-[#6e7a66]">Ações Disponíveis</h3>
-      {actions.map((action) => (
+      {actions.map((action: any) => (
         <Button
           key={action.key}
           variant="outline"

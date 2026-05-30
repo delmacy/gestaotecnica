@@ -1,0 +1,33 @@
+blueprint:
+  key: technical-operations
+  name: Operações Técnicas
+  version: 0.1.0
+  description: Blueprint base para gestão de manutenção, ativos e ordens de serviço.
+
+capabilities:
+  - key: demand-management
+    name: Gestão de Demandas
+  - key: operational-execution
+    name: Execução Operacional
+
+processes:
+  - key: maintenance-workflow
+    name: Fluxo de Manutenção
+    states:
+      - key: open
+        name: Aberta
+        initial: true
+      - key: in-progress
+        name: Em Execução
+      - key: completed
+        name: Concluída
+        final: true
+    transitions:
+      - key: start
+        from: open
+        to: in-progress
+        name: Iniciar Manutenção
+      - key: finish
+        from: in-progress
+        to: completed
+        name: Concluir

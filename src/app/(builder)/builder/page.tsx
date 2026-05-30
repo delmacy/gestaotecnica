@@ -7,60 +7,90 @@ export const dynamic = "force-dynamic";
 export default async function BuilderPage() {
   const capabilities = await getCapabilityCatalog();
 
-  // Combine Static Ecosystem with DB Registry
-  // Pass strings for icons to satisfy Server-Client boundary serialization
   const mappedCapabilities = ecosystemModules.map(mod => ({
     id: "mod-" + mod.key,
     label: mod.name,
     type: "capability" as const,
-    metadata: mod,
-    children: [
-      { id: "mod-" + mod.key + "-actions", label: "Ações", type: "group" as const, iconName: "Zap" },
-      { id: "mod-" + mod.key + "-flows", label: "Fluxos", type: "group" as const, iconName: "Workflow" },
-      { id: "mod-" + mod.key + "-events", label: "Eventos", type: "group" as const, iconName: "History" },
-    ]
+    iconName: "Layers",
+    metadata: {
+      ...mod,
+      modules: [mod.key],
+      entities: [mod.key + "_record"],
+      actions: ["create", "update", "delete"],
+      events: [mod.key + ".created", mod.key + ".updated"],
+    }
   }));
 
   const dbCapabilities = (capabilities || []).map((cap: any) => ({
     id: "registry-" + cap.id,
     label: cap.name,
     type: "catalog_item" as const,
-    metadata: cap,
+    iconName: "Library",
+    metadata: {
+      ...cap,
+      modules: [cap.key],
+      entities: ["custom_entity"],
+      actions: ["trigger", "notify"],
+      events: ["event.fired"]
+    },
   }));
 
-  const initialTreeData = [
+  const initialTreeData: any[] = [
     {
       id: "orgs",
       label: "Organizações",
       iconName: "Building2",
-      type: "group" as const,
+      type: "group",
       children: [
         {
           id: "org-acme",
           label: "Acme Holding",
-          type: "organization" as const,
+          type: "organization",
+          iconName: "Building2",
           children: [
             {
               id: "workspace-acme-prod",
               label: "Produção Brasil",
-              type: "workspace" as const,
+              type: "workspace",
+              iconName: "Globe",
               children: [
+                { id: "users-acme", label: "Usuários", type: "users", iconName: "Users" },
+                { id: "roles-acme", label: "Papéis (Roles)", type: "roles", iconName: "ShieldCheck" },
+                { id: "ints-acme", label: "Integrações", type: "integrations", iconName: "Zap" },
                 {
-                  id: "capabilities-acme",
-                  label: "Capacidades Ativas",
-                  iconName: "Box",
-                  type: "group" as const,
+                  id: "caps-acme",
+                  label: "Capacidades Instaladas",
+                  type: "group",
+                  iconName: "Layers",
                   children: mappedCapabilities.slice(0, 3)
                 },
                 {
-                  id: "processes-acme",
-                  label: "Processos",
+                  id: "procs-acme",
+                  label: "Processos de Negócio",
+                  type: "group",
                   iconName: "Workflow",
-                  type: "group" as const,
                   children: [
-                    { id: "proc-buy", label: "Aprovação de Compra", type: "process" as const },
+                    { id: "proc-demand", label: "Atendimento de Demanda", type: "process", iconName: "Workflow" },
                   ]
                 },
+                {
+                  id: "flows-acme",
+                  label: "Automações (Flows)",
+                  type: "group",
+                  iconName: "Zap",
+                  children: [
+                    { id: "flow-auto-os", label: "Auto-geração de OS", type: "flow", iconName: "Zap" },
+                  ]
+                },
+                {
+                  id: "views-acme",
+                  label: "Telas e Views",
+                  type: "group",
+                  iconName: "Layout",
+                  children: [
+                    { id: "view-board", label: "Quadro Operacional", type: "view", iconName: "Layout" },
+                  ]
+                }
               ]
             }
           ]
@@ -69,22 +99,10 @@ export default async function BuilderPage() {
     },
     {
       id: "catalog",
-      label: "Catálogo de Capacidades",
+      label: "Capability Registry",
       iconName: "Library",
-      type: "group" as const,
-      children: [
-        ...mappedCapabilities.map(cap => ({ ...cap, type: "catalog_item" as const, children: undefined })),
-        ...dbCapabilities
-      ]
-    },
-    {
-      id: "templates",
-      label: "Templates de Sistema",
-      iconName: "LayoutTemplate",
-      type: "group" as const,
-      children: [
-        { id: "tmpl-base", label: "Base Template", type: "template" as const },
-      ]
+      type: "group",
+      children: dbCapabilities
     }
   ];
 

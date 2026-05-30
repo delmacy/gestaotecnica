@@ -17,7 +17,12 @@ import {
   Plus,
   History,
   Library,
-  LayoutTemplate
+  LayoutTemplate,
+  Users,
+  ShieldCheck,
+  Globe,
+  Layout,
+  Layers
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +32,19 @@ export type TreeItem = {
   iconName?: string;
   icon?: any;
   children?: TreeItem[];
-  type?: "organization" | "workspace" | "capability" | "process" | "blueprint" | "action" | "group" | "template" | "catalog_item";
+  type?:
+    | "organization"
+    | "workspace"
+    | "users"
+    | "roles"
+    | "integrations"
+    | "capability"
+    | "process"
+    | "flow"
+    | "view"
+    | "template"
+    | "group"
+    | "catalog_item";
   metadata?: any;
 };
 
@@ -40,7 +57,12 @@ const IconMap: Record<string, any> = {
   Zap,
   History,
   Folder,
-  FileText
+  FileText,
+  Users,
+  ShieldCheck,
+  Globe,
+  Layout,
+  Layers
 };
 
 function TreeItemNode({ item, level = 0, onSelect, selectedId, onRemove, onAdd }: {
@@ -51,7 +73,7 @@ function TreeItemNode({ item, level = 0, onSelect, selectedId, onRemove, onAdd }
   onRemove?: (id: string) => void;
   onAdd?: (parentId: string) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(level < 2);
+  const [isOpen, setIsOpen] = useState(level < 1);
   const hasChildren = item.children && item.children.length > 0;
 
   const Icon = (item.iconName && IconMap[item.iconName]) || item.icon || (hasChildren ? Folder : FileText);
@@ -82,13 +104,13 @@ function TreeItemNode({ item, level = 0, onSelect, selectedId, onRemove, onAdd }
 
         {/* Inline Actions */}
         <div className="hidden group-hover:flex items-center gap-1">
-          {onAdd && (item.type === 'group' || item.type === 'workspace') && (
+          {onAdd && (item.type === 'group' || item.type === 'workspace' || item.type === 'organization') && (
             <Plus
               className="size-3 text-muted-foreground hover:text-primary action-add"
               onClick={(e) => { e.stopPropagation(); onAdd(item.id); }}
             />
           )}
-          {onRemove && item.type !== 'group' && (
+          {onRemove && (item.type !== 'group' && item.type !== 'users' && item.type !== 'roles') && (
             <Trash2
               className="size-3 text-muted-foreground hover:text-destructive action-remove"
               onClick={(e) => { e.stopPropagation(); onRemove(item.id); }}
@@ -97,7 +119,7 @@ function TreeItemNode({ item, level = 0, onSelect, selectedId, onRemove, onAdd }
         </div>
       </div>
       {hasChildren && isOpen && (
-        <div className="mt-0.5">
+        <div className="mt-0.5 border-l ml-[15px] pl-[5px]">
           {item.children!.map(child => (
             <TreeItemNode
               key={child.id}
@@ -125,7 +147,7 @@ export function BuilderExplorer({ onSelect, selectedId, treeData, onRemove, onAd
   return (
     <aside className="w-72 border-r bg-card/50 flex flex-col shrink-0">
       <div className="h-10 flex items-center justify-between px-4 border-b shrink-0 bg-muted/20">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Platform Explorer</span>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">System Assembler</span>
         <div className="flex items-center gap-1">
           <div className="p-1 hover:bg-muted rounded cursor-pointer transition-colors" title="Duplicate selection">
             <Copy className="size-3 text-muted-foreground" />
@@ -141,7 +163,7 @@ export function BuilderExplorer({ onSelect, selectedId, treeData, onRemove, onAd
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             type="text"
-            placeholder="Search architecture..."
+            placeholder="Search organizational model..."
             className="w-full bg-background border rounded-md py-1.5 pl-7 pr-2 text-xs outline-none focus:ring-1 focus:ring-primary transition-all shadow-sm"
           />
         </div>
@@ -149,7 +171,7 @@ export function BuilderExplorer({ onSelect, selectedId, treeData, onRemove, onAd
 
       <div className="flex-1 overflow-y-auto p-2">
         {treeData.map(item => (
-          <div key={item.id} className="mb-4">
+          <div key={item.id} className="mb-2">
              <TreeItemNode
               item={item}
               onSelect={onSelect}

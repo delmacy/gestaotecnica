@@ -1,274 +1,24 @@
 "use client";
 
-import React, { useCallback, useEffect } from 'react';
-import {
-  ReactFlow,
-  MiniMap,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  Handle,
-  Position,
-  type NodeProps,
-  type Edge,
-  type Node,
-  Panel,
-  BackgroundVariant,
-  type NodeTypes,
-  ReactFlowProvider,
-  useReactFlow,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import { cn } from "@/lib/utils";
-import { Circle, Play, Box, Database, Save, Zap, Loader2, Trash2 } from "lucide-react";
-import { executeKernelAction } from "@/platform/actions/remote-actions";
-
-// --- Custom Node Types ---
-
-type BuilderNodeData = {
-  label: string;
-  type: "state" | "trigger" | "action";
-};
-
-const BuilderNode = ({ data, selected }: NodeProps<Node<BuilderNodeData>>) => {
-  const type = data.type;
-  return (
-    <div className={cn(
-      "size-40 bg-white border-2 rounded-xl shadow-sm p-4 flex flex-col justify-between transition-all group",
-      selected ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/50",
-      type === 'trigger' && "border-amber-200 bg-amber-50/30",
-      type === 'state' && "border-blue-100",
-      type === 'action' && "border-emerald-100 bg-emerald-50/10"
-    )}>
-      <Handle type="target" position={Position.Left} className="!size-2 !bg-primary/30" />
-
-      <div className="flex items-start justify-between">
-        <div className={cn(
-          "size-8 rounded-lg flex items-center justify-center",
-          type === 'trigger' ? "bg-amber-100 text-amber-700" :
-          type === 'action' ? "bg-emerald-100 text-emerald-700" :
-          "bg-blue-50 text-blue-600"
-        )}>
-          {type === 'trigger' ? <Play className="size-4" /> : type === 'action' ? <Zap className="size-4" /> : <Circle className="size-4" />}
-        </div>
-      </div>
-
-      <div>
-        <div className="text-[10px] font-mono text-muted-foreground uppercase">{type}</div>
-        <div className="text-sm font-bold text-foreground leading-tight mt-0.5">{data.label}</div>
-      </div>
-
-      <Handle type="source" position={Position.Right} className="!size-2 !bg-primary/30" />
-    </div>
-  );
-};
-
-const nodeTypes: NodeTypes = {
-  builder: BuilderNode,
-};
-
-// --- Mock Data ---
-
-const initialNodes: Node<BuilderNodeData>[] = [
-  { id: 'start', type: 'builder', position: { x: 50, y: 50 }, data: { label: 'Trigger: Nova Demanda', type: 'trigger' } },
-  { id: 'draft', type: 'builder', position: { x: 300, y: 50 }, data: { label: 'Rascunho', type: 'state' } },
-  { id: 'review', type: 'builder', position: { x: 550, y: 50 }, data: { label: 'Em Revisão', type: 'state' } },
-  { id: 'active', type: 'builder', position: { x: 800, y: 50 }, data: { label: 'Ativa', type: 'state' } },
-];
-
-const initialEdges: Edge[] = [
-  { id: 'e1-2', source: 'start', target: 'draft', animated: true },
-  { id: 'e2-3', source: 'draft', target: 'review' },
-  { id: 'e3-4', source: 'review', target: 'active' },
-];
-
-function FlowCanvas({ activeItem }: { activeItem: any }) {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [isSaving, setIsSaving] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const { fitView, deleteElements } = useReactFlow();
-
-  // Load blueprint on item selection
-  useEffect(() => {
-    async function loadBlueprint() {
-      if (!activeItem?.id) return;
-
-      setIsLoading(true);
-      try {
-        const result = await executeKernelAction("blueprints.get_latest", {
-          blueprintKey: activeItem.metadata?.key || activeItem.id
-        });
-
-        if (result.success && result.data && (result.data as any).nodes) {
-          const data = result.data as any;
-          setNodes(data.nodes);
-          setEdges(data.edges || []);
-          setTimeout(() => fitView(), 100);
-        } else {
-          setNodes(initialNodes);
-          setEdges(initialEdges);
-        }
-      } catch (e) {
-        console.error("Error loading blueprint", e);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadBlueprint();
-  }, [activeItem?.id, setNodes, setEdges, fitView, activeItem.metadata?.key]);
-
-  const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges],
-  );
-
-  const onSave = async () => {
-    setIsSaving(true);
-    try {
-      const result = await executeKernelAction("blueprints.save_draft", {
-        blueprintKey: activeItem.metadata?.key || activeItem.id,
-        blueprintName: activeItem.label,
-        definition: { nodes, edges }
-      });
-
-      if (result.success) {
-        alert(`Arquitetura do componente "${activeItem.label}" salva no banco de dados!`);
-      } else {
-        alert("Erro ao salvar: " + (result.error?.message || "Erro desconhecido"));
-      }
-    } catch (e) {
-      alert("Falha técnica ao tentar salvar no Registry.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const addNode = (type: "state" | "trigger" | "action") => {
-    const id = `node-${Date.now()}`;
-    const newNode: Node<BuilderNodeData> = {
-      id,
-      type: 'builder',
-      position: { x: 400 + (Math.random() * 100), y: 200 + (Math.random() * 100) },
-      data: {
-        label: type === 'trigger' ? 'Novo Gatilho' : type === 'action' ? 'Nova Ação' : 'Novo Estado',
-        type
-      },
-    };
-    setNodes((nds) => nds.concat(newNode));
-  };
-
-  const removeSelected = () => {
-    const selectedNodes = nodes.filter(n => n.selected);
-    const selectedEdges = edges.filter(e => e.selected);
-    deleteElements({ nodes: selectedNodes, edges: selectedEdges });
-  };
-
-  return (
-    <div className="flex-1 bg-[#f8f9fa] relative overflow-hidden flex flex-col">
-      <div className="h-10 flex items-center justify-between px-6 border-b bg-white shrink-0 z-10">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-muted-foreground">Editor:</span>
-          <span className="text-xs font-bold text-foreground uppercase tracking-tight">{activeItem.label}</span>
-          {isLoading && <Loader2 className="size-3 animate-spin text-muted-foreground ml-2" />}
-        </div>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onSave}
-            disabled={isSaving}
-            className={cn(
-              "text-[10px] font-bold uppercase flex items-center gap-1.5 transition-colors",
-              isSaving ? "text-muted-foreground cursor-not-allowed" : "text-muted-foreground hover:text-primary"
-            )}
-            data-testid="btn-save-architecture"
-          >
-            {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
-            {isSaving ? "Saving..." : "Save to Registry"}
-          </button>
-          <button className="text-[10px] font-bold uppercase text-muted-foreground hover:text-foreground transition-colors">Preview</button>
-          <button className="text-[10px] font-bold uppercase text-primary transition-all hover:scale-105">Publish</button>
-        </div>
-      </div>
-
-      <div className="flex-1 relative">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          fitView
-          className="bg-muted/5"
-        >
-          <Background variant={BackgroundVariant.Lines} gap={40} size={1} color="#e5e7eb" />
-          <Controls position="bottom-right" />
-          <MiniMap position="bottom-left" zoomable pannable />
-
-          <Panel position="top-right" className="bg-white/90 backdrop-blur-sm border rounded-lg p-2 flex flex-col gap-1 shadow-md">
-             <button
-               onClick={() => addNode('trigger')}
-               className="text-[10px] font-bold uppercase px-3 py-1.5 hover:bg-amber-50 hover:text-amber-700 rounded text-left flex items-center gap-2 transition-colors"
-               data-testid="btn-add-trigger"
-             >
-               <Play className="size-3" />
-               + Add Trigger
-             </button>
-             <button
-               onClick={() => addNode('state')}
-               className="text-[10px] font-bold uppercase px-3 py-1.5 hover:bg-blue-50 hover:text-blue-700 rounded text-left flex items-center gap-2 transition-colors"
-               data-testid="btn-add-state"
-             >
-               <Circle className="size-3" />
-               + Add State
-             </button>
-             <button
-               onClick={() => addNode('action')}
-               className="text-[10px] font-bold uppercase px-3 py-1.5 hover:bg-emerald-50 hover:text-emerald-700 rounded text-left flex items-center gap-2 transition-colors"
-               data-testid="btn-add-action"
-             >
-               <Zap className="size-3" />
-               + Add Action
-             </button>
-             <div className="h-px bg-border my-1" />
-             <button
-               onClick={removeSelected}
-               className="text-[10px] font-bold uppercase px-3 py-1.5 hover:bg-destructive/10 hover:text-destructive rounded text-left flex items-center gap-2 transition-colors"
-               data-testid="btn-remove-selected"
-             >
-               <Trash2 className="size-3" />
-               Delete Selected
-             </button>
-          </Panel>
-        </ReactFlow>
-      </div>
-
-      <div className="h-8 border-t bg-white flex items-center px-4 shrink-0 text-[10px] text-muted-foreground font-mono gap-4 z-10">
-        <div className="flex items-center gap-1.5">
-          <Database className="size-3" />
-          REGISTRY_SYNC: {activeItem.metadata?.key ? "CONNECTED" : "LOCAL_DRAFT"}
-        </div>
-        <div>NODES: {nodes.length}</div>
-        <div>EDGES: {edges.length}</div>
-        <div className="ml-auto text-primary animate-pulse uppercase">Architect Session Active</div>
-      </div>
-    </div>
-  );
-}
+import React from 'react';
+import { ReactFlowProvider } from '@xyflow/react';
+import { ProcessBuilder } from './specialized/process-builder';
+import { FlowBuilder } from './specialized/flow-builder';
+import { OrganizationBuilder } from './specialized/organization-builder';
+import { CapabilityBuilder } from './specialized/capability-builder';
+import { ViewBuilder } from './specialized/view-builder';
+import { Box, Database } from "lucide-react";
 
 export function BuilderCanvas({ activeItem }: { activeItem: any }) {
-  if (!activeItem || (activeItem.type !== 'process' && activeItem.type !== 'capability' && activeItem.type !== 'catalog_item')) {
+  if (!activeItem) {
     return (
       <div className="flex-1 bg-[#f8f9fa] relative overflow-hidden flex flex-col items-center justify-center text-center p-12">
         <div className="size-24 rounded-full bg-white border shadow-sm flex items-center justify-center mb-6">
           <Box className="size-10 text-muted-foreground/30" />
         </div>
-        <h2 className="text-xl font-semibold text-foreground/80">Architecture Canvas</h2>
+        <h2 className="text-xl font-semibold text-foreground/80">System Assembler Canvas</h2>
         <p className="text-muted-foreground max-w-md mt-2">
-          Selecione um processo ou capacidade no Explorer para visualizar sua estrutura organizacional e fluxos operacionais.
+          Selecione uma organização, capacidade ou processo no Explorer para iniciar a composição arquitetural.
         </p>
         <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
              style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
@@ -276,9 +26,51 @@ export function BuilderCanvas({ activeItem }: { activeItem: any }) {
     );
   }
 
+  // Switch between specialized builders
+  const renderSpecializedBuilder = () => {
+    switch (activeItem.type) {
+      case 'organization':
+      case 'workspace':
+      case 'users':
+      case 'roles':
+      case 'integrations':
+        return <OrganizationBuilder activeItem={activeItem} />;
+
+      case 'capability':
+      case 'catalog_item':
+        return <CapabilityBuilder activeItem={activeItem} />;
+
+      case 'process':
+        return (
+          <ReactFlowProvider>
+            <ProcessBuilder activeItem={activeItem} />
+          </ReactFlowProvider>
+        );
+
+      case 'flow':
+        return (
+          <ReactFlowProvider>
+            <FlowBuilder activeItem={activeItem} />
+          </ReactFlowProvider>
+        );
+
+      case 'view':
+        return <ViewBuilder activeItem={activeItem} />;
+
+      default:
+        return (
+          <div className="flex-1 flex flex-col items-center justify-center p-12">
+             <Database className="size-12 text-muted-foreground/20 mb-4" />
+             <h3 className="font-bold text-lg">Entidade Genérica</h3>
+             <p className="text-sm text-muted-foreground">ID: {activeItem.id} | Tipo: {activeItem.type}</p>
+          </div>
+        );
+    }
+  };
+
   return (
-    <ReactFlowProvider>
-      <FlowCanvas activeItem={activeItem} />
-    </ReactFlowProvider>
+    <div className="flex-1 bg-white relative overflow-hidden flex flex-col">
+       {renderSpecializedBuilder()}
+    </div>
   );
 }

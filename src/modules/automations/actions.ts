@@ -1,14 +1,15 @@
 "use server";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import {
   automationRunLogs,
   automationRuns,
   automationRules,
-  eventLogs,
+
 } from "@/db/schema";
 import { automationStatuses, type AutomationStatusValue } from "./constants";
 
@@ -46,7 +47,7 @@ export async function createAutomationRule(formData: FormData) {
     automationStatuses,
     "draft",
   );
-  const db = getDb();
+  const db = getRuntimeDb();
 
   const [rule] = await db.insert(automationRules).values({
     name,

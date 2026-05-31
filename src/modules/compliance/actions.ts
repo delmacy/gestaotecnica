@@ -1,10 +1,13 @@
 "use server";
 
+import { complianceFindings } from "@/db/schema";
+import { complianceAudits } from "@/db/schema";
+
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
-import { complianceAudits, complianceFindings, eventLogs } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import {
   auditStatuses,
   findingSeverities,
@@ -49,7 +52,7 @@ export async function createComplianceAudit(formData: FormData) {
   const title = readRequiredText(formData, "title");
   const status = readEnum<AuditStatusValue>(formData, "status", auditStatuses, "planned");
   const priority = readEnum<PriorityValue>(formData, "priority", priorities, "medium");
-  const db = getDb();
+  const db = getRuntimeDb();
   const [audit] = await db.insert(complianceAudits).values({
     title,
     status,

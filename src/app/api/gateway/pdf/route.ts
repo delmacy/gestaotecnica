@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getDb } from "@/db";
-import { eventLogs, integrationWebhookEvents } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { integrationWebhookEvents } from "@/db/schema";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { validateGatewayRequest } from "@/platform/integrations/auth";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
   if (authError) return authError;
 
   const body = (await request.json().catch(() => ({}))) as PdfRequestBody;
-  const db = getDb();
+  const db = getRuntimeDb();
   const payload = {
     provider: body.provider ?? "internal",
     templateKey: body.templateKey,

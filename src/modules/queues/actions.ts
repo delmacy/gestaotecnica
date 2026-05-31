@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { queueItems, slaPolicies } from "@/db/schema";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 

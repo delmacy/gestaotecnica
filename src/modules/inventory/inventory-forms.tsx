@@ -1,3 +1,4 @@
+import { suppliers } from "@/db/schema";
 import { createInventoryItem, createInventoryMovement } from "./actions";
 import { inventoryItemStatuses, inventoryMovementTypes } from "./constants";
 import type { InventoryOptions } from "./queries";

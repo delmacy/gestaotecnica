@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
-import { outboxEvents } from "@/db/schema";
+import { getRuntimeDb } from "@/db";
+import { outboxEvents } from "@/db/runtime/schema/workflow";
 import { runFlowsForEvent } from "@/platform/flows";
 import { ProcessOrchestrator } from "@/platform/workflows/infra/process-orchestrator";
 import { DynamicFlowRunner } from "@/platform/workflows/infra/flow-runner-service";
@@ -17,7 +17,7 @@ export async function enqueueEventForFlows(
   event: EmittedEvent,
   context: WorkspaceContext,
 ) {
-  const db = getDb();
+  const db = getRuntimeDb();
   const [outboxEvent] = await db
     .insert(outboxEvents)
     .values({
@@ -47,7 +47,7 @@ export async function processFlowOutboxEvent(
   event: EmittedEvent,
   context: WorkspaceContext,
 ) {
-  const db = getDb();
+  const db = getRuntimeDb();
 
   await db
     .update(outboxEvents)

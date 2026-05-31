@@ -1,10 +1,11 @@
 "use server";
+import { resourceNeeds } from "@/db/schema";
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
-import { eventLogs, resourceNeeds } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import {
   priorities,
   resourceNeedStatuses,
@@ -57,7 +58,7 @@ export async function createResourceNeed(formData: FormData) {
     "identified",
   );
   const priority = readEnum<PriorityValue>(formData, "priority", priorities, "medium");
-  const db = getDb();
+  const db = getRuntimeDb();
 
   const [need] = await db.insert(resourceNeeds).values({
     title,

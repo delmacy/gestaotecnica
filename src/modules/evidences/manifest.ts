@@ -1,3 +1,4 @@
+import { evidences } from "@/db/schema";
 import type { ModuleManifest } from "@/platform/modules";
 
 export const evidencesManifest: ModuleManifest = {

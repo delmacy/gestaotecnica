@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "db:bootstrap": "npx tsx src/scripts/bootstrap-schemas.ts",
+    "db:migrate": "npm run db:bootstrap && drizzle-kit generate && drizzle-kit push --force",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push --force",
     "db:studio": "drizzle-kit studio"

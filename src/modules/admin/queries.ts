@@ -10,6 +10,7 @@ import {
   workflowTemplates,
   workspaceModuleConfigs,
 } from "@/db/schema";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 
 export async function getAdminSummary() {

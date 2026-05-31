@@ -1,3 +1,5 @@
+import { workspaces as platformWorkspaces } from "../runtime/schema/workspace";
+import { events as platformEvents, outboxEvents as platformOutbox } from "../runtime/schema/workflow";
 import {
   boolean,
   index,
@@ -212,29 +214,13 @@ export const findingStatusEnum = pgEnum("finding_status", [
   "closed",
 ]);
 
-export const workspaces = pgTable(
-  "workspaces",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    key: text("key").notNull(),
-    name: text("name").notNull(),
-    adaptationKey: text("adaptation_key").notNull(),
-    isActive: boolean("is_active").notNull().default(true),
-    metadata: jsonb("metadata").notNull().default({}),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [
-    uniqueIndex("workspaces_key_uidx").on(table.key),
-    index("workspaces_active_idx").on(table.isActive),
-  ],
-);
+
 
 export const workspaceModuleConfigs = pgTable(
   "workspace_module_configs",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     moduleKey: text("module_key").notNull(),
     name: text("name").notNull(),
     description: text("description"),
@@ -259,7 +245,7 @@ export const integrationCommands = pgTable(
   "integration_commands",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").references(() => platformWorkspaces.id),
     workspaceKey: text("workspace_key").notNull(),
     command: text("command").notNull(),
     status: text("status").notNull().default("received"),
@@ -291,7 +277,7 @@ export const workItemTypeDefinitions = pgTable(
   "work_item_type_definitions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     description: text("description"),
@@ -320,7 +306,7 @@ export const serviceOrderTypeDefinitions = pgTable(
   "service_order_type_definitions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     description: text("description"),
@@ -349,7 +335,7 @@ export const assetTypeDefinitions = pgTable(
   "asset_type_definitions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     tracksMaintenance: boolean("tracks_maintenance").notNull().default(true),
@@ -373,7 +359,7 @@ export const scheduleTypeDefinitions = pgTable(
   "schedule_type_definitions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     description: text("description"),
@@ -400,7 +386,7 @@ export const businessRoleDefinitions = pgTable(
   "business_role_definitions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     legacyLevel: text("legacy_level"),
@@ -437,7 +423,7 @@ export const workspaceQueues = pgTable(
   "workspace_queues",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     description: text("description"),
@@ -460,7 +446,7 @@ export const workflowTemplates = pgTable(
   "workflow_templates",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     target: text("target").notNull(),
@@ -484,7 +470,7 @@ export const workflowInstances = pgTable(
   "workflow_instances",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     workflowTemplateId: uuid("workflow_template_id").notNull().references(() => workflowTemplates.id),
     targetType: text("target_type").notNull(),
     targetId: uuid("target_id").notNull(),
@@ -526,7 +512,7 @@ export const reportTemplateDefinitions = pgTable(
   "report_template_definitions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     target: text("target").notNull(),
@@ -549,7 +535,7 @@ export const documentTemplateDefinitions = pgTable(
   "document_template_definitions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     target: text("target").notNull(),
@@ -657,7 +643,7 @@ export const userRoleAssignments = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").notNull().references(() => users.id),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     roleId: uuid("role_id").notNull().references(() => businessRoleDefinitions.id),
     assignedAt: timestamp("assigned_at", { withTimezone: true }).notNull().defaultNow(),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
@@ -923,43 +909,17 @@ export const shiftLogEntries = pgTable(
   ],
 );
 
-export const eventLogs = pgTable(
-  "event_logs",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").references(() => workspaces.id),
-    eventType: text("event_type").notNull(),
-    entityType: text("entity_type").notNull(),
-    entityId: uuid("entity_id"),
-    actorType: text("actor_type"),
-    actorId: uuid("actor_id").references(() => users.id),
-    source: text("source"),
-    correlationId: text("correlation_id"),
-    causationId: text("causation_id"),
-    workItemId: uuid("work_item_id").references(() => workItems.id),
-    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
-    assetId: uuid("asset_id").references(() => assets.id),
-    payload: jsonb("payload").notNull().default({}),
-    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [
-    index("event_logs_workspace_idx").on(table.workspaceId),
-    index("event_logs_event_type_idx").on(table.eventType),
-    index("event_logs_entity_idx").on(table.entityType, table.entityId),
-    index("event_logs_correlation_idx").on(table.correlationId),
-    index("event_logs_occurred_at_idx").on(table.occurredAt),
-  ],
-);
+
 
 export const flowRuns = pgTable(
   "flow_runs",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").references(() => platformWorkspaces.id),
     flowKey: text("flow_key").notNull(),
     flowName: text("flow_name").notNull(),
     flowVersion: text("flow_version"),
-    triggerEventId: uuid("trigger_event_id").references(() => eventLogs.id),
+    triggerEventId: uuid("trigger_event_id").references(() => platformEvents.id),
     triggerEventType: text("trigger_event_type").notNull(),
     status: text("status").notNull().default("running"),
     correlationId: text("correlation_id").notNull(),
@@ -999,29 +959,7 @@ export const flowActionRuns = pgTable(
   ],
 );
 
-export const outboxEvents = pgTable(
-  "outbox_events",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").references(() => workspaces.id),
-    eventLogId: uuid("event_log_id").references(() => eventLogs.id),
-    topic: text("topic").notNull(),
-    status: text("status").notNull().default("pending"),
-    payload: jsonb("payload").notNull().default({}),
-    attempts: integer("attempts").notNull().default(0),
-    lastError: text("last_error"),
-    availableAt: timestamp("available_at", { withTimezone: true }).notNull().defaultNow(),
-    processedAt: timestamp("processed_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [
-    index("outbox_events_workspace_idx").on(table.workspaceId),
-    index("outbox_events_event_log_idx").on(table.eventLogId),
-    index("outbox_events_topic_idx").on(table.topic),
-    index("outbox_events_status_idx").on(table.status),
-    index("outbox_events_available_at_idx").on(table.availableAt),
-  ],
-);
+
 
 export const reports = pgTable("reports", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -1095,7 +1033,7 @@ export const slaPolicies = pgTable(
   "sla_policies",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
     key: text("key").notNull(),
     label: text("label").notNull(),
     targetEntityType: text("target_entity_type").notNull(),

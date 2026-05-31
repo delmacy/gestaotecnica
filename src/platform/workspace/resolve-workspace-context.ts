@@ -1,6 +1,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
-import { workspaceModuleConfigs, workspaces } from "@/db/schema";
+import { workspaces } from "@/db/runtime/schema/workspace";
+import { workspaceModuleConfigs, } from "@/db/schema";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 import type { ActorType, ExecutionSource, WorkspaceContext } from "./workspace-context";
 
@@ -54,8 +55,8 @@ export async function resolveWorkspaceContext(
     .from(workspaces)
     .where(
       input.workspaceId
-        ? and(eq(workspaces.id, input.workspaceId), eq(workspaces.isActive, true))
-        : and(inArray(workspaces.key, lookupKeys), eq(workspaces.isActive, true)),
+        ? and(eq(workspaces.id, input.workspaceId), eq(workspaces.status, "active"))
+        : and(inArray(workspaces.key, lookupKeys), eq(workspaces.status, "active")),
     )
     .limit(1);
 

@@ -1,10 +1,14 @@
+import { serviceOrders } from "@/db/schema";
+import { workItems } from "@/db/schema";
+import { assets } from "@/db/schema";
 import { count, desc, eq } from "drizzle-orm";
-import { getDb } from "@/db";
-import { assets, eventLogs, serviceOrders, workItems } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { workspaces } from "@/db/runtime/schema/workspace";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { getWorkspaceAssetTypeOptions } from "@/platform/workspaces/catalogs";
 
 export async function getAssets() {
-  const db = getDb();
+  const db = getRuntimeDb();
 
   return db
     .select({
@@ -68,11 +72,11 @@ export async function getAssetEvents(id: string) {
       id: eventLogs.id,
       eventType: eventLogs.eventType,
       payload: eventLogs.payload,
-      occurredAt: eventLogs.occurredAt,
+      occurredAt: eventLogs.createdAt,
     })
     .from(eventLogs)
-    .where(eq(eventLogs.assetId, id))
-    .orderBy(desc(eventLogs.occurredAt));
+    .where(eq(eventLogs.entityId, id))
+    .orderBy(desc(eventLogs.createdAt));
 }
 
 export async function getAssetRelationsSummary(id: string) {

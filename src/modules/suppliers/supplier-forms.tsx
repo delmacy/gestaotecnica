@@ -1,3 +1,4 @@
+import { suppliers } from "@/db/schema";
 import { createSupplier, createSupplierContract } from "./actions";
 import { contractStatuses, supplierStatuses } from "./constants";
 import type { SupplierOptions } from "./queries";

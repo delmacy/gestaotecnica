@@ -1,10 +1,13 @@
 "use server";
+import { serviceOrders } from "@/db/schema";
+
+import { evidences } from "@/db/schema";
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
-import { eventLogs, evidences, serviceOrders } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -29,7 +32,7 @@ export async function createEvidence(formData: FormData) {
   const serviceOrderId = readOptionalText(formData, "serviceOrderId");
   let workItemId = readOptionalText(formData, "workItemId");
   let assetId = readOptionalText(formData, "assetId");
-  const db = getDb();
+  const db = getRuntimeDb();
 
   if (serviceOrderId) {
     const [serviceOrder] = await db

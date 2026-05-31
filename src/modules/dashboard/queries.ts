@@ -1,9 +1,10 @@
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { count } from "drizzle-orm";
 import type { AnyPgTable } from "drizzle-orm/pg-core";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import {
   assets,
-  eventLogs,
+
   serviceOrders,
   shiftLogEntries,
   shifts,
@@ -24,7 +25,7 @@ export type DashboardSummary = {
 };
 
 async function tableCount(table: AnyPgTable) {
-  const db = getDb();
+  const db = getRuntimeDb();
   const [row] = await db.select({ value: count() }).from(table);
   return row.value;
 }

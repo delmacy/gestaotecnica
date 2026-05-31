@@ -1,3 +1,4 @@
+import { evidences } from "@/db/schema";
 import { getEvidenceLinkOptions } from "@/modules/evidences/queries";
 import { createTechnicalDocument } from "./actions";
 import { getDocumentTypeOptions } from "./queries";

@@ -1,8 +1,9 @@
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import {
-  eventLogs,
+
   integrationPlugins,
   integrationWebhookEvents,
 } from "@/db/schema";
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
   }
 
   const pluginKey = body.pluginKey ? String(body.pluginKey).trim() : undefined;
-  const db = getDb();
+  const db = getRuntimeDb();
   const [plugin] = pluginKey
     ? await db
         .select({ id: integrationPlugins.id })

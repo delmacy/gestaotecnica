@@ -1,5 +1,6 @@
 import { count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { schedules, teams, technicianProfiles, users } from "@/db/schema";
 import { getWorkspaceScheduleTypeOptions } from "@/platform/workspaces/catalogs";
 import type { ScheduleTypeValue } from "./constants";

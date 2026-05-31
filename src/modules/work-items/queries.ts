@@ -1,11 +1,14 @@
+import { assets } from "@/db/schema";
+import { workItems } from "@/db/schema";
 import { desc, eq, count } from "drizzle-orm";
-import { getDb } from "@/db";
-import { assets, eventLogs, workItems } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { workspaces } from "@/db/runtime/schema/workspace";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { getWorkspaceWorkItemTypeOptions } from "@/platform/workspaces/catalogs";
 import type { WorkItemTypeValue } from "./constants";
 
 export async function getWorkItems() {
-  const db = getDb();
+  const db = getRuntimeDb();
 
   return db
     .select({
@@ -63,11 +66,11 @@ export async function getWorkItemEvents(id: string) {
       id: eventLogs.id,
       eventType: eventLogs.eventType,
       payload: eventLogs.payload,
-      occurredAt: eventLogs.occurredAt,
+      occurredAt: eventLogs.createdAt,
     })
     .from(eventLogs)
-    .where(eq(eventLogs.workItemId, id))
-    .orderBy(desc(eventLogs.occurredAt));
+    .where(eq(eventLogs.entityId, id))
+    .orderBy(desc(eventLogs.createdAt));
 }
 
 export async function getWorkItemSummary() {

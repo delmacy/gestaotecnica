@@ -1,14 +1,15 @@
 "use server";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 
 import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import { startWorkflowInstanceForTarget } from "@/platform/workflows/runtime";
 import {
-  eventLogs,
+
   evidences,
   serviceOrderAssignments,
   serviceOrders,
@@ -97,7 +98,7 @@ export async function createServiceOrderFromWorkItem(formData: FormData) {
   const workItemId = readRequiredText(formData, "workItemId");
   const type = await readServiceOrderType(formData);
   const objective = readOptionalText(formData, "objective");
-  const db = getDb();
+  const db = getRuntimeDb();
 
   const [workItem] = await db
     .select({

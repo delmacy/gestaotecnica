@@ -100,9 +100,14 @@ export const processPayloads = workflowSchema.table("process_payloads", {
 export const events = workflowSchema.table("events", {
   id: uuid("id").primaryKey().defaultRandom(),
   workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
-  instanceId: uuid("instance_id").references(() => processInstances.id),
   eventType: text("event_type").notNull(),
-  actorId: uuid("actor_id").references(() => users.id),
+  entityType: text("entity_type").notNull(),
+  entityId: uuid("entity_id"),
+  actorType: text("actor_type"),
+  actorId: uuid("actor_id"),
+  source: text("source"),
+  correlationId: text("correlation_id"),
+  causationId: text("causation_id"),
   payload: jsonb("payload").notNull().default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -160,4 +165,18 @@ export const actionExecutions = workflowSchema.table("action_executions", {
   error: text("error"),
   startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
+});
+
+
+export const outboxEvents = workflowSchema.table("outbox_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+  eventLogId: uuid("event_log_id").notNull().references(() => events.id),
+  topic: text("topic").notNull(),
+  status: text("status").notNull().default("pending"),
+  payload: jsonb("payload").notNull().default({}),
+  attempts: integer("attempts").notNull().default(0),
+  lastError: text("last_error"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  processedAt: timestamp("processed_at", { withTimezone: true }),
 });

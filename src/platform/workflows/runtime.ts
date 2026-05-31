@@ -1,184 +1,149 @@
 import { and, desc, eq } from "drizzle-orm";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import {
-  eventLogs,
-  workflowInstances,
-  workflowTemplates,
-  workflowTransitions,
-} from "@/db/schema";
+  processDefinitions,
+  processVersions,
+  processInstances,
+  events,
+} from "@/db/runtime/schema/workflow";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 
-type WorkflowTemplateSnapshot = {
-  key: string;
-  label: string;
-  target: string;
-  states: string[];
-  config: unknown;
-};
+export async function getActiveProcessVersionForTarget(workspaceId: string, processKey: string) {
+  const db = getRuntimeDb();
 
-function normalizeStates(states: unknown) {
-  return Array.isArray(states)
-    ? states.map((state) => String(state).trim()).filter(Boolean)
-    : [];
-}
-
-export async function getActiveWorkflowTemplateForTarget(targetType: string) {
-  const workspace = await ensureActiveWorkspaceConfig();
-  const db = getDb();
-
-  const [template] = await db
+  const [definition] = await db
     .select()
-    .from(workflowTemplates)
+    .from(processDefinitions)
     .where(
       and(
-        eq(workflowTemplates.workspaceId, workspace.id),
-        eq(workflowTemplates.target, targetType),
-        eq(workflowTemplates.isActive, true),
+        eq(processDefinitions.workspaceId, workspaceId),
+        eq(processDefinitions.key, processKey),
+        eq(processDefinitions.isActive, "true"),
       ),
     )
-    .orderBy(workflowTemplates.sortOrder, workflowTemplates.label)
     .limit(1);
 
-  return template ?? null;
+  if (!definition) return null;
+
+  const [version] = await db
+    .select()
+    .from(processVersions)
+    .where(eq(processVersions.processDefinitionId, definition.id))
+    .orderBy(desc(processVersions.version))
+    .limit(1);
+
+  return version ?? null;
 }
 
-export async function startWorkflowInstanceForTarget({
-  targetType,
-  targetId,
+export async function startProcessInstance({
+  workspaceId,
+  processKey,
   actorId,
+  payload,
 }: {
-  targetType: string;
-  targetId: string;
+  workspaceId: string;
+  processKey: string;
   actorId?: string | null;
+  payload?: any;
 }) {
-  const workspace = await ensureActiveWorkspaceConfig();
-  const db = getDb();
+  const db = getRuntimeDb();
 
-  const [existing] = await db
-    .select()
-    .from(workflowInstances)
-    .where(
-      and(
-        eq(workflowInstances.workspaceId, workspace.id),
-        eq(workflowInstances.targetType, targetType),
-        eq(workflowInstances.targetId, targetId),
-        eq(workflowInstances.status, "active"),
-      ),
-    )
-    .orderBy(desc(workflowInstances.startedAt))
-    .limit(1);
+  const version = await getActiveProcessVersionForTarget(workspaceId, processKey);
+  if (!version) throw new Error(`Processo [${processKey}] não encontrado ou sem versão ativa.`);
 
-  if (existing) return existing;
-
-  const template = await getActiveWorkflowTemplateForTarget(targetType);
-  if (!template) return null;
-
-  const states = normalizeStates(template.states);
-  const currentState = states[0] ?? "open";
-  const snapshot: WorkflowTemplateSnapshot = {
-    key: template.key,
-    label: template.label,
-    target: template.target,
-    states,
-    config: template.config,
-  };
+  const definition = version.definition as any;
+  const initialNode = definition.nodes?.find((n: any) => n.data?.type === 'start')
+                   || definition.nodes?.[0];
 
   const [instance] = await db
-    .insert(workflowInstances)
+    .insert(processInstances)
     .values({
-      workspaceId: workspace.id,
-      workflowTemplateId: template.id,
-      targetType,
-      targetId,
-      currentState,
-      snapshot,
-      startedById: actorId ?? undefined,
+      workspaceId,
+      processVersionId: version.id,
+      currentStateId: initialNode?.id,
+      status: "active",
+      createdById: actorId ?? undefined,
     })
     .returning();
 
-  await db.insert(workflowTransitions).values({
-    workflowInstanceId: instance.id,
-    fromState: "__start__",
-    toState: currentState,
+  await db.insert(events).values({
+    workspaceId,
+    instanceId: instance.id,
+    eventType: "PROCESS_INSTANCE_CREATED",
     actorId: actorId ?? undefined,
-    payload: { templateKey: template.key, targetType, targetId },
-  });
-
-  await db.insert(eventLogs).values({
-    eventType: "workflow.instance_started",
-    entityType: targetType,
-    entityId: targetId,
     payload: {
-      workflowInstanceId: instance.id,
-      templateKey: template.key,
-      currentState,
+        processKey,
+        version: version.version,
+        initialState: initialNode?.data?.label,
+        data: payload
     },
   });
 
   return instance;
 }
 
-export async function transitionWorkflowInstance({
-  workflowInstanceId,
-  toState,
+export async function transitionProcessInstance({
+  instanceId,
+  targetStateId,
   actorId,
-  note,
+  payload,
 }: {
-  workflowInstanceId: string;
-  toState: string;
+  instanceId: string;
+  targetStateId: string;
   actorId?: string | null;
-  note?: string;
+  payload?: any;
 }) {
-  const db = getDb();
+  const db = getRuntimeDb();
+
   const [instance] = await db
     .select()
-    .from(workflowInstances)
-    .where(eq(workflowInstances.id, workflowInstanceId))
+    .from(processInstances)
+    .where(eq(processInstances.id, instanceId))
     .limit(1);
 
-  if (!instance) throw new Error("Instancia de workflow nao encontrada.");
-  if (instance.status !== "active") throw new Error("Workflow nao esta ativo.");
+  if (!instance) throw new Error("Instancia de processo não encontrada.");
+  if (instance.status !== "active") throw new Error("Processo não está ativo.");
 
-  const states = normalizeStates((instance.snapshot as WorkflowTemplateSnapshot | null)?.states);
-  if (states.length > 0 && !states.includes(toState)) {
-    throw new Error("Estado nao permitido para este workflow.");
-  }
+  const [version] = await db
+    .select()
+    .from(processVersions)
+    .where(eq(processVersions.id, instance.processVersionId))
+    .limit(1);
 
-  const completedAt =
-    states.length > 0 && states[states.length - 1] === toState ? new Date() : undefined;
-  const status = completedAt ? "completed" : "active";
+  const definition = version?.definition as any;
+  const targetNode = definition.nodes?.find((n: any) => n.id === targetStateId);
+
+  if (!targetNode) throw new Error("Estado de destino inválido para este processo.");
+
+  const isFinal = targetNode.data?.type === 'end';
+  const status = isFinal ? "completed" : "active";
 
   const [updated] = await db
-    .update(workflowInstances)
+    .update(processInstances)
     .set({
-      currentState: toState,
+      currentStateId: targetStateId,
       status,
-      completedAt,
       updatedAt: new Date(),
     })
-    .where(eq(workflowInstances.id, instance.id))
+    .where(eq(processInstances.id, instance.id))
     .returning();
 
-  await db.insert(workflowTransitions).values({
-    workflowInstanceId: instance.id,
-    fromState: instance.currentState,
-    toState,
+  await db.insert(events).values({
+    workspaceId: instance.workspaceId,
+    instanceId: instance.id,
+    eventType: "ACTION_EXECUTED",
     actorId: actorId ?? undefined,
-    note,
-    payload: { targetType: instance.targetType, targetId: instance.targetId },
-  });
-
-  await db.insert(eventLogs).values({
-    eventType: "workflow.transitioned",
-    entityType: instance.targetType,
-    entityId: instance.targetId,
     payload: {
-      workflowInstanceId: instance.id,
-      from: instance.currentState,
-      to: toState,
-      note,
+      fromStateId: instance.currentStateId,
+      toStateId: targetStateId,
+      toStateLabel: targetNode.data?.label,
+      data: payload,
     },
   });
 
   return updated;
 }
+
+// Compatibility exports for legacy modules
+export const startWorkflowInstanceForTarget = startProcessInstance as any;
+export const transitionWorkflowInstance = transitionProcessInstance as any;

@@ -47,3 +47,6 @@
   40 |
   41 |     platformClient = postgres(databaseUrl, {
 ✓ Compiled in 5.5s
+✓ Compiled in 3.4s
+✓ Compiled in 191ms
+✓ Compiled in 82ms

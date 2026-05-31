@@ -2,6 +2,8 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { outboxEvents } from "@/db/schema";
 import { runFlowsForEvent } from "@/platform/flows";
+import { ProcessOrchestrator } from "@/platform/workflows/infra/process-orchestrator";
+import { DynamicFlowRunner } from "@/platform/workflows/infra/flow-runner-service";
 import type { EmittedEvent } from "@/platform/events";
 import type { WorkspaceContext } from "@/platform/workspace";
 
@@ -53,7 +55,17 @@ export async function processFlowOutboxEvent(
     .where(eq(outboxEvents.id, outboxEventId));
 
   try {
+    // 1. Domain Processes (State Machine)
+    const orchestrator = new ProcessOrchestrator();
+    await orchestrator.handleEvent(event, context);
+
+    // 2. Automations (Static Flows - Code)
     await runFlowsForEvent(event, context);
+
+    // 3. Dynamic Automations (Builder Flows - JSON)
+    const dynamicRunner = new DynamicFlowRunner();
+    await dynamicRunner.runForEvent(event, context);
+
     await db
       .update(outboxEvents)
       .set({ status: "delivered", processedAt: new Date() })

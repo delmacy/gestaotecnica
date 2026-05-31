@@ -1,3 +1,4 @@
+import { evidences } from "@/db/schema";
 import Link from "next/link";
 
 type EvidenceRow = {

@@ -10,6 +10,7 @@ import {
   workforceAllocations,
   workItems,
 } from "@/db/schema";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { getWorkspaceTechnicianLevelOptions } from "@/platform/workspaces/catalogs";
 import type { TechnicianLevelValue } from "./constants";
 

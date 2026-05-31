@@ -14,6 +14,7 @@ import {
   workspaceModuleConfigs,
   workspaceQueues,
 } from "@/db/schema";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 
 function readRequiredText(formData: FormData, field: string) {

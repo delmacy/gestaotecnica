@@ -1,10 +1,13 @@
 "use server";
 
+import { supplierContracts } from "@/db/schema";
+import { suppliers } from "@/db/schema";
+
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
-import { eventLogs, supplierContracts, suppliers } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import {
   contractStatuses,
   supplierStatuses,
@@ -52,7 +55,7 @@ function readEnum<T extends string>(
 export async function createSupplier(formData: FormData) {
   const name = readRequiredText(formData, "name");
   const status = readEnum<SupplierStatusValue>(formData, "status", supplierStatuses, "prospect");
-  const db = getDb();
+  const db = getRuntimeDb();
   const [supplier] = await db.insert(suppliers).values({
     name,
     status,

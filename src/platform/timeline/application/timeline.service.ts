@@ -37,7 +37,7 @@ export class TimelineService {
     const rawEvents: WorkflowEventRow[] = await runtimeDb
       .select()
       .from(events)
-      .where(and(eq(events.workspaceId, workspaceId), eq(events.instanceId, instanceId)))
+      .where(and(eq(events.workspaceId, workspaceId), eq(events.causationId, instanceId)))
       .orderBy(desc(events.createdAt));
 
     return rawEvents.map(event => ({

@@ -8,6 +8,7 @@ import {
   timeEntries,
   workItems,
 } from "@/db/schema";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { getWorkspaceReportTemplateOptions } from "@/platform/workspaces/catalogs";
 
 type ServiceOrderStatus =

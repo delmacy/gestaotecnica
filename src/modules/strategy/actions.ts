@@ -1,14 +1,15 @@
 "use server";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   acquisitionNeeds,
-  eventLogs,
+
   maintenancePlans,
   technicalProjects,
 } from "@/db/schema";
@@ -93,7 +94,7 @@ export async function createMaintenancePlan(formData: FormData) {
 export async function updateMaintenancePlanStatus(formData: FormData) {
   const id = readRequiredText(formData, "id");
   const status = readEnum<PlanningStatusValue>(formData, "status", planningStatuses, "draft");
-  const db = getDb();
+  const db = getRuntimeDb();
   const [previous] = await db.select({ id: maintenancePlans.id, title: maintenancePlans.title, status: maintenancePlans.status, assetId: maintenancePlans.assetId }).from(maintenancePlans).where(eq(maintenancePlans.id, id)).limit(1);
   if (!previous) throw new Error("Plano nao encontrado.");
   await db.update(maintenancePlans).set({ status, updatedAt: new Date() }).where(eq(maintenancePlans.id, id));

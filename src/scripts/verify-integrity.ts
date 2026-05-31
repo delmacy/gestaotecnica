@@ -1,3 +1,5 @@
+import { events, outboxEvents } from "@/db/runtime/schema/workflow";
+import { getRuntimeDb } from "@/db";
 import { eq, desc, and, inArray } from "drizzle-orm";
 import { getDb } from "../db";
 import * as schema from "../db/schema";
@@ -18,7 +20,7 @@ async function verifyIntegrity() {
   console.log("--- Verificação de Integridade da Plataforma ---");
 
   initializePlatformKernel();
-  const db = getDb();
+  const db = getRuntimeDb();
   const context = await resolveWorkspaceContext({ source: "system" });
 
   try {
@@ -36,7 +38,7 @@ async function verifyIntegrity() {
     console.log(`   OK: WorkItem ${wiId} criado.`);
 
     // 2. Verificar Event Log
-    const [event] = await db.select().from(schema.eventLogs).where(eq(schema.eventLogs.entityId, wiId)).orderBy(desc(schema.eventLogs.occurredAt)).limit(1);
+    const [event] = await db.select().from(events).where(eq(events.entityId, wiId)).orderBy(desc(events.createdAt)).limit(1);
     if (!event || event.eventType !== "work_item.created") throw new Error("Evento work_item.created não encontrado.");
     console.log(`   OK: Evento registrado: ${event.eventType}`);
 
@@ -50,7 +52,7 @@ async function verifyIntegrity() {
     console.log(`   OK: FlowRun encontrado: ${flowRun.flowKey} (${flowRun.status})`);
 
     // 4. Verificar se a OS foi criada pela Action disparada pelo Flow
-    const [so] = await db.select().from(schema.eventLogs).where(eq(schema.eventLogs.eventType, "service_order.created")).orderBy(desc(schema.eventLogs.occurredAt)).limit(1);
+    const [so] = await db.select().from(events).where(eq(events.eventType, "service_order.created")).orderBy(desc(events.createdAt)).limit(1);
     if (!so || (so.payload as { workItemId: string }).workItemId !== wiId) throw new Error("OS automática não encontrada ou vinculada incorretamente.");
     testIds.serviceOrders.push(so.entityId!);
     console.log(`   OK: OS automática criada: ${(so.payload as { code: string }).code}`);
@@ -106,7 +108,7 @@ async function verifyIntegrity() {
 
     await new Promise(r => setTimeout(r, 1000));
 
-    const [approvalRequest] = await db.select().from(schema.eventLogs).where(and(eq(schema.eventLogs.entityId, soId), eq(schema.eventLogs.eventType, "approval.requested"))).limit(1);
+    const [approvalRequest] = await db.select().from(events).where(and(eq(events.entityId, soId), eq(events.eventType, "approval.requested"))).limit(1);
     if (!approvalRequest) throw new Error("Flow de governança não solicitou aprovação.");
     console.log("   OK: Aprovação solicitada automaticamente.");
 
@@ -115,7 +117,7 @@ async function verifyIntegrity() {
 
     await new Promise(r => setTimeout(r, 1000));
 
-    const [docEvent] = await db.select().from(schema.eventLogs).where(eq(schema.eventLogs.eventType, "document.generated")).orderBy(desc(schema.eventLogs.occurredAt)).limit(1);
+    const [docEvent] = await db.select().from(events).where(eq(events.eventType, "document.generated")).orderBy(desc(events.createdAt)).limit(1);
     if (!docEvent || (docEvent.payload as { serviceOrderId: string }).serviceOrderId !== soId) throw new Error("Documento técnico não foi gerado após aprovação.");
     testIds.documents.push(docEvent.entityId!);
     console.log(`   OK: Documento gerado automaticamente: ${(docEvent.payload as { title: string }).title}`);
@@ -132,7 +134,7 @@ async function verifyIntegrity() {
     console.log(`   OK: Plano de manutenção ${planId} criado.`);
 
     await new Promise(r => setTimeout(r, 1000));
-    const [prevSO] = await db.select().from(schema.eventLogs).where(eq(schema.eventLogs.eventType, "maintenance_plan.order_generated")).orderBy(desc(schema.eventLogs.occurredAt)).limit(1);
+    const [prevSO] = await db.select().from(events).where(eq(events.eventType, "maintenance_plan.order_generated")).orderBy(desc(events.createdAt)).limit(1);
     if (!prevSO || prevSO.entityId !== planId) throw new Error("OS preventiva automática não foi gerada.");
     testIds.serviceOrders.push((prevSO.payload as { serviceOrderId: string }).serviceOrderId);
     console.log(`   OK: OS preventiva gerada automaticamente: ${(prevSO.payload as { code: string }).code}`);
@@ -167,17 +169,17 @@ async function verifyIntegrity() {
     // Limpar outbox e flow runs primeiro
     await db.delete(schema.flowActionRuns);
     await db.delete(schema.flowRuns);
-    await db.delete(schema.outboxEvents);
+    await db.delete(outboxEvents);
 
     // Limpar logs vinculados aos IDs de teste
     if (testIds.serviceOrders.length) {
-      await db.delete(schema.eventLogs).where(inArray(schema.eventLogs.serviceOrderId, testIds.serviceOrders));
+      await db.delete(events).where(inArray(events.entityId, testIds.serviceOrders));
     }
     if (testIds.workItems.length) {
-      await db.delete(schema.eventLogs).where(inArray(schema.eventLogs.workItemId, testIds.workItems));
+      await db.delete(events).where(inArray(events.entityId, testIds.workItems));
     }
     if (testIds.assets.length) {
-      await db.delete(schema.eventLogs).where(inArray(schema.eventLogs.assetId, testIds.assets));
+      await db.delete(events).where(inArray(events.entityId, testIds.assets));
     }
 
     if (testIds.documents.length) await db.delete(schema.technicalDocuments).where(inArray(schema.technicalDocuments.id, testIds.documents));

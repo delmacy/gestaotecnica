@@ -11,6 +11,7 @@ import {
   workspaceModuleConfigs,
   workflowTemplates,
 } from "@/db/schema";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { hashPassword } from "@/modules/auth/crypto";
 
 function readRequiredText(formData: FormData, field: string) {

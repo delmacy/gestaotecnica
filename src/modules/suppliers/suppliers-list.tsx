@@ -1,3 +1,4 @@
+import { suppliers } from "@/db/schema";
 import { updateSupplierStatus } from "./actions";
 import {
   getContractStatusLabel,

@@ -1,8 +1,9 @@
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { count, desc, eq } from "drizzle-orm";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import {
   assets,
-  eventLogs,
+
   evidences,
   serviceOrderAssignments,
   serviceOrders,
@@ -15,11 +16,12 @@ import {
   users,
   workItems,
 } from "@/db/schema";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { getWorkspaceServiceOrderTypeOptions } from "@/platform/workspaces/catalogs";
 import type { ServiceOrderTypeValue } from "./constants";
 
 export async function getServiceOrders() {
-  const db = getDb();
+  const db = getRuntimeDb();
 
   return db
     .select({
@@ -81,11 +83,11 @@ export async function getServiceOrderEvents(id: string) {
       id: eventLogs.id,
       eventType: eventLogs.eventType,
       payload: eventLogs.payload,
-      occurredAt: eventLogs.occurredAt,
+      occurredAt: eventLogs.createdAt,
     })
     .from(eventLogs)
-    .where(eq(eventLogs.serviceOrderId, id))
-    .orderBy(desc(eventLogs.occurredAt));
+    .where(eq(eventLogs.entityId, id))
+    .orderBy(desc(eventLogs.createdAt));
 }
 
 export async function getServiceOrderAssignments(id: string) {

@@ -1,13 +1,14 @@
 "use server";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
-  eventLogs,
+
   technicianProfiles,
   technicianUnavailabilities,
   users,
@@ -107,7 +108,7 @@ export async function createTechnician(formData: FormData) {
     "trainee",
   );
 
-  const db = getDb();
+  const db = getRuntimeDb();
   // Criação de usuário ainda é direta por enquanto, até termos auth kernel actions
   const [user] = await db
     .insert(users)

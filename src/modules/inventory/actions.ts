@@ -1,10 +1,13 @@
 "use server";
 
+import { inventoryMovements } from "@/db/schema";
+import { inventoryItems } from "@/db/schema";
+
 import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
-import { eventLogs, inventoryItems, inventoryMovements } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import {
   inventoryItemStatuses,
   inventoryMovementTypes,
@@ -53,7 +56,7 @@ export async function createInventoryItem(formData: FormData) {
     inventoryItemStatuses,
     quantityOnHand <= minimumQuantity ? "low_stock" : "available",
   );
-  const db = getDb();
+  const db = getRuntimeDb();
 
   const [item] = await db.insert(inventoryItems).values({
     sku,

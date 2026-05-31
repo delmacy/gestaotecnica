@@ -46,7 +46,7 @@ export class DynamicFlowRunner {
 
     // Find nodes directly connected to the trigger
     const triggerNode = nodes.find((n: any) => n.data?.type === 'event' && n.data?.label === triggerEvent.eventType);
-    let currentNodes = edges
+    const currentNodes = edges
         .filter((e: any) => e.source === triggerNode.id)
         .map((e: any) => nodes.find((n: any) => n.id === e.target))
         .filter(Boolean);

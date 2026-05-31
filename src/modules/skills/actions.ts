@@ -1,9 +1,14 @@
 "use server";
+import { trainingRecords } from "@/db/schema";
+
+
+import { technicianSkills } from "@/db/schema";
+import { skillCatalog } from "@/db/schema";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
-import { eventLogs, skillCatalog, technicianSkills, trainingRecords } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import {
   skillProficiencies,
   trainingStatuses,
@@ -44,7 +49,7 @@ export async function createSkill(formData: FormData) {
   const name = readRequiredText(formData, "name");
   const category = readOptionalText(formData, "category");
   const description = readOptionalText(formData, "description");
-  const db = getDb();
+  const db = getRuntimeDb();
 
   const [skill] = await db.insert(skillCatalog).values({ name, category, description }).returning({
     id: skillCatalog.id,

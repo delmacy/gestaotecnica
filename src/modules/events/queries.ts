@@ -1,9 +1,10 @@
+import { workItems, serviceOrders, assets } from "@/db/schema";
 import { count, desc, eq } from "drizzle-orm";
-import { getDb } from "@/db";
-import { assets, eventLogs, serviceOrders, workItems } from "@/db/schema";
+import { getDb, getRuntimeDb } from "@/db";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 
 export async function getEvents() {
-  const db = getDb();
+  const db = getRuntimeDb();
 
   return db
     .select({
@@ -12,21 +13,21 @@ export async function getEvents() {
       entityType: eventLogs.entityType,
       entityId: eventLogs.entityId,
       payload: eventLogs.payload,
-      occurredAt: eventLogs.occurredAt,
-      workItemId: eventLogs.workItemId,
+      occurredAt: eventLogs.createdAt,
+      workItemId: eventLogs.entityId,
       workItemTitle: workItems.title,
-      serviceOrderId: eventLogs.serviceOrderId,
+      serviceOrderId: eventLogs.entityId,
       serviceOrderCode: serviceOrders.code,
       serviceOrderTitle: serviceOrders.title,
-      assetId: eventLogs.assetId,
+      assetId: eventLogs.entityId,
       assetCode: assets.code,
       assetName: assets.name,
     })
     .from(eventLogs)
-    .leftJoin(workItems, eq(eventLogs.workItemId, workItems.id))
-    .leftJoin(serviceOrders, eq(eventLogs.serviceOrderId, serviceOrders.id))
-    .leftJoin(assets, eq(eventLogs.assetId, assets.id))
-    .orderBy(desc(eventLogs.occurredAt))
+    .leftJoin(workItems, eq(eventLogs.entityId, workItems.id))
+    .leftJoin(serviceOrders, eq(eventLogs.entityId, serviceOrders.id))
+    .leftJoin(assets, eq(eventLogs.entityId, assets.id))
+    .orderBy(desc(eventLogs.createdAt))
     .limit(120);
 }
 

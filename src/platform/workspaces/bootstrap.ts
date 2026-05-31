@@ -10,10 +10,11 @@ import {
   serviceOrderTypeDefinitions,
   workItemTypeDefinitions,
   workflowTemplates,
-  workspaces,
+
   workspaceModuleConfigs,
   workspaceQueues,
 } from "@/db/schema";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { ecosystemModules } from "./module-catalog";
 import { bootstrapPlatformRegistry } from "../registry/application/bootstrap";
 

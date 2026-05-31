@@ -1,5 +1,5 @@
-import { getDb } from "@/db";
-import { eventLogs } from "@/db/schema";
+import { getRuntimeDb } from "@/db";
+import { events } from "@/db/runtime/schema/workflow";
 import { enqueueEventForFlows, processFlowOutboxEvent } from "@/platform/outbox";
 import type { WorkspaceContext } from "@/platform/workspace";
 import type { EmittedEvent, EmitEventInput } from "./event-types";
@@ -14,9 +14,9 @@ export async function emitEvent(
   input: EmitEventInput,
   context: WorkspaceContext,
 ): Promise<EmittedEvent> {
-  const db = getDb();
+  const db = getRuntimeDb();
   const [row] = await db
-    .insert(eventLogs)
+    .insert(events)
     .values({
       workspaceId: asUuid(context.workspaceId),
       eventType: input.eventType,
@@ -27,10 +27,7 @@ export async function emitEvent(
       source: context.source,
       correlationId: context.correlationId,
       causationId: input.causationId,
-      workItemId: input.entityType === "work_item" ? asUuid(input.entityId) : undefined,
-      serviceOrderId: input.entityType === "service_order" ? asUuid(input.entityId) : undefined,
-      assetId: input.entityType === "asset" ? asUuid(input.entityId) : undefined,
-      payload: {
+                        payload: {
         ...(input.payload ?? {}),
         platform: {
           workspaceId: context.workspaceId,
@@ -44,7 +41,7 @@ export async function emitEvent(
         },
       },
     })
-    .returning({ id: eventLogs.id });
+    .returning({ id: events.id });
 
   const emittedEvent = {
     ...input,

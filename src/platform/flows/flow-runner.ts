@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
+import { getRuntimeDb } from "@/db";
 import { flowActionRuns, flowRuns } from "@/db/schema";
 import { runAction } from "@/platform/actions";
 import type { EmittedEvent } from "@/platform/events";
@@ -17,7 +17,7 @@ export async function runFlowsForEvent(
   workspaceContext: WorkspaceContext,
 ) {
   const flows = getFlowsByEvent(event.eventType);
-  const db = getDb();
+  const db = getRuntimeDb();
 
   for (const flow of flows) {
     let skipped = false;

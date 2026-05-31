@@ -1,5 +1,6 @@
 import { asc, count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { queueItems, slaPolicies, workspaceQueues, users } from "@/db/schema";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 

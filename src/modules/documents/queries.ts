@@ -1,5 +1,6 @@
 import { count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { assets, serviceOrders, technicalDocuments, workItems } from "@/db/schema";
 import { getWorkspaceDocumentTemplateOptions } from "@/platform/workspaces/catalogs";
 

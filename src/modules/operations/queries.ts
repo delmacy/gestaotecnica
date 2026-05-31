@@ -1,8 +1,9 @@
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { count, desc, eq, inArray } from "drizzle-orm";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import {
   assets,
-  eventLogs,
+
   serviceOrders,
   shiftLogEntries,
   shifts,
@@ -12,7 +13,7 @@ import {
 } from "@/db/schema";
 
 export async function getOperationsSummary() {
-  const db = getDb();
+  const db = getRuntimeDb();
 
   const [openWorkItems, activeOrders, reviewOrders, pendingEntries, availableTechs] =
     await Promise.all([
@@ -104,13 +105,13 @@ export async function getOperationsQueues() {
           id: eventLogs.id,
           eventType: eventLogs.eventType,
           entityType: eventLogs.entityType,
-          occurredAt: eventLogs.occurredAt,
-          serviceOrderId: eventLogs.serviceOrderId,
+          occurredAt: eventLogs.createdAt,
+          serviceOrderId: eventLogs.entityId,
           serviceOrderCode: serviceOrders.code,
         })
         .from(eventLogs)
-        .leftJoin(serviceOrders, eq(eventLogs.serviceOrderId, serviceOrders.id))
-        .orderBy(desc(eventLogs.occurredAt))
+        .leftJoin(serviceOrders, eq(eventLogs.entityId, serviceOrders.id))
+        .orderBy(desc(eventLogs.createdAt))
         .limit(10),
     ]);
 

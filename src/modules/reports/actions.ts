@@ -1,12 +1,13 @@
 "use server";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 
 import { count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
+import { getDb, getRuntimeDb } from "@/db";
 import {
   assets,
-  eventLogs,
+
   reports,
   serviceOrders,
   shiftLogEntries,
@@ -31,7 +32,7 @@ async function readReportType(formData: FormData) {
 async function countByStatus(
   status: "open" | "assigned" | "in_progress" | "waiting_review" | "completed" | "approved",
 ) {
-  const db = getDb();
+  const db = getRuntimeDb();
   const [row] = await db
     .select({ value: count() })
     .from(serviceOrders)

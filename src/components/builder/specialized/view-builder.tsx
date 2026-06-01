@@ -1,13 +1,39 @@
 "use client";
 
-import { Layout, Table, Kanban, Calendar, LayoutDashboard, History, FileText, Save, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Layout,
+  Table,
+  Kanban,
+  Calendar,
+  LayoutDashboard,
+  History,
+  FileText,
+  Save,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { executeKernelAction } from "@/platform/actions/remote-actions";
 
 export function ViewBuilder({ activeItem }: { activeItem: any }) {
-  const [selectedTemplate, setSelectedTemplate] = useState('Kanban Board');
+  const [selectedTemplate, setSelectedTemplate] = useState("Kanban Board");
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const loadView = async () => {
+      const result = await executeKernelAction("views.get_definition", {
+        key: activeItem.id,
+      });
+      if (result.success && result.data) {
+        const view = result.data as any;
+        if (view.config?.template) {
+          setSelectedTemplate(view.config.template);
+        }
+      }
+    };
+    loadView();
+  }, [activeItem.id]);
 
   const handleSave = async () => {
     setIsSaving(true);

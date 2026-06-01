@@ -1,6 +1,7 @@
 import { runtimeDb } from "@/db";
 import { events } from "@/db/runtime/schema/workflow";
-import { eq, desc, and } from "drizzle-orm";
+import { flowRuns, flowActionRuns } from "@/db/schema";
+import { eq, desc, and, or } from "drizzle-orm";
 
 type WorkflowEventRow = typeof events.$inferSelect;
 
@@ -23,7 +24,14 @@ export class TimelineService {
       .orderBy(desc(events.createdAt))
       .limit(limit);
 
-    return rawEvents.map(event => ({
+    const fRuns = await runtimeDb
+      .select()
+      .from(flowRuns)
+      .where(eq(flowRuns.workspaceId, workspaceId))
+      .orderBy(desc(flowRuns.createdAt))
+      .limit(limit);
+
+    const timelineItems: TimelineItem[] = rawEvents.map(event => ({
       id: event.id,
       type: this.mapType(event.eventType),
       title: this.formatTitle(event.eventType),
@@ -31,6 +39,21 @@ export class TimelineService {
       actorId: event.actorId ?? undefined,
       payload: event.payload as Record<string, unknown>,
     }));
+
+    timelineItems.push(...fRuns.map(run => ({
+      id: run.id,
+      type: "event",
+      title: `Flow Run: ${run.flowName || run.flowKey}`,
+      occurredAt: run.createdAt,
+      payload: {
+        status: run.status,
+        eventType: run.triggerEventType,
+        duration: run.durationMs ? `${run.durationMs}ms` : 'running',
+        error: run.errorPayload
+      }
+    })));
+
+    return timelineItems.sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime()).slice(0, limit);
   }
 
   async getProcessInstanceTimeline(workspaceId: string, instanceId: string): Promise<TimelineItem[]> {

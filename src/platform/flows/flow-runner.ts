@@ -1,6 +1,7 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getRuntimeDb } from "@/db";
 import { flowActionRuns, flowRuns } from "@/db/schema";
+import { flowDefinitions } from "@/db/runtime/schema/workflow";
 import { runAction } from "@/platform/actions";
 import type { EmittedEvent } from "@/platform/events";
 import type { WorkspaceContext } from "@/platform/workspace";
@@ -16,10 +17,60 @@ export async function runFlowsForEvent(
   event: EmittedEvent,
   workspaceContext: WorkspaceContext,
 ) {
-  const flows = getFlowsByEvent(event.eventType);
+  const registeredFlows = getFlowsByEvent(event.eventType);
   const db = getRuntimeDb();
 
-  for (const flow of flows) {
+  // Load flows from database
+  const dbFlows = await db
+    .select()
+    .from(flowDefinitions)
+    .where(
+      and(
+        eq(flowDefinitions.workspaceId, workspaceContext.workspaceId),
+        eq(flowDefinitions.status, "published"),
+      ),
+    );
+
+  const flowsToRun = [...registeredFlows];
+
+  for (const dbFlow of dbFlows) {
+    const definition = dbFlow.definition as any;
+    const triggerNode = definition.nodes?.find(
+      (n: any) => n.data?.type === "event" && n.data?.label === event.eventType,
+    );
+
+    if (triggerNode) {
+      flowsToRun.push({
+        key: dbFlow.key,
+        name: dbFlow.name,
+        version: "1.0",
+        trigger: { eventType: event.eventType },
+        run: async ({ actions, event: ev }) => {
+          // BFS or DFS to execute actions in sequence
+          let currentNodes = definition.edges
+            .filter((e: any) => e.source === triggerNode.id)
+            .map((e: any) => definition.nodes.find((n: any) => n.id === e.target));
+
+          while (currentNodes.length > 0) {
+            const nextNodes = [];
+            for (const node of currentNodes) {
+              if (node.data?.type === "action") {
+                // Pass event payload to the action
+                await actions.run(node.data.label, ev.payload);
+              }
+              const children = definition.edges
+                .filter((e: any) => e.source === node.id)
+                .map((e: any) => definition.nodes.find((n: any) => n.id === e.target));
+              nextNodes.push(...children);
+            }
+            currentNodes = nextNodes;
+          }
+        },
+      } as any);
+    }
+  }
+
+  for (const flow of flowsToRun) {
     let skipped = false;
     let skippedReason: string | undefined;
     const startedAt = new Date();

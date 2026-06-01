@@ -1,6 +1,12 @@
 import { eq, and } from "drizzle-orm";
 import { getRuntimeDb } from "@/db";
-import { organizations, workspaces } from "@/db/runtime/schema/workspace";
+import {
+  organizations,
+  workspaces,
+  entityDefinitions,
+  fieldDefinitions,
+  dynamicRecords,
+} from "@/db/runtime/schema/workspace";
 import { workspaceModuleConfigs } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
 import {
@@ -156,7 +162,94 @@ export const publishWorkspaceKernelAction: ActionDefinition<PublishWorkspaceInpu
 
     return {
       success: true,
-      data: updated
+      data: updated,
     };
-  }
+  },
+};
+
+type CreateEntityInput = {
+  workspaceId: string;
+  key: string;
+  name: string;
+  fields: Array<{ key: string; name: string; type: string }>;
+};
+
+export const createEntityKernelAction: ActionDefinition<CreateEntityInput, any> = {
+  key: "entities.create",
+  moduleKey: "workspace",
+  description: "Define uma nova entidade de dados dinâmica no workspace.",
+  callableBy: ["ui", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      workspaceId: uuidProperty("Workspace."),
+      key: stringProperty("Chave da entidade."),
+      name: stringProperty("Nome da entidade."),
+      fields: { type: "array", description: "Campos da entidade." },
+    },
+    ["workspaceId", "key", "name", "fields"],
+  ),
+  async handler(input) {
+    const db = getRuntimeDb();
+
+    const [entity] = await db
+      .insert(entityDefinitions)
+      .values({
+        workspaceId: input.workspaceId,
+        key: input.key,
+        name: input.name,
+      })
+      .returning();
+
+    for (const field of input.fields) {
+      await db.insert(fieldDefinitions).values({
+        entityId: entity.id,
+        key: field.key,
+        name: field.name,
+        type: field.type,
+      });
+    }
+
+    return {
+      success: true,
+      data: entity,
+    };
+  },
+};
+
+type SaveRecordInput = {
+  workspaceId: string;
+  entityKey: string;
+  data: any;
+};
+
+export const saveDynamicRecordKernelAction: ActionDefinition<SaveRecordInput, any> = {
+  key: "records.save",
+  moduleKey: "workspace",
+  description: "Salva um registro de uma entidade dinâmica.",
+  callableBy: ["ui", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      workspaceId: uuidProperty("Workspace."),
+      entityKey: stringProperty("Chave da entidade."),
+      data: { type: "object", description: "Dados do registro." },
+    },
+    ["workspaceId", "entityKey", "data"],
+  ),
+  async handler(input) {
+    const db = getRuntimeDb();
+
+    const [record] = await db
+      .insert(dynamicRecords)
+      .values({
+        workspaceId: input.workspaceId,
+        entityKey: input.entityKey,
+        data: input.data,
+      })
+      .returning();
+
+    return {
+      success: true,
+      data: record,
+    };
+  },
 };

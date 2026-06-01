@@ -35,22 +35,55 @@ export const saveViewDefinitionKernelAction: ActionDefinition<SaveViewDefinition
   async handler(input) {
     const db = getRuntimeDb();
 
+    // Use forms table as proxy for now, storing config in description or a new column if we had one
+    // Let's use name to also store a bit of metadata if needed or just trust key is enough for lookup
     const [saved] = await db
       .insert(forms)
       .values({
         workspaceId: input.workspaceId,
         key: input.key,
         name: input.name,
+        description: JSON.stringify(input.config),
       })
       .onConflictDoUpdate({
         target: [forms.workspaceId, forms.key],
-        set: { name: input.name, updatedAt: new Date() }
+        set: {
+          name: input.name,
+          description: JSON.stringify(input.config),
+          updatedAt: new Date(),
+        },
       })
       .returning();
 
     return {
       success: true,
       data: saved,
+    };
+  },
+};
+
+export const getViewDefinitionKernelAction: ActionDefinition<{ key: string }, any> = {
+  key: "views.get_definition",
+  moduleKey: "view",
+  description: "Recupera a definição de uma view.",
+  callableBy: ["ui", "system"],
+  inputSchema: actionObjectSchema({ key: stringProperty("Chave da view") }, ["key"]),
+  async handler(input) {
+    const db = getRuntimeDb();
+    const [view] = await db
+      .select()
+      .from(forms)
+      .where(eq(forms.key, input.key))
+      .limit(1);
+
+    if (!view) return { success: true, data: null };
+
+    return {
+      success: true,
+      data: {
+        ...view,
+        config: view.description ? JSON.parse(view.description) : {},
+      },
     };
   },
 };

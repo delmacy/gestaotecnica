@@ -57,3 +57,12 @@ process-editor/
 - Tudo continua operando em estado local.
 - Nenhuma ação real é executada. Notificações, documentos e integrações continuam atuando apenas como estruturas de *metadata*.
 - Banco de dados, chamadas de API, runtime e registries ainda estão estritamente fora de escopo.
+
+## Fase 07 — Validação visual do processo
+
+- A tela agora usa o helper funcional `validateBuilderDraft`.
+- Erros e avisos aparecem em tempo real no rodapé do Builder através de um painel de sumário (`BuilderValidationPanel`).
+- O cabeçalho foi atualizado com metadados do estado local (`nome`, `nós`, `conexões`, indicador de alteração).
+- `Warnings` (Avisos) apontam recomendações mas não bloqueiam o processo ou o estado (`valid: true`).
+- `Errors` (Erros) apontam falhas arquiteturais graves e invalidam o draft (`valid: false`).
+- A validação se mantém local. O estado em memória ainda não é persistido, e APIs/Runtime continuam fora de escopo.

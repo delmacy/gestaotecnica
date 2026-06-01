@@ -49,3 +49,11 @@ process-editor/
 - O arquivo `builder-flow-adapter.ts` age como o adaptador convertendo o estado visual da tela de volta para o domínio do Builder e vice-versa.
 - React Flow não atua como fonte da verdade. O estado canônico é gerido pelo hook `useBuilderEditorState`.
 - Todo o estado continua existindo localmente em memória. Não há API, banco de dados ou runtime no momento.
+
+## Fase 06 — Inspector por tipo de bloco
+
+- O Inspector agora possui painéis específicos por tipo de bloco.
+- As configurações são renderizadas de acordo com o `node.type` e gravadas em `node.config`.
+- Tudo continua operando em estado local.
+- Nenhuma ação real é executada. Notificações, documentos e integrações continuam atuando apenas como estruturas de *metadata*.
+- Banco de dados, chamadas de API, runtime e registries ainda estão estritamente fora de escopo.

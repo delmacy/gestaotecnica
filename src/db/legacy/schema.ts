@@ -1,5 +1,5 @@
 import { workspaces as platformWorkspaces } from "../runtime/schema/workspace";
-import { events as platformEvents, outboxEvents as platformOutbox } from "../runtime/schema/workflow";
+import { events as platformEvents } from "../runtime/schema/workflow";
 import {
   boolean,
   index,
@@ -214,7 +214,23 @@ export const findingStatusEnum = pgEnum("finding_status", [
   "closed",
 ]);
 
-
+export const legacyWorkspaces = pgTable(
+  "workspaces",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    adaptationKey: text("adaptation_key").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    metadata: jsonb("metadata").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("workspaces_key_uidx").on(table.key),
+    index("workspaces_active_idx").on(table.isActive),
+  ],
+);
 
 export const workspaceModuleConfigs = pgTable(
   "workspace_module_configs",
@@ -909,7 +925,57 @@ export const shiftLogEntries = pgTable(
   ],
 );
 
+export const legacyEventLogs = pgTable(
+  "event_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").references(() => legacyWorkspaces.id),
+    eventType: text("event_type").notNull(),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id"),
+    actorType: text("actor_type"),
+    actorId: uuid("actor_id").references(() => users.id),
+    source: text("source"),
+    correlationId: text("correlation_id"),
+    causationId: text("causation_id"),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    payload: jsonb("payload").notNull().default({}),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("event_logs_workspace_idx").on(table.workspaceId),
+    index("event_logs_event_type_idx").on(table.eventType),
+    index("event_logs_entity_idx").on(table.entityType, table.entityId),
+    index("event_logs_correlation_idx").on(table.correlationId),
+    index("event_logs_occurred_at_idx").on(table.occurredAt),
+  ],
+);
 
+export const legacyOutboxEvents = pgTable(
+  "outbox_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").references(() => legacyWorkspaces.id),
+    eventLogId: uuid("event_log_id").references(() => legacyEventLogs.id),
+    topic: text("topic").notNull(),
+    status: text("status").notNull().default("pending"),
+    payload: jsonb("payload").notNull().default({}),
+    attempts: integer("attempts").notNull().default(0),
+    lastError: text("last_error"),
+    availableAt: timestamp("available_at", { withTimezone: true }).notNull().defaultNow(),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("outbox_events_workspace_idx").on(table.workspaceId),
+    index("outbox_events_event_log_idx").on(table.eventLogId),
+    index("outbox_events_topic_idx").on(table.topic),
+    index("outbox_events_status_idx").on(table.status),
+    index("outbox_events_available_at_idx").on(table.availableAt),
+  ],
+);
 
 export const flowRuns = pgTable(
   "flow_runs",

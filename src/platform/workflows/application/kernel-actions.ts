@@ -255,18 +255,30 @@ export const deleteFlowKernelAction: ActionDefinition<{ workspaceId: string; key
   },
 };
 
-export const getFlowDefinitionKernelAction: ActionDefinition<{ key: string }, any> = {
+type GetFlowDefinitionInput = {
+  key: string;
+  workspaceId?: string;
+};
+
+export const getFlowDefinitionKernelAction: ActionDefinition<GetFlowDefinitionInput, any> = {
   key: "flows.get_definition",
   moduleKey: "workflow",
   description: "Recupera a definição de um fluxo.",
   callableBy: ["ui", "system"],
-  inputSchema: actionObjectSchema({ key: stringProperty("Chave do fluxo") }, ["key"]),
+  inputSchema: actionObjectSchema({
+    key: stringProperty("Chave do fluxo"),
+    workspaceId: uuidProperty("Workspace dono."),
+  }, ["key"]),
   async handler(input) {
     const db = getRuntimeDb();
     const [flow] = await db
       .select()
       .from(flowDefinitions)
-      .where(eq(flowDefinitions.key, input.key))
+      .where(
+        input.workspaceId
+          ? and(eq(flowDefinitions.workspaceId, input.workspaceId), eq(flowDefinitions.key, input.key))
+          : eq(flowDefinitions.key, input.key),
+      )
       .limit(1);
     return { success: true, data: flow || null };
   },

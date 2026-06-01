@@ -20,7 +20,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { cn } from "@/lib/utils";
-import { Circle, Play, Box, Database, Save, CheckCircle2, AlertCircle, Clock, Loader2, Trash2 } from "lucide-react";
+import { Play, Box, Save, CheckCircle2, AlertCircle, Clock, Loader2 } from "lucide-react";
 import { executeKernelAction } from "@/platform/actions/remote-actions";
 
 type ProcessNodeData = {
@@ -89,7 +89,13 @@ const initialEdges: Edge[] = [
   { id: 'e4-5', source: '4', target: '5' },
 ];
 
-export function ProcessBuilder({ activeItem }: { activeItem: any }) {
+export function ProcessBuilder({
+  activeItem,
+  activeWorkspaceId,
+}: {
+  activeItem: any;
+  activeWorkspaceId: string | null;
+}) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -100,11 +106,17 @@ export function ProcessBuilder({ activeItem }: { activeItem: any }) {
   );
 
   const handleSave = async () => {
+    const workspaceId = activeItem.metadata?.workspaceId || activeWorkspaceId;
+    if (!workspaceId) {
+      alert("Selecione um workspace antes de salvar o processo.");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const result = await executeKernelAction("processes.save_definition", {
-        workspaceId: "workspace-acme-prod", // Mocked for demo
-        key: activeItem.id,
+        workspaceId,
+        key: activeItem.metadata?.key || activeItem.id,
         name: activeItem.label,
         definition: { nodes, edges },
       });
@@ -113,7 +125,7 @@ export function ProcessBuilder({ activeItem }: { activeItem: any }) {
           "Processo de negócio salvo e registrado no Kernel (incluindo estados e transições)!",
         );
       }
-    } catch (e) {
+    } catch {
       alert("Falha ao salvar processo.");
     } finally {
       setIsSaving(false);

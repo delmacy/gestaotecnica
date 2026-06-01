@@ -9,37 +9,65 @@ import { executeKernelAction } from "@/platform/actions/remote-actions";
 import { getLiveTimelineEntries } from "@/platform/observability/actions/remote-actions";
 import { Loader2, CheckCircle2, ChevronUp, ChevronDown, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
-export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] }) {
+let fallbackClientId = 0;
+
+function createClientKey(prefix: string) {
+  if (globalThis.crypto?.randomUUID) {
+    return `${prefix}-${globalThis.crypto.randomUUID()}`;
+  }
+
+  fallbackClientId += 1;
+  return `${prefix}-${fallbackClientId}`;
+}
+
+export function BuilderShell({
+  initialTreeData,
+  initialWorkspaceId,
+}: {
+  initialTreeData: TreeItem[];
+  initialWorkspaceId: string | null;
+}) {
   const [selectedItem, setSelectedItem] = useState<TreeItem | null>(null);
   const [treeData, setTreeData] = useState<TreeItem[]>(initialTreeData);
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(initialWorkspaceId);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [timelineEntries, setTimelineEntries] = useState<TimelineEntry[]>([]);
   const [isRefreshingTimeline, setIsRefreshingTimeline] = useState(false);
 
-  const refreshTimeline = async () => {
+  const refreshTimeline = useCallback(async () => {
+    if (!activeWorkspaceId) {
+      setTimelineEntries([]);
+      return;
+    }
+
     setIsRefreshingTimeline(true);
     try {
-        const entries = await getLiveTimelineEntries("workspace-acme-prod");
+        const entries = await getLiveTimelineEntries(activeWorkspaceId);
         setTimelineEntries(entries);
     } finally {
         setIsRefreshingTimeline(false);
     }
-  };
+  }, [activeWorkspaceId]);
 
   useEffect(() => {
-    refreshTimeline();
+    const refreshTimer = window.setTimeout(() => {
+      void refreshTimeline();
+    }, 0);
     const interval = setInterval(refreshTimeline, 10000); // Live update every 10s
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      window.clearTimeout(refreshTimer);
+      clearInterval(interval);
+    };
+  }, [refreshTimeline]);
 
   const addTimelineEntry = (entry: Omit<TimelineEntry, "id" | "timestamp">) => {
     const newEntry: TimelineEntry = {
       ...entry,
-      id: Date.now().toString(),
+      id: createClientKey("timeline"),
       timestamp: "Agora"
     };
     setTimelineEntries(prev => [newEntry, ...prev].slice(0, 50));
@@ -62,7 +90,7 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
     const parent = findItemRecursive(treeData, parentId);
 
     if (parentId === 'orgs') {
-      const key = "org-" + Date.now();
+      const key = createClientKey("org");
       const label = "Nova Organização";
 
       const result = await executeKernelAction("organizations.create", { key, name: label });
@@ -73,10 +101,11 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
           label,
           type: "organization",
           iconName: "Building2",
-          children: [
-            { id: "groups-" + (result.data as any).id, label: "Estruturas e Grupos", type: "group", iconName: "Folder", children: [] },
-            { id: "workspaces-" + (result.data as any).id, label: "Ambientes (Workspaces)", type: "group", iconName: "Globe", children: [] }
-          ]
+          metadata: {
+            source: "workspace.organizations",
+            key,
+          },
+          children: []
         };
         setTreeData(addRecursive(treeData, parentId, newItem));
         setSelectedItem(newItem);
@@ -86,13 +115,26 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
 
     if (parent?.type === 'organization' || parentId.startsWith('workspaces-')) {
         const orgId = parent?.type === 'organization' ? parentId : parentId.replace('workspaces-', '');
-        const key = "ws-" + Date.now();
+        const key = createClientKey("ws");
         const label = "Novo Workspace";
         const result = await executeKernelAction("workspaces.create", { organizationId: orgId, key, name: label });
         if (result.success) {
           addTimelineEntry({ type: "audit", title: `Provisioned Workspace: ${label}`, payload: { orgId, key } });
-          const newItem: TreeItem = { id: (result.data as any).id, label, type: "workspace", iconName: "Globe" };
+          const workspaceId = (result.data as any).id;
+          const newItem: TreeItem = {
+            id: workspaceId,
+            label,
+            type: "workspace",
+            iconName: "Globe",
+            metadata: {
+              source: "workspace.workspaces",
+              key,
+              organizationId: orgId,
+            },
+            children: createWorkspaceGroups(workspaceId),
+          };
           setTreeData(addRecursive(treeData, parentId, newItem));
+          setActiveWorkspaceId(workspaceId);
           setSelectedItem(newItem);
         }
         return;
@@ -100,7 +142,7 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
 
     if (parent?.type === 'group' || parent?.type === 'subgroup') {
         const newItem: TreeItem = {
-          id: "grp-" + Date.now(),
+          id: createClientKey("grp"),
           label: parent?.type === 'group' ? "Subgrupo" : "Novo Agrupamento",
           type: "subgroup",
           iconName: "Folder",
@@ -113,7 +155,7 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
 
     // Generic addition for other types
     const newItem: TreeItem = {
-      id: "new-item-" + Date.now(),
+      id: createClientKey("new-item"),
       label: "Novo Componente",
       type: "process"
     };
@@ -132,6 +174,14 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
     return undefined;
   };
 
+  const createWorkspaceGroups = (workspaceId: string): TreeItem[] => [
+    { id: `caps-${workspaceId}`, label: "Capacidades Instaladas", type: "group", iconName: "Layers", children: [] },
+    { id: `procs-${workspaceId}`, label: "Processos de Negócio", type: "group", iconName: "Workflow", children: [] },
+    { id: `flows-${workspaceId}`, label: "Automações (Flows)", type: "group", iconName: "Zap", children: [] },
+    { id: `views-${workspaceId}`, label: "Telas e Formulários", type: "group", iconName: "Layout", children: [] },
+    { id: `entities-${workspaceId}`, label: "Entidades Dinâmicas", type: "group", iconName: "Database", children: [] },
+  ];
+
   const addRecursive = (items: TreeItem[], parentId: string, newItem: TreeItem): TreeItem[] => {
     return items.map(item => {
       if (item.id === parentId) {
@@ -148,7 +198,12 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
   };
 
   const activateCapability = async (capability: TreeItem) => {
-    const targetWorkspaceId = 'workspace-acme-prod';
+    const targetWorkspaceId = activeWorkspaceId;
+
+    if (!targetWorkspaceId) {
+      alert("Selecione ou crie um workspace antes de ativar uma capacidade.");
+      return;
+    }
 
     const result = await executeKernelAction("workspaces.install_capability", {
       workspaceId: targetWorkspaceId,
@@ -164,7 +219,7 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
       });
       const addRecursiveItems = (items: TreeItem[]): TreeItem[] => {
         return items.map(item => {
-          if (item.id === "caps-acme") {
+          if (item.id === `caps-${targetWorkspaceId}`) {
             const alreadyHas = item.children?.some(c => c.metadata?.key === capability.metadata?.key);
             if (alreadyHas) return item;
 
@@ -172,9 +227,16 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
               ...item,
               children: [...(item.children || []), {
                  ...capability,
-                 id: "active-" + capability.id + "-" + Date.now(),
+                 id: "installed-capability-" + ((result.data as any)?.id || capability.id),
                  type: "capability",
-                 iconName: "Layers"
+                 iconName: "Layers",
+                 metadata: {
+                  ...capability.metadata,
+                  source: "workspace_module_configs",
+                  workspaceId: targetWorkspaceId,
+                  status: (result.data as any)?.status,
+                  layer: (result.data as any)?.layer,
+                 }
               }]
             };
           }
@@ -208,22 +270,37 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
   };
 
   const handlePublish = async () => {
+    if (!activeWorkspaceId) {
+      alert("Selecione ou crie um workspace antes de publicar.");
+      return;
+    }
+
     setIsPublishing(true);
     try {
-      addTimelineEntry({ type: "system", title: "Publishing architectural changes...", payload: { target: "workspace-acme-prod" } });
-      // For demo, publish acme production workspace
+      addTimelineEntry({ type: "system", title: "Publishing architectural changes...", payload: { target: activeWorkspaceId } });
       const result = await executeKernelAction("workspaces.publish", {
-        workspaceId: "workspace-acme-prod"
+        workspaceId: activeWorkspaceId
       });
       if (result.success) {
         addTimelineEntry({ type: "system", title: "SUCCESS: Changes published to Runtime", payload: { status: "ACTIVE" } });
         setPublishSuccess(true);
         setTimeout(() => setPublishSuccess(false), 5000);
       }
-    } catch (e) {
+    } catch {
       alert("Erro ao publicar workspace.");
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const selectItem = (item: TreeItem) => {
+    setSelectedItem(item);
+    if (item.type === "workspace") {
+      setActiveWorkspaceId(item.id);
+      return;
+    }
+    if (typeof item.metadata?.workspaceId === "string") {
+      setActiveWorkspaceId(item.metadata.workspaceId);
     }
   };
 
@@ -267,12 +344,12 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
           <BuilderExplorer
             treeData={treeData}
             selectedId={selectedItem?.id}
-            onSelect={(item) => setSelectedItem(item)}
+            onSelect={selectItem}
             onRemove={removeItem}
             onAdd={addItem}
           />
           <div className="flex-1 flex flex-col overflow-hidden relative">
-            <BuilderCanvas activeItem={selectedItem} />
+            <BuilderCanvas activeItem={selectedItem} activeWorkspaceId={activeWorkspaceId} />
 
             {/* Timeline Panel */}
             <div className={cn(
@@ -316,6 +393,7 @@ export function BuilderShell({ initialTreeData }: { initialTreeData: TreeItem[] 
             selectedItem={selectedItem}
             onUpdate={updateItem}
             onActivate={activateCapability}
+            activeWorkspaceId={activeWorkspaceId}
           />
         </div>
       </div>

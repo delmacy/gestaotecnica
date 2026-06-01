@@ -22,7 +22,9 @@ import {
   ShieldCheck,
   Globe,
   Layout,
-  Layers
+  Layers,
+  Database,
+  Info
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +44,7 @@ export type TreeItem = {
     | "process"
     | "flow"
     | "view"
+    | "entity"
     | "template"
     | "group"
     | "subgroup"
@@ -63,7 +66,9 @@ const IconMap: Record<string, any> = {
   ShieldCheck,
   Globe,
   Layout,
-  Layers
+  Layers,
+  Database,
+  Info
 };
 
 function TreeItemNode({ item, level = 0, onSelect, selectedId, onRemove, onAdd }: {

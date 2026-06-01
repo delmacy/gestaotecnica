@@ -1,5 +1,5 @@
 import { getRuntimeDb } from "@/db";
-import { flowDefinitions, events } from "@/db/runtime/schema/workflow";
+import { flowDefinitions } from "@/db/runtime/schema/workflow";
 import { runAction } from "@/platform/actions";
 import { EmittedEvent } from "@/platform/events";
 import { WorkspaceContext } from "@/platform/workspace";
@@ -20,7 +20,8 @@ export class DynamicFlowRunner {
       .where(
         and(
           eq(flowDefinitions.workspaceId, context.workspaceId),
-          eq(flowDefinitions.isActive, "true")
+          eq(flowDefinitions.status, "published"),
+          eq(flowDefinitions.isActive, "true"),
         )
       );
 

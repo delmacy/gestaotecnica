@@ -10,7 +10,13 @@ import { ViewBuilder } from '@/builder/specialized/view-builder';
 import { FormBuilder } from '@/builder/specialized/form-builder';
 import { Box, Database } from "lucide-react";
 
-export function BuilderCanvas({ activeItem }: { activeItem: any }) {
+export function BuilderCanvas({
+  activeItem,
+  activeWorkspaceId,
+}: {
+  activeItem: any;
+  activeWorkspaceId: string | null;
+}) {
   if (!activeItem) {
     return (
       <div className="flex-1 bg-[#f8f9fa] relative overflow-hidden flex flex-col items-center justify-center text-center p-12">
@@ -44,23 +50,23 @@ export function BuilderCanvas({ activeItem }: { activeItem: any }) {
       case 'process':
         return (
           <ReactFlowProvider>
-            <ProcessBuilder activeItem={activeItem} />
+            <ProcessBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />
           </ReactFlowProvider>
         );
 
       case 'flow':
         return (
           <ReactFlowProvider>
-            <FlowBuilder activeItem={activeItem} />
+            <FlowBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />
           </ReactFlowProvider>
         );
 
       case 'view':
         // For simplicity, let's treat some views as forms in the assembler
         if (activeItem.id?.includes('form')) {
-          return <FormBuilder activeItem={activeItem} />;
+          return <FormBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />;
         }
-        return <ViewBuilder activeItem={activeItem} />;
+        return <ViewBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />;
 
       default:
         return (

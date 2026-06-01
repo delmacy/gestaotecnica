@@ -2,10 +2,23 @@
 
 import { FileText, Plus, Trash2, Save, Loader2, GripVertical } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { executeKernelAction } from "@/platform/actions/remote-actions";
 
-export function FormBuilder({ activeItem }: { activeItem: any }) {
+let formFieldId = 0;
+
+function createFieldId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  formFieldId += 1;
+  return `field-${formFieldId}`;
+}
+
+export function FormBuilder({
+  activeItem,
+  activeWorkspaceId,
+}: {
+  activeItem: any;
+  activeWorkspaceId: string | null;
+}) {
   const [fields, setFields] = useState([
     { id: '1', label: 'Título', type: 'text', required: true },
     { id: '2', label: 'Descrição', type: 'textarea', required: false }
@@ -13,20 +26,26 @@ export function FormBuilder({ activeItem }: { activeItem: any }) {
   const [isSaving, setIsSaving] = useState(false);
 
   const addField = () => {
-    setFields([...fields, { id: Date.now().toString(), label: 'Novo Campo', type: 'text', required: false }]);
+    setFields([...fields, { id: createFieldId(), label: 'Novo Campo', type: 'text', required: false }]);
   };
 
   const handleSave = async () => {
+     const workspaceId = activeItem.metadata?.workspaceId || activeWorkspaceId;
+     if (!workspaceId) {
+       alert("Selecione um workspace antes de salvar o formulário.");
+       return;
+     }
+
      setIsSaving(true);
      try {
        const result = await executeKernelAction("views.save_definition", {
-         workspaceId: "workspace-acme-prod",
-         key: activeItem.id + "_form",
+         workspaceId,
+         key: `${activeItem.metadata?.key || activeItem.id}_form`,
          name: activeItem.label + " Form",
          config: { fields }
        });
        if (result.success) alert("Formulário salvo no Registry!");
-     } catch (e) {
+     } catch {
        alert("Erro ao salvar formulário.");
      } finally {
        setIsSaving(false);

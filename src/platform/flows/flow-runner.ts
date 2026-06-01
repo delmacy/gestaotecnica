@@ -28,6 +28,7 @@ export async function runFlowsForEvent(
       and(
         eq(flowDefinitions.workspaceId, workspaceContext.workspaceId),
         eq(flowDefinitions.status, "published"),
+        eq(flowDefinitions.isActive, "true"),
       ),
     );
 

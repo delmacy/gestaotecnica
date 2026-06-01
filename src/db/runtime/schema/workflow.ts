@@ -5,47 +5,70 @@ import {
   uuid,
   integer,
   jsonb,
+  uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 import { workspaces } from "./workspace";
 import { usersTable as users } from "./identity";
 
 export const workflowSchema = pgSchema("workflow");
 
-export const processDefinitions = workflowSchema.table("process_definitions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
-  key: text("key").notNull(),
-  name: text("name").notNull(),
-  description: text("description"),
-  blueprintKey: text("blueprint_key"),
-  blueprintVersion: text("blueprint_version"),
-  isActive: text("is_active").notNull().default("true"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const processDefinitions = workflowSchema.table(
+  "process_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    description: text("description"),
+    blueprintKey: text("blueprint_key"),
+    blueprintVersion: text("blueprint_version"),
+    isActive: text("is_active").notNull().default("true"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("process_definitions_workspace_key_uidx").on(table.workspaceId, table.key),
+    index("process_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
 
-export const flowDefinitions = workflowSchema.table("flow_definitions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
-  key: text("key").notNull(),
-  name: text("name").notNull(),
-  description: text("description"),
-  definition: jsonb("definition").notNull().default({}),
-  status: text("status").notNull().default("draft"),
-  isActive: text("is_active").notNull().default("true"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const flowDefinitions = workflowSchema.table(
+  "flow_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    description: text("description"),
+    definition: jsonb("definition").notNull().default({}),
+    status: text("status").notNull().default("draft"),
+    isActive: text("is_active").notNull().default("true"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("flow_definitions_workspace_key_uidx").on(table.workspaceId, table.key),
+    index("flow_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
 
-export const processVersions = workflowSchema.table("process_versions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  processDefinitionId: uuid("process_definition_id").notNull().references(() => processDefinitions.id),
-  version: integer("version").notNull(),
-  definition: jsonb("definition").notNull().default({}),
-  status: text("status").notNull().default("draft"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const processVersions = workflowSchema.table(
+  "process_versions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    processDefinitionId: uuid("process_definition_id").notNull().references(() => processDefinitions.id),
+    version: integer("version").notNull(),
+    definition: jsonb("definition").notNull().default({}),
+    status: text("status").notNull().default("draft"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("process_versions_definition_version_uidx").on(table.processDefinitionId, table.version),
+    index("process_versions_definition_idx").on(table.processDefinitionId),
+  ],
+);
 
 export const states = workflowSchema.table("states", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -102,6 +125,7 @@ export const processPayloads = workflowSchema.table("process_payloads", {
 export const events = workflowSchema.table("events", {
   id: uuid("id").primaryKey().defaultRandom(),
   workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+  instanceId: uuid("instance_id").references(() => processInstances.id),
   eventType: text("event_type").notNull(),
   entityType: text("entity_type").notNull(),
   entityId: uuid("entity_id"),
@@ -125,14 +149,22 @@ export const fieldDefinitions = workflowSchema.table("field_definitions", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const forms = workflowSchema.table("forms", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
-  key: text("key").notNull(),
-  name: text("name").notNull(),
-  description: text("description"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const forms = workflowSchema.table(
+  "forms",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("forms_workspace_key_uidx").on(table.workspaceId, table.key),
+    index("forms_workspace_idx").on(table.workspaceId),
+  ],
+);
 
 export const formFields = workflowSchema.table("form_fields", {
   id: uuid("id").primaryKey().defaultRandom(),

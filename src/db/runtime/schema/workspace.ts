@@ -4,6 +4,8 @@ import {
   timestamp,
   uuid,
   jsonb,
+  uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core";
 
 export const workspaceSchema = pgSchema("workspace");
@@ -18,15 +20,22 @@ export const organizations = workspaceSchema.table("organizations", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const entityDefinitions = workspaceSchema.table("entity_definitions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
-  key: text("key").notNull(),
-  name: text("name").notNull(),
-  description: text("description"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const entityDefinitions = workspaceSchema.table(
+  "entity_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("entity_definitions_workspace_key_uidx").on(table.workspaceId, table.key),
+    index("entity_definitions_workspace_idx").on(table.workspaceId),
+  ],
+);
 
 export const fieldDefinitions = workspaceSchema.table("field_definitions", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -55,6 +64,7 @@ export const workspaces = workspaceSchema.table("workspaces", {
   name: text("name").notNull(),
   status: text("status").notNull().default("active"),
   config: jsonb("config").notNull().default({}),
+  metadata: jsonb("metadata").notNull().default({}),
   adaptationKey: text("adaptation_key"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

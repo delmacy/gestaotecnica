@@ -10,13 +10,18 @@ import {
   FileText,
   Save,
   Loader2,
-  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { executeKernelAction } from "@/platform/actions/remote-actions";
 
-export function ViewBuilder({ activeItem }: { activeItem: any }) {
+export function ViewBuilder({
+  activeItem,
+  activeWorkspaceId,
+}: {
+  activeItem: any;
+  activeWorkspaceId: string | null;
+}) {
   const [selectedTemplate, setSelectedTemplate] = useState("Kanban Board");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -36,16 +41,22 @@ export function ViewBuilder({ activeItem }: { activeItem: any }) {
   }, [activeItem.id]);
 
   const handleSave = async () => {
+    const workspaceId = activeItem.metadata?.workspaceId || activeWorkspaceId;
+    if (!workspaceId) {
+      alert("Selecione um workspace antes de salvar a view.");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const result = await executeKernelAction("views.save_definition", {
-        workspaceId: "workspace-acme-prod",
-        key: activeItem.id,
+        workspaceId,
+        key: activeItem.metadata?.key || activeItem.id,
         name: activeItem.label,
         config: { template: selectedTemplate }
       });
       if (result.success) alert("View salva com sucesso!");
-    } catch (e) {
+    } catch {
       alert("Erro ao salvar view.");
     } finally {
       setIsSaving(false);

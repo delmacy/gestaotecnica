@@ -1,17 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Info, Settings, Shield, Zap, History, Rocket, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { Info, Settings, Zap, History, Rocket, Database } from "lucide-react";
 
-export function BuilderInspector({ selectedItem, onUpdate, onActivate }: {
+export function BuilderInspector({ selectedItem, onUpdate, onActivate, activeWorkspaceId }: {
   selectedItem: any;
   onUpdate?: (id: string, updates: any) => void;
   onActivate?: (item: any) => void;
+  activeWorkspaceId?: string | null;
 }) {
-  const [isApplying, setIsApplying] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-
   if (!selectedItem) {
     return (
       <aside className="w-80 border-l bg-card/50 flex flex-col shrink-0 items-center justify-center p-8 text-center">
@@ -22,17 +19,11 @@ export function BuilderInspector({ selectedItem, onUpdate, onActivate }: {
     );
   }
 
-  const handleApply = () => {
-    setIsApplying(true);
-    // Simulate application of changes to the system
-    setTimeout(() => {
-      setIsApplying(false);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-    }, 800);
-  };
-
   const isCatalogItem = selectedItem.type === 'catalog_item';
+  const actions = Array.isArray(selectedItem.metadata?.actions) ? selectedItem.metadata.actions : [];
+  const metadataEntries = Object.entries(selectedItem.metadata || {})
+    .filter(([key, value]) => !["raw", "config", "definition", "actions"].includes(key) && value !== null && value !== undefined && value !== "")
+    .slice(0, 10);
 
   return (
     <aside className="w-80 border-l bg-card/50 flex flex-col shrink-0">
@@ -56,10 +47,14 @@ export function BuilderInspector({ selectedItem, onUpdate, onActivate }: {
                 <h3 className="text-xs font-bold uppercase tracking-tight">Capacidade Disponível</h3>
               </div>
               <p className="text-[10px] text-muted-foreground leading-relaxed mb-3">
-                Esta capacidade faz parte do core replicável da plataforma. Você pode ativá-la em um workspace para compor sua arquitetura.
+                Esta capacidade vem de {selectedItem.metadata?.source}. Ative em um workspace real para persistir em workspace_module_configs.
               </p>
+              <div className="text-[10px] font-mono text-muted-foreground mb-3 truncate">
+                WORKSPACE: {activeWorkspaceId || "selecione um workspace"}
+              </div>
               <button
                 onClick={() => onActivate?.(selectedItem)}
+                disabled={!activeWorkspaceId}
                 className="w-full bg-primary text-primary-foreground text-[10px] font-bold py-1.5 rounded uppercase hover:opacity-90 transition-opacity"
                 data-testid="btn-activate-capability"
               >
@@ -96,12 +91,12 @@ export function BuilderInspector({ selectedItem, onUpdate, onActivate }: {
 
               {selectedItem.type === 'workspace' && (
                 <div className="grid gap-1">
-                  <label className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Environment Type</label>
-                  <select className="w-full bg-background border rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-primary">
-                    <option>Production</option>
-                    <option>Staging</option>
-                    <option>Development</option>
-                  </select>
+                  <label className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">Status</label>
+                  <input
+                    className="w-full bg-muted/50 border rounded px-2 py-1 text-xs font-mono outline-none"
+                    readOnly
+                    value={selectedItem.metadata?.status || "sem status"}
+                  />
                 </div>
               )}
 
@@ -110,31 +105,28 @@ export function BuilderInspector({ selectedItem, onUpdate, onActivate }: {
                 <textarea
                   className="w-full bg-background border rounded px-2 py-1 text-sm focus:ring-1 focus:ring-primary outline-none min-h-20 resize-none"
                   placeholder={`Descreva este(a) ${selectedItem.type || 'elemento'}...`}
-                  defaultValue={selectedItem.metadata?.description || ''}
+                  value={selectedItem.metadata?.description || ''}
+                  onChange={(e) => onUpdate?.(selectedItem.id, { metadata: { ...selectedItem.metadata, description: e.target.value } })}
                 />
               </div>
             </div>
           </section>
 
-          {/* Access & Permissions */}
           <section>
             <div className="flex items-center gap-2 mb-3">
-              <Shield className="size-3.5 text-muted-foreground" />
-              <h3 className="text-xs font-bold uppercase tracking-tight">Governance</h3>
+              <Database className="size-3.5 text-muted-foreground" />
+              <h3 className="text-xs font-bold uppercase tracking-tight">Origem dos Dados</h3>
             </div>
             <div className="rounded-md border bg-muted/30 p-2 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Allowed Roles</span>
-                <span className="font-medium">Admin, Manager</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Visibility</span>
-                <span className="font-medium text-green-600">Public</span>
-              </div>
+              {metadataEntries.map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between gap-3 text-xs">
+                  <span className="text-muted-foreground">{key}</span>
+                  <span className="font-mono text-right truncate">{String(value)}</span>
+                </div>
+              ))}
             </div>
           </section>
 
-          {/* Connected Actions */}
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Zap className="size-3.5 text-muted-foreground" />
@@ -143,49 +135,39 @@ export function BuilderInspector({ selectedItem, onUpdate, onActivate }: {
               </h3>
             </div>
             <div className="space-y-1">
-              {selectedItem.metadata?.key ? (
-                <div className="text-xs p-2 bg-muted/20 rounded border border-dashed border-muted-foreground/20 text-muted-foreground italic">
-                  Extending {selectedItem.metadata.key} core actions...
-                </div>
-              ) : (
-                ['create', 'update', 'delete', 'archive'].map(act => (
-                  <div key={act} className="flex items-center gap-2 text-xs p-1.5 hover:bg-muted/50 rounded cursor-pointer group">
-                    <div className="size-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
-                    <span className="font-mono text-muted-foreground">{selectedItem.id}.</span>
-                    <span className="font-medium">{act}</span>
+              {actions.length ? (
+                actions.map((action: any) => (
+                  <div key={action.key} className="text-xs p-2 bg-muted/20 rounded border border-muted-foreground/20">
+                    <div className="font-mono font-medium">{action.key}</div>
+                    {action.description && <div className="text-[10px] text-muted-foreground mt-1">{action.description}</div>}
                   </div>
                 ))
+              ) : (
+                <div className="text-xs p-2 bg-muted/20 rounded border border-dashed border-muted-foreground/20 text-muted-foreground italic">
+                  Nenhuma action registrada para esta chave.
+                </div>
               )}
             </div>
           </section>
 
-          {/* Audit/History */}
           <section>
             <div className="flex items-center gap-2 mb-3">
               <History className="size-3.5 text-muted-foreground" />
-              <h3 className="text-xs font-bold uppercase tracking-tight">Metadata</h3>
+              <h3 className="text-xs font-bold uppercase tracking-tight">Rastreabilidade</h3>
             </div>
             <div className="text-[10px] font-mono text-muted-foreground leading-relaxed">
-              CREATED_AT: 2024-03-20T10:00:00Z<br/>
-              CREATED_BY: system_bootstrap<br/>
-              VERSION: 1.0.4-stable
+              SOURCE: {selectedItem.metadata?.source || "client_state"}<br/>
+              CREATED_AT: {selectedItem.metadata?.createdAt || "n/a"}<br/>
+              UPDATED_AT: {selectedItem.metadata?.updatedAt || "n/a"}
             </div>
           </section>
         </div>
       </div>
 
       <div className="p-4 border-t shrink-0">
-        <button
-          onClick={handleApply}
-          disabled={isApplying}
-          className={cn(
-            "w-full text-xs font-bold py-2 rounded shadow-sm transition-all uppercase flex items-center justify-center gap-2",
-            showSuccess ? "bg-green-600 text-white" : "bg-primary text-primary-foreground hover:opacity-90"
-          )}
-          data-testid="btn-apply-changes"
-        >
-          {isApplying ? "Applying..." : showSuccess ? <><CheckCircle2 className="size-4" /> Changes Applied</> : "Apply Changes"}
-        </button>
+        <div className={cn("rounded border bg-muted/30 p-2 text-[10px] text-muted-foreground", selectedItem.metadata?.source && "border-primary/20")}>
+          Alterações estruturais devem passar por uma kernel action registrada. Campos editáveis aqui só alteram a sessão visual até existir action específica.
+        </div>
       </div>
     </aside>
   );

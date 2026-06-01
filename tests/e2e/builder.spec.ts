@@ -1,16 +1,16 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Builder Interactivity', () => {
-  test('Ao clicar em um nó do Explorer, o Inspector deve aparecer', async ({ page }) => {
-    await page.goto('/builder');
+test.describe("Builder Interactivity", () => {
+  test("Ao clicar em um nó do Explorer, o Inspector deve aparecer", async ({ page }) => {
+    await page.goto("/builder");
 
-    // Verificar renderização do shell e arvore
-    await expect(page.getByText('Acme Holding')).toBeVisible();
+    await expect(page.getByRole("banner").getByText("System Assembler", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("tree-item-orgs")).toBeVisible();
+    await expect(page.getByTestId("tree-item-catalog")).toBeVisible();
 
-    // Clicar em um workspace pra abrir propriedades
-    await page.getByText('Produção Brasil').click();
+    await page.getByTestId("tree-item-orgs").click();
 
-    // Validar se o inspector refletiu a selecao ("Inspector" title ou nome da selection no inspector)
-    await expect(page.getByText('Selecione um elemento na árvore ou no canvas para ver suas propriedades.')).toBeHidden();
+    await expect(page.getByText("Selecione um elemento na árvore ou no canvas para ver suas propriedades.")).toBeHidden();
+    await expect(page.getByRole("heading", { name: "Organizações" })).toBeVisible();
   });
 });

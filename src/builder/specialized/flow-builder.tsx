@@ -20,7 +20,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { cn } from "@/lib/utils";
-import { Zap, Bell, Globe, BrainCircuit, Code, MessageSquare, ShieldAlert, Save, Loader2, Search, Plus } from "lucide-react";
+import { Zap, Bell, Globe, BrainCircuit, Code, Save, Loader2, Search, Plus } from "lucide-react";
 import { executeKernelAction, getPlatformDiscoveryData } from "@/platform/actions/remote-actions";
 
 type FlowNodeData = {
@@ -83,7 +83,21 @@ const initialEdges: Edge[] = [
   { id: 'e4-5', source: '4', target: '5' },
 ];
 
-export function FlowBuilder({ activeItem }: { activeItem: any }) {
+let flowNodeId = 0;
+
+function createFlowNodeId() {
+  if (globalThis.crypto?.randomUUID) return `node-${globalThis.crypto.randomUUID()}`;
+  flowNodeId += 1;
+  return `node-${flowNodeId}`;
+}
+
+export function FlowBuilder({
+  activeItem,
+  activeWorkspaceId,
+}: {
+  activeItem: any;
+  activeWorkspaceId: string | null;
+}) {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<FlowNodeData>>(
     [],
   );
@@ -104,7 +118,8 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
   useEffect(() => {
     const loadFlow = async () => {
       const result = await executeKernelAction("flows.get_definition", {
-        key: activeItem.id,
+        workspaceId: activeItem.metadata?.workspaceId || activeWorkspaceId,
+        key: activeItem.metadata?.key || activeItem.id,
       });
       if (result.success && result.data) {
         const flow = result.data as any;
@@ -120,7 +135,7 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
       }
     };
     loadFlow();
-  }, [activeItem.id, setNodes, setEdges]);
+  }, [activeItem.id, activeItem.metadata?.key, activeItem.metadata?.workspaceId, activeWorkspaceId, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
@@ -128,11 +143,17 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
   );
 
   const handleSave = async () => {
+    const workspaceId = activeItem.metadata?.workspaceId || activeWorkspaceId;
+    if (!workspaceId) {
+      alert("Selecione um workspace antes de salvar o fluxo.");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const result = await executeKernelAction("flows.save_definition", {
-        workspaceId: "workspace-acme-prod",
-        key: activeItem.id,
+        workspaceId,
+        key: activeItem.metadata?.key || activeItem.id,
         name: activeItem.label,
         definition: { nodes, edges },
       });
@@ -140,7 +161,7 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
         alert("Fluxo de automação salvo e registrado no Kernel!");
         setStatus("draft");
       }
-    } catch (e) {
+    } catch {
       alert("Falha ao salvar fluxo.");
     } finally {
       setIsSaving(false);
@@ -148,17 +169,23 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
   };
 
   const handlePublish = async () => {
+    const workspaceId = activeItem.metadata?.workspaceId || activeWorkspaceId;
+    if (!workspaceId) {
+      alert("Selecione um workspace antes de publicar o fluxo.");
+      return;
+    }
+
     setIsPublishing(true);
     try {
       const result = await executeKernelAction("flows.publish", {
-        workspaceId: "workspace-acme-prod",
-        key: activeItem.id,
+        workspaceId,
+        key: activeItem.metadata?.key || activeItem.id,
       });
       if (result.success) {
         alert("Fluxo publicado com sucesso!");
         setStatus("published");
       }
-    } catch (e) {
+    } catch {
       alert("Falha ao publicar fluxo.");
     } finally {
       setIsPublishing(false);
@@ -166,7 +193,7 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
   };
 
   const addDiscoveryNode = (item: any, type: "action" | "event") => {
-    const id = `node-${Date.now()}`;
+    const id = createFlowNodeId();
     const newNode: Node<FlowNodeData> = {
       id,
       type: 'flow',

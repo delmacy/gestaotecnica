@@ -52,7 +52,7 @@ export async function ensureActiveWorkspaceConfig() {
       set: {
         name: activeAdaptation.workspaceName,
         adaptationKey: activeAdaptation.key,
-        isActive: true,
+        status: "active",
         metadata: {
           adaptationName: activeAdaptation.name,
           terminology: activeAdaptation.terminology,

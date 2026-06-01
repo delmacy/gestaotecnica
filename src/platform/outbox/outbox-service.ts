@@ -3,7 +3,6 @@ import { getRuntimeDb } from "@/db";
 import { outboxEvents } from "@/db/runtime/schema/workflow";
 import { runFlowsForEvent } from "@/platform/flows";
 import { ProcessOrchestrator } from "@/platform/workflows/infra/process-orchestrator";
-import { DynamicFlowRunner } from "@/platform/workflows/infra/flow-runner-service";
 import type { EmittedEvent } from "@/platform/events";
 import type { WorkspaceContext } from "@/platform/workspace";
 
@@ -61,10 +60,6 @@ export async function processFlowOutboxEvent(
 
     // 2. Automations (Static Flows - Code)
     await runFlowsForEvent(event, context);
-
-    // 3. Dynamic Automations (Builder Flows - JSON)
-    const dynamicRunner = new DynamicFlowRunner();
-    await dynamicRunner.runForEvent(event, context);
 
     await db
       .update(outboxEvents)

@@ -40,3 +40,12 @@ process-editor/
 - O código antigo em `src/builder/*` permanece legado/experimental e não é a rota principal do MVP reduzido.
 - React Flow será introduzido somente na próxima fase.
 - Não há server actions, API, banco, timeline ou persistência nesta tela.
+
+## Fase 05 — Canvas visual com React Flow
+
+- `@xyflow/react` foi introduzido apenas na camada `canvas`.
+- O domínio continua estritamente em `types/`.
+- `BuilderNode` e `BuilderEdge` continuam sendo os modelos canônicos de negócio.
+- O arquivo `builder-flow-adapter.ts` age como o adaptador convertendo o estado visual da tela de volta para o domínio do Builder e vice-versa.
+- React Flow não atua como fonte da verdade. O estado canônico é gerido pelo hook `useBuilderEditorState`.
+- Todo o estado continua existindo localmente em memória. Não há API, banco de dados ou runtime no momento.

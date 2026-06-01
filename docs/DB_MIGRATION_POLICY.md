@@ -2,11 +2,9 @@
 
 ## 1. Objetivo
 
-Explicar que o projeto usa PostgreSQL com schemas lógicos para separar bounded contexts da plataforma e do runtime.
+O projeto usa PostgreSQL com schemas lógicos para separar bounded contexts da plataforma e do runtime.
 
 ## 2. Schemas lógicos
-
-Listar:
 
 * `public` — legado/transição;
 * `workspace` — organizações e workspaces;
@@ -25,7 +23,7 @@ Isso é necessário porque `pgSchema` no código TypeScript não garante, sozinh
 
 ## 4. Uso de push vs migrations
 
-Política temporária:
+A seguinte política temporária deve ser respeitada:
 
 * `drizzle-kit push` pode ser usado apenas em desenvolvimento inicial;
 * produção ou ambientes persistentes devem migrar gradualmente para migrations explícitas;
@@ -34,7 +32,7 @@ Política temporária:
 
 ## 5. Ordem segura de evolução
 
-Ordem:
+A evolução do banco deve seguir esta ordem segura:
 
 1. criar schemas físicos;
 2. criar tabelas fundacionais;

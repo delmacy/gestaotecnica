@@ -33,3 +33,10 @@ process-editor/
 - Ainda não há implementação real com React Flow (usamos um placeholder no momento).
 - Ainda não há persistência ou API atrelada.
 - O canvas real, com nós arrastáveis e rotas, será conectado em fase posterior.
+
+## Fase 04B — Correção de escopo
+
+- A rota `/builder` agora usa o shell reduzido em `src/features/builder`.
+- O código antigo em `src/builder/*` permanece legado/experimental e não é a rota principal do MVP reduzido.
+- React Flow será introduzido somente na próxima fase.
+- Não há server actions, API, banco, timeline ou persistência nesta tela.

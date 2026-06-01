@@ -1,0 +1,152 @@
+import {
+  pgSchema,
+  text,
+  timestamp,
+  uuid,
+  boolean,
+  jsonb,
+} from "drizzle-orm/pg-core";
+
+export const registrySchema = pgSchema("registry");
+
+export const capabilities = registrySchema.table("capabilities", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const modules = registrySchema.table("modules", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const moduleVersions = registrySchema.table("module_versions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  moduleId: uuid("module_id").notNull().references(() => modules.id),
+  version: text("version").notNull(),
+  configSchema: jsonb("config_schema").notNull().default({}),
+  changelog: text("changelog"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const moduleCapabilities = registrySchema.table("module_capabilities", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  moduleId: uuid("module_id").notNull().references(() => modules.id),
+  capabilityId: uuid("capability_id").notNull().references(() => capabilities.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+import {
+  pgSchema,
+  text,
+  timestamp,
+  uuid,
+  jsonb,
+} from "drizzle-orm/pg-core";
+
+export const blueprintsSchema = pgSchema("blueprints");
+
+export const blueprints = blueprintsSchema.table("blueprints", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  category: text("category"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const blueprintVersions = blueprintsSchema.table("blueprint_versions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  blueprintId: uuid("blueprint_id").notNull().references(() => blueprints.id),
+  version: text("version").notNull(),
+  definition: jsonb("definition").notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+import {
+  pgSchema,
+  text,
+  timestamp,
+  uuid,
+  jsonb,
+} from "drizzle-orm/pg-core";
+
+export const identitySchema = pgSchema("identity");
+
+export const usersTable = identitySchema.table("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  status: text("status").notNull().default("active"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Alias for backward compatibility and to avoid Turbopack circular definition errors
+export const users = usersTable;
+
+export const roles = identitySchema.table("roles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  workspaceId: uuid("workspace_id"), // Null for global roles, not null for workspace specific
+  key: text("key").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const permissions = identitySchema.table("permissions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  roleId: uuid("role_id").notNull().references(() => roles.id),
+  action: text("action").notNull(),
+  resource: text("resource").notNull(),
+  effect: text("effect").notNull().default("allow"),
+  condition: jsonb("condition"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+import {
+  pgSchema,
+  text,
+  timestamp,
+  uuid,
+  jsonb,
+} from "drizzle-orm/pg-core";
+
+export const workspaceSchema = pgSchema("workspace");
+
+export const organizations = workspaceSchema.table("organizations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").notNull().unique(),
+  name: text("name").notNull(),
+  status: text("status").notNull().default("active"),
+  metadata: jsonb("metadata").notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const workspaces = workspaceSchema.table("workspaces", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id").references(() => organizations.id),
+  key: text("key").notNull().unique(),
+  name: text("name").notNull(),
+  status: text("status").notNull().default("active"),
+  config: jsonb("config").notNull().default({}),
+  adaptationKey: text("adaptation_key"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const workspaceMembers = workspaceSchema.table("workspace_members", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+  userId: uuid("user_id").notNull(), // References identity.users.id
+  status: text("status").notNull().default("active"),
+  joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
+});

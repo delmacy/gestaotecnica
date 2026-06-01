@@ -1,9 +1,7 @@
 # System Builder MVP
 
 ## 1. Propósito
-
 O System Builder é uma plataforma para modelar, gerar e operar sistemas empresariais orientados por processos.
-
 A ideia central:
 - o processo vem antes da tela;
 - a operação real da organização deve ser espelhada pelo sistema;
@@ -12,10 +10,8 @@ A ideia central:
 > The principle is the process.
 
 ## 2. Diferença entre System Builder e n8n
-
 - n8n = workflow automation builder;
 - System Builder = business system/process builder.
-
 O n8n serve como referência de experiência visual, não como modelo de domínio.
 
 | Tema | n8n | System Builder |
@@ -27,9 +23,7 @@ O n8n serve como referência de experiência visual, não como modelo de domíni
 | Execução | Workflow run | Process instance/runtime operacional |
 
 ## 3. Objetivo do MVP
-
 O núcleo mínimo do MVP inclui:
-
 1. desenhar processo em canvas visual;
 2. adicionar blocos/nós;
 3. conectar nós;
@@ -41,7 +35,6 @@ O núcleo mínimo do MVP inclui:
 9. manter rastreabilidade mínima.
 
 ## 4. Fluxo esperado do MVP
-
 ```text
 Criar workspace
 ↓
@@ -65,9 +58,7 @@ Consultar histórico
 ```
 
 ## 5. Escopo funcional inicial
-
 Os blocos iniciais são:
-
 * start
 * human_task
 * form
@@ -79,9 +70,7 @@ Os blocos iniciais são:
 * end
 
 ## 6. Fora do escopo nesta versão
-
 Listados explicitamente:
-
 * marketplace;
 * IA geradora completa;
 * integração real com n8n;
@@ -97,9 +86,7 @@ Listados explicitamente:
 * importação/exportação avançada.
 
 ## 7. Critério de sucesso do MVP
-
 O MVP será considerado bem-sucedido quando for possível:
-
 ```text
 desenhar um processo
 ↓

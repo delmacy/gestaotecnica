@@ -10,6 +10,7 @@ import {
   useEdgesState,
   useNodesState,
   type Connection,
+  type Node,
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
@@ -72,7 +73,7 @@ function BuilderCanvasInner({ state, actions }: BuilderCanvasProps) {
   );
 
   const onNodeDragStop = useCallback(
-    (_: React.MouseEvent, __: any, flowNodes: any[]) => {
+    (_: React.MouseEvent, __: Node, flowNodes: Node[]) => {
       // XYFlow triggers this. We sync back to our canonical domain state.
       const canonicalNodes = applyBuilderNodePositions(state.draft.nodes, flowNodes);
       actions.updateNodePositions(canonicalNodes);
@@ -81,7 +82,7 @@ function BuilderCanvasInner({ state, actions }: BuilderCanvasProps) {
   );
 
   const onNodeClick = useCallback(
-    (_: React.MouseEvent, node: any) => {
+    (_: React.MouseEvent, node: Node) => {
       actions.selectNode(node.id);
     },
     [actions]

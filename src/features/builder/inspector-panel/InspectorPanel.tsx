@@ -1,5 +1,6 @@
 import React from "react";
 import type { BuilderEditorActions, BuilderEditorState } from "../state";
+import { NodeConfigPanel } from "./NodeConfigPanel";
 
 export type InspectorPanelProps = {
   state: BuilderEditorState;
@@ -77,12 +78,19 @@ export function InspectorPanel({ state, actions }: InspectorPanelProps) {
               />
             </div>
 
-            <div className="flex flex-col gap-1.5 mt-4">
-              <label className="text-xs font-semibold text-slate-700">Configuração (Read-only)</label>
+            <div className="mt-4 pt-4 border-t border-slate-200">
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">
+                Configurações Específicas
+              </h3>
+              <NodeConfigPanel node={selectedNode} actions={actions} />
+            </div>
+
+            <div className="flex flex-col gap-1.5 mt-6 pt-4 border-t border-slate-200">
+              <label className="text-xs font-semibold text-slate-700">Configuração (Debug JSON)</label>
               <textarea
                 readOnly
                 rows={6}
-                className="text-xs font-mono px-3 py-2 border border-slate-300 rounded bg-slate-50 text-slate-600 resize-none focus:outline-none"
+                className="text-[10px] font-mono p-3 border border-slate-300 rounded bg-slate-50 text-slate-500 resize-none focus:outline-none"
                 value={JSON.stringify(selectedNode.config, null, 2)}
               />
             </div>

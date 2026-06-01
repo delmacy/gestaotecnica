@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { createEmptyBuilderDraft } from "../process-editor/create-empty-builder-draft";
 import { getBuilderBlockDefinition } from "../block-library/block-catalog";
 import type { BuilderEditorState, BuilderEditorActions, AddBuilderNodeInput } from "./builder-editor-state";
-import type { BuilderId, BuilderNode } from "../types";
+import type { BuilderEdge, BuilderId, BuilderNode } from "../types";
 
 export function useBuilderEditorState() {
   const [state, setState] = useState<BuilderEditorState>(() => ({

@@ -11,14 +11,24 @@ export async function executeKernelAction(
   payload: unknown,
   path?: string,
 ) {
-  const context = await resolveWorkspaceContext({ source: "ui" });
-  const result = await runAction(actionKey, payload, context);
+  try {
+    const context = await resolveWorkspaceContext({ source: "ui" });
+    const result = await runAction(actionKey, payload, context);
 
-  if (result.success && path) {
-    revalidatePath(path);
+    if (result.success && path) {
+      revalidatePath(path);
+    }
+
+    return result;
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        code: "ACTION_FAILED",
+        message: error instanceof Error ? error.message : "Falha ao executar action.",
+      },
+    };
   }
-
-  return result;
 }
 
 export async function getPlatformDiscoveryData() {

@@ -13,9 +13,13 @@ import { Box, Database } from "lucide-react";
 export function BuilderCanvas({
   activeItem,
   activeWorkspaceId,
+  onUpdateItem,
+  onCreateChild,
 }: {
   activeItem: any;
   activeWorkspaceId: string | null;
+  onUpdateItem?: (id: string, updates: any) => void;
+  onCreateChild?: (parentId: string) => void;
 }) {
   if (!activeItem) {
     return (
@@ -41,7 +45,14 @@ export function BuilderCanvas({
       case 'users':
       case 'roles':
       case 'integrations':
-        return <OrganizationBuilder activeItem={activeItem} />;
+        return (
+          <OrganizationBuilder
+            key={activeItem.id}
+            activeItem={activeItem}
+            onSave={(updates) => onUpdateItem?.(activeItem.id, updates)}
+            onCreateChild={activeItem.type === "organization" ? () => onCreateChild?.(activeItem.id) : undefined}
+          />
+        );
 
       case 'capability':
       case 'catalog_item':

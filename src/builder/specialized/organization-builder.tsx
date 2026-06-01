@@ -3,16 +3,75 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, Globe, Users, ShieldCheck, Zap, Layers, Plus, Loader2 } from "lucide-react";
+import { Globe, Users, ShieldCheck, Zap, Layers, Plus, Loader2, Save } from "lucide-react";
 import { useState } from "react";
 import { executeKernelAction } from "@/platform/actions/remote-actions";
 
-export function OrganizationBuilder({ activeItem }: { activeItem: any }) {
+export function OrganizationBuilder({
+  activeItem,
+  onSave,
+  onCreateChild,
+}: {
+  activeItem: any;
+  onSave?: (updates: { label: string; metadata?: any }) => void;
+  onCreateChild?: () => void;
+}) {
   const isWorkspace = activeItem.type === 'workspace';
   const [isCreating, setIsCreating] = useState(false);
-  const [formData, setFormData] = useState({ name: activeItem.label, key: activeItem.metadata?.key || activeItem.id });
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    name: activeItem.label,
+    key: activeItem.metadata?.key || activeItem.id,
+    adaptationKey: activeItem.metadata?.adaptationKey || "",
+  });
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      if (activeItem.metadata?.source === "client_draft") {
+        onSave?.({
+          label: formData.name,
+          metadata: {
+            ...activeItem.metadata,
+            adaptationKey: isWorkspace ? formData.adaptationKey || null : activeItem.metadata?.adaptationKey,
+            updatedAt: new Date().toISOString(),
+          },
+        });
+        alert(activeItem.metadata?.persistenceError ? `Rascunho salvo localmente. Banco indisponível: ${activeItem.metadata.persistenceError}` : "Rascunho salvo localmente.");
+        return;
+      }
+
+      const actionKey = isWorkspace ? "workspaces.update" : "organizations.update";
+      const result = await executeKernelAction(actionKey, {
+        id: activeItem.id,
+        name: formData.name,
+        adaptationKey: formData.adaptationKey || undefined,
+      });
+
+      if (!result.success) {
+        alert(result.error?.message || "Não foi possível salvar as alterações.");
+        return;
+      }
+
+      onSave?.({
+        label: formData.name,
+        metadata: {
+          ...activeItem.metadata,
+          adaptationKey: isWorkspace ? formData.adaptationKey || null : activeItem.metadata?.adaptationKey,
+          updatedAt: new Date().toISOString(),
+        },
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleCreateChild = async () => {
+    if (onCreateChild) {
+      onCreateChild();
+      return;
+    }
+
     setIsCreating(true);
     try {
       if (activeItem.type === 'organization') {
@@ -29,7 +88,7 @@ export function OrganizationBuilder({ activeItem }: { activeItem: any }) {
         });
         if (result.success) alert("Nova Organização registrada no tenant!");
       }
-    } catch (e) {
+    } catch {
       alert("Falha ao persistir no banco.");
     } finally {
       setIsCreating(false);
@@ -52,6 +111,14 @@ export function OrganizationBuilder({ activeItem }: { activeItem: any }) {
             {isCreating && <Loader2 className="size-4 animate-spin" />}
             {activeItem.type === 'organization' ? '+ New Workspace' : 'Configure Domain'}
           </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="border bg-background px-4 py-2 rounded-md text-sm font-bold uppercase shadow-sm hover:bg-muted flex items-center gap-2"
+          >
+            {isSaving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+            Salvar
+          </button>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -66,6 +133,17 @@ export function OrganizationBuilder({ activeItem }: { activeItem: any }) {
                   <Label>Nome Amigável</Label>
                   <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
                 </div>
+                {isWorkspace && (
+                  <div className="grid gap-2">
+                    <Label>Adaptação</Label>
+                    <Input
+                      value={formData.adaptationKey}
+                      onChange={e => setFormData({...formData, adaptationKey: e.target.value})}
+                      placeholder="secao-tecnica"
+                      className="font-mono text-xs"
+                    />
+                  </div>
+                )}
              </CardContent>
            </Card>
 
@@ -74,7 +152,7 @@ export function OrganizationBuilder({ activeItem }: { activeItem: any }) {
                 <CardContent className="p-4 flex items-center gap-4">
                    <div className="size-10 rounded bg-blue-100 text-blue-700 flex items-center justify-center"><Users className="size-5" /></div>
                    <div>
-                      <div className="text-2xl font-bold">124</div>
+                      <div className="text-2xl font-bold">{activeItem.metadata?.status || "active"}</div>
                       <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Active Populations</p>
                    </div>
                 </CardContent>
@@ -83,7 +161,7 @@ export function OrganizationBuilder({ activeItem }: { activeItem: any }) {
                 <CardContent className="p-4 flex items-center gap-4">
                    <div className="size-10 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center"><Layers className="size-5" /></div>
                    <div>
-                      <div className="text-2xl font-bold">8</div>
+                      <div className="text-2xl font-bold">{activeItem.children?.find((child: any) => child.id?.startsWith("caps-"))?.children?.length || 0}</div>
                       <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Activated Capabilities</p>
                    </div>
                 </CardContent>
@@ -122,7 +200,10 @@ export function OrganizationBuilder({ activeItem }: { activeItem: any }) {
               </button>
             </div>
             <div className="space-y-2">
-              {['Work Management', 'Asset Tracking', 'Workforce Optimization'].map(pack => (
+              {(activeItem.children?.find((child: any) => child.id?.startsWith("caps-"))?.children?.length
+                ? activeItem.children.find((child: any) => child.id?.startsWith("caps-")).children.map((child: any) => child.label)
+                : ["Nenhuma capability instalada"]
+              ).map((pack: string) => (
                 <div key={pack} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="size-8 rounded bg-white flex items-center justify-center shadow-sm">

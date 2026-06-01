@@ -6,6 +6,7 @@ import { flowDefinitions, forms, processDefinitions } from "@/db/runtime/schema/
 import { workspaceModuleConfigs } from "@/db/schema";
 import { initializePlatformKernel } from "@/platform/kernel";
 import { listActions } from "@/platform/actions";
+import { ecosystemModules } from "@/platform/workspaces/module-catalog";
 import type { TreeItem } from "@/builder/explorer";
 
 type BuilderData = {
@@ -45,6 +46,27 @@ function emptyGroup(id: string, label: string, iconName: string): TreeItem {
 
 function fallbackBuilderData(error: unknown): BuilderData {
   const message = error instanceof Error ? error.message : "Fonte de dados indisponível";
+  const actions = listActions().map((action) => ({
+    key: action.key,
+    description: action.description,
+    moduleKey: action.moduleKey,
+  }));
+  const catalogItems: TreeItem[] = ecosystemModules.map((module) => ({
+    id: `registry-fallback-${module.key}`,
+    label: module.name,
+    type: "catalog_item",
+    iconName: "Library",
+    metadata: {
+      source: "module-catalog",
+      key: module.key,
+      description: module.description,
+      layer: module.layer,
+      status: module.status,
+      isActive: true,
+      actions: actionSummariesFor(module.key, actions),
+      unavailableReason: message,
+    },
+  }));
 
   return {
     initialWorkspaceId: null,
@@ -67,12 +89,7 @@ function fallbackBuilderData(error: unknown): BuilderData {
         label: "Capability Registry",
         iconName: "Library",
         type: "group" as const,
-        children: [
-          {
-            ...emptyGroup("catalog-empty", "Nenhuma capability disponível", "Info"),
-            metadata: { source: "error", message },
-          },
-        ],
+        children: catalogItems,
         metadata: { source: "error", message },
       },
     ],
@@ -292,19 +309,42 @@ export async function getBuilderTreeData(): Promise<BuilderData> {
       children: workspaceChildren(workspace.id),
     }));
 
-  const catalogItems: TreeItem[] = capabilityRows.map((capability): TreeItem => ({
-    id: `registry-${capability.id}`,
-    label: capability.name,
+  const catalogItems: TreeItem[] = (capabilityRows.length
+    ? capabilityRows.map((capability) => ({
+      id: `registry-${capability.id}`,
+      label: capability.name,
+      key: capability.key,
+      description: capability.description,
+      isActive: capability.isActive,
+      createdAt: capability.createdAt?.toISOString(),
+      updatedAt: capability.updatedAt?.toISOString(),
+    }))
+    : ecosystemModules.map((module) => ({
+      id: `registry-fallback-${module.key}`,
+      label: module.name,
+      key: module.key,
+      description: module.description,
+      isActive: true,
+      layer: module.layer,
+      status: module.status,
+      createdAt: undefined,
+      updatedAt: undefined,
+    }))
+  ).map((capability): TreeItem => ({
+    id: capability.id,
+    label: capability.label,
     type: "catalog_item",
     iconName: "Library",
     metadata: {
-      source: "registry.capabilities",
+      source: capability.id.startsWith("registry-fallback-") ? "module-catalog" : "registry.capabilities",
       key: capability.key,
       description: capability.description,
       isActive: capability.isActive,
       actions: actionSummariesFor(capability.key, actions),
-      createdAt: capability.createdAt?.toISOString(),
-      updatedAt: capability.updatedAt?.toISOString(),
+      layer: "layer" in capability ? capability.layer : undefined,
+      status: "status" in capability ? capability.status : undefined,
+      createdAt: capability.createdAt,
+      updatedAt: capability.updatedAt,
     },
   }));
 

@@ -94,22 +94,26 @@ export function BuilderShell({
       const label = "Nova Organização";
 
       const result = await executeKernelAction("organizations.create", { key, name: label });
-      if (result.success) {
-        addTimelineEntry({ type: "audit", title: `Created Organization: ${label}`, payload: { key, result: "SUCCESS" } });
-        const newItem: TreeItem = {
-          id: (result.data as any).id,
-          label,
-          type: "organization",
-          iconName: "Building2",
-          metadata: {
-            source: "workspace.organizations",
-            key,
-          },
-          children: []
-        };
-        setTreeData(addRecursive(treeData, parentId, newItem));
-        setSelectedItem(newItem);
-      }
+      const persisted = result.success;
+      const newItem: TreeItem = {
+        id: persisted ? (result.data as any).id : key,
+        label,
+        type: "organization",
+        iconName: "Building2",
+        metadata: {
+          source: persisted ? "workspace.organizations" : "client_draft",
+          key,
+          persistenceError: persisted ? undefined : result.error?.message,
+        },
+        children: []
+      };
+      addTimelineEntry({
+        type: persisted ? "audit" : "system",
+        title: persisted ? `Created Organization: ${label}` : `Draft Organization: ${label}`,
+        payload: { key, result: persisted ? "SUCCESS" : "LOCAL_DRAFT", error: result.error?.message },
+      });
+      setTreeData(addRecursive(treeData, parentId, newItem));
+      setSelectedItem(newItem);
       return;
     }
 
@@ -118,25 +122,29 @@ export function BuilderShell({
         const key = createClientKey("ws");
         const label = "Novo Workspace";
         const result = await executeKernelAction("workspaces.create", { organizationId: orgId, key, name: label });
-        if (result.success) {
-          addTimelineEntry({ type: "audit", title: `Provisioned Workspace: ${label}`, payload: { orgId, key } });
-          const workspaceId = (result.data as any).id;
-          const newItem: TreeItem = {
-            id: workspaceId,
-            label,
-            type: "workspace",
-            iconName: "Globe",
-            metadata: {
-              source: "workspace.workspaces",
-              key,
-              organizationId: orgId,
-            },
-            children: createWorkspaceGroups(workspaceId),
-          };
-          setTreeData(addRecursive(treeData, parentId, newItem));
-          setActiveWorkspaceId(workspaceId);
-          setSelectedItem(newItem);
-        }
+        const persisted = result.success;
+        const workspaceId = persisted ? (result.data as any).id : key;
+        const newItem: TreeItem = {
+          id: workspaceId,
+          label,
+          type: "workspace",
+          iconName: "Globe",
+          metadata: {
+            source: persisted ? "workspace.workspaces" : "client_draft",
+            key,
+            organizationId: orgId,
+            persistenceError: persisted ? undefined : result.error?.message,
+          },
+          children: createWorkspaceGroups(workspaceId),
+        };
+        addTimelineEntry({
+          type: persisted ? "audit" : "system",
+          title: persisted ? `Provisioned Workspace: ${label}` : `Draft Workspace: ${label}`,
+          payload: { orgId, key, result: persisted ? "SUCCESS" : "LOCAL_DRAFT", error: result.error?.message },
+        });
+        setTreeData(addRecursive(treeData, parentId, newItem));
+        setActiveWorkspaceId(workspaceId);
+        setSelectedItem(newItem);
         return;
     }
 
@@ -185,9 +193,10 @@ export function BuilderShell({
   const addRecursive = (items: TreeItem[], parentId: string, newItem: TreeItem): TreeItem[] => {
     return items.map(item => {
       if (item.id === parentId) {
+        const existingChildren = (item.children || []).filter((child) => child.metadata?.source !== "empty" && child.id !== `${parentId}-empty`);
         return {
           ...item,
-          children: [...(item.children || []), newItem]
+          children: [...existingChildren, newItem]
         };
       }
       return {
@@ -211,11 +220,12 @@ export function BuilderShell({
       name: capability.label
     });
 
-    if (result.success) {
+    if (result.success || activeWorkspaceId?.startsWith("ws-")) {
+      const persisted = result.success;
       addTimelineEntry({
-        type: "action",
-        title: `Capability Installed: ${capability.label}`,
-        payload: { workspaceId: targetWorkspaceId, capability: capability.metadata?.key }
+        type: persisted ? "action" : "system",
+        title: persisted ? `Capability Installed: ${capability.label}` : `Draft Capability: ${capability.label}`,
+        payload: { workspaceId: targetWorkspaceId, capability: capability.metadata?.key, result: persisted ? "SUCCESS" : "LOCAL_DRAFT" }
       });
       const addRecursiveItems = (items: TreeItem[]): TreeItem[] => {
         return items.map(item => {
@@ -227,15 +237,16 @@ export function BuilderShell({
               ...item,
               children: [...(item.children || []), {
                  ...capability,
-                 id: "installed-capability-" + ((result.data as any)?.id || capability.id),
+                 id: "installed-capability-" + (persisted ? ((result.data as any)?.id || capability.id) : capability.id),
                  type: "capability",
                  iconName: "Layers",
                  metadata: {
                   ...capability.metadata,
-                  source: "workspace_module_configs",
+                  source: persisted ? "workspace_module_configs" : "client_draft",
                   workspaceId: targetWorkspaceId,
-                  status: (result.data as any)?.status,
-                  layer: (result.data as any)?.layer,
+                  status: persisted ? (result.data as any)?.status : "draft",
+                  layer: persisted ? (result.data as any)?.layer : capability.metadata?.layer,
+                  persistenceError: persisted ? undefined : result.error?.message,
                  }
               }]
             };
@@ -248,7 +259,12 @@ export function BuilderShell({
       };
 
       setTreeData(addRecursiveItems(treeData));
-      alert(`Capacidade "${capability.label}" instalada e habilitada no ambiente operacional!`);
+      alert(persisted
+        ? `Capacidade "${capability.label}" instalada e habilitada no ambiente operacional!`
+        : `Capacidade "${capability.label}" adicionada ao rascunho local.`
+      );
+    } else {
+      alert(result.error?.message || "Não foi possível instalar a capability.");
     }
   };
 
@@ -349,7 +365,12 @@ export function BuilderShell({
             onAdd={addItem}
           />
           <div className="flex-1 flex flex-col overflow-hidden relative">
-            <BuilderCanvas activeItem={selectedItem} activeWorkspaceId={activeWorkspaceId} />
+            <BuilderCanvas
+              activeItem={selectedItem}
+              activeWorkspaceId={activeWorkspaceId}
+              onUpdateItem={updateItem}
+              onCreateChild={(parentId) => { void addItem(parentId); }}
+            />
 
             {/* Timeline Panel */}
             <div className={cn(

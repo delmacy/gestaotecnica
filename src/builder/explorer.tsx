@@ -24,7 +24,8 @@ import {
   Layout,
   Layers,
   Database,
-  Info
+  Info,
+  PackagePlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -109,18 +110,28 @@ function TreeItemNode({ item, level = 0, onSelect, selectedId, onRemove, onAdd }
         <span className="truncate flex-1">{item.label}</span>
 
         {/* Inline Actions */}
-        <div className="hidden group-hover:flex items-center gap-1">
+        <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100">
           {onAdd && (item.type === 'group' || item.type === 'subgroup' || item.type === 'workspace' || item.type === 'organization') && (
-            <Plus
-              className="size-3 text-muted-foreground hover:text-primary action-add"
+            <button
+              type="button"
+              className="size-6 inline-flex items-center justify-center rounded border border-transparent text-muted-foreground hover:border-border hover:bg-background hover:text-primary action-add"
+              title={item.type === "organization" ? "Criar workspace" : item.id === "orgs" ? "Criar organização" : "Criar item"}
+              aria-label={item.type === "organization" ? "Criar workspace" : item.id === "orgs" ? "Criar organização" : "Criar item"}
               onClick={(e) => { e.stopPropagation(); onAdd(item.id); }}
-            />
+            >
+              <Plus className="size-3.5" />
+            </button>
           )}
           {onRemove && (item.type !== 'group' && item.type !== 'users' && item.type !== 'roles') && (
-            <Trash2
-              className="size-3 text-muted-foreground hover:text-destructive action-remove"
+            <button
+              type="button"
+              className="size-6 inline-flex items-center justify-center rounded border border-transparent text-muted-foreground hover:border-border hover:bg-background hover:text-destructive action-remove"
+              title="Remover"
+              aria-label="Remover"
               onClick={(e) => { e.stopPropagation(); onRemove(item.id); }}
-            />
+            >
+              <Trash2 className="size-3.5" />
+            </button>
           )}
         </div>
       </div>
@@ -190,12 +201,22 @@ export function BuilderExplorer({ onSelect, selectedId, treeData, onRemove, onAd
       </div>
 
       <div className="p-3 border-t bg-muted/10 shrink-0">
-        <button
-          onClick={() => onAdd('orgs')}
-          className="w-full border border-dashed border-muted-foreground/30 rounded-md py-2 text-[10px] font-bold uppercase text-muted-foreground hover:bg-white hover:border-primary/50 hover:text-primary transition-all"
-        >
-          + New Organization
-        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => onAdd('orgs')}
+            className="border border-dashed border-muted-foreground/30 rounded-md py-2 text-[10px] font-bold uppercase text-muted-foreground hover:bg-white hover:border-primary/50 hover:text-primary transition-all"
+          >
+            <Plus className="size-3 inline-block mr-1" />
+            Organização
+          </button>
+          <button
+            onClick={() => onSelect(treeData.find((item) => item.id === "catalog") || treeData[0])}
+            className="border rounded-md py-2 text-[10px] font-bold uppercase text-muted-foreground hover:bg-white hover:border-primary/50 hover:text-primary transition-all"
+          >
+            <PackagePlus className="size-3 inline-block mr-1" />
+            Capabilities
+          </button>
+        </div>
       </div>
     </aside>
   );

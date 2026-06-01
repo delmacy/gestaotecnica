@@ -21,6 +21,11 @@ type CreateOrganizationInput = {
   name: string;
 };
 
+type UpdateOrganizationInput = {
+  id: string;
+  name: string;
+};
+
 export const createOrganizationKernelAction: ActionDefinition<CreateOrganizationInput, { id: string; key: string }> = {
   key: "organizations.create",
   moduleKey: "workspace",
@@ -53,10 +58,49 @@ export const createOrganizationKernelAction: ActionDefinition<CreateOrganization
   },
 };
 
+export const updateOrganizationKernelAction: ActionDefinition<UpdateOrganizationInput, { id: string; name: string }> = {
+  key: "organizations.update",
+  moduleKey: "workspace",
+  description: "Atualiza os metadados editáveis de uma organização.",
+  callableBy: ["ui", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      id: uuidProperty("ID da organização."),
+      name: stringProperty("Nome amigável da organização."),
+    },
+    ["id", "name"],
+  ),
+  async handler(input) {
+    const db = getRuntimeDb();
+    const [org] = await db
+      .update(organizations)
+      .set({
+        name: input.name,
+        updatedAt: new Date(),
+      })
+      .where(eq(organizations.id, input.id))
+      .returning({
+        id: organizations.id,
+        name: organizations.name,
+      });
+
+    return {
+      success: true,
+      data: org,
+    };
+  },
+};
+
 type CreateWorkspaceInput = {
   organizationId: string;
   key: string;
   name: string;
+};
+
+type UpdateWorkspaceInput = {
+  id: string;
+  name: string;
+  adaptationKey?: string;
 };
 
 export const createWorkspaceKernelAction: ActionDefinition<CreateWorkspaceInput, { id: string; key: string }> = {
@@ -85,6 +129,42 @@ export const createWorkspaceKernelAction: ActionDefinition<CreateWorkspaceInput,
       .returning({
         id: workspaces.id,
         key: workspaces.key,
+      });
+
+    return {
+      success: true,
+      data: workspace,
+    };
+  },
+};
+
+export const updateWorkspaceKernelAction: ActionDefinition<UpdateWorkspaceInput, { id: string; name: string; adaptationKey: string | null }> = {
+  key: "workspaces.update",
+  moduleKey: "workspace",
+  description: "Atualiza os metadados editáveis de um workspace.",
+  callableBy: ["ui", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      id: uuidProperty("ID do workspace."),
+      name: stringProperty("Nome do ambiente."),
+      adaptationKey: stringProperty("Chave de adaptação."),
+    },
+    ["id", "name"],
+  ),
+  async handler(input) {
+    const db = getRuntimeDb();
+    const [workspace] = await db
+      .update(workspaces)
+      .set({
+        name: input.name,
+        adaptationKey: input.adaptationKey || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(workspaces.id, input.id))
+      .returning({
+        id: workspaces.id,
+        name: workspaces.name,
+        adaptationKey: workspaces.adaptationKey,
       });
 
     return {

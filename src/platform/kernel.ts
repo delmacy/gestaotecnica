@@ -76,7 +76,9 @@ import {
 import { listCapabilitiesKernelAction } from "@/platform/registry/actions/kernel-actions";
 import {
   createOrganizationKernelAction,
+  updateOrganizationKernelAction,
   createWorkspaceKernelAction,
+  updateWorkspaceKernelAction,
   installCapabilityKernelAction,
   publishWorkspaceKernelAction,
   createEntityKernelAction,
@@ -158,7 +160,9 @@ export function initializePlatformKernel() {
   registerAction(getLatestBlueprintKernelAction);
   registerAction(listCapabilitiesKernelAction);
   registerAction(createOrganizationKernelAction);
+  registerAction(updateOrganizationKernelAction);
   registerAction(createWorkspaceKernelAction);
+  registerAction(updateWorkspaceKernelAction);
   registerAction(installCapabilityKernelAction);
   registerAction(publishWorkspaceKernelAction);
   registerAction(createEntityKernelAction);

@@ -23,6 +23,8 @@ function createCorrelationId() {
 }
 
 const fallbackEnabledModules = [
+  "workspace",
+  "registry",
   "work-items",
   "service-orders",
   "assets",

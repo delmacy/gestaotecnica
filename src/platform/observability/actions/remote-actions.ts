@@ -1,7 +1,7 @@
 "use server";
 
 import { TimelineService } from "../application/timeline.service";
-import { TimelineEntry } from "@/components/builder/timeline/platform-timeline";
+import { TimelineEntry } from "@/builder/shell/platform-timeline";
 
 export async function getLiveTimelineEntries(workspaceId: string): Promise<TimelineEntry[]> {
   const service = new TimelineService();

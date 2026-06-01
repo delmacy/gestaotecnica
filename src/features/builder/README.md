@@ -24,3 +24,12 @@ process-editor/
 ## Regra arquitetural
 
 > O domínio do Builder não deve depender da biblioteca visual usada para desenhar o canvas.
+
+## Fase 04 — Shell visual
+
+- A rota `/builder` foi criada.
+- O layout visual possui três áreas: biblioteca (esquerda), canvas placeholder (centro) e inspetor (direita).
+- O estado do editor (`BuilderEditorState`) ainda é local, persistindo em memória.
+- Ainda não há implementação real com React Flow (usamos um placeholder no momento).
+- Ainda não há persistência ou API atrelada.
+- O canvas real, com nós arrastáveis e rotas, será conectado em fase posterior.

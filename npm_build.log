@@ -1,0 +1,78 @@
+
+> gestaotecnica@0.1.0 build
+> next build
+
+▲ Next.js 16.2.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 22.2s
+  Running TypeScript ...
+  Finished TypeScript in 19.9s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/8) ...
+  Generating static pages using 3 workers (2/8)
+  Generating static pages using 3 workers (4/8)
+  Generating static pages using 3 workers (6/8)
+✓ Generating static pages using 3 workers (8/8) in 620ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /[workspaceKey]/[moduleKey]/[viewKey]
+├ ƒ /acquisitions
+├ ƒ /admin
+├ ƒ /admin/lab/workflow
+├ ƒ /admin/permissions
+├ ƒ /admin/queues
+├ ƒ /admin/users
+├ ƒ /admin/workflows
+├ ƒ /admin/workspaces
+├ ○ /api-docs
+├ ƒ /api/docs
+├ ƒ /api/gateway/modules
+├ ƒ /api/gateway/modules/[moduleKey]
+├ ƒ /api/gateway/packs
+├ ƒ /api/gateway/pdf
+├ ƒ /api/gateway/webhooks
+├ ƒ /api/health/db
+├ ƒ /api/integrations/actions
+├ ƒ /api/integrations/commands
+├ ƒ /approvals
+├ ƒ /assets
+├ ƒ /assets/[id]
+├ ○ /auth/login
+├ ○ /auth/setup
+├ ƒ /automations
+├ ƒ /builder
+├ ƒ /compliance
+├ ƒ /documents
+├ ƒ /events
+├ ƒ /evidences
+├ ƒ /inventory
+├ ƒ /legacy
+├ ƒ /maintenance-plans
+├ ƒ /operations
+├ ƒ /planning
+├ ƒ /reports
+├ ƒ /resource-needs
+├ ƒ /schedules
+├ ƒ /search
+├ ƒ /service-orders
+├ ƒ /service-orders/[id]
+├ ƒ /shifts
+├ ƒ /shifts/[id]
+├ ƒ /skills
+├ ƒ /suppliers
+├ ƒ /technical-projects
+├ ƒ /timesheets
+├ ƒ /work-items
+├ ƒ /work-items/[id]
+├ ƒ /workforce
+└ ƒ /workspace-config
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

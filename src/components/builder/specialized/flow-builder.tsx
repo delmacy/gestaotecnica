@@ -84,8 +84,10 @@ const initialEdges: Edge[] = [
 ];
 
 export function FlowBuilder({ activeItem }: { activeItem: any }) {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<FlowNodeData>>(
+    [],
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [discovery, setDiscovery] = useState<{ actions: any[]; events: any[] }>({

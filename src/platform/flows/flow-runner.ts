@@ -45,7 +45,7 @@ export async function runFlowsForEvent(
         name: dbFlow.name,
         version: "1.0",
         trigger: { eventType: event.eventType },
-        run: async ({ actions, event: ev }) => {
+        run: async ({ actions, event: ev }: any) => {
           // BFS or DFS to execute actions in sequence
           let currentNodes = definition.edges
             .filter((e: any) => e.source === triggerNode.id)

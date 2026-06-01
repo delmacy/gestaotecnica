@@ -1,0 +1,739 @@
+export const workspaceModuleConfigs = pgTable(
+  "workspace_module_configs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    moduleKey: text("module_key").notNull(),
+    name: text("name").notNull(),
+    description: text("description"),
+    layer: text("layer").notNull().default("module"),
+    status: text("status").notNull().default("planned"),
+    isEnabled: boolean("is_enabled").notNull().default(true),
+--
+export const integrationCommands = pgTable(
+  "integration_commands",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").references(() => platformWorkspaces.id),
+    workspaceKey: text("workspace_key").notNull(),
+    command: text("command").notNull(),
+    status: text("status").notNull().default("received"),
+    source: text("source").notNull().default("integration"),
+    actorType: text("actor_type").notNull().default("api_key"),
+    actorId: text("actor_id"),
+--
+export const workItemTypeDefinitions = pgTable(
+  "work_item_type_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    defaultPriority: priorityEnum("default_priority").notNull().default("medium"),
+    defaultQueue: text("default_queue"),
+    canGenerateServiceOrder: boolean("can_generate_service_order")
+--
+export const serviceOrderTypeDefinitions = pgTable(
+  "service_order_type_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    requiresAsset: boolean("requires_asset").notNull().default(false),
+    requiresTimeEntry: boolean("requires_time_entry").notNull().default(true),
+    requiresEvidence: boolean("requires_evidence").notNull().default(false),
+--
+export const assetTypeDefinitions = pgTable(
+  "asset_type_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    tracksMaintenance: boolean("tracks_maintenance").notNull().default(true),
+    tracksLocation: boolean("tracks_location").notNull().default(true),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+--
+export const scheduleTypeDefinitions = pgTable(
+  "schedule_type_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    requiresShiftLog: boolean("requires_shift_log").notNull().default(false),
+    receivesTickets: jsonb("receives_tickets").notNull().default(false),
+    receivesServiceOrders: jsonb("receives_service_orders").notNull().default(false),
+--
+export const businessRoleDefinitions = pgTable(
+  "business_role_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    legacyLevel: text("legacy_level"),
+    canExecuteServiceOrder: boolean("can_execute_service_order")
+      .notNull()
+      .default(false),
+--
+export const workspaceQueues = pgTable(
+  "workspace_queues",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+--
+export const workflowTemplates = pgTable(
+  "workflow_templates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    target: text("target").notNull(),
+    states: jsonb("states").notNull().default([]),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+--
+export const workflowInstances = pgTable(
+  "workflow_instances",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    workflowTemplateId: uuid("workflow_template_id").notNull().references(() => workflowTemplates.id),
+    targetType: text("target_type").notNull(),
+    targetId: uuid("target_id").notNull(),
+    currentState: text("current_state").notNull(),
+    status: text("status").notNull().default("active"),
+    snapshot: jsonb("snapshot").notNull().default({}),
+--
+export const workflowTransitions = pgTable(
+  "workflow_transitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workflowInstanceId: uuid("workflow_instance_id").notNull().references(() => workflowInstances.id),
+    fromState: text("from_state").notNull(),
+    toState: text("to_state").notNull(),
+    actorId: uuid("actor_id").references(() => users.id),
+    note: text("note"),
+    payload: jsonb("payload").notNull().default({}),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+--
+export const reportTemplateDefinitions = pgTable(
+  "report_template_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    target: text("target").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+--
+export const documentTemplateDefinitions = pgTable(
+  "document_template_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    target: text("target").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    config: jsonb("config").notNull().default({}),
+--
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    email: text("email").notNull().unique(),
+    status: userStatusEnum("status").notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("users_email_idx").on(table.email)],
+--
+export const authAccounts = pgTable(
+  "auth_accounts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id),
+    passwordHash: text("password_hash").notNull(),
+    passwordSalt: text("password_salt").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+--
+export const authSessions = pgTable(
+  "auth_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (table) => [
+--
+export const permissionDefinitions = pgTable(
+  "permission_definitions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    key: text("key").notNull(),
+    moduleKey: text("module_key").notNull(),
+    action: text("action").notNull(),
+    label: text("label").notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+--
+export const rolePermissionGrants = pgTable(
+  "role_permission_grants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    roleId: uuid("role_id").notNull().references(() => businessRoleDefinitions.id),
+    permissionId: uuid("permission_id")
+      .notNull()
+      .references(() => permissionDefinitions.id),
+    isAllowed: boolean("is_allowed").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+--
+export const userRoleAssignments = pgTable(
+  "user_role_assignments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    roleId: uuid("role_id").notNull().references(() => businessRoleDefinitions.id),
+    assignedAt: timestamp("assigned_at", { withTimezone: true }).notNull().defaultNow(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (table) => [
+--
+export const teams = pgTable("teams", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  description: text("description"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const technicianProfiles = pgTable(
+  "technician_profiles",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id),
+    teamId: uuid("team_id").references(() => teams.id),
+    level: technicianLevelEnum("level").notNull().default("trainee"),
+    registrationCode: text("registration_code"),
+    specialty: text("specialty"),
+    isAvailable: boolean("is_available").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+--
+export const assets = pgTable(
+  "assets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(),
+    name: text("name").notNull(),
+    type: text("type").notNull(),
+    status: assetStatusEnum("status").notNull().default("active"),
+    criticality: priorityEnum("criticality").notNull().default("medium"),
+    location: text("location"),
+    description: text("description"),
+--
+export const workItems = pgTable(
+  "work_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    description: text("description"),
+    type: workItemTypeEnum("type").notNull().default("solicitacao"),
+    status: workItemStatusEnum("status").notNull().default("open"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    requesterName: text("requester_name"),
+    requesterContact: text("requester_contact"),
+--
+export const serviceOrders = pgTable(
+  "service_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    code: text("code").notNull().unique(),
+    title: text("title").notNull(),
+    type: text("type").notNull().default("manutencao"),
+    objective: text("objective"),
+    status: serviceOrderStatusEnum("status").notNull().default("open"),
+--
+export const serviceOrderStages = pgTable(
+  "service_order_stages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceOrderId: uuid("service_order_id").notNull().references(() => serviceOrders.id),
+    title: text("title").notNull(),
+    status: text("status").notNull().default("pending"),
+    position: integer("position").notNull().default(0),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    notes: text("notes"),
+--
+export const serviceOrderTasks = pgTable(
+  "service_order_tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceOrderId: uuid("service_order_id").notNull().references(() => serviceOrders.id),
+    stageId: uuid("stage_id").references(() => serviceOrderStages.id),
+    title: text("title").notNull(),
+    description: text("description"),
+    status: text("status").notNull().default("open"),
+    assignedTechnicianProfileId: uuid("assigned_technician_profile_id").references(() => technicianProfiles.id),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+--
+export const serviceOrderTargets = pgTable(
+  "service_order_targets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceOrderId: uuid("service_order_id").notNull().references(() => serviceOrders.id),
+    targetType: text("target_type").notNull(),
+    targetId: uuid("target_id"),
+    assetId: uuid("asset_id").references(() => assets.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    title: text("title").notNull(),
+    notes: text("notes"),
+--
+export const serviceOrderAssignments = pgTable(
+  "service_order_assignments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceOrderId: uuid("service_order_id").notNull().references(() => serviceOrders.id),
+    technicianProfileId: uuid("technician_profile_id")
+      .notNull()
+      .references(() => technicianProfiles.id),
+    role: text("role").notNull().default("executor"),
+    assignedAt: timestamp("assigned_at", { withTimezone: true }).notNull().defaultNow(),
+    releasedAt: timestamp("released_at", { withTimezone: true }),
+--
+export const timeEntries = pgTable(
+  "time_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceOrderId: uuid("service_order_id").notNull().references(() => serviceOrders.id),
+    technicianProfileId: uuid("technician_profile_id")
+      .notNull()
+      .references(() => technicianProfiles.id),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+    endedAt: timestamp("ended_at", { withTimezone: true }),
+    durationMinutes: integer("duration_minutes"),
+--
+export const evidences = pgTable(
+  "evidences",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    title: text("title").notNull(),
+    description: text("description"),
+    fileUrl: text("file_url"),
+    mimeType: text("mime_type"),
+--
+export const shifts = pgTable("shifts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  status: shiftStatusEnum("status").notNull().default("open"),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
+  openedById: uuid("opened_by_id").references(() => users.id),
+  closedById: uuid("closed_by_id").references(() => users.id),
+  summary: text("summary"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+--
+export const shiftLogEntries = pgTable(
+  "shift_log_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    shiftId: uuid("shift_id").notNull().references(() => shifts.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    title: text("title").notNull(),
+    description: text("description"),
+    isPending: boolean("is_pending").notNull().default(false),
+--
+export const flowRuns = pgTable(
+  "flow_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").references(() => platformWorkspaces.id),
+    flowKey: text("flow_key").notNull(),
+    flowName: text("flow_name").notNull(),
+    flowVersion: text("flow_version"),
+    triggerEventId: uuid("trigger_event_id").references(() => platformEvents.id),
+    triggerEventType: text("trigger_event_type").notNull(),
+    status: text("status").notNull().default("running"),
+--
+export const flowActionRuns = pgTable(
+  "flow_action_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    flowRunId: uuid("flow_run_id").notNull().references(() => flowRuns.id),
+    actionKey: text("action_key").notNull(),
+    status: text("status").notNull().default("running"),
+    inputPayload: jsonb("input_payload").notNull().default({}),
+    outputPayload: jsonb("output_payload").notNull().default({}),
+    errorPayload: jsonb("error_payload"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+--
+export const reports = pgTable("reports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  type: text("type").notNull().default("operational_summary"),
+  periodStart: timestamp("period_start", { withTimezone: true }),
+  periodEnd: timestamp("period_end", { withTimezone: true }),
+  generatedById: uuid("generated_by_id").references(() => users.id),
+  payload: jsonb("payload").notNull().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const entityComments = pgTable(
+  "entity_comments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id").notNull(),
+    body: text("body").notNull(),
+    createdById: uuid("created_by_id").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+--
+export const entityAttachments = pgTable(
+  "entity_attachments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id").notNull(),
+    title: text("title").notNull(),
+    fileUrl: text("file_url").notNull(),
+    mimeType: text("mime_type"),
+    createdById: uuid("created_by_id").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+--
+export const queueItems = pgTable(
+  "queue_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    queueId: uuid("queue_id").notNull().references(() => workspaceQueues.id),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id").notNull(),
+    status: text("status").notNull().default("open"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    assignedToId: uuid("assigned_to_id").references(() => users.id),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+--
+export const slaPolicies = pgTable(
+  "sla_policies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => platformWorkspaces.id),
+    key: text("key").notNull(),
+    label: text("label").notNull(),
+    targetEntityType: text("target_entity_type").notNull(),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    responseMinutes: integer("response_minutes").notNull().default(240),
+    resolutionMinutes: integer("resolution_minutes").notNull().default(1440),
+--
+export const schedules = pgTable(
+  "schedules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id").references(
+      () => technicianProfiles.id,
+    ),
+    teamId: uuid("team_id").references(() => teams.id),
+    title: text("title").notNull(),
+    type: scheduleTypeEnum("type").notNull().default("expediente"),
+    status: scheduleStatusEnum("status").notNull().default("planned"),
+--
+export const workforceAllocations = pgTable(
+  "workforce_allocations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id")
+      .notNull()
+      .references(() => technicianProfiles.id),
+    teamId: uuid("team_id").references(() => teams.id),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    scheduleId: uuid("schedule_id").references(() => schedules.id),
+--
+export const technicianUnavailabilities = pgTable(
+  "technician_unavailabilities",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id")
+      .notNull()
+      .references(() => technicianProfiles.id),
+    reason: text("reason").notNull(),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    notes: text("notes"),
+--
+export const technicalDocuments = pgTable(
+  "technical_documents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    documentType: text("document_type").notNull().default("technical_report"),
+    status: documentStatusEnum("status").notNull().default("draft"),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    content: text("content"),
+--
+export const legacyRecords = pgTable(
+  "legacy_records",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    systemName: text("system_name").notNull(),
+    protocolNumber: text("protocol_number"),
+    externalRecordId: text("external_record_id"),
+    externalStatus: text("external_status"),
+    syncStatus: legacySyncStatusEnum("sync_status").notNull().default("pending"),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+--
+export const integrationPlugins = pgTable(
+  "integration_plugins",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    provider: text("provider"),
+    status: text("status").notNull().default("active"),
+    baseUrl: text("base_url"),
+    secretRef: text("secret_ref"),
+    capabilities: jsonb("capabilities").notNull().default([]),
+--
+export const integrationWebhookEvents = pgTable(
+  "integration_webhook_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pluginId: uuid("plugin_id").references(() => integrationPlugins.id),
+    pluginKey: text("plugin_key"),
+    direction: text("direction").notNull().default("inbound"),
+    eventType: text("event_type").notNull(),
+    targetModule: text("target_module"),
+    status: text("status").notNull().default("received"),
+    source: text("source"),
+--
+export const maintenancePlans = pgTable(
+  "maintenance_plans",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    status: planningStatusEnum("status").notNull().default("draft"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    assetId: uuid("asset_id").references(() => assets.id),
+    ownerTeamId: uuid("owner_team_id").references(() => teams.id),
+    periodStart: timestamp("period_start", { withTimezone: true }),
+    periodEnd: timestamp("period_end", { withTimezone: true }),
+--
+export const technicalProjects = pgTable(
+  "technical_projects",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    status: planningStatusEnum("status").notNull().default("draft"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    sponsor: text("sponsor"),
+    assetId: uuid("asset_id").references(() => assets.id),
+    workItemId: uuid("work_item_id").references(() => workItems.id),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+--
+export const acquisitionNeeds = pgTable(
+  "acquisition_needs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    status: acquisitionStatusEnum("status").notNull().default("identified"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    quantity: integer("quantity").notNull().default(1),
+    estimatedCostCents: integer("estimated_cost_cents"),
+    justification: text("justification"),
+    assetId: uuid("asset_id").references(() => assets.id),
+--
+export const skillCatalog = pgTable(
+  "skill_catalog",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    category: text("category"),
+    description: text("description"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+--
+export const technicianSkills = pgTable(
+  "technician_skills",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id")
+      .notNull()
+      .references(() => technicianProfiles.id),
+    skillId: uuid("skill_id").notNull().references(() => skillCatalog.id),
+    proficiency: skillProficiencyEnum("proficiency").notNull().default("basic"),
+    certifiedAt: timestamp("certified_at", { withTimezone: true }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+--
+export const trainingRecords = pgTable(
+  "training_records",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    technicianProfileId: uuid("technician_profile_id").references(
+      () => technicianProfiles.id,
+    ),
+    skillId: uuid("skill_id").references(() => skillCatalog.id),
+    title: text("title").notNull(),
+    provider: text("provider"),
+    status: trainingStatusEnum("status").notNull().default("planned"),
+--
+export const resourceNeeds = pgTable(
+  "resource_needs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    category: text("category"),
+    status: resourceNeedStatusEnum("status").notNull().default("identified"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    quantity: integer("quantity").notNull().default(1),
+    justification: text("justification"),
+    assetId: uuid("asset_id").references(() => assets.id),
+--
+export const automationRules = pgTable(
+  "automation_rules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    triggerType: text("trigger_type").notNull(),
+    status: automationStatusEnum("status").notNull().default("draft"),
+    provider: text("provider"),
+    endpointUrl: text("endpoint_url"),
+    scheduleExpression: text("schedule_expression"),
+    description: text("description"),
+--
+export const automationRuns = pgTable(
+  "automation_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    automationRuleId: uuid("automation_rule_id").notNull().references(() => automationRules.id),
+    status: text("status").notNull().default("queued"),
+    triggerSource: text("trigger_source").notNull().default("manual"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    durationMs: integer("duration_ms"),
+    requestPayload: jsonb("request_payload").notNull().default({}),
+--
+export const automationRunLogs = pgTable(
+  "automation_run_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    automationRunId: uuid("automation_run_id").notNull().references(() => automationRuns.id),
+    level: text("level").notNull().default("info"),
+    message: text("message").notNull(),
+    payload: jsonb("payload").notNull().default({}),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+--
+export const suppliers = pgTable(
+  "suppliers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    documentNumber: text("document_number"),
+    contactName: text("contact_name"),
+    contactEmail: text("contact_email"),
+    contactPhone: text("contact_phone"),
+    status: supplierStatusEnum("status").notNull().default("prospect"),
+    category: text("category"),
+--
+export const supplierContracts = pgTable(
+  "supplier_contracts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    supplierId: uuid("supplier_id").notNull().references(() => suppliers.id),
+    title: text("title").notNull(),
+    status: contractStatusEnum("status").notNull().default("draft"),
+    contractNumber: text("contract_number"),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    valueCents: integer("value_cents"),
+--
+export const inventoryItems = pgTable(
+  "inventory_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sku: text("sku").notNull().unique(),
+    name: text("name").notNull(),
+    category: text("category"),
+    status: inventoryItemStatusEnum("status").notNull().default("available"),
+    quantityOnHand: integer("quantity_on_hand").notNull().default(0),
+    minimumQuantity: integer("minimum_quantity").notNull().default(0),
+    unit: text("unit").notNull().default("un"),
+--
+export const inventoryMovements = pgTable(
+  "inventory_movements",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    itemId: uuid("item_id").notNull().references(() => inventoryItems.id),
+    movementType: inventoryMovementTypeEnum("movement_type").notNull(),
+    quantity: integer("quantity").notNull(),
+    serviceOrderId: uuid("service_order_id").references(() => serviceOrders.id),
+    acquisitionNeedId: uuid("acquisition_need_id").references(() => acquisitionNeeds.id),
+    performedById: uuid("performed_by_id").references(() => users.id),
+    notes: text("notes"),
+--
+export const complianceAudits = pgTable(
+  "compliance_audits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    area: text("area"),
+    status: auditStatusEnum("status").notNull().default("planned"),
+    priority: priorityEnum("priority").notNull().default("medium"),
+    ownerTeamId: uuid("owner_team_id").references(() => teams.id),
+    assetId: uuid("asset_id").references(() => assets.id),
+    plannedAt: timestamp("planned_at", { withTimezone: true }),
+--
+export const complianceFindings = pgTable(
+  "compliance_findings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    auditId: uuid("audit_id").notNull().references(() => complianceAudits.id),
+    title: text("title").notNull(),
+    severity: findingSeverityEnum("severity").notNull().default("medium"),
+    status: findingStatusEnum("status").notNull().default("open"),
+    responsibleTeamId: uuid("responsible_team_id").references(() => teams.id),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+    description: text("description"),

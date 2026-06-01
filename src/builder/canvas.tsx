@@ -2,12 +2,12 @@
 
 import React from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
-import { ProcessBuilder } from './specialized/process-builder';
-import { FlowBuilder } from './specialized/flow-builder';
-import { OrganizationBuilder } from './specialized/organization-builder';
-import { CapabilityBuilder } from './specialized/capability-builder';
-import { ViewBuilder } from './specialized/view-builder';
-import { FormBuilder } from './specialized/form-builder';
+import { ProcessBuilder } from '@/builder/specialized/process-builder';
+import { FlowBuilder } from '@/builder/specialized/flow-builder';
+import { OrganizationBuilder } from '@/builder/specialized/organization-builder';
+import { CapabilityBuilder } from '@/builder/specialized/capability-builder';
+import { ViewBuilder } from '@/builder/specialized/view-builder';
+import { FormBuilder } from '@/builder/specialized/form-builder';
 import { Box, Database } from "lucide-react";
 
 export function BuilderCanvas({ activeItem }: { activeItem: any }) {

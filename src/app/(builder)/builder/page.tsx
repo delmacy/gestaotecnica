@@ -1,4 +1,4 @@
-import { BuilderShell } from "@/components/builder/shell/builder-shell";
+import { BuilderShell } from "@/builder/shell/builder-shell";
 import { getCapabilityCatalog } from "@/platform/registry/infra/registry.queries";
 import { ecosystemModules } from "@/platform/workspaces/module-catalog";
 

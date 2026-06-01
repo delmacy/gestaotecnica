@@ -91,6 +91,40 @@ export function useBuilderEditorState() {
           };
         });
       },
+
+      updateNodePositions: (nodes: BuilderNode[]) => {
+        setState((prev) => ({
+          ...prev,
+          draft: {
+            ...prev.draft,
+            nodes,
+          },
+          dirty: true,
+        }));
+      },
+
+      addEdge: (edge: BuilderEdge) => {
+        setState((prev) => {
+          const exists = prev.draft.edges.some(
+            (e) =>
+              e.source === edge.source &&
+              e.target === edge.target &&
+              e.sourceHandle === edge.sourceHandle &&
+              e.targetHandle === edge.targetHandle
+          );
+
+          if (exists) return prev;
+
+          return {
+            ...prev,
+            draft: {
+              ...prev.draft,
+              edges: [...prev.draft.edges, edge],
+            },
+            dirty: true,
+          };
+        });
+      },
     };
   }, []);
 

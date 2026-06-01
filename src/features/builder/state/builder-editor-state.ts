@@ -18,4 +18,6 @@ export type BuilderEditorActions = {
   selectNode: (nodeId: BuilderId) => void;
   clearSelection: () => void;
   updateSelectedNode: (patch: Partial<Pick<BuilderNode, "label" | "description" | "config">>) => void;
+  updateNodePositions: (nodes: BuilderNode[]) => void;
+  addEdge: (edge: BuilderEdge) => void;
 };

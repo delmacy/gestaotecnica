@@ -84,15 +84,43 @@ const initialEdges: Edge[] = [
 ];
 
 export function FlowBuilder({ activeItem }: { activeItem: any }) {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<FlowNodeData>>(
+    [],
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [discovery, setDiscovery] = useState<{ actions: any[], events: any[] }>({ actions: [], events: [] });
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [discovery, setDiscovery] = useState<{ actions: any[]; events: any[] }>({
+    actions: [],
+    events: [],
+  });
   const [searchTerm, setSearchTerm] = useState("");
+  const [status, setStatus] = useState<string>("draft");
 
   useEffect(() => {
     getPlatformDiscoveryData().then(setDiscovery);
   }, []);
+
+  useEffect(() => {
+    const loadFlow = async () => {
+      const result = await executeKernelAction("flows.get_definition", {
+        key: activeItem.id,
+      });
+      if (result.success && result.data) {
+        const flow = result.data as any;
+        if (flow.definition?.nodes) {
+          setNodes(flow.definition.nodes);
+          setEdges(flow.definition.edges || []);
+        }
+        setStatus(flow.status || "draft");
+      } else {
+        setNodes(initialNodes);
+        setEdges(initialEdges);
+        setStatus("draft");
+      }
+    };
+    loadFlow();
+  }, [activeItem.id, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
@@ -106,13 +134,34 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
         workspaceId: "workspace-acme-prod",
         key: activeItem.id,
         name: activeItem.label,
-        definition: { nodes, edges }
+        definition: { nodes, edges },
       });
-      if (result.success) alert("Fluxo de automação salvo e registrado no Kernel!");
+      if (result.success) {
+        alert("Fluxo de automação salvo e registrado no Kernel!");
+        setStatus("draft");
+      }
     } catch (e) {
       alert("Falha ao salvar fluxo.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    setIsPublishing(true);
+    try {
+      const result = await executeKernelAction("flows.publish", {
+        workspaceId: "workspace-acme-prod",
+        key: activeItem.id,
+      });
+      if (result.success) {
+        alert("Fluxo publicado com sucesso!");
+        setStatus("published");
+      }
+    } catch (e) {
+      alert("Falha ao publicar fluxo.");
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -133,16 +182,55 @@ export function FlowBuilder({ activeItem }: { activeItem: any }) {
   return (
     <div className="flex-1 h-full bg-[#1e1e20] pattern-dark flex overflow-hidden">
       <div className="flex-1 relative overflow-hidden">
-        <div className="absolute top-4 right-4 z-20">
-           <button
-             onClick={handleSave}
-             disabled={isSaving}
-             className="bg-white/10 text-white border border-white/20 text-xs font-bold py-2 px-4 rounded shadow-sm hover:bg-white/20 flex items-center gap-2"
-             data-testid="btn-save-flow"
-           >
-             {isSaving ? <Loader2 className="size-3 animate-spin" /> : <Save className="size-3" />}
-             Save Automation
-           </button>
+        <div className="absolute top-4 right-4 z-20 flex gap-2">
+          <div
+            className={cn(
+              "px-3 py-2 rounded text-[10px] font-bold uppercase border flex items-center gap-2",
+              status === "published"
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                : "bg-amber-500/10 border-amber-500/20 text-amber-500",
+            )}
+          >
+            <div
+              className={cn(
+                "size-1.5 rounded-full",
+                status === "published" ? "bg-emerald-500" : "bg-amber-500",
+              )}
+            />
+            {status}
+          </div>
+
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-white/10 text-white border border-white/20 text-xs font-bold py-2 px-4 rounded shadow-sm hover:bg-white/20 flex items-center gap-2"
+            data-testid="btn-save-flow"
+          >
+            {isSaving ? (
+              <Loader2 className="size-3 animate-spin" />
+            ) : (
+              <Save className="size-3" />
+            )}
+            Save
+          </button>
+
+          <button
+            onClick={handlePublish}
+            disabled={isPublishing || status === "published"}
+            className={cn(
+              "text-xs font-bold py-2 px-4 rounded shadow-sm flex items-center gap-2 transition-all",
+              status === "published"
+                ? "bg-emerald-600/50 text-white/50 cursor-not-allowed"
+                : "bg-emerald-600 text-white hover:bg-emerald-500",
+            )}
+          >
+            {isPublishing ? (
+              <Loader2 className="size-3 animate-spin" />
+            ) : (
+              <Zap className="size-3" />
+            )}
+            Publish
+          </button>
         </div>
 
         <ReactFlow

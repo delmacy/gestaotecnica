@@ -78,15 +78,22 @@ import {
   createOrganizationKernelAction,
   createWorkspaceKernelAction,
   installCapabilityKernelAction,
-  publishWorkspaceKernelAction
+  publishWorkspaceKernelAction,
+  createEntityKernelAction,
+  saveDynamicRecordKernelAction
 } from "@/platform/workspace/application/kernel-actions";
 import {
   saveProcessDefinitionKernelAction,
   getProcessDefinitionKernelAction,
   saveFlowDefinitionKernelAction,
-  getFlowDefinitionKernelAction
+  getFlowDefinitionKernelAction,
+  publishFlowKernelAction,
+  deleteFlowKernelAction
 } from "@/platform/workflows/application/kernel-actions";
-import { saveViewDefinitionKernelAction } from "@/platform/views/application/kernel-actions";
+import {
+  saveViewDefinitionKernelAction,
+  getViewDefinitionKernelAction,
+} from "@/platform/views/application/kernel-actions";
 import { registerAction } from "@/platform/actions";
 import { registerDefaultEvents } from "@/platform/events/default-events";
 import { registerFlow } from "@/platform/flows";
@@ -154,11 +161,16 @@ export function initializePlatformKernel() {
   registerAction(createWorkspaceKernelAction);
   registerAction(installCapabilityKernelAction);
   registerAction(publishWorkspaceKernelAction);
+  registerAction(createEntityKernelAction);
+  registerAction(saveDynamicRecordKernelAction);
   registerAction(saveProcessDefinitionKernelAction);
   registerAction(getProcessDefinitionKernelAction);
   registerAction(saveFlowDefinitionKernelAction);
   registerAction(getFlowDefinitionKernelAction);
+  registerAction(publishFlowKernelAction);
+  registerAction(deleteFlowKernelAction);
   registerAction(saveViewDefinitionKernelAction);
+  registerAction(getViewDefinitionKernelAction);
 
   registerFlow(new ServiceOrderCompletedNotificationFlow());
   registerFlow(new WorkItemAutoServiceOrderFlow());

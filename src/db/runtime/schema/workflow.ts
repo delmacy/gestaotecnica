@@ -31,6 +31,7 @@ export const flowDefinitions = workflowSchema.table("flow_definitions", {
   name: text("name").notNull(),
   description: text("description"),
   definition: jsonb("definition").notNull().default({}),
+  status: text("status").notNull().default("draft"),
   isActive: text("is_active").notNull().default("true"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -43,6 +44,7 @@ export const processVersions = workflowSchema.table("process_versions", {
   definition: jsonb("definition").notNull().default({}),
   status: text("status").notNull().default("draft"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const states = workflowSchema.table("states", {

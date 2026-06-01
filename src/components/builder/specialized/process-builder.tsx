@@ -106,9 +106,13 @@ export function ProcessBuilder({ activeItem }: { activeItem: any }) {
         workspaceId: "workspace-acme-prod", // Mocked for demo
         key: activeItem.id,
         name: activeItem.label,
-        definition: { nodes, edges }
+        definition: { nodes, edges },
       });
-      if (result.success) alert("Processo de negócio salvo no banco de dados!");
+      if (result.success) {
+        alert(
+          "Processo de negócio salvo e registrado no Kernel (incluindo estados e transições)!",
+        );
+      }
     } catch (e) {
       alert("Falha ao salvar processo.");
     } finally {

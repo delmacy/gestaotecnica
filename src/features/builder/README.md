@@ -99,3 +99,10 @@ process-editor/
 - A UI do Builder ainda NÃO salva no banco. O fluxo de `localStorage` continua sendo usado apenas como um *autosave local*.
 - A persistência oficial (salvar em Postgres via `drizzle-orm`) será implementada e conectada na próxima fase.
 - Runtime real, Event Store, `registry` e tabelas de instâncias continuam estritamente fora do escopo.
+
+## Fase 12 — Serviço de persistência preparado
+
+- Foi criada a camada `server-side` para inserir logicamente Process Definitions e as suas Versions incrementais atreladas usando Drizzle ORM.
+- Foram introduzidas subcamadas rigorosas para erros (`process-definition.errors.ts`) e injeções de DB isoladas (`process-definition.repository.ts`).
+- A UI **ainda não invoca** este serviço, nem exporta um botão "Salvar". O builder continua restrito ao seu ciclo de memória em localStorage.
+- A persistência oficial do fluxo via UI será unificada no layout principal apenas na próxima fase.

@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import type { BuilderEditorActions, BuilderEditorState } from "../state";
 import { createDraftDownloadPayload, parseDraftJsonContent } from "./builder-draft-file";
+import { clearBuilderDraftFromLocalStorage } from "../local-persistence";
 
 export type BuilderDraftActionsPanelProps = {
   state: BuilderEditorState;
@@ -49,8 +50,9 @@ export function BuilderDraftActionsPanel({ state, actions }: BuilderDraftActions
         try {
           const importedDraft = parseDraftJsonContent(content);
           actions.replaceDraft(importedDraft);
-        } catch (err: any) {
-          setErrorMsg(err.message || "Falha ao importar o arquivo.");
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : "Falha ao importar o arquivo.";
+          setErrorMsg(message);
         }
       })
       .catch(() => {
@@ -67,10 +69,17 @@ export function BuilderDraftActionsPanel({ state, actions }: BuilderDraftActions
   const handleReset = () => {
     const confirmed = window.confirm("Tem certeza? Isso apagará o processo atual e criará um novo em branco.");
     if (confirmed) {
+      clearBuilderDraftFromLocalStorage();
       actions.resetDraft();
+      actions.setLocalPersistenceStatus({
+        message: "Rascunho local limpo.",
+        lastSavedAt: undefined,
+      });
       setErrorMsg(null);
     }
   };
+
+  const { lastSavedAt, message: persistenceMessage } = state.localPersistence || {};
 
   return (
     <div className="bg-white border-b border-slate-200 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 shadow-sm z-10 relative">
@@ -101,9 +110,18 @@ export function BuilderDraftActionsPanel({ state, actions }: BuilderDraftActions
 
       {/* Actions */}
       <div className="flex items-center gap-3">
-        {errorMsg && (
-          <span className="text-xs font-semibold text-red-600 max-w-xs truncate" title={errorMsg}>
-            Erro: {errorMsg}
+        {(errorMsg || persistenceMessage) && (
+          <span
+            className={`text-xs font-semibold max-w-xs truncate ${errorMsg ? "text-red-600" : "text-slate-500"}`}
+            title={errorMsg || persistenceMessage}
+          >
+            {errorMsg ? `Erro: ${errorMsg}` : persistenceMessage}
+          </span>
+        )}
+
+        {lastSavedAt && (
+          <span className="text-[10px] text-slate-400 whitespace-nowrap">
+            Salvo: {new Date(lastSavedAt).toLocaleTimeString()}
           </span>
         )}
 

@@ -5,6 +5,11 @@ export type BuilderEditorState = {
   selectedNodeId?: BuilderId;
   selectedEdgeId?: BuilderId;
   dirty: boolean;
+  localPersistence?: {
+    restored: boolean;
+    lastSavedAt?: string;
+    message?: string;
+  };
 };
 
 export type AddBuilderNodeInput = {
@@ -24,4 +29,9 @@ export type BuilderEditorActions = {
   resetDraft: () => void;
   replaceDraft: (draft: BuilderDraft) => void;
   markClean: () => void;
+  setLocalPersistenceStatus: (input: {
+    restored?: boolean;
+    lastSavedAt?: string;
+    message?: string;
+  }) => void;
 };

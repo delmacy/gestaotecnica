@@ -4,12 +4,15 @@ import { useState, useMemo } from "react";
 import { createEmptyBuilderDraft } from "../process-editor/create-empty-builder-draft";
 import { getBuilderBlockDefinition } from "../block-library/block-catalog";
 import type { BuilderEditorState, BuilderEditorActions, AddBuilderNodeInput } from "./builder-editor-state";
-import type { BuilderId, BuilderNode, BuilderEdge } from "../types";
+import type { BuilderId, BuilderNode, BuilderEdge, BuilderDraft } from "../types";
 
 export function useBuilderEditorState() {
   const [state, setState] = useState<BuilderEditorState>(() => ({
     draft: createEmptyBuilderDraft(),
     dirty: false,
+    localPersistence: {
+      restored: false,
+    },
   }));
 
   const actions = useMemo<BuilderEditorActions>(() => {
@@ -140,27 +143,44 @@ export function useBuilderEditorState() {
       },
 
       resetDraft: () => {
-        setState({
+        setState((prev) => ({
+          ...prev,
           draft: createEmptyBuilderDraft(),
           selectedNodeId: undefined,
           selectedEdgeId: undefined,
           dirty: false,
-        });
+        }));
       },
 
       replaceDraft: (draft: BuilderDraft) => {
-        setState({
+        setState((prev) => ({
+          ...prev,
           draft,
           selectedNodeId: undefined,
           selectedEdgeId: undefined,
           dirty: true,
-        });
+        }));
       },
 
       markClean: () => {
         setState((prev) => ({
           ...prev,
           dirty: false,
+        }));
+      },
+
+      setLocalPersistenceStatus: (input: {
+        restored?: boolean;
+        lastSavedAt?: string;
+        message?: string;
+      }) => {
+        setState((prev) => ({
+          ...prev,
+          localPersistence: {
+            ...prev.localPersistence,
+            ...input,
+            restored: input.restored ?? prev.localPersistence?.restored ?? false,
+          },
         }));
       },
     };

@@ -74,3 +74,11 @@ process-editor/
 - Um draft pode ser importado via arquivo `JSON`, que automaticamente passa por verificação em runtime (`parseDraftJsonContent`) de validação estrutural antes de efetuar *replace* no estado de memória atual.
 - A função *Reset* cria um novo rascunho.
 - Tudo isso acontece localmente no client state. O código permanece perfeitamente puro sem acoplar chamadas de banco, APIs, persistência remota, registry ou runtime.
+
+## Fase 09 — Persistência local com autosave
+
+- O draft agora é salvo automaticamente no cache local do navegador (`localStorage`) a cada alteração utilizando *debounce*.
+- Ao retornar à tela `/builder`, o último draft válido trabalhado é restaurado automaticamente.
+- O autosave é inteiramente focado na experiência do usuário (prevenir perda acidental de dados no navegador) e *não* representa persistência oficial (salvamento em banco de dados).
+- O usuário possui uma ação visual via painel superior para intervir limpando o rascunho do cache.
+- Banco de dados, API, runtime e process definitions seguem estritamente fora do escopo.

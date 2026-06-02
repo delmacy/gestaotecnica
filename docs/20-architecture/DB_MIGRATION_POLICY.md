@@ -52,7 +52,7 @@ A evolução do banco deve seguir esta ordem segura:
 **Nota:**
 - `workflow.process_definitions` armazena os metadados primários do processo.
 - `workflow.process_versions` armazena as versões compiladas em JSONB dos rascunhos.
-- Não existem relacionamentos Foreign Key cruzados com o esquema `public` nestas novas tabelas.
+- Não existem relacionamentos Foreign Key cruzados com o esquema `public` nestas novas tabelas. O repositório/serviço não deve acessar `public.*`. A persistência oficial de processos inicia nestas duas tabelas estritamente.
 
 ## 7. Critério de aceite
 

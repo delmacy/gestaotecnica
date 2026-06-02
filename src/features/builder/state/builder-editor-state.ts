@@ -10,6 +10,11 @@ export type BuilderEditorState = {
     lastSavedAt?: string;
     message?: string;
   };
+  mode: "builder" | "preview";
+  preview?: {
+    activeNodeId?: BuilderId;
+    completedNodeIds: BuilderId[];
+  };
 };
 
 export type AddBuilderNodeInput = {
@@ -34,4 +39,8 @@ export type BuilderEditorActions = {
     lastSavedAt?: string;
     message?: string;
   }) => void;
+  setMode: (mode: "builder" | "preview") => void;
+  setPreviewActiveNode: (nodeId?: BuilderId) => void;
+  completePreviewStep: (nodeId: BuilderId) => void;
+  resetPreview: () => void;
 };

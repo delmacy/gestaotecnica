@@ -9,6 +9,7 @@ import { BuilderCanvas } from "../canvas/BuilderCanvas";
 import { BuilderValidationPanel } from "../validation/BuilderValidationPanel";
 import { BuilderDraftActionsPanel } from "../draft-actions";
 import { loadBuilderDraftFromLocalStorage, useBuilderLocalAutosave } from "../local-persistence";
+import { BuilderPreviewPanel } from "../preview";
 
 export function BuilderPage() {
   const editor = useBuilderEditorState();
@@ -51,6 +52,9 @@ export function BuilderPage() {
 
   return (
     <BuilderLayout
+      mode={editor.state.mode}
+      onModeChange={editor.actions.setMode}
+      preview={<BuilderPreviewPanel state={editor.state} actions={editor.actions} />}
       blockLibrary={<BlockLibraryPanel onAddNode={editor.actions.addNode} />}
       canvas={<BuilderCanvas state={editor.state} actions={editor.actions} />}
       inspector={<InspectorPanel state={editor.state} actions={editor.actions} />}

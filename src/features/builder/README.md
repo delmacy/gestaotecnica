@@ -82,3 +82,13 @@ process-editor/
 - O autosave é inteiramente focado na experiência do usuário (prevenir perda acidental de dados no navegador) e *não* representa persistência oficial (salvamento em banco de dados).
 - O usuário possui uma ação visual via painel superior para intervir limpando o rascunho do cache.
 - Banco de dados, API, runtime e process definitions seguem estritamente fora do escopo.
+
+## Fase 10 — Preview local do processo
+
+- O Builder agora possui um modo `Preview` que pode ser alternado pelo cabeçalho superior.
+- O Preview é inteiramente simulado no client state;
+- Ele não cria process instances no banco, nem engatilha processamento de automações assíncronas reais.
+- Não há runtime formal ou persistência atrelada a ele, apenas um wrapper por cima do `BuilderDraft`.
+- A navegação ocorre iterando os `BuilderEdge`s entre os source/targets do *canvas*.
+- Cada tipo de nó listado no `block-catalog` apresenta uma representação customizada e amigável durante o runtime simulado.
+- Eventos, actions externas e o gateway da arquitetura também não foram tocados ou inseridos nesta view.

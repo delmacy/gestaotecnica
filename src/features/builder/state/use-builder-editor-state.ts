@@ -13,6 +13,10 @@ export function useBuilderEditorState() {
     localPersistence: {
       restored: false,
     },
+    mode: "builder",
+    preview: {
+      completedNodeIds: [],
+    },
   }));
 
   const actions = useMemo<BuilderEditorActions>(() => {
@@ -180,6 +184,49 @@ export function useBuilderEditorState() {
             ...prev.localPersistence,
             ...input,
             restored: input.restored ?? prev.localPersistence?.restored ?? false,
+          },
+        }));
+      },
+
+      setMode: (mode: "builder" | "preview") => {
+        setState((prev) => ({
+          ...prev,
+          mode,
+        }));
+      },
+
+      setPreviewActiveNode: (nodeId?: BuilderId) => {
+        setState((prev) => ({
+          ...prev,
+          preview: {
+            completedNodeIds: prev.preview?.completedNodeIds ?? [],
+            ...prev.preview,
+            activeNodeId: nodeId,
+          },
+        }));
+      },
+
+      completePreviewStep: (nodeId: BuilderId) => {
+        setState((prev) => {
+          const completed = prev.preview?.completedNodeIds ?? [];
+          return {
+            ...prev,
+            preview: {
+              ...prev.preview,
+              completedNodeIds: completed.includes(nodeId)
+                ? completed
+                : [...completed, nodeId],
+            },
+          };
+        });
+      },
+
+      resetPreview: () => {
+        setState((prev) => ({
+          ...prev,
+          preview: {
+            activeNodeId: undefined,
+            completedNodeIds: [],
           },
         }));
       },

@@ -5,3 +5,6 @@ export * from "./process-definition.errors";
 export * from "./process-definition.repository";
 export * from "./process-definition.service";
 export * from "./process-definition.fixtures";
+export * from "./process-definition.api-types";
+export * from "./process-definition.queries";
+export * from "./process-definition.server";

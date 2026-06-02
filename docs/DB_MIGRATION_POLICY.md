@@ -49,6 +49,11 @@ A evolução do banco deve seguir esta ordem segura:
 * nenhuma tabela de `public` deve ser apagada no MVP;
 * integrações com `public` devem ser adaptadores temporários.
 
+**Nota:**
+- `workflow.process_definitions` armazena os metadados primários do processo.
+- `workflow.process_versions` armazena as versões compiladas em JSONB dos rascunhos.
+- Não existem relacionamentos Foreign Key cruzados com o esquema `public` nestas novas tabelas.
+
 ## 7. Critério de aceite
 
 ```text

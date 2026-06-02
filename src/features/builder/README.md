@@ -92,3 +92,10 @@ process-editor/
 - A navegação ocorre iterando os `BuilderEdge`s entre os source/targets do *canvas*.
 - Cada tipo de nó listado no `block-catalog` apresenta uma representação customizada e amigável durante o runtime simulado.
 - Eventos, actions externas e o gateway da arquitetura também não foram tocados ou inseridos nesta view.
+
+## Fase 11 — Preparação para persistência oficial
+
+- Foram preparados contratos estritos e schemas Drizzle mapeando `workflow.process_definitions` e `workflow.process_versions`.
+- A UI do Builder ainda NÃO salva no banco. O fluxo de `localStorage` continua sendo usado apenas como um *autosave local*.
+- A persistência oficial (salvar em Postgres via `drizzle-orm`) será implementada e conectada na próxima fase.
+- Runtime real, Event Store, `registry` e tabelas de instâncias continuam estritamente fora do escopo.

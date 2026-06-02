@@ -20,4 +20,8 @@ export type BuilderEditorActions = {
   updateSelectedNode: (patch: Partial<Pick<BuilderNode, "label" | "description" | "config">>) => void;
   updateNodePositions: (nodes: BuilderNode[]) => void;
   addEdge: (edge: BuilderEdge) => void;
+  renameDraft: (input: { name: string; description?: string }) => void;
+  resetDraft: () => void;
+  replaceDraft: (draft: BuilderDraft) => void;
+  markClean: () => void;
 };

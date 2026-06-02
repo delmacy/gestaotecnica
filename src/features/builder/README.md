@@ -66,3 +66,11 @@ process-editor/
 - `Warnings` (Avisos) apontam recomendações mas não bloqueiam o processo ou o estado (`valid: true`).
 - `Errors` (Erros) apontam falhas arquiteturais graves e invalidam o draft (`valid: false`).
 - A validação se mantém local. O estado em memória ainda não é persistido, e APIs/Runtime continuam fora de escopo.
+
+## Fase 08 — Ações locais de rascunho
+
+- O Builder agora permite renomear e descrever o draft na tela visual.
+- O draft pode ser exportado como arquivo `JSON` local.
+- Um draft pode ser importado via arquivo `JSON`, que automaticamente passa por verificação em runtime (`parseDraftJsonContent`) de validação estrutural antes de efetuar *replace* no estado de memória atual.
+- A função *Reset* cria um novo rascunho.
+- Tudo isso acontece localmente no client state. O código permanece perfeitamente puro sem acoplar chamadas de banco, APIs, persistência remota, registry ou runtime.

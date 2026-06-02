@@ -5,6 +5,7 @@ export type BuilderLayoutProps = {
   canvas: React.ReactNode;
   inspector: React.ReactNode;
   validation?: React.ReactNode;
+  draftActions?: React.ReactNode;
   headerInfo?: {
     name: string;
     status: string;
@@ -14,7 +15,7 @@ export type BuilderLayoutProps = {
   };
 };
 
-export function BuilderLayout({ blockLibrary, canvas, inspector, validation, headerInfo }: BuilderLayoutProps) {
+export function BuilderLayout({ blockLibrary, canvas, inspector, validation, draftActions, headerInfo }: BuilderLayoutProps) {
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50 overflow-hidden">
       <header className="flex-none h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
@@ -46,6 +47,12 @@ export function BuilderLayout({ blockLibrary, canvas, inspector, validation, hea
           </div>
         )}
       </header>
+
+      {draftActions && (
+        <div className="flex-none z-20">
+          {draftActions}
+        </div>
+      )}
 
       <div className="flex-1 flex min-h-0 overflow-hidden">
         <aside className="shrink-0 h-full overflow-hidden">

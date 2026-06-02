@@ -125,6 +125,44 @@ export function useBuilderEditorState() {
           };
         });
       },
+
+      renameDraft: (input: { name: string; description?: string }) => {
+        setState((prev) => ({
+          ...prev,
+          draft: {
+            ...prev.draft,
+            name: input.name,
+            description: input.description,
+            updatedAt: new Date().toISOString(),
+          },
+          dirty: true,
+        }));
+      },
+
+      resetDraft: () => {
+        setState({
+          draft: createEmptyBuilderDraft(),
+          selectedNodeId: undefined,
+          selectedEdgeId: undefined,
+          dirty: false,
+        });
+      },
+
+      replaceDraft: (draft: BuilderDraft) => {
+        setState({
+          draft,
+          selectedNodeId: undefined,
+          selectedEdgeId: undefined,
+          dirty: true,
+        });
+      },
+
+      markClean: () => {
+        setState((prev) => ({
+          ...prev,
+          dirty: false,
+        }));
+      },
     };
   }, []);
 

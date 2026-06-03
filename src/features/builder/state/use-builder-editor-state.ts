@@ -13,6 +13,9 @@ export function useBuilderEditorState() {
     localPersistence: {
       restored: false,
     },
+    officialPersistence: {
+      status: "idle",
+    },
     mode: "builder",
     preview: {
       completedNodeIds: [],
@@ -184,6 +187,23 @@ export function useBuilderEditorState() {
             ...prev.localPersistence,
             ...input,
             restored: input.restored ?? prev.localPersistence?.restored ?? false,
+          },
+        }));
+      },
+
+      setOfficialPersistenceStatus: (input: {
+        processDefinitionId?: string;
+        latestVersionId?: string;
+        lastSavedAt?: string;
+        status?: "idle" | "saving" | "saved" | "error";
+        message?: string;
+      }) => {
+        setState((prev) => ({
+          ...prev,
+          officialPersistence: {
+            ...prev.officialPersistence,
+            ...input,
+            status: input.status ?? prev.officialPersistence?.status ?? "idle",
           },
         }));
       },

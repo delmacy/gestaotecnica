@@ -14,27 +14,15 @@ Abra `http://localhost:3000`.
 
 ## Documentação
 
-Os documentos de arquitetura ficam em `docs/`:
+A documentação principal do projeto agora segue uma nova estrutura de diretórios e o ponto de entrada para LLMs e desenvolvedores é o `AGENTS.md`.
 
-- `docs/00-analise-da-conversa.md`
-- `docs/01-blueprint-modular.md`
-- `docs/02-mvp-implementavel.md`
-- `docs/03-modelo-de-dados.md`
-- `docs/04-modulo-workitems.md`
-- `docs/05-modulo-assets.md`
-- `docs/06-modulo-service-orders.md`
-- `docs/07-blueprint-core-workspaces-adaptacoes.md`
-- `docs/manual-edicao-configuracao-modulos.md`
-- `docs/manual-kernel-plugins-packs.md`
-- `docs/architecture/platform-kernel.md`
-- `docs/integracoes-api-gateway.md`
-- `docs/packs-contextuais-adaptacoes.md`
-- `docs/modulos/README.md`
-- `docs/modulos/workspace-config.md`
-- `docs/modulos/*.md`
-- `docs/adaptacoes/README.md`
-- `docs/adaptacoes/secao-tecnica.md`
-- `docs/base/possiveis-alteracoes-de-schema.md`
+Inicie a leitura e o contexto lendo os seguintes arquivos:
+- `AGENTS.md` (Contém as diretrizes arquiteturais ativas e o index da documentação).
+- `docs/00-current/STATUS_DAS_FASES.md` (Para saber em qual fase estamos).
+- `docs/00-current/DECISOES_ATIVAS.md` (Para entender regras técnicas vigentes).
+- `docs/00-current/NEXT_PHASE.md` (Qual a próxima fase e objetivos).
+
+As outras pastas em `docs/` (`10-roadmap`, `20-architecture`, `30-modules`, `40-adaptations`, `50-reference`) contêm os antigos arquivos de arquitetura e blueprint.
 
 ## Arquitetura
 

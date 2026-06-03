@@ -23,7 +23,7 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * Registry/actions ainda não foram criados.
 * Service e Repository de persistência devem ser estritamente uma camada intermediária; ou seja, devem ser testados e montados de maneira autônoma antes da API ou da UI consumi-los (Implementado na Fase 12).
 * A Fase 13 construiu a camada API/server actions de processos encapsulada e pronta para o consumo.
-* A UI deve interagir com os actions apenas a partir da Fase 14.
+* A Fase 14 conectou a UI (Builder) com a API server actions para suportar Salvamento Oficial, mantendo um Autosave Local paralelo.
 
 ## 3. Decisões de banco
 
@@ -36,8 +36,7 @@ Este documento contém as decisões que devem guiar a implementação atual.
 
 ## 4. Decisões pendentes
 
-* API route ou server action para salvar processos.
-* Estratégia de workspace real no Builder.
+* Estratégia de workspace real no Builder (atualmente usando um mock `00000000-0000-0000-0000-000000000001` temporariamente).
 * Estratégia de autenticação/autorização para persistência.
 * Quando criar FK real para `workspace.workspaces`.
 * Formato definitivo de `workflow.events`.

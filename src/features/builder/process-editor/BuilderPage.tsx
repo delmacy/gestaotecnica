@@ -12,9 +12,18 @@ import { loadBuilderDraftFromLocalStorage, useBuilderLocalAutosave } from "../lo
 import { BuilderPreviewPanel } from "../preview";
 import { validateBuilderDraft } from "./validate-builder-draft";
 import { saveBuilderDraftOfficially } from "../persistence/builder-save.client";
+import { listSavedProcesses, loadSavedProcess } from "../persistence/builder-load.client";
+import { SavedProcessesPanel } from "../saved-processes/SavedProcessesPanel";
+import type { SavedProcessListItem } from "../persistence/builder-load.types";
 
 export function BuilderPage() {
   const editor = useBuilderEditorState();
+
+  const [savedProcesses, setSavedProcesses] = React.useState<SavedProcessListItem[]>([]);
+  const [savedProcessesLoading, setSavedProcessesLoading] = React.useState(false);
+  const [savedProcessesError, setSavedProcessesError] = React.useState<string | undefined>();
+
+  const TEMPORARY_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001";
 
   React.useEffect(() => {
     // Only attempt to restore if we haven't already done so
@@ -34,7 +43,53 @@ export function BuilderPage() {
         message: result.reason,
       });
     }
+
+    // Auto-refresh saved processes once restored
+    handleRefreshSavedProcesses();
   }, [editor.actions, editor.state.localPersistence?.restored]);
+
+  const handleRefreshSavedProcesses = React.useCallback(async () => {
+    setSavedProcessesLoading(true);
+    setSavedProcessesError(undefined);
+    const result = await listSavedProcesses({ workspaceId: TEMPORARY_WORKSPACE_ID });
+    if (result.ok) {
+      setSavedProcesses(result.data.items);
+    } else {
+      setSavedProcessesError(result.error.message);
+    }
+    setSavedProcessesLoading(false);
+  }, [TEMPORARY_WORKSPACE_ID]);
+
+  const handleOpenSavedProcess = React.useCallback(async (processDefinitionId: string) => {
+    if (editor.state.dirty) {
+      const confirm = window.confirm("Existem alterações não salvas. Deseja substituí-las?");
+      if (!confirm) return;
+    }
+
+    editor.actions.setOfficialPersistenceStatus({
+      loadStatus: "loading",
+      message: undefined,
+    });
+
+    const result = await loadSavedProcess({
+      workspaceId: TEMPORARY_WORKSPACE_ID,
+      processDefinitionId,
+    });
+
+    if (result.ok && result.data.draft) {
+      editor.actions.setOfficialLoadedProcess({
+        draft: result.data.draft,
+        processDefinitionId: result.data.processDefinition.id,
+        latestVersionId: result.data.latestVersion?.id,
+        message: "Processo carregado com sucesso.",
+      });
+    } else {
+      editor.actions.setOfficialPersistenceStatus({
+        loadStatus: "error",
+        message: result.ok ? "O processo não possui um draft salvo na última versão." : result.error.message,
+      });
+    }
+  }, [editor.state.dirty, editor.actions, TEMPORARY_WORKSPACE_ID]);
 
   useBuilderLocalAutosave({
     draft: editor.state.draft,
@@ -68,9 +123,6 @@ export function BuilderPage() {
       status: "saving",
       message: undefined,
     });
-
-    // TODO: Phase X -> fetch proper workspaceId from session context.
-    const TEMPORARY_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001";
 
     const result = await saveBuilderDraftOfficially({
       workspaceId: TEMPORARY_WORKSPACE_ID,
@@ -106,6 +158,15 @@ export function BuilderPage() {
       inspector={<InspectorPanel state={editor.state} actions={editor.actions} />}
       validation={<BuilderValidationPanel draft={editor.state.draft} />}
       draftActions={<BuilderDraftActionsPanel state={editor.state} actions={editor.actions} onOfficialSave={handleOfficialSave} />}
+      savedProcesses={
+        <SavedProcessesPanel
+          items={savedProcesses}
+          loading={savedProcessesLoading}
+          error={savedProcessesError}
+          onRefresh={handleRefreshSavedProcesses}
+          onOpen={handleOpenSavedProcess}
+        />
+      }
       headerInfo={{
         name: editor.state.draft.name,
         status: editor.state.draft.status,

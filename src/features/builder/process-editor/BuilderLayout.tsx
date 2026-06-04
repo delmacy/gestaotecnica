@@ -6,6 +6,7 @@ export type BuilderLayoutProps = {
   inspector: React.ReactNode;
   validation?: React.ReactNode;
   draftActions?: React.ReactNode;
+  savedProcesses?: React.ReactNode;
   preview?: React.ReactNode;
   mode?: "builder" | "preview";
   onModeChange?: (mode: "builder" | "preview") => void;
@@ -18,7 +19,7 @@ export type BuilderLayoutProps = {
   };
 };
 
-export function BuilderLayout({ blockLibrary, canvas, inspector, validation, draftActions, preview, mode = "builder", onModeChange, headerInfo }: BuilderLayoutProps) {
+export function BuilderLayout({ blockLibrary, canvas, inspector, validation, draftActions, savedProcesses, preview, mode = "builder", onModeChange, headerInfo }: BuilderLayoutProps) {
   return (
     <div className="flex flex-col h-screen w-full bg-slate-50 overflow-hidden">
       <header className="flex-none h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
@@ -83,7 +84,8 @@ export function BuilderLayout({ blockLibrary, canvas, inspector, validation, dra
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {mode === "builder" ? (
           <>
-            <aside className="shrink-0 h-full overflow-hidden">
+            <aside className="shrink-0 h-full flex flex-col overflow-hidden">
+              {savedProcesses}
               {blockLibrary}
             </aside>
 

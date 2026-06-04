@@ -191,11 +191,39 @@ export function useBuilderEditorState() {
         }));
       },
 
+      setOfficialLoadedProcess: (input: {
+        draft: BuilderDraft;
+        processDefinitionId: string;
+        latestVersionId?: string;
+        message?: string;
+      }) => {
+        setState((prev) => ({
+          ...prev,
+          draft: input.draft,
+          selectedNodeId: undefined,
+          selectedEdgeId: undefined,
+          preview: {
+            activeNodeId: undefined,
+            completedNodeIds: [],
+          },
+          dirty: false,
+          officialPersistence: {
+            ...prev.officialPersistence,
+            processDefinitionId: input.processDefinitionId,
+            latestVersionId: input.latestVersionId,
+            status: "saved",
+            loadStatus: "loaded",
+            message: input.message,
+          },
+        }));
+      },
+
       setOfficialPersistenceStatus: (input: {
         processDefinitionId?: string;
         latestVersionId?: string;
         lastSavedAt?: string;
         status?: "idle" | "saving" | "saved" | "error";
+        loadStatus?: "idle" | "loading" | "loaded" | "error";
         message?: string;
       }) => {
         setState((prev) => ({
@@ -204,6 +232,7 @@ export function useBuilderEditorState() {
             ...prev.officialPersistence,
             ...input,
             status: input.status ?? prev.officialPersistence?.status ?? "idle",
+            loadStatus: input.loadStatus ?? prev.officialPersistence?.loadStatus ?? "idle",
           },
         }));
       },

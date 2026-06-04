@@ -114,3 +114,10 @@ process-editor/
 - Salvamento oficial usa a camada server/API da Fase 13.
 - Esta fase ainda não cria runtime, events ou registry.
 - WorkspaceId temporário deve ser substituído por workspace real em fase futura, se aplicável.
+
+## Fase 15 — Abrir processos salvos
+
+- O Builder agora lista processos salvos oficialmente.
+- O usuário pode abrir um processo salvo, carregando sua última versão.
+- Ao abrir, o draft local é substituído após confirmação se houver alterações não salvas.
+- Runtime, events e registry seguem fora do escopo.

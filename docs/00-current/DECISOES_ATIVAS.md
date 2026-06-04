@@ -24,6 +24,8 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * Service e Repository de persistência devem ser estritamente uma camada intermediária; ou seja, devem ser testados e montados de maneira autônoma antes da API ou da UI consumi-los (Implementado na Fase 12).
 * A Fase 13 construiu a camada API/server actions de processos encapsulada e pronta para o consumo.
 * A Fase 14 conectou a UI (Builder) com a API server actions para suportar Salvamento Oficial, mantendo um Autosave Local paralelo.
+* A Fase 15 adicionou um painel de Processos Salvos que lista os processos e os carrega (usando a latest version), sobrepondo o rascunho local do editor.
+* O processo de edição/versionamento formal e publicação oficial ficarão para as fases futuras.
 
 ## 3. Decisões de banco
 
@@ -40,7 +42,6 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * Estratégia de autenticação/autorização para persistência.
 * Quando criar FK real para `workspace.workspaces`.
 * Formato definitivo de `workflow.events`.
-* Estratégia de publicação de versão.
 * Estrutura de runtime `process_instances`.
 * Integração com n8n via webhook/outbox.
 * Modelo de permissions/RBAC.

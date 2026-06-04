@@ -51,7 +51,7 @@ export async function listProcessDefinitionsAction(input: {
     };
   }
 
-  return listProcessDefinitionsServer(db, input.workspaceId);
+  return listProcessDefinitionsServer(db, input);
 }
 
 export async function getProcessDefinitionWithLatestVersionAction(input: {

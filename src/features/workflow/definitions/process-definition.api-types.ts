@@ -14,15 +14,13 @@ export type CreateProcessDefinitionServerResult = {
   };
 };
 
+import type { ProcessDefinitionRecord, ProcessVersionRecord } from "./process-definition.types";
+
 export type ListProcessDefinitionsResult = {
   ok: true;
-  data: Array<{
-    id: string;
-    key: string;
-    name: string;
-    status: string;
-    updatedAt?: string;
-  }>;
+  data: {
+    items: ProcessDefinitionRecord[];
+  };
 } | {
   ok: false;
   error: {
@@ -34,12 +32,8 @@ export type ListProcessDefinitionsResult = {
 export type GetProcessDefinitionResult = {
   ok: true;
   data: {
-    id: string;
-    key: string;
-    name: string;
-    status: string;
-    latestVersion?: number;
-    definitionJson?: unknown;
+    processDefinition: ProcessDefinitionRecord;
+    latestVersion?: ProcessVersionRecord;
   };
 } | {
   ok: false;

@@ -11,13 +11,12 @@ import { ProcessDefinitionValidationError, ProcessDefinitionPersistenceError } f
 
 export async function createProcessDefinitionServer(
   db: ProcessDefinitionDb,
-  input: CreateProcessDefinitionServerInput,
-  systemUserId?: string
+  input: CreateProcessDefinitionServerInput
 ): Promise<CreateProcessDefinitionServerResult> {
   try {
     const result = await createProcessDefinition(db, input);
     return { ok: true, data: result };
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (err instanceof ProcessDefinitionValidationError) {
       return {
         ok: false,
@@ -32,29 +31,35 @@ export async function createProcessDefinitionServer(
     }
     return {
       ok: false,
-      error: { code: "SERVER_ERROR", message: err.message || "Erro desconhecido", issues: err.issues }
+      error: { code: "SERVER_ERROR", message: "Ocorreu um erro interno inesperado ao criar a definição do processo." }
     };
   }
 }
 
 export async function listProcessDefinitionsServer(
   db: ProcessDefinitionDb,
-  workspaceId: string
+  input: {
+    workspaceId: string;
+    status?: "draft" | "published" | "archived";
+    limit?: number;
+    offset?: number;
+  }
 ): Promise<ListProcessDefinitionsResult> {
   try {
-    const definitions = await listProcessDefinitions(db, workspaceId);
+    const definitions = await listProcessDefinitions(db, input);
 
     // Map Date to string for safe serialization across boundaries if necessary
     const mappedDefinitions = definitions.map((def: any) => ({
       ...def,
+      createdAt: def.createdAt ? def.createdAt.toISOString() : undefined,
       updatedAt: def.updatedAt ? def.updatedAt.toISOString() : undefined,
     }));
 
-    return { ok: true, data: mappedDefinitions };
-  } catch (err: any) {
+    return { ok: true, data: { items: mappedDefinitions } };
+  } catch (err: unknown) {
     return {
       ok: false,
-      error: { code: "SERVER_ERROR", message: "Erro ao listar processos." }
+      error: { code: "SERVER_ERROR", message: "Ocorreu um erro interno inesperado ao listar processos." }
     };
   }
 }
@@ -74,10 +79,10 @@ export async function getProcessDefinitionWithLatestVersionServer(
     }
 
     return { ok: true, data: definition };
-  } catch (err: any) {
+  } catch (err: unknown) {
     return {
       ok: false,
-      error: { code: "SERVER_ERROR", message: "Erro ao carregar processo." }
+      error: { code: "SERVER_ERROR", message: "Ocorreu um erro interno inesperado ao carregar o processo." }
     };
   }
 }

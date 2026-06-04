@@ -61,11 +61,11 @@ export async function loadSavedProcess(
       };
     }
 
-    const processDefinition = result.data as any;
+    const { processDefinition, latestVersion } = result.data as any;
     let draft = undefined;
 
-    if (processDefinition.latestVersion && processDefinition.definitionJson) {
-       const defJson = processDefinition.definitionJson as any;
+    if (latestVersion && latestVersion.definition) {
+       const defJson = latestVersion.definition;
        if (defJson && defJson.schemaVersion === 1 && defJson.draft) {
          draft = defJson.draft;
        }
@@ -74,9 +74,9 @@ export async function loadSavedProcess(
     return {
       ok: true,
       data: {
-        processDefinition: processDefinition,
-        latestVersion: processDefinition.latestVersion,
-        draft: draft,
+        processDefinition,
+        latestVersion,
+        draft,
       },
     };
   } catch (error) {

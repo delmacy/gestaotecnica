@@ -3,18 +3,16 @@
 ## Fase atual de organização
 
 ```text
-As Fases 12 e 12B foram concluídas.
+A Fase 14 foi concluída.
 ```
 
 ## Próxima fase técnica planejada
 
 ```text
-Fase 14 — Salvar oficialmente pela UI
+Fase 15 — Abrir Processos Salvos
 ```
 
-## Objetivo da Fase 14
+## Objetivo da Fase 15
 
-* Conectar o Builder à camada server/API criada na Fase 13.
-* Adicionar botão salvar oficialmente na interface.
-* Manter `localStorage` como autosave local em paralelo.
-* Não criar runtime ainda.
+* Adicionar a capacidade de listar e carregar Process Definitions salvas na base de dados para o Builder (UI).
+* Desconectar do mock inicial se necessário e usar as Server Actions para busca de Process Definitions (já preparadas na Fase 13).

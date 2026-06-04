@@ -10,6 +10,13 @@ export type BuilderEditorState = {
     lastSavedAt?: string;
     message?: string;
   };
+  officialPersistence?: {
+    processDefinitionId?: string;
+    latestVersionId?: string;
+    lastSavedAt?: string;
+    status: "idle" | "saving" | "saved" | "error";
+    message?: string;
+  };
   mode: "builder" | "preview";
   preview?: {
     activeNodeId?: BuilderId;
@@ -37,6 +44,13 @@ export type BuilderEditorActions = {
   setLocalPersistenceStatus: (input: {
     restored?: boolean;
     lastSavedAt?: string;
+    message?: string;
+  }) => void;
+  setOfficialPersistenceStatus: (input: {
+    processDefinitionId?: string;
+    latestVersionId?: string;
+    lastSavedAt?: string;
+    status?: "idle" | "saving" | "saved" | "error";
     message?: string;
   }) => void;
   setMode: (mode: "builder" | "preview") => void;

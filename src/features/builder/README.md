@@ -102,16 +102,15 @@ process-editor/
 
 ## Fase 12 — Serviço de persistência preparado
 
-- Service/repository para process definitions e versions foram criados.
-- A UI ainda não chama esse serviço.
-- Não existe botão salvar oficial ainda.
+- Foi criada a camada `server-side` para inserir logicamente Process Definitions e as suas Versions incrementais atreladas usando Drizzle ORM.
+- Foram introduzidas subcamadas rigorosas para erros (`process-definition.errors.ts`) e injeções de DB isoladas (`process-definition.repository.ts`).
+- A UI **ainda não invoca** este serviço, nem exporta um botão "Salvar". O builder continua restrito ao seu ciclo de memória em localStorage.
+- A persistência oficial do fluxo via UI será unificada no layout principal apenas na próxima fase.
+
+## Fase 14 — Salvamento oficial pela UI
+
+- O Builder agora possui botão de salvamento oficial.
 - localStorage continua sendo autosave local.
-- Persistência oficial será exposta por API/server action na Fase 13.
-- Runtime, events e registry seguem fora do escopo.
-
-## Fase 13 — Camada server/API de processos
-
-- Foi criada a camada estrita de endpoints server-side (`process-definition.server.ts`) construindo wrappers sobre as mutações e queries do repository e service para listagem e salvamento.
-- Foram isolados os `api-types` a fim de desassociar dependência da view contra o backend.
-- A UI do Builder continua não chamando essa camada (operando em localhost memory).
-- O Botão de salvar transacional oficial e as rotas serão expostas de fato na Fase 14.
+- Salvamento oficial usa a camada server/API da Fase 13.
+- Esta fase ainda não cria runtime, events ou registry.
+- WorkspaceId temporário deve ser substituído por workspace real em fase futura, se aplicável.

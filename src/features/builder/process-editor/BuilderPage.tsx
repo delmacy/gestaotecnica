@@ -10,6 +10,8 @@ import { BuilderValidationPanel } from "../validation/BuilderValidationPanel";
 import { BuilderDraftActionsPanel } from "../draft-actions";
 import { loadBuilderDraftFromLocalStorage, useBuilderLocalAutosave } from "../local-persistence";
 import { BuilderPreviewPanel } from "../preview";
+import { validateBuilderDraft } from "./validate-builder-draft";
+import { saveBuilderDraftOfficially } from "../persistence/builder-save.client";
 
 export function BuilderPage() {
   const editor = useBuilderEditorState();
@@ -50,6 +52,50 @@ export function BuilderPage() {
     },
   });
 
+  const handleOfficialSave = async () => {
+    // 1. Validate internal structures
+    const validation = validateBuilderDraft(editor.state.draft);
+    if (!validation.valid) {
+      editor.actions.setOfficialPersistenceStatus({
+        status: "error",
+        message: "Erro de validação: Corrija os problemas no fluxo antes de salvar.",
+      });
+      return;
+    }
+
+    // 2. Optimistic "Saving..." UI state
+    editor.actions.setOfficialPersistenceStatus({
+      status: "saving",
+      message: undefined,
+    });
+
+    // TODO: Phase X -> fetch proper workspaceId from session context.
+    const TEMPORARY_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001";
+
+    const result = await saveBuilderDraftOfficially({
+      workspaceId: TEMPORARY_WORKSPACE_ID,
+      draft: editor.state.draft,
+      createdBy: "system",
+    });
+
+    if (result.ok) {
+      editor.actions.setOfficialPersistenceStatus({
+        processDefinitionId: result.data.processDefinitionId,
+        latestVersionId: result.data.versionId,
+        lastSavedAt: result.data.savedAt,
+        status: "saved",
+        message: "Salvo oficialmente",
+      });
+      // Optionally clean dirty flag to prevent nagging
+      editor.actions.markClean();
+    } else {
+      editor.actions.setOfficialPersistenceStatus({
+        status: "error",
+        message: result.error.message,
+      });
+    }
+  };
+
   return (
     <BuilderLayout
       mode={editor.state.mode}
@@ -59,7 +105,7 @@ export function BuilderPage() {
       canvas={<BuilderCanvas state={editor.state} actions={editor.actions} />}
       inspector={<InspectorPanel state={editor.state} actions={editor.actions} />}
       validation={<BuilderValidationPanel draft={editor.state.draft} />}
-      draftActions={<BuilderDraftActionsPanel state={editor.state} actions={editor.actions} />}
+      draftActions={<BuilderDraftActionsPanel state={editor.state} actions={editor.actions} onOfficialSave={handleOfficialSave} />}
       headerInfo={{
         name: editor.state.draft.name,
         status: editor.state.draft.status,

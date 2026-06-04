@@ -31,8 +31,8 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |  12B | ✅      | Organização documental   | Criar memória do projeto e porta de entrada para agentes |
 |   12 | ✅      | Service de persistência  | Service/repository para definitions/versions             |
 |   13 | ✅      | API/server action        | Criar/listar/carregar processo via servidor              |
-|   14 | ⚪      | Salvar pela UI           | Ainda não iniciado                                       |
-|   15 | ⚪      | Abrir processos salvos   | Ainda não iniciado                                       |
+|   14 | ✅      | Salvar pela UI           | Adicionar botão salvar oficialmente na interface         |
+|   15 | ⚪      | Abrir processos salvos   | Listar e carregar definições salvas                      |
 |   16 | ⚪      | Publicar versão          | Ainda não iniciado                                       |
 |   17 | ⚪      | Runtime mínimo           | Ainda não iniciado                                       |
 |   18 | ⚪      | Execução de etapas       | Ainda não iniciado                                       |
@@ -42,9 +42,9 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 13
+Última fase técnica validada: Fase 14
 Fase atual de documentação/contexto: Concluída (Fase 12B)
-Próxima fase técnica planejada: Fase 14
+Próxima fase técnica planejada: Fase 15
 ```
 
 ## 5. Regra

@@ -8,9 +8,10 @@ import { clearBuilderDraftFromLocalStorage } from "../local-persistence";
 export type BuilderDraftActionsPanelProps = {
   state: BuilderEditorState;
   actions: BuilderEditorActions;
+  onOfficialSave?: () => Promise<void> | void;
 };
 
-export function BuilderDraftActionsPanel({ state, actions }: BuilderDraftActionsPanelProps) {
+export function BuilderDraftActionsPanel({ state, actions, onOfficialSave }: BuilderDraftActionsPanelProps) {
   const [name, setName] = useState(state.draft.name);
   const [description, setDescription] = useState(state.draft.description ?? "");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -80,10 +81,10 @@ export function BuilderDraftActionsPanel({ state, actions }: BuilderDraftActions
   };
 
   const { lastSavedAt, message: persistenceMessage } = state.localPersistence || {};
+  const { status: officialStatus, message: officialMessage } = state.officialPersistence || {};
 
   return (
     <div className="bg-white border-b border-slate-200 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 shadow-sm z-10 relative">
-
       {/* Edit Details */}
       <div className="flex items-center gap-3">
         <div className="flex flex-col gap-1">
@@ -110,7 +111,30 @@ export function BuilderDraftActionsPanel({ state, actions }: BuilderDraftActions
 
       {/* Actions */}
       <div className="flex items-center gap-3">
-        {(errorMsg || persistenceMessage) && (
+        {officialStatus === "error" && officialMessage && (
+          <span className="text-xs font-semibold text-red-600 max-w-xs truncate" title={officialMessage}>
+            Erro: {officialMessage}
+          </span>
+        )}
+        {officialStatus === "saved" && (
+          <span className="text-xs font-semibold text-green-600 max-w-xs truncate">
+            Salvo oficialmente
+          </span>
+        )}
+
+        {onOfficialSave && (
+          <button
+            onClick={onOfficialSave}
+            disabled={officialStatus === "saving"}
+            className="text-xs font-medium text-white px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors shadow-sm"
+          >
+            {officialStatus === "saving" ? "Salvando..." : "Salvar oficial"}
+          </button>
+        )}
+
+        <div className="w-px h-4 bg-slate-300 mx-2"></div>
+
+        {(errorMsg || persistenceMessage) && officialStatus !== "error" && (
           <span
             className={`text-xs font-semibold max-w-xs truncate ${errorMsg ? "text-red-600" : "text-slate-500"}`}
             title={errorMsg || persistenceMessage}

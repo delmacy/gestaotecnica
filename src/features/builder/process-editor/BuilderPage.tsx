@@ -38,7 +38,7 @@ export function BuilderPage() {
       setSavedProcessesError(result.error.message);
     }
     setSavedProcessesLoading(false);
-  }, [TEMPORARY_WORKSPACE_ID]);
+  }, []);
 
   React.useEffect(() => {
     // Only attempt to restore if we haven't already done so
@@ -96,7 +96,7 @@ export function BuilderPage() {
         message: result.ok ? "O processo não possui um draft salvo na última versão." : result.error.message,
       });
     }
-  }, [editor.state.dirty, editor.actions, TEMPORARY_WORKSPACE_ID]);
+  }, [editor.state.dirty, editor.actions]);
 
   useBuilderLocalAutosave({
     draft: editor.state.draft,
@@ -221,7 +221,7 @@ export function BuilderPage() {
     if (result.ok) {
       alert(`Instância iniciada com sucesso! ID: ${result.data?.id}`);
     } else {
-      alert(`Erro ao iniciar instância: ${result.error}`);
+      alert(`Erro ao iniciar instância: ${result.error.message}`);
     }
   }, [editor.state.officialPersistence]);
 

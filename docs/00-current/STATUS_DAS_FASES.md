@@ -35,8 +35,8 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   15 | ✅      | Abrir processos salvos   | Listar e carregar definições salvas                      |
 |   16 | ✅      | Publicar versão          | Transformar versão draft em published                    |
 |  16C | ✅      | Context Packs e Board    | Consolidação da gestão governamental (Jules Documental)  |
-|  17A | ⚪      | Runtime contracts        | Análise do schema de runtime existente e contratos TS    |
-|  17B | ⚪      | Runtime repository       | Leitura e escrita isolada de runtime de instâncias       |
+|  17A | ✅      | Runtime contracts        | Análise do schema de runtime existente e contratos TS    |
+|  17B | 🟡      | Runtime repository       | Leitura e escrita isolada de runtime de instâncias       |
 |  17C | ⚪      | Runtime service          | Business logic do runner e instanciador                  |
 |  17D | ⚪      | Runtime server action    | Exposição server-side de comandos de instâncias          |
 |  17E | ⚪      | UI Mínima para instância | Visual para instanciar as execuções de um processo       |
@@ -56,9 +56,9 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 16
+Última fase técnica validada: Fase 17A
 Fase atual de documentação/contexto: Concluída
-Próxima fase técnica planejada: Fase 17A
+Próxima fase técnica planejada: Fase 17B
 ```
 
 ## 5. Regra

@@ -3,17 +3,17 @@
 ## Fase atual de organização
 
 ```text
-A Fase 15 foi concluída.
+A Fase 16 foi concluída.
 ```
 
 ## Próxima fase técnica planejada
 
 ```text
-Fase 16 — Publicar versão
+Fase 17 — Runtime mínimo
 ```
 
-## Objetivo da Fase 16
+## Objetivo da Fase 17
 
-* Transformar draft/version em versão publicada.
-* Impedir edição direta de versão publicada.
-* Não criar runtime ainda.
+* Criar schema/contrato de process_instances.
+* Iniciar instância a partir de versão publicada.
+* Ainda sem execução complexa.

@@ -13,6 +13,7 @@ import { BuilderPreviewPanel } from "../preview";
 import { validateBuilderDraft } from "./validate-builder-draft";
 import { saveBuilderDraftOfficially } from "../persistence/builder-save.client";
 import { listSavedProcesses, loadSavedProcess } from "../persistence/builder-load.client";
+import { publishBuilderProcess } from "../persistence/builder-publish.client";
 import { SavedProcessesPanel } from "../saved-processes/SavedProcessesPanel";
 import type { SavedProcessListItem } from "../persistence/builder-load.types";
 
@@ -148,6 +149,53 @@ export function BuilderPage() {
     }
   };
 
+  const handlePublishOfficial = async () => {
+    const { processDefinitionId, latestVersionId } = editor.state.officialPersistence || {};
+
+    if (!processDefinitionId || !latestVersionId) {
+      editor.actions.setOfficialPersistenceStatus({
+        publicationStatus: "error",
+        message: "Salve o processo oficialmente antes de publicar.",
+      });
+      return;
+    }
+
+    const validation = validateBuilderDraft(editor.state.draft);
+    if (!validation.valid) {
+      editor.actions.setOfficialPersistenceStatus({
+        publicationStatus: "error",
+        message: "Erro de validação: Corrija os problemas no fluxo antes de publicar.",
+      });
+      return;
+    }
+
+    editor.actions.setOfficialPersistenceStatus({
+      publicationStatus: "publishing",
+      message: undefined,
+    });
+
+    const result = await publishBuilderProcess({
+      workspaceId: TEMPORARY_WORKSPACE_ID,
+      processDefinitionId,
+      processVersionId: latestVersionId,
+      publishedBy: "system",
+    });
+
+    if (result.ok) {
+      editor.actions.setOfficialPersistenceStatus({
+        publicationStatus: "published",
+        publishedAt: result.data.publishedAt,
+        message: "Processo publicado com sucesso.",
+      });
+      // Optionally update the draft status if needed, but not strictly required
+    } else {
+      editor.actions.setOfficialPersistenceStatus({
+        publicationStatus: "error",
+        message: result.error.message,
+      });
+    }
+  };
+
   return (
     <BuilderLayout
       mode={editor.state.mode}
@@ -157,7 +205,7 @@ export function BuilderPage() {
       canvas={<BuilderCanvas state={editor.state} actions={editor.actions} />}
       inspector={<InspectorPanel state={editor.state} actions={editor.actions} />}
       validation={<BuilderValidationPanel draft={editor.state.draft} />}
-      draftActions={<BuilderDraftActionsPanel state={editor.state} actions={editor.actions} onOfficialSave={handleOfficialSave} />}
+      draftActions={<BuilderDraftActionsPanel state={editor.state} actions={editor.actions} onOfficialSave={handleOfficialSave} onPublishOfficial={handlePublishOfficial} />}
       savedProcesses={
         <SavedProcessesPanel
           items={savedProcesses}

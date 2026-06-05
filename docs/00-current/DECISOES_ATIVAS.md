@@ -25,7 +25,8 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * A Fase 13 construiu a camada API/server actions de processos encapsulada e pronta para o consumo.
 * A Fase 14 conectou a UI (Builder) com a API server actions para suportar Salvamento Oficial, mantendo um Autosave Local paralelo.
 * A Fase 15 adicionou um painel de Processos Salvos que lista os processos e os carrega (usando a latest version), sobrepondo o rascunho local do editor.
-* O processo de edição/versionamento formal e publicação oficial ficarão para as fases futuras.
+* A Fase 16 introduziu o conceito de publicação, permitindo transformar uma versão em "published" na interface. A publicação não executa o processo, apenas muda seu status no repositório.
+* Versão publicada é pré-requisito para o runtime (Fase 17).
 
 ## 3. Decisões de banco
 
@@ -42,6 +43,6 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * Estratégia de autenticação/autorização para persistência.
 * Quando criar FK real para `workspace.workspaces`.
 * Formato definitivo de `workflow.events`.
-* Estrutura de runtime `process_instances`.
+* Estrutura de runtime `process_instances`. O runtime começa na Fase 17.
 * Integração com n8n via webhook/outbox.
 * Modelo de permissions/RBAC.

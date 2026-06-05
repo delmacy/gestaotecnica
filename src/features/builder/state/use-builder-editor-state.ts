@@ -224,6 +224,8 @@ export function useBuilderEditorState() {
         lastSavedAt?: string;
         status?: "idle" | "saving" | "saved" | "error";
         loadStatus?: "idle" | "loading" | "loaded" | "error";
+        publicationStatus?: "idle" | "publishing" | "published" | "error";
+        publishedAt?: string;
         message?: string;
       }) => {
         setState((prev) => ({
@@ -233,6 +235,7 @@ export function useBuilderEditorState() {
             ...input,
             status: input.status ?? prev.officialPersistence?.status ?? "idle",
             loadStatus: input.loadStatus ?? prev.officialPersistence?.loadStatus ?? "idle",
+            publicationStatus: input.publicationStatus ?? prev.officialPersistence?.publicationStatus ?? "idle",
           },
         }));
       },

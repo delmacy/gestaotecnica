@@ -33,8 +33,8 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   13 | ✅      | API/server action        | Criar/listar/carregar processo via servidor              |
 |   14 | ✅      | Salvar pela UI           | Adicionar botão salvar oficialmente na interface         |
 |   15 | ✅      | Abrir processos salvos   | Listar e carregar definições salvas                      |
-|   16 | ⚪      | Publicar versão          | Ainda não iniciado                                       |
-|   17 | ⚪      | Runtime mínimo           | Ainda não iniciado                                       |
+|   16 | ✅      | Publicar versão          | Transformar versão draft em published                    |
+|   17 | ⚪      | Runtime mínimo           | Iniciar instâncias a partir da definição publicada       |
 |   18 | ⚪      | Execução de etapas       | Ainda não iniciado                                       |
 |   19 | ⚪      | Eventos/rastreabilidade  | Ainda não iniciado                                       |
 |   20 | ⚪      | Hardening MVP            | Ainda não iniciado                                       |
@@ -42,9 +42,9 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 15
+Última fase técnica validada: Fase 16
 Fase atual de documentação/contexto: Concluída (Fase 12B)
-Próxima fase técnica planejada: Fase 16
+Próxima fase técnica planejada: Fase 17
 ```
 
 ## 5. Regra

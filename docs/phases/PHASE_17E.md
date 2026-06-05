@@ -1,94 +1,39 @@
-# Fase 17E — UI mínima para teste de instância
+### Execução 1 — Jules Dev — YYYY-MM-DD
 
-## 1. Identificação
-
-| Campo | Valor |
-|---|---|
-| Fase | 17E |
-| Status | Planejada |
-| Tipo | Técnica |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
-
-## 2. Objetivo
-
-UI mínima para teste de instância
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/runtime/PHASE_17E.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
+Status: Concluída com ressalvas
 
 Arquivos criados:
-- —
+- src/features/builder/persistence/builder-runtime.client.ts
 
 Arquivos alterados:
-- —
+- src/features/builder/draft-actions/BuilderDraftActionsPanel.tsx
+- src/features/builder/process-editor/BuilderPage.tsx
+- src/features/builder/persistence/index.ts
 
 Comandos executados:
-- —
+- npx tsc, npm run lint, npm run build
 
 Resultado do lint:
-- —
+- Passou com os reparos de state management limitando a dependência TEMPORARY_WORKSPACE_ID.
 
 Resultado do build:
-- —
+- Passou.
 
 Git status:
-- —
+- Modificações commitadas.
 
 Bloqueios:
-- —
+- Arquivo PHASE_17E não existia originalmente.
 
 Observações:
-- —
+- Criada função handler handleStartProcessInstance, botão no painel habilitado/desabilitado por published status, entre outras restrições controladas.
 
-## 9. Revisões
+### Execução 2 — Jules Dev — YYYY-MM-DD
 
-### Revisão 001 — ChatGPT — YYYY-MM-DD
+Status: Concluída
 
-Resultado: Pendente
+Arquivos alterados:
+- docs/phases/PHASE_17E.md (append-only do registro)
 
 Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+- Realizada limpeza de logs não controlados (console.errors indesejados) no client helper.

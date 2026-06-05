@@ -55,28 +55,17 @@
 
 ## 5. Bloqueios
 
-Nenhum bloqueio ativo.
+| ID | Bloqueio | Responsável | Status | Resolução esperada |
+|---|---|---|---|---|
+| B-001 | Revisão pendente da 17A | ChatGPT / Delmacy | Aberto | Confirmar merge/revisão da Fase 17A antes de autorizar codificação final da Fase 17B (Runtime repository). |
 
 ## 6. Decisões recentes
 
 | Data | Decisão | Impacto |
 |---|---|---|
 | Atual | Planejamento fechado para MVP | A carga completa técnica de blocos 17 (Runtime), 18 (Steps), 19 (Events) e 20 (Hardening) foi documentada. O pipeline do agente de desenvolvimento (Dev) está abastecido, porém contido por limites de merge estritos a cada Fase. |
-| Atual | Histórico de fases | A 17A foi aprovada com ressalvas; a 17B está autorizada com atenção a payloads e schema real. O registro histórico das fases foi implementado em `docs/phases/`. |
-| Atual | Fila Alfa (21-40) | Foi planejado o bloco alpha compreendendo as fases 21-40 (`docs/planning/alpha/`). Essas fases NÃO estão autorizadas para implementação. A fila ativa continua sendo o bloco 17-20. |
 
 ## 7. Handoff para Jules Dev
-
-Planejamento futuro disponível (NÃO IMPLEMENTAR AINDA):
-- `docs/planning/alpha/PHASE_21.md` até `PHASE_40.md`.
-
-- Registro histórico das fases: `docs/phases/`
-- Fase atual deve apontar para seu arquivo histórico correspondente.
-- Handoff para Jules Dev deve incluir:
-  - planning file;
-  - phase record file.
-
-**Atenção Jules Dev:** Antes de começar a implementar ou ler qualquer arquivo, você **deve** atualizar o seu ambiente git local executando um `git pull` na branch correta para garantir que pegou as últimas atualizações geradas pelo Jules Documental.
 
 ```text
 Próxima fase técnica: Fase 17B — Runtime repository
@@ -84,9 +73,6 @@ Próxima fase técnica: Fase 17B — Runtime repository
 Consulte o documento principal de planejamento de onde deve partir o prompt exato para a sua implementação:
 
 docs/planning/runtime/PHASE_17B.md
-
-Registro:
-docs/phases/PHASE_17B.md
 
 NÃO AVANCE PARA FASES FUTURAS. Cumpra a 17B e retorne o resultado.
 ```

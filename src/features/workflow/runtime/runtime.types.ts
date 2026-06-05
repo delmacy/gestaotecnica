@@ -18,7 +18,7 @@ export interface ProcessPayloadRecord {
   instanceId: string;
   workspaceId: string;
   schemaVersion: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,8 +29,8 @@ export interface ActionExecutionRecord {
   instanceId: string;
   actionKey: string;
   actorId: string | null;
-  inputPayload: Record<string, any>;
-  outputPayload: Record<string, any>;
+  inputPayload: Record<string, unknown>;
+  outputPayload: Record<string, unknown>;
   status: ActionExecutionStatus;
   error: string | null;
   startedAt: Date;
@@ -43,7 +43,7 @@ export interface StartProcessInstanceInput {
   workspaceId: string;
   processVersionId: string;
   createdById?: string;
-  initialPayload?: Record<string, any>;
+  initialPayload?: Record<string, unknown>;
 }
 
 export interface ProcessInstanceInsert {
@@ -61,9 +61,46 @@ export interface ActionExecutionInsert {
   instanceId: string;
   actionKey: string;
   actorId?: string | null;
-  inputPayload?: Record<string, any>;
-  outputPayload?: Record<string, any>;
+  inputPayload?: Record<string, unknown>;
+  outputPayload?: Record<string, unknown>;
   status?: ActionExecutionStatus;
   error?: string | null;
   finishedAt?: Date | null;
+}
+
+// Step Execution concepts (mapped on top of actionExecution)
+
+export type StepExecutionStatus = ActionExecutionStatus;
+
+export interface StepExecutionInput {
+  workspaceId: string;
+  processInstanceId: string;
+  actionKey: string;
+  input: Record<string, unknown>;
+  actorId?: string;
+}
+
+export interface StepExecutionOutput {
+  workspaceId: string;
+  processInstanceId: string;
+  actionKey: string;
+  output: Record<string, unknown>;
+  status: StepExecutionStatus;
+  error?: string;
+}
+
+export interface AdvanceStepInput {
+  workspaceId: string;
+  processInstanceId: string;
+  actionKey?: string;
+  actionExecutionId?: string;
+  output?: Record<string, unknown>;
+  actorId?: string;
+  status?: StepExecutionStatus;
+}
+
+export interface AdvanceStepResult {
+  executionId: string;
+  instanceId: string;
+  status: StepExecutionStatus;
 }

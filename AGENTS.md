@@ -46,3 +46,6 @@ Regras:
 - Jules Documental estrutura os arquivos de fase e mantém o board.
 - `WORK_BOARD.md` mostra o estado atual.
 - `docs/phases/**` preserva histórico.
+
+## 7. Sincronização de Ambiente
+- Como Jules Documental e Jules Dev atuam em instâncias e sessões diferentes, **é obrigatório** que Jules Dev atualize seu ambiente local (`git pull` ou fetch/rebase da branch principal/atual) antes de iniciar a implementação. Isso garante que o agente desenvolvedor tenha acesso aos últimos documentos de planejamento, contexto e regras recém-atualizados pelo agente documental.

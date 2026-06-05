@@ -76,6 +76,8 @@ Planejamento futuro disponível (NÃO IMPLEMENTAR AINDA):
   - planning file;
   - phase record file.
 
+**Atenção Jules Dev:** Antes de começar a implementar ou ler qualquer arquivo, você **deve** atualizar o seu ambiente git local executando um `git pull` na branch correta para garantir que pegou as últimas atualizações geradas pelo Jules Documental.
+
 ```text
 Próxima fase técnica: Fase 17B — Runtime repository
 

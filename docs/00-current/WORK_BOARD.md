@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |---|---|
-| Fase técnica atual | Fase 17A |
+| Fase técnica atual | Fase 17B |
 | Fase documental atual | Concluído planejamento até MVP (Fase 20D) |
-| Última fase técnica aprovada | Fase 16 |
+| Última fase técnica aprovada | Fase 17A |
 | Última fase documental aprovada | Fase 16C (e Planejamento 17-20) |
-| Próxima fase técnica | Fase 17A |
+| Próxima fase técnica | Fase 17B |
 | Próxima fase documental | Acompanhar execução da 17 e refinar detalhamento 18-20, se necessário |
 | Responsável técnico | Jules Dev |
 | Responsável documental | Jules Documental |
@@ -20,7 +20,7 @@
 | Trilha | Responsável | Status | Observação |
 |---|---|---|---|
 | Documentação/contexto | Jules Documental | Em andamento (Acompanhamento) | Planejamento gerado até a 20D |
-| Implementação | Jules Dev | Pendente | Implementará a fase técnica 17A |
+| Implementação | Jules Dev | Pendente | Implementará a fase técnica 17B |
 | Revisão | ChatGPT | Sob demanda | Revisa merges e coerência |
 | Decisão de produto | Delmacy | Ativo | Aprova direção e prioridades |
 
@@ -28,8 +28,8 @@
 
 | Ordem | Bloco | Fase | Status | Objetivo Resumido |
 |---:|---|---|---|---|
-| 1 | Runtime | Fase 17A | Pendente | Runtime contracts e análise do schema existente |
-| 2 | Runtime | Fase 17B | Planejada | Runtime repository de instâncias e steps |
+| 1 | Runtime | Fase 17A | Concluída | Runtime contracts e análise do schema existente |
+| 2 | Runtime | Fase 17B | Pendente | Runtime repository de instâncias e steps |
 | 3 | Runtime | Fase 17C | Planejada | Runtime service para iniciar instâncias |
 | 4 | Runtime | Fase 17D | Planejada | Exposição em Server Action |
 | 5 | Runtime | Fase 17E | Planejada | UI mínima para teste de instância |
@@ -57,7 +57,7 @@
 
 | ID | Bloqueio | Responsável | Status | Resolução esperada |
 |---|---|---|---|---|
-| B-001 | Revisão pendente da 16B | ChatGPT / Delmacy | Aberto | Confirmar merge/revisão da Fase 16B antes de autorizar codificação final da Fase 17A (Runtime mínimo). |
+| B-001 | Revisão pendente da 17A | ChatGPT / Delmacy | Aberto | Confirmar merge/revisão da Fase 17A antes de autorizar codificação final da Fase 17B (Runtime repository). |
 
 ## 6. Decisões recentes
 
@@ -68,13 +68,13 @@
 ## 7. Handoff para Jules Dev
 
 ```text
-Próxima fase técnica: Fase 17A — Runtime contracts e análise de schema existente
+Próxima fase técnica: Fase 17B — Runtime repository
 
 Consulte o documento principal de planejamento de onde deve partir o prompt exato para a sua implementação:
 
-docs/planning/runtime/PHASE_17A.md
+docs/planning/runtime/PHASE_17B.md
 
-NÃO AVANCE PARA FASES FUTURAS. Cumpra a 17A e retorne o resultado.
+NÃO AVANCE PARA FASES FUTURAS. Cumpra a 17B e retorne o resultado.
 ```
 
 ## 8. Última revisão ChatGPT

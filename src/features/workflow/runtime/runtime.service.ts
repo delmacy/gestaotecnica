@@ -3,7 +3,7 @@ import { insertProcessInstance, insertProcessPayload } from "./runtime.repositor
 import { startProcessInstanceInputSchema } from "./runtime.validation";
 import type { StartProcessInstanceInput, ProcessInstanceRecord } from "./runtime.types";
 import type { RuntimeResult } from "./runtime.errors";
-import { processVersions } from "@/db/platform/schema/workflow";
+import { processVersions } from "@/db/runtime/schema/workflow";
 import { eq } from "drizzle-orm";
 
 export async function startProcessInstance(

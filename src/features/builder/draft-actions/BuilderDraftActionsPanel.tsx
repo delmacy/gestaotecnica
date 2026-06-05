@@ -10,9 +10,11 @@ export type BuilderDraftActionsPanelProps = {
   actions: BuilderEditorActions;
   onOfficialSave?: () => Promise<void> | void;
   onPublishOfficial?: () => Promise<void> | void;
+  onStartInstance?: () => Promise<void> | void;
+
 };
 
-export function BuilderDraftActionsPanel({ state, actions, onOfficialSave, onPublishOfficial }: BuilderDraftActionsPanelProps) {
+export function BuilderDraftActionsPanel({ state, actions, onOfficialSave, onPublishOfficial, onStartInstance }: BuilderDraftActionsPanelProps) {
   const [name, setName] = useState(state.draft.name);
   const [description, setDescription] = useState(state.draft.description ?? "");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -159,6 +161,17 @@ export function BuilderDraftActionsPanel({ state, actions, onOfficialSave, onPub
               : publicationStatus === "published"
               ? "Publicado"
               : "Publicar"}
+          </button>
+        )}
+
+        {onStartInstance && (
+          <button
+            onClick={onStartInstance}
+            disabled={publicationStatus !== "published" || !processDefinitionId || !latestVersionId}
+            title={publicationStatus !== "published" ? "Publique o processo antes de iniciar uma instância." : "Iniciar uma nova instância deste processo"}
+            className="text-xs font-medium px-4 py-1.5 rounded transition-colors shadow-sm bg-teal-600 hover:bg-teal-700 text-white disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed"
+          >
+            Iniciar instância
           </button>
         )}
 

@@ -104,3 +104,13 @@ export interface AdvanceStepResult {
   instanceId: string;
   status: StepExecutionStatus;
 }
+
+export interface UpdateActionExecutionInput {
+  workspaceId: string;
+  instanceId: string;
+  actionExecutionId: string;
+  status: ActionExecutionStatus;
+  outputPayload?: Record<string, unknown>;
+  error?: string | null;
+  finishedAt?: Date;
+}

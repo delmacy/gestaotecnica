@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import {
   processInstances,
   processPayloads,
@@ -10,7 +10,9 @@ import type {
   ActionExecutionInsert,
   ActionExecutionRecord,
   ProcessPayloadRecord,
-  ProcessInstanceStatus
+  ProcessInstanceStatus,
+  UpdateActionExecutionInput,
+  ActionExecutionStatus
 } from "./runtime.types";
 
 // Minimal DB Type for dependency injection, avoiding deep drizzle type leaks
@@ -139,4 +141,78 @@ export async function updateProcessInstanceStatus(
     .returning();
 
   return (updated as ProcessInstanceRecord) || null;
+}
+
+export async function getActionExecutionById(
+  db: RuntimeDb,
+  workspaceId: string,
+  actionExecutionId: string
+): Promise<ActionExecutionRecord | null> {
+  const [execution] = await db
+    .select()
+    .from(actionExecutions)
+    .where(
+      and(
+        eq(actionExecutions.id, actionExecutionId),
+        eq(actionExecutions.workspaceId, workspaceId)
+      )
+    );
+
+  return (execution as ActionExecutionRecord) || null;
+}
+
+export async function getActiveActionExecutionForInstance(
+  db: RuntimeDb,
+  workspaceId: string,
+  instanceId: string,
+  targetStatuses: ActionExecutionStatus[] = ["running", "pending"]
+): Promise<ActionExecutionRecord | null> {
+  const [active] = await db
+    .select()
+    .from(actionExecutions)
+    .where(
+      and(
+        eq(actionExecutions.instanceId, instanceId),
+        eq(actionExecutions.workspaceId, workspaceId),
+        inArray(actionExecutions.status, targetStatuses)
+      )
+    )
+    .limit(1);
+
+  return (active as ActionExecutionRecord) || null;
+}
+
+export async function updateActionExecutionStatus(
+  db: RuntimeDb,
+  input: UpdateActionExecutionInput
+): Promise<ActionExecutionRecord | null> {
+  const { workspaceId, instanceId, actionExecutionId, status, outputPayload, error, finishedAt } = input;
+
+  const updateData: any = { status };
+
+  if (outputPayload !== undefined) {
+    updateData.outputPayload = outputPayload;
+  }
+
+  if (error !== undefined) {
+    updateData.error = error;
+  }
+
+  if (finishedAt !== undefined) {
+    updateData.finishedAt = finishedAt;
+  }
+
+  const [updated] = await db
+    .update(actionExecutions)
+    .set(updateData)
+    .where(
+      and(
+        eq(actionExecutions.id, actionExecutionId),
+        eq(actionExecutions.instanceId, instanceId),
+        eq(actionExecutions.workspaceId, workspaceId)
+      )
+    )
+    .returning();
+
+  return (updated as ActionExecutionRecord) || null;
 }

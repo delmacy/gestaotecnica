@@ -26,3 +26,13 @@ Bloqueios:
 
 Observações:
 - O Server Boundary foi montado capturando DB e repassando context.
+
+### Execução 2 — Jules Dev — YYYY-MM-DD
+
+Status: Concluída
+
+Arquivos alterados:
+- docs/phases/PHASE_17D.md (append-only do registro)
+
+Observações:
+- Histórico de correções: O import de `processVersions` no runtime.service.ts foi alinhado para `@/db/runtime/schema/workflow` para evitar problemas de cross-schema no database durante o runtime instantiation.

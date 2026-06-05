@@ -1,7 +1,7 @@
 # Fase 17B — Runtime repository
 
 ## Objetivo
-- criar repository para processInstances, processPayloads e actionExecutions;
+- criar repository para process_instances e process_instance_steps;
 - usar schema existente;
 - não criar service, server action ou UI;
 - não criar events.
@@ -23,7 +23,7 @@ Com os contratos de tipos estabilizados na 17A, agora precisamos de uma camada a
 - Filtro obrigatório de isolamento por `workspace_id`.
 
 ## Etapas
-1. Crie funções de inserção e busca para `processInstances`, `processPayloads` e `actionExecutions` no `runtime.repository.ts`.
+1. Crie funções de inserção e busca para `process_instances` e `process_instance_steps` no `runtime.repository.ts`.
 
 ## Validações
 - Compilação sem falhas baseando-se nos tipos do bloco 17A.

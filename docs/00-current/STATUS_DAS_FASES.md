@@ -35,21 +35,32 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   15 | ✅      | Abrir processos salvos   | Listar e carregar definições salvas                      |
 |   16 | ✅      | Publicar versão          | Transformar versão draft em published                    |
 |  16C | ✅      | Context Packs e Board    | Consolidação da gestão governamental (Jules Documental)  |
-|  17A | ⚪      | Runtime schema/contratos | Preparação do schema para instâncias operacionais        |
+|  17A | ⚪      | Runtime contracts        | Análise do schema de runtime existente e contratos TS    |
 |  17B | ⚪      | Runtime repository       | Leitura e escrita isolada de runtime de instâncias       |
 |  17C | ⚪      | Runtime service          | Business logic do runner e instanciador                  |
 |  17D | ⚪      | Runtime server action    | Exposição server-side de comandos de instâncias          |
 |  17E | ⚪      | UI Mínima para instância | Visual para instanciar as execuções de um processo       |
 |  18A | ⚪      | Execução: Contratos      | Modelagem TS para processar as transições de etapas      |
+|  18B | ⚪      | Execução: Repository     | Operações de busca e finalização de steps                |
+|  18C | ⚪      | Execução: Service        | Regra de avanço de step simples                          |
+|  18D | ⚪      | Execução: API/UI         | Exposição de actions para transição da UI                |
+|  19A | ⚪      | Eventos: Contratos       | Tipos mínimos de eventos (`started`, `completed`)        |
+|  19B | ⚪      | Eventos: Repository      | Escrita de eventos base                                  |
+|  19C | ⚪      | Eventos: Integração      | Injetar disparo no Runtime service                       |
+|  19D | ⚪      | Eventos: Trace Receipt   | Estrutura de rastreio/comprovante simples                |
+|  20A | ⚪      | Hardening: Smoke Tests   | Validação do fluxo (Criar -> Instanciar -> Concluir)     |
+|  20B | ⚪      | Hardening: Any Cleanup   | Remoção de `any` críticos na tipagem                     |
+|  20C | ⚪      | Hardening: Checklist MVP | Relatório consolidado do fim da primeira jornada técnica |
+|  20D | ⚪      | Hardening: Demo E2E      | Documentação visual e prova de operação fluida           |
 
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 16 (Pendente possível revisão de 16B)
-Fase atual de documentação/contexto: Concluída (Fase 16C)
+Última fase técnica validada: Fase 16
+Fase atual de documentação/contexto: Concluída
 Próxima fase técnica planejada: Fase 17A
 ```
 
 ## 5. Regra
 
-> Nenhuma fase deve ser considerada concluída apenas porque foi implementada. Ela deve ser revisada contra o escopo e registrada neste documento.
+> Nenhuma fase deve ser considerada concluída apenas porque foi implementada. Ela deve ser revisada contra o escopo e registrada neste documento. O planejamento das fases de 17A a 20D é uma fila de execução futura, e a Fase 20D marca o fechamento documental do MVP técnico.

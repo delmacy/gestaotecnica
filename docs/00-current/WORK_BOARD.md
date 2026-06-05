@@ -5,11 +5,11 @@
 | Campo | Valor |
 |---|---|
 | Fase técnica atual | Fase 17A |
-| Fase documental atual | Fase 16C |
+| Fase documental atual | Concluído planejamento até MVP (Fase 20D) |
 | Última fase técnica aprovada | Fase 16 |
-| Última fase documental aprovada | Fase 12B |
+| Última fase documental aprovada | Fase 16C (e Planejamento 17-20) |
 | Próxima fase técnica | Fase 17A |
-| Próxima fase documental | Planejamento 17B–17E |
+| Próxima fase documental | Acompanhar execução da 17 e refinar detalhamento 18-20, se necessário |
 | Responsável técnico | Jules Dev |
 | Responsável documental | Jules Documental |
 | Revisor | ChatGPT |
@@ -19,29 +19,39 @@
 
 | Trilha | Responsável | Status | Observação |
 |---|---|---|---|
-| Documentação/contexto | Jules Documental | Em andamento | Mantém 3–4 fases futuras |
+| Documentação/contexto | Jules Documental | Em andamento (Acompanhamento) | Planejamento gerado até a 20D |
 | Implementação | Jules Dev | Pendente | Implementará a fase técnica 17A |
 | Revisão | ChatGPT | Sob demanda | Revisa merges e coerência |
 | Decisão de produto | Delmacy | Ativo | Aprova direção e prioridades |
 
 ## 3. Fila técnica
 
-| Ordem | Fase | Tipo | Status | Responsável | Depende de | Observação |
-|---:|---|---|---|---|---|---|
-| 1 | Fase 17A | Técnica | Pendente | Jules Dev | Fase 16/16B | Runtime schema e contratos p/ runtime mínimo |
-| 2 | Fase 17B | Técnica | Planejada | Jules Dev | Fase 17A | Runtime repository p/ leitura e escrita de instâncias |
-| 3 | Fase 17C | Técnica | Planejada | Jules Dev | Fase 17B | Runtime service (Regra de inicialização) |
-| 4 | Fase 17D | Técnica | Planejada | Jules Dev | Fase 17C | Server action para disparo da inicialização |
-| 5 | Fase 17E | Técnica | Planejada | Jules Dev | Fase 17D | Interface mínima (botão/shell) UI para ação de inicializar |
+| Ordem | Bloco | Fase | Status | Objetivo Resumido |
+|---:|---|---|---|---|
+| 1 | Runtime | Fase 17A | Pendente | Runtime contracts e análise do schema existente |
+| 2 | Runtime | Fase 17B | Planejada | Runtime repository de instâncias e steps |
+| 3 | Runtime | Fase 17C | Planejada | Runtime service para iniciar instâncias |
+| 4 | Runtime | Fase 17D | Planejada | Exposição em Server Action |
+| 5 | Runtime | Fase 17E | Planejada | UI mínima para teste de instância |
+| 6 | Execução | Fase 18A | Planejada | Contratos/tipos para execução de step |
+| 7 | Execução | Fase 18B | Planejada | Repository para conclusão/avanço de step |
+| 8 | Execução | Fase 18C | Planejada | Service de lógica básica de avanço de step |
+| 9 | Execução | Fase 18D | Planejada | Exposição Server Action/UI da transição |
+| 10 | Eventos | Fase 19A | Planejada | Contratos simples de eventos (started, completed) |
+| 11 | Eventos | Fase 19B | Planejada | Schema e repository base de registro (append) |
+| 12 | Eventos | Fase 19C | Planejada | Injeção no service de runtime |
+| 13 | Eventos | Fase 19D | Planejada | Trace Receipt rudimentar |
+| 14 | Hardening | Fase 20A | Planejada | Teste completo de Smoke flow |
+| 15 | Hardening | Fase 20B | Planejada | Correção de 'any' críticos do Typescript |
+| 16 | Hardening | Fase 20C | Planejada | Checklist final do MVP |
+| 17 | Hardening | Fase 20D | Planejada | Demo E2E documentada. Fim do MVP técnico. |
 
 ## 4. Fila documental
 
-| Ordem | Fase | Status | Responsável | Objetivo |
+| Ordem | Documento/Ação | Status | Responsável | Objetivo |
 |---:|---|---|---|---|
-| 1 | Fase 16C | Concluída | Jules Documental | Context packs, índices e WORK_BOARD criados/atualizados. |
-| 2 | Planejamento 17B | Pendente | Jules Documental | Detalhar estrutura e contratos do runtime repository. |
-| 3 | Planejamento 17C | Pendente | Jules Documental | Detalhar orquestração do runtime service. |
-| 4 | Planejamento 17D | Pendente | Jules Documental | Especificar payload para a nova Server Action. |
+| 1 | Planejamento MVP (17-20) | Concluída | Jules Documental | Preparado o pacote da arquitetura de runtime, execução e eventos. |
+| 2 | Refinamentos | Pendente | Jules Documental | Ajustar prompts de 18-20 baseados em possíveis bloqueios da Fase 17. |
 
 ## 5. Bloqueios
 
@@ -53,45 +63,24 @@
 
 | Data | Decisão | Impacto |
 |---|---|---|
-| Atual | Granularidade Estrita Fase 17 | Fase 17 dividida em A, B, C, D e E isolando schema, db access, logic, actions e UI. Isso evita quebras e garante entregas atômicas e testáveis. |
-| Atual | Criação do Work Board e Anti-escopo | Centralização da governança documental que dita ritmo para a instância DEV sem código misturado. |
+| Atual | Planejamento fechado para MVP | A carga completa técnica de blocos 17 (Runtime), 18 (Steps), 19 (Events) e 20 (Hardening) foi documentada. O pipeline do agente de desenvolvimento (Dev) está abastecido, porém contido por limites de merge estritos a cada Fase. |
 
 ## 7. Handoff para Jules Dev
 
 ```text
-Próxima fase técnica: Fase 17A — Runtime schema e contratos
+Próxima fase técnica: Fase 17A — Runtime contracts e análise de schema existente
 
-Resumo:
-Criar os contratos lógicos do Typescript (interfaces) e as definições do esquema Drizzle necessárias para iniciar a primeira camada do "Runtime". O foco total é habilitar o registro de execução para um processo Publicado, através de instâncias (`process_instances`).
+Consulte o documento principal de planejamento de onde deve partir o prompt exato para a sua implementação:
 
-Arquivos principais a criar/modificar:
-- `src/db/runtime/schema/workflow-runtime.ts` (ou similar/designado no seu plan).
-- Types base para instâncias (sem interface completa de etapas ainda).
+docs/planning/runtime/PHASE_17A.md
 
-Context pack obrigatório:
-- `docs/context-packs/runtime.md`
-- `docs/00-current/ANTI_ESCOPO_ATUAL.md`
-
-Regra de parada:
-Apenas garanta que o ambiente compile com os novos schemas (não rode DB push) e forneça os arquivos criados. Não implemente repositories, APIs ou UI. Verifique o git status.
+NÃO AVANCE PARA FASES FUTURAS. Cumpra a 17A e retorne o resultado.
 ```
 
-## 8. Handoff para Jules Documental
-
-```text
-Próxima fase documental: Planejamento 17B e 17C
-
-Resumo:
-Aguardar aprovação ou andamento da 17A e começar a esboçar a modelagem de código para o Repository (17B) e a lógica de Service (17C).
-
-Entregáveis:
-Prompts prontos para a instância Dev implementá-los usando Injeção de Dependências, sem acoplar com APIs Web e especificando respostas padronizadas (ok/error).
-```
-
-## 9. Última revisão ChatGPT
+## 8. Última revisão ChatGPT
 
 | Campo | Valor |
 |---|---|
-| Última revisão | YYYY-MM-DD (Pendente/Não registrada nesta view recém-criada) |
+| Última revisão | Aguardando |
 | Resultado | Aguardando |
-| Observações | Esperando a validação final da documentação (16C) e do código da Fase 16B. |
+| Observações | Esperando a validação final da documentação (16C) e do planejamento final até a Fase 20D. |

@@ -34,17 +34,20 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   14 | ✅      | Salvar pela UI           | Adicionar botão salvar oficialmente na interface         |
 |   15 | ✅      | Abrir processos salvos   | Listar e carregar definições salvas                      |
 |   16 | ✅      | Publicar versão          | Transformar versão draft em published                    |
-|   17 | ⚪      | Runtime mínimo           | Iniciar instâncias a partir da definição publicada       |
-|   18 | ⚪      | Execução de etapas       | Ainda não iniciado                                       |
-|   19 | ⚪      | Eventos/rastreabilidade  | Ainda não iniciado                                       |
-|   20 | ⚪      | Hardening MVP            | Ainda não iniciado                                       |
+|  16C | ✅      | Context Packs e Board    | Consolidação da gestão governamental (Jules Documental)  |
+|  17A | ⚪      | Runtime schema/contratos | Preparação do schema para instâncias operacionais        |
+|  17B | ⚪      | Runtime repository       | Leitura e escrita isolada de runtime de instâncias       |
+|  17C | ⚪      | Runtime service          | Business logic do runner e instanciador                  |
+|  17D | ⚪      | Runtime server action    | Exposição server-side de comandos de instâncias          |
+|  17E | ⚪      | UI Mínima para instância | Visual para instanciar as execuções de um processo       |
+|  18A | ⚪      | Execução: Contratos      | Modelagem TS para processar as transições de etapas      |
 
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 16
-Fase atual de documentação/contexto: Concluída (Fase 12B)
-Próxima fase técnica planejada: Fase 17
+Última fase técnica validada: Fase 16 (Pendente possível revisão de 16B)
+Fase atual de documentação/contexto: Concluída (Fase 16C)
+Próxima fase técnica planejada: Fase 17A
 ```
 
 ## 5. Regra

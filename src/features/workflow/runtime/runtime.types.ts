@@ -67,3 +67,40 @@ export interface ActionExecutionInsert {
   error?: string | null;
   finishedAt?: Date | null;
 }
+
+// Step Execution concepts (mapped on top of actionExecution)
+
+export type StepExecutionStatus = ActionExecutionStatus;
+
+export interface StepExecutionInput {
+  workspaceId: string;
+  processInstanceId: string;
+  actionKey: string;
+  input: Record<string, unknown>;
+  actorId?: string;
+}
+
+export interface StepExecutionOutput {
+  workspaceId: string;
+  processInstanceId: string;
+  actionKey: string;
+  output: Record<string, unknown>;
+  status: StepExecutionStatus;
+  error?: string;
+}
+
+export interface AdvanceStepInput {
+  workspaceId: string;
+  processInstanceId: string;
+  actionKey?: string;
+  actionExecutionId?: string;
+  output?: Record<string, unknown>;
+  actorId?: string;
+  status?: StepExecutionStatus;
+}
+
+export interface AdvanceStepResult {
+  executionId: string;
+  instanceId: string;
+  status: StepExecutionStatus;
+}

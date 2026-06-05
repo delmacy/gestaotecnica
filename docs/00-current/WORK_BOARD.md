@@ -63,8 +63,12 @@ Nenhum bloqueio ativo.
 |---|---|---|
 | Atual | Planejamento fechado para MVP | A carga completa técnica de blocos 17 (Runtime), 18 (Steps), 19 (Events) e 20 (Hardening) foi documentada. O pipeline do agente de desenvolvimento (Dev) está abastecido, porém contido por limites de merge estritos a cada Fase. |
 | Atual | Histórico de fases | A 17A foi aprovada com ressalvas; a 17B está autorizada com atenção a payloads e schema real. O registro histórico das fases foi implementado em `docs/phases/`. |
+| Atual | Fila Alfa (21-40) | Foi planejado o bloco alpha compreendendo as fases 21-40 (`docs/planning/alpha/`). Essas fases NÃO estão autorizadas para implementação. A fila ativa continua sendo o bloco 17-20. |
 
 ## 7. Handoff para Jules Dev
+
+Planejamento futuro disponível (NÃO IMPLEMENTAR AINDA):
+- `docs/planning/alpha/PHASE_21.md` até `PHASE_40.md`.
 
 - Registro histórico das fases: `docs/phases/`
 - Fase atual deve apontar para seu arquivo histórico correspondente.

@@ -34,4 +34,4 @@ Este documento lista o que **NÃO DEVE** ser feito pelas IAs ou desenvolvedores 
 *   **Não sobrescrever relatórios anteriores.**
 *   **Jules Dev pode acrescentar relatório ao arquivo da fase, mas não editar board/status.**
 *   **Correções devem ser registradas como nova entrada em “Histórico de correções”.**
-*   **Planejamento futuro não autoriza implementação futura.**
+*   **Planejamento futuro não autoriza implementação futura:** O planejamento das fases 21–40 (Produto Alfa) não autoriza a implementação dessas fases. Jules Dev só pode implementar a fase explicitamente autorizada no WORK_BOARD (atualmente o bloco do MVP técnico 17-20). Fases futuras servem apenas para antecipação documental, não para execução automática.

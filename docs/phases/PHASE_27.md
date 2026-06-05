@@ -1,12 +1,12 @@
-# Fase 17E — UI mínima para teste de instância
+# Fase 27 — Outbox repository/dispatcher
 
 ## 1. Identificação
 
 | Campo | Valor |
 |---|---|
-| Fase | 17E |
+| Fase | 27 |
 | Status | Planejada |
-| Tipo | Técnica |
+| Tipo | Técnica / Produto alfa |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-UI mínima para teste de instância
+Outbox repository/dispatcher
 
 ## 3. Escopo permitido
 
@@ -35,7 +35,7 @@ UI mínima para teste de instância
 ## 7. Plano aprovado
 
 Referência:
-- `docs/planning/runtime/PHASE_17E.md`
+- `docs/planning/alpha/PHASE_27.md`
 
 Resumo:
 - —

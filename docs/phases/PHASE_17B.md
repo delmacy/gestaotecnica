@@ -1,11 +1,11 @@
-# Fase 17E — UI mínima para teste de instância
+# Fase 17B — Runtime repository usando `processInstances`, `processPayloads`, `actionExecutions`
 
 ## 1. Identificação
 
 | Campo | Valor |
 |---|---|
-| Fase | 17E |
-| Status | Planejada |
+| Fase | 17B |
+| Status | Pendente |
 | Tipo | Técnica |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-UI mínima para teste de instância
+Runtime repository usando `processInstances`, `processPayloads`, `actionExecutions`.
 
 ## 3. Escopo permitido
 
@@ -35,16 +35,16 @@ UI mínima para teste de instância
 ## 7. Plano aprovado
 
 Referência:
-- `docs/planning/runtime/PHASE_17E.md`
+- `docs/planning/runtime/PHASE_17B.md`
 
 Resumo:
 - —
 
 ## 8. Execuções
 
-### Execução 001 — Jules Dev — YYYY-MM-DD
+### Execução 001 — Jules Documental — Atual
 
-Status: Pendente
+Status: Bloqueada / Cancelada
 
 Arquivos criados:
 - —
@@ -65,10 +65,10 @@ Git status:
 - —
 
 Bloqueios:
-- —
+- Identidade do Agente Incorreta.
 
 Observações:
-- —
+- O usuário orientou a implementação da Fase 17B (Runtime Repository) escrevendo em TypeScript, no entanto meu papel atual na thread é "Jules Documental" (que é proibido de escrever ou modificar código-fonte). A implementação foi cancelada para respeitar as diretrizes de que Jules Documental lida apenas com governança e planejamento, enquanto Jules Dev é o responsável pela implementação. A fase retornará para a fila aguardando Jules Dev.
 
 ## 9. Revisões
 

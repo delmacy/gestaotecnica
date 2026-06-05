@@ -20,7 +20,7 @@ export const startProcessInstanceInputSchema = z.object({
   workspaceId: z.string().uuid("workspaceId deve ser um UUID válido"),
   processVersionId: z.string().uuid("processVersionId deve ser um UUID válido"),
   createdById: z.string().uuid().optional(),
-  initialPayload: z.record(z.string(), z.any()).optional().default({}),
+  initialPayload: z.record(z.string(), z.unknown()).optional().default({}),
 });
 
 export const processInstanceInsertSchema = z.object({
@@ -38,8 +38,8 @@ export const actionExecutionInsertSchema = z.object({
   instanceId: z.string().uuid(),
   actionKey: z.string().min(1),
   actorId: z.string().uuid().nullable().optional(),
-  inputPayload: z.record(z.string(), z.any()).optional().default({}),
-  outputPayload: z.record(z.string(), z.any()).optional().default({}),
+  inputPayload: z.record(z.string(), z.unknown()).optional().default({}),
+  outputPayload: z.record(z.string(), z.unknown()).optional().default({}),
   status: actionExecutionStatusSchema.optional().default("completed"),
   error: z.string().nullable().optional(),
   finishedAt: z.date().nullable().optional(),

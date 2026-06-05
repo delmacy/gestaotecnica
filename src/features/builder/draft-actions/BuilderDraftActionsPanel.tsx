@@ -9,9 +9,10 @@ export type BuilderDraftActionsPanelProps = {
   state: BuilderEditorState;
   actions: BuilderEditorActions;
   onOfficialSave?: () => Promise<void> | void;
+  onPublishOfficial?: () => Promise<void> | void;
 };
 
-export function BuilderDraftActionsPanel({ state, actions, onOfficialSave }: BuilderDraftActionsPanelProps) {
+export function BuilderDraftActionsPanel({ state, actions, onOfficialSave, onPublishOfficial }: BuilderDraftActionsPanelProps) {
   const [name, setName] = useState(state.draft.name);
   const [description, setDescription] = useState(state.draft.description ?? "");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -81,7 +82,13 @@ export function BuilderDraftActionsPanel({ state, actions, onOfficialSave }: Bui
   };
 
   const { lastSavedAt, message: persistenceMessage } = state.localPersistence || {};
-  const { status: officialStatus, message: officialMessage } = state.officialPersistence || {};
+  const {
+    status: officialStatus,
+    message: officialMessage,
+    publicationStatus,
+    processDefinitionId,
+    latestVersionId
+  } = state.officialPersistence || {};
 
   return (
     <div className="bg-white border-b border-slate-200 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0 shadow-sm z-10 relative">
@@ -125,10 +132,33 @@ export function BuilderDraftActionsPanel({ state, actions, onOfficialSave }: Bui
         {onOfficialSave && (
           <button
             onClick={onOfficialSave}
-            disabled={officialStatus === "saving"}
+            disabled={officialStatus === "saving" || publicationStatus === "publishing"}
             className="text-xs font-medium text-white px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors shadow-sm"
           >
             {officialStatus === "saving" ? "Salvando..." : "Salvar oficial"}
+          </button>
+        )}
+
+        {onPublishOfficial && (
+          <button
+            onClick={onPublishOfficial}
+            disabled={
+              officialStatus === "saving" ||
+              publicationStatus === "publishing" ||
+              !processDefinitionId ||
+              !latestVersionId
+            }
+            className={`text-xs font-medium px-4 py-1.5 rounded transition-colors shadow-sm ${
+              publicationStatus === "published"
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-purple-600 hover:bg-purple-700 text-white disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed"
+            }`}
+          >
+            {publicationStatus === "publishing"
+              ? "Publicando..."
+              : publicationStatus === "published"
+              ? "Publicado"
+              : "Publicar"}
           </button>
         )}
 

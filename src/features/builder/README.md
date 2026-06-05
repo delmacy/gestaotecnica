@@ -121,3 +121,11 @@ process-editor/
 - O usuário pode abrir um processo salvo, carregando sua última versão.
 - Ao abrir, o draft local é substituído após confirmação se houver alterações não salvas.
 - Runtime, events e registry seguem fora do escopo.
+
+## Fase 16 — Publicação de versão
+
+* Processo salvo oficialmente pode ser publicado.
+* Publicar muda status da versão para published.
+* Publicar não cria runtime.
+* Publicar não cria instância.
+* Events e registry continuam fora do escopo.

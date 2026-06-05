@@ -16,6 +16,8 @@ export type BuilderEditorState = {
     lastSavedAt?: string;
     status: "idle" | "saving" | "saved" | "error";
     loadStatus?: "idle" | "loading" | "loaded" | "error";
+    publicationStatus?: "idle" | "publishing" | "published" | "error";
+    publishedAt?: string;
     message?: string;
   };
   mode: "builder" | "preview";
@@ -53,6 +55,8 @@ export type BuilderEditorActions = {
     lastSavedAt?: string;
     status?: "idle" | "saving" | "saved" | "error";
       loadStatus?: "idle" | "loading" | "loaded" | "error";
+    publicationStatus?: "idle" | "publishing" | "published" | "error";
+    publishedAt?: string;
     message?: string;
   }) => void;
   setOfficialLoadedProcess: (input: {

@@ -8,3 +8,7 @@ export * from "./process-definition.fixtures";
 export * from "./process-definition.api-types";
 export * from "./process-definition.queries";
 export * from "./process-definition.server";
+export * from "./process-definition-publication.types";
+export * from "./process-definition-publication.service";
+export * from "./process-definition-publication.server";
+export * from "./process-definition-publication.actions";

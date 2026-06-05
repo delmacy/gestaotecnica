@@ -14,13 +14,14 @@ export async function listProcessDefinitions(
   const limit = input.limit ? Math.min(input.limit, 100) : 50;
   const offset = input.offset || 0;
 
-  let whereClause = eq(processDefinitions.workspaceId, input.workspaceId);
+  const whereClause = input.status
+    ? and(
+        eq(processDefinitions.workspaceId, input.workspaceId),
+        eq(processDefinitions.status, input.status)
+      )
+    : eq(processDefinitions.workspaceId, input.workspaceId);
 
-  if (input.status) {
-    whereClause = and(whereClause, eq(processDefinitions.status, input.status)) as any;
-  }
-
-  return db
+  const results = await db
     .select({
       id: processDefinitions.id,
       workspaceId: processDefinitions.workspaceId,
@@ -36,6 +37,17 @@ export async function listProcessDefinitions(
     .orderBy(desc(processDefinitions.updatedAt))
     .limit(limit)
     .offset(offset);
+
+  return results.map((def: any) => ({
+    id: def.id,
+    workspaceId: def.workspaceId,
+    key: def.key,
+    name: def.name,
+    description: def.description,
+    status: def.status,
+    createdAt: def.createdAt ? def.createdAt.toISOString() : undefined,
+    updatedAt: def.updatedAt ? def.updatedAt.toISOString() : undefined,
+  }));
 }
 
 export async function getProcessDefinitionById(
@@ -86,13 +98,27 @@ export async function getProcessDefinitionById(
   if (versions.length > 0) {
     const v = versions[0];
     latestVersion = {
-      ...v,
-      definition: v.definitionJson, // Map definitionJson to definition
+      id: v.id,
+      processDefinitionId: v.processDefinitionId,
+      version: v.version,
+      status: v.status,
+      definition: v.definitionJson,
+      createdBy: v.createdBy,
+      createdAt: v.createdAt ? v.createdAt.toISOString() : undefined,
     };
   }
 
   return {
-    processDefinition: definition,
+    processDefinition: {
+      id: definition.id,
+      workspaceId: definition.workspaceId,
+      key: definition.key,
+      name: definition.name,
+      description: definition.description,
+      status: definition.status,
+      createdAt: definition.createdAt ? definition.createdAt.toISOString() : undefined,
+      updatedAt: definition.updatedAt ? definition.updatedAt.toISOString() : undefined,
+    },
     latestVersion,
   };
 }

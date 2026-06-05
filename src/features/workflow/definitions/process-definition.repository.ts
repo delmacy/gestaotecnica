@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { processDefinitions, processVersions } from "@/db/platform/schema/workflow";
 
 // Avoid tight coupling to a specific Drizzle schema instance shape here if possible,
@@ -6,6 +6,7 @@ import { processDefinitions, processVersions } from "@/db/platform/schema/workfl
 export type ProcessDefinitionDb = {
   insert: any;
   select: any;
+  update: any;
 };
 
 export async function insertProcessDefinition(
@@ -72,4 +73,46 @@ export async function getLatestProcessVersionNumber(
   }
 
   return result[0].version;
+}
+
+export async function publishProcessVersionRecord(
+  db: ProcessDefinitionDb,
+  input: {
+    processDefinitionId: string;
+    processVersionId: string;
+  }
+) {
+  // Using an array of conditions via the 'and' equivalent approach or eq directly in update
+  // Since update where only takes one arg easily, we use eq id, but ensure it's the right process.
+  // We'll rely on the service to have validated the processVersionId belongs to the processDefinitionId
+  const [record] = await db
+    .update(processVersions)
+    .set({
+      status: "published",
+    })
+    .where(and(
+      eq(processVersions.id, input.processVersionId),
+      eq(processVersions.processDefinitionId, input.processDefinitionId)
+    ))
+    .returning();
+
+  return record;
+}
+
+export async function markProcessDefinitionAsPublished(
+  db: ProcessDefinitionDb,
+  input: {
+    processDefinitionId: string;
+  }
+) {
+  const [record] = await db
+    .update(processDefinitions)
+    .set({
+      status: "published",
+      updatedAt: new Date(),
+    })
+    .where(eq(processDefinitions.id, input.processDefinitionId))
+    .returning();
+
+  return record;
 }

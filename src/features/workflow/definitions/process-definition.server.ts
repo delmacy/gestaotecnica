@@ -47,15 +47,7 @@ export async function listProcessDefinitionsServer(
 ): Promise<ListProcessDefinitionsResult> {
   try {
     const definitions = await listProcessDefinitions(db, input);
-
-    // Map Date to string for safe serialization across boundaries if necessary
-    const mappedDefinitions = definitions.map((def: any) => ({
-      ...def,
-      createdAt: def.createdAt ? def.createdAt.toISOString() : undefined,
-      updatedAt: def.updatedAt ? def.updatedAt.toISOString() : undefined,
-    }));
-
-    return { ok: true, data: { items: mappedDefinitions } };
+    return { ok: true, data: { items: definitions } };
   } catch (err: unknown) {
     return {
       ok: false,

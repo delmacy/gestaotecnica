@@ -31,3 +31,18 @@ Antes de criar uma nova funcionalidade, documente em `docs/`:
 - `docs/foundation/AI_CONSTITUTION.md`
 - `docs/foundation/ONTOLOGY.md`
 - `docs/architecture/PLATFORM_VS_CLIENT.md`
+
+## Registro histórico por fase
+
+Além dos documentos de planejamento, o projeto mantém registro histórico em:
+
+`docs/phases/`
+
+Regras:
+- Cada fase tem um arquivo próprio.
+- Jules Dev pode apenas acrescentar relatório de execução ao arquivo da fase que implementou.
+- Jules Dev não deve apagar ou sobrescrever execuções anteriores.
+- Jules Dev não deve alterar revisões anteriores.
+- Jules Documental estrutura os arquivos de fase e mantém o board.
+- `WORK_BOARD.md` mostra o estado atual.
+- `docs/phases/**` preserva histórico.

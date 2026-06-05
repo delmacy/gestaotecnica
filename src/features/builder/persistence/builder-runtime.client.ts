@@ -1,18 +1,36 @@
 import { startProcessInstanceAction } from "@/features/workflow/runtime/runtime.actions";
-import type { StartProcessInstanceInput } from "@/features/workflow/runtime/runtime.types";
+import type { StartProcessInstanceInput, ProcessInstanceRecord } from "@/features/workflow/runtime/runtime.types";
 
-export async function startBuilderProcessInstance(input: StartProcessInstanceInput) {
+export type StartBuilderProcessInstanceResult =
+  | { ok: true; data: ProcessInstanceRecord }
+  | { ok: false; error: { code: string; message: string } };
+
+export async function startBuilderProcessInstance(
+  input: StartProcessInstanceInput
+): Promise<StartBuilderProcessInstanceResult> {
   try {
     const result = await startProcessInstanceAction(input);
 
     if (!result.ok) {
-      console.error("Failed to start process instance", result.error);
-      return { ok: false, error: result.error.message || "Failed to start process instance" };
+      // Removing console error as requested in Phase 17X constraint 4
+      return {
+        ok: false,
+        error: {
+          code: result.error.code || "START_FAILED",
+          message: result.error.message || "Failed to start process instance"
+        }
+      };
     }
 
     return { ok: true, data: result.data };
-  } catch (err: unknown) {
-    console.error("Client error calling startProcessInstanceAction", err);
-    return { ok: false, error: "An unexpected error occurred" };
+  } catch {
+    // Removing console error as requested in Phase 17X constraint 4
+    return {
+      ok: false,
+      error: {
+        code: "CLIENT_ERROR",
+        message: "An unexpected error occurred"
+      }
+    };
   }
 }

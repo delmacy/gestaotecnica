@@ -1,4 +1,4 @@
-# Fase 29 — Action registry CRUD
+# Fase 29 — Process Builder Agent Specification
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 29 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Action registry CRUD
+Process Builder Agent Specification
 
 ## 3. Escopo permitido
 

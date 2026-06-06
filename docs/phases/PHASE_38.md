@@ -1,4 +1,4 @@
-# Fase 38 — Gestão Técnica blueprint inicial
+# Fase 38 — Security, Privacy and Consent for Observation
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 38 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Gestão Técnica blueprint inicial
+Security, Privacy and Consent for Observation
 
 ## 3. Escopo permitido
 

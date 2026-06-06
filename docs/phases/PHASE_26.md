@@ -1,4 +1,4 @@
-# Fase 26 — Outbox contract
+# Fase 26 — Forms as Informality Standardization
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 26 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Outbox contract
+Forms as Informality Standardization
 
 ## 3. Escopo permitido
 

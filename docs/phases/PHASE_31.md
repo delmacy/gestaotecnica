@@ -1,4 +1,4 @@
-# Fase 31 — Built-in form action
+# Fase 31 — n8n as Integration Boundary
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 31 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Built-in form action
+n8n as Integration Boundary
 
 ## 3. Escopo permitido
 

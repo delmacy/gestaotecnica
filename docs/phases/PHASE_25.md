@@ -1,4 +1,4 @@
-# Fase 25 — Trace receipt v2
+# Fase 25 — Publish Candidate to Workflow Template
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 25 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Trace receipt v2
+Publish Candidate to Workflow Template
 
 ## 3. Escopo permitido
 

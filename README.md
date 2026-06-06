@@ -1,8 +1,8 @@
 # System Builder Platform
 
-Plataforma modular para montar sistemas operacionais sob medida por workspace,
-packs contextuais, módulos reutilizáveis, actions, events, flows e adaptações
-por cliente.
+System Builder é uma plataforma para transformar trabalho real recorrente em processos formais, mensuráveis, adaptáveis e automatizáveis.
+
+A plataforma suporta a modelagem modular por workspaces, incorporando "Process Candidates" como a etapa vital de descoberta, permitindo que agentes no futuro e humanos no presente formalizem elicitações da operação. A Gestão Técnica é a primeira adaptação, usada para validar o core. O produto é *Paperclip-ready* (pronto para ser orquestrado por agentes através de um futuro Agent Gateway), mas nunca dependente dele ou refém de automações não aprovadas.
 
 ## Desenvolvimento
 

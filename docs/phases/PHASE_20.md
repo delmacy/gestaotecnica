@@ -1,12 +1,12 @@
-# Fase 20D — Demo E2E documentada
+# Fase 20 — Builder Control Plane Shell
 
 ## 1. Identificação
 
 | Campo | Valor |
 |---|---|
-| Fase | 20D |
+| Fase | 20 |
 | Status | Planejada |
-| Tipo | Técnica |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Demo E2E documentada. Fim do MVP técnico.
+Builder Control Plane Shell
 
 ## 3. Escopo permitido
 
@@ -35,7 +35,7 @@ Demo E2E documentada. Fim do MVP técnico.
 ## 7. Plano aprovado
 
 Referência:
-- `docs/planning/runtime/PHASE_20D.md`
+- `docs/planning/alpha/PHASE_20.md`
 
 Resumo:
 - —

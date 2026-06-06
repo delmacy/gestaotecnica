@@ -1,7 +1,7 @@
-# Fase 37 — Agent/Human Dual Elicitation
+# Fase 20 — Builder Control Plane Shell
 
 ## Objetivo
-Documentar e estabelecer as fundações para Agent/Human Dual Elicitation.
+Documentar e estabelecer as fundações para Builder Control Plane Shell.
 
 ## Contexto
 Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
@@ -18,7 +18,7 @@ Esta fase materializa a nova tese arquitetural onde o System Builder evolui para
 - Process Candidates representam a camada anterior à publicação.
 
 ## Etapas
-- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Agent/Human Dual Elicitation.
+- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Builder Control Plane Shell.
 
 ## Validações
 - Revisão arquitetural documental.
@@ -28,7 +28,7 @@ Esta fase materializa a nova tese arquitetural onde o System Builder evolui para
 - Arquivos modificados e resumo da implementação entregue.
 
 ## Regra de parada
-- Entregar apenas o escopo de Agent/Human Dual Elicitation sem invadir o território das próximas fases documentais ou agênticas.
+- Entregar apenas o escopo de Builder Control Plane Shell sem invadir o território das próximas fases documentais ou agênticas.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -37,10 +37,10 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 37 — Agent/Human Dual Elicitation
+Fase 20 — Builder Control Plane Shell
 
 Objetivo:
-Implementar Agent/Human Dual Elicitation
+Implementar Builder Control Plane Shell
 
 Escopo:
 -
@@ -53,7 +53,7 @@ Regras:
 Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar a base para Agent/Human Dual Elicitation.
+1. Implementar a base para Builder Control Plane Shell.
 
 Validações:
 Testes locais sem erros TS.
@@ -62,5 +62,5 @@ Relatório final:
 Liste os arquivos tocados e a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira de Agent/Human Dual Elicitation.
+Não ultrapassar a fronteira de Builder Control Plane Shell.
 ```

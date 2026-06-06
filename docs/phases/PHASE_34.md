@@ -1,4 +1,4 @@
-# Fase 34 — Capability registry
+# Fase 34 — Feature Agent and Controlled Change
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 34 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Capability registry
+Feature Agent and Controlled Change
 
 ## 3. Escopo permitido
 

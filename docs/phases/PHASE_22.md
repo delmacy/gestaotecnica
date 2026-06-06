@@ -1,4 +1,4 @@
-# Fase 22 — Runtime timeline
+# Fase 22 — Process Candidate UI
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 22 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Runtime timeline
+Process Candidate UI
 
 ## 3. Escopo permitido
 

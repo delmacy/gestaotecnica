@@ -1,28 +1,94 @@
-# Relatório de Execução — Fase 18B
+# Fase 18B — Repository para conclusão/avanço de step
 
-## Objetivo
-Criar camada agnóstica de banco de dados baseada em Drizzle para realizar buscas, updates e inserts exclusivos a steps (baseado em `actionExecutions`).
+## 1. Identificação
 
-## Resumo das Ações
-O arquivo `src/features/workflow/runtime/runtime.repository.ts` foi validado e já contém as funções completas para o ciclo de vida do "Step" (mapeado por cima das Action Executions, conforme design documentado na memória da plataforma):
-1. **`getActiveActionExecutionForInstance`**: Busca um step com status `"running"` ou `"pending"` para uma dada instância, respeitando o isolamento do tenant (`workspaceId`).
-2. **`updateActionExecutionStatus`**: Permite marcar o step como completado, atualizar seu JSONB de `outputPayload` e gravar `finishedAt`.
-3. **`insertActionExecution`**: Utilizado para criar o próximo step atrelado à instância.
+| Campo | Valor |
+|---|---|
+| Fase | 18B |
+| Status | Planejada |
+| Tipo | Técnica |
+| Responsável principal | Jules Dev / Jules Documental |
+| Revisor | ChatGPT |
+| Data de abertura | YYYY-MM-DD |
+| Data de aprovação | — |
 
-## Assinaturas Exportadas
-```typescript
-export async function getActiveActionExecutionForInstance(
-  db: RuntimeDb,
-  workspaceId: string,
-  instanceId: string,
-  targetStatuses: ActionExecutionStatus[] = ["running", "pending"]
-): Promise<ActionExecutionRecord | null>
+## 2. Objetivo
 
-export async function updateActionExecutionStatus(
-  db: RuntimeDb,
-  input: UpdateActionExecutionInput
-): Promise<ActionExecutionRecord | null>
-```
+Repository para conclusão/avanço de step
 
-## Resultados das Validações
-O TypeScript compilou sem vazamento de `any` em fronteiras tipadas e o isolamento Drizzle está resguardado via passagem por injeção (`RuntimeDb`).
+## 3. Escopo permitido
+
+- —
+
+## 4. Fora de escopo
+
+- —
+
+## 5. Arquivos planejados
+
+- —
+
+## 6. Critérios de aceite
+
+- —
+
+## 7. Plano aprovado
+
+Referência:
+- `docs/planning/runtime/PHASE_18B.md`
+
+Resumo:
+- —
+
+## 8. Execuções
+
+### Execução 001 — Jules Dev — YYYY-MM-DD
+
+Status: Pendente
+
+Arquivos criados:
+- —
+
+Arquivos alterados:
+- —
+
+Comandos executados:
+- —
+
+Resultado do lint:
+- —
+
+Resultado do build:
+- —
+
+Git status:
+- —
+
+Bloqueios:
+- —
+
+Observações:
+- —
+
+## 9. Revisões
+
+### Revisão 001 — ChatGPT — YYYY-MM-DD
+
+Resultado: Pendente
+
+Observações:
+- —
+
+Ressalvas:
+- —
+
+Decisão:
+- —
+
+## 10. Decisões específicas da fase
+
+- —
+
+## 11. Histórico de correções
+
+- —

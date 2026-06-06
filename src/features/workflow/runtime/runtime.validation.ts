@@ -44,33 +44,3 @@ export const actionExecutionInsertSchema = z.object({
   error: z.string().nullable().optional(),
   finishedAt: z.date().nullable().optional(),
 });
-
-// Step Validation (Fase 18)
-export const stepExecutionStatusSchema = actionExecutionStatusSchema;
-
-export const stepExecutionInputSchema = z.object({
-  workspaceId: z.string().uuid(),
-  processInstanceId: z.string().uuid(),
-  actionKey: z.string().min(1),
-  input: z.record(z.string(), z.any()),
-  actorId: z.string().uuid().optional(),
-});
-
-export const stepExecutionOutputSchema = z.object({
-  workspaceId: z.string().uuid(),
-  processInstanceId: z.string().uuid(),
-  actionKey: z.string().min(1),
-  output: z.record(z.string(), z.any()),
-  status: stepExecutionStatusSchema,
-  error: z.string().optional(),
-});
-
-export const advanceStepInputSchema = z.object({
-  workspaceId: z.string().uuid(),
-  processInstanceId: z.string().uuid(),
-  actionKey: z.string().min(1).optional(),
-  actionExecutionId: z.string().uuid().optional(),
-  output: z.record(z.string(), z.any()).optional(),
-  actorId: z.string().uuid().optional(),
-  status: stepExecutionStatusSchema.optional(),
-});

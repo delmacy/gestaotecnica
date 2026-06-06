@@ -122,38 +122,3 @@ export async function getProcessDefinitionById(
     latestVersion,
   };
 }
-
-// Helper function added for Phase 18C path-finding
-export async function getProcessVersionById(
-  db: ProcessDefinitionDb,
-  processVersionId: string
-) {
-  const versions = await db
-    .select({
-      id: processVersions.id,
-      processDefinitionId: processVersions.processDefinitionId,
-      version: processVersions.version,
-      status: processVersions.status,
-      definitionJson: processVersions.definitionJson,
-      createdBy: processVersions.createdBy,
-      createdAt: processVersions.createdAt,
-    })
-    .from(processVersions)
-    .where(eq(processVersions.id, processVersionId))
-    .limit(1);
-
-  if (versions.length === 0) {
-    return null;
-  }
-
-  const v = versions[0];
-  return {
-    id: v.id,
-    processDefinitionId: v.processDefinitionId,
-    version: v.version,
-    status: v.status,
-    definition: v.definitionJson,
-    createdBy: v.createdBy,
-    createdAt: v.createdAt ? v.createdAt.toISOString() : undefined,
-  };
-}

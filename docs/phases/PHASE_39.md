@@ -1,4 +1,4 @@
-# Fase 39 — Helpdesk módulo alfa
+# Fase 39 — Paperclip-ready MVP Milestone
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 39 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Helpdesk módulo alfa
+Paperclip-ready MVP Milestone
 
 ## 3. Escopo permitido
 

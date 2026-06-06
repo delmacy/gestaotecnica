@@ -1,25 +1,94 @@
-# Relatório de Execução — Fase 17B
+# Fase 17B — Runtime repository usando `processInstances`, `processPayloads`, `actionExecutions`
 
-## Objetivo
-Criar repository para processInstances, processPayloads e actionExecutions usando o schema existente, sem criar service ou UI.
+## 1. Identificação
 
-## Resumo das Ações
-O arquivo `src/features/workflow/runtime/runtime.repository.ts` foi validado. Ele implementa todas as funções requeridas para a fase, incluindo:
-- `insertProcessInstance`
-- `insertProcessPayload`
-- `insertActionExecution`
-- `getProcessInstanceById`
-- `getProcessPayloadForInstance`
-- `listActionExecutionsForInstance`
-- `updateProcessInstanceStatus`
-- `getActionExecutionById`
-- `getActiveActionExecutionForInstance`
-- `updateActionExecutionStatus`
+| Campo | Valor |
+|---|---|
+| Fase | 17B |
+| Status | Pendente |
+| Tipo | Técnica |
+| Responsável principal | Jules Dev / Jules Documental |
+| Revisor | ChatGPT |
+| Data de abertura | YYYY-MM-DD |
+| Data de aprovação | — |
 
-As funções usam a tipagem criada em `runtime.types.ts` e aplicam perfeitamente injeção de dependência via o tipo base genérico `RuntimeDb`. Em todas as consultas, o filtro de `workspaceId` foi imposto via cláusulas `.where(and(eq(..., ...), eq(..., workspaceId)))`.
+## 2. Objetivo
 
-## Resultados das Validações
-O código foi compilado e obteve êxito no TypeScript compiler (via TS typecheck e Turbopack build).
+Runtime repository usando `processInstances`, `processPayloads`, `actionExecutions`.
 
-## Próximos Passos
-O próximo passo lógico seria a criação do Service (Fase 17C).
+## 3. Escopo permitido
+
+- —
+
+## 4. Fora de escopo
+
+- —
+
+## 5. Arquivos planejados
+
+- —
+
+## 6. Critérios de aceite
+
+- —
+
+## 7. Plano aprovado
+
+Referência:
+- `docs/planning/runtime/PHASE_17B.md`
+
+Resumo:
+- —
+
+## 8. Execuções
+
+### Execução 001 — Jules Documental — Atual
+
+Status: Bloqueada / Cancelada
+
+Arquivos criados:
+- —
+
+Arquivos alterados:
+- —
+
+Comandos executados:
+- —
+
+Resultado do lint:
+- —
+
+Resultado do build:
+- —
+
+Git status:
+- —
+
+Bloqueios:
+- Identidade do Agente Incorreta.
+
+Observações:
+- O usuário orientou a implementação da Fase 17B (Runtime Repository) escrevendo em TypeScript, no entanto meu papel atual na thread é "Jules Documental" (que é proibido de escrever ou modificar código-fonte). A implementação foi cancelada para respeitar as diretrizes de que Jules Documental lida apenas com governança e planejamento, enquanto Jules Dev é o responsável pela implementação. A fase retornará para a fila aguardando Jules Dev.
+
+## 9. Revisões
+
+### Revisão 001 — ChatGPT — YYYY-MM-DD
+
+Resultado: Pendente
+
+Observações:
+- —
+
+Ressalvas:
+- —
+
+Decisão:
+- —
+
+## 10. Decisões específicas da fase
+
+- —
+
+## 11. Histórico de correções
+
+- —

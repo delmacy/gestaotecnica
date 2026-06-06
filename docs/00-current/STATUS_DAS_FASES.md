@@ -36,7 +36,6 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   16 | ✅      | Publicar versão          | Transformar versão draft em published                    |
 |  16C | ✅      | Context Packs e Board    | Consolidação da gestão governamental (Jules Documental)  |
 |  17A | ✅      | Runtime contracts        | Análise do schema de runtime existente e contratos TS    |
-<<<<<<< HEAD
 |  17B | ✅      | Runtime repository       | Leitura e escrita isolada de runtime de instâncias       |
 |  17C | ✅      | Runtime service          | Business logic do runner e instanciador                  |
 |  17D | ✅      | Runtime server action    | Exposição server-side de comandos de instâncias          |
@@ -73,61 +72,16 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   38 | ⚪      | Blueprint Gestão Técnica | Fase 38 Alfa Planejada                                   |
 |   39 | ⚪      | Helpdesk módulo alfa     | Fase 39 Alfa Planejada                                   |
 |   40 | ⚪      | Workforce/OS módulo alfa | Fase 40 Alfa Planejada                                   |
-=======
-|  17B | 🟡      | Runtime repository       | Leitura e escrita isolada de runtime de instâncias       |
-|  17C | ⚪      | Runtime service          | Business logic do runner e instanciador                  |
-|  17D | ⚪      | Runtime server action    | Exposição server-side de comandos de instâncias          |
-|  17E | ⚪      | UI Mínima para instância | Visual para instanciar as execuções de um processo       |
-|  18A | ⚪      | Execução: Contratos      | Modelagem TS para processar as transições de etapas      |
-|  18B | ⚪      | Execução: Repository     | Operações de busca e finalização de steps                |
-|  18C | ⚪      | Execução: Service        | Regra de avanço de step simples                          |
-|  18D | ⚪      | Execução: API/UI         | Exposição de actions para transição da UI                |
-|  19A | ⚪      | Eventos: Contratos       | Tipos mínimos de eventos (`started`, `completed`)        |
-|  19B | ⚪      | Eventos: Repository      | Escrita de eventos base                                  |
-|  19C | ⚪      | Eventos: Integração      | Injetar disparo no Runtime service                       |
-|  19D | ⚪      | Eventos: Trace Receipt   | Estrutura de rastreio/comprovante simples                |
-|  20A | ⚪      | Hardening: Smoke Tests   | Validação do fluxo (Criar -> Instanciar -> Concluir)     |
-|  20B | ⚪      | Hardening: Any Cleanup   | Remoção de `any` críticos na tipagem                     |
-|  20C | ⚪      | Hardening: Checklist MVP | Relatório consolidado do fim da primeira jornada técnica |
-|  20D | ⚪      | Hardening: Demo E2E      | Documentação visual e prova de operação fluida           |
-|   20 | ⚪      | Builder Control Plane    | Fase 20 Alfa Planejada                                   |
-|   21 | ⚪      | Process Candidate Ontology | Fase 21 Alfa Planejada                                 |
-|   22 | ⚪      | Process Candidate UI     | Fase 22 Alfa Planejada                                   |
-|   23 | ⚪      | Candidate Data Model     | Fase 23 Alfa Planejada                                   |
-|   24 | ⚪      | Review and Governance    | Fase 24 Alfa Planejada                                   |
-|   25 | ⚪      | Publish to Template      | Fase 25 Alfa Planejada                                   |
-|   26 | ⚪      | Forms as Standardization | Fase 26 Alfa Planejada                                   |
-|   27 | ⚪      | Business Rules & Approval| Fase 27 Alfa Planejada                                   |
-|   28 | ⚪      | Agent Gateway Spec       | Fase 28 Alfa Planejada                                   |
-|   29 | ⚪      | Process Builder Agent    | Fase 29 Alfa Planejada                                   |
-|   30 | ⚪      | Paperclip Integration    | Fase 30 Alfa Planejada                                   |
-|   31 | ⚪      | n8n as Boundary          | Fase 31 Alfa Planejada                                   |
-|   32 | ⚪      | Signal Inbox Pipeline    | Fase 32 Alfa Planejada                                   |
-|   33 | ⚪      | Document Agent           | Fase 33 Alfa Planejada                                   |
-|   34 | ⚪      | Feature Agent            | Fase 34 Alfa Planejada                                   |
-|   35 | ⚪      | Metrics & Intelligence   | Fase 35 Alfa Planejada                                   |
-|   36 | ⚪      | Improvement Proposals    | Fase 36 Alfa Planejada                                   |
-|   37 | ⚪      | Agent/Human Elicitation  | Fase 37 Alfa Planejada                                   |
-|   38 | ⚪      | Security & Consent       | Fase 38 Alfa Planejada                                   |
-|   39 | ⚪      | Paperclip-ready MVP      | Fase 39 Alfa Planejada                                   |
-|   40 | ⚪      | Multi-Agent Model        | Fase 40 Alfa Planejada                                   |
->>>>>>> 66763cd (docs: realign phases 20-40 around process candidates and agent boundaries)
 
-Fases 17–19 formam o encerramento do MVP técnico de Backend.
-Fases 20–40 formam a fila Alfa (planejadas, focadas em Process Candidates e arquitetura de Agentes).
+Fases 17A–20D formam a fila do MVP técnico.
+Fases 21–40 formam a fila Alfa (planejadas, não iniciadas).
 
 ## 4. Última fase validada
 
 ```text
-<<<<<<< HEAD
 Última fase técnica validada: Fase 20D
 Fase atual de documentação/contexto: Concluída
 Próxima fase técnica planejada: Fase 21
-=======
-Última fase técnica validada: Fase 17A
-Fase atual de documentação/contexto: Concluída
-Próxima fase técnica planejada: Fase 17B
->>>>>>> 66763cd (docs: realign phases 20-40 around process candidates and agent boundaries)
 ```
 
 ## 5. Regra

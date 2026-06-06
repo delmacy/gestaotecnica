@@ -36,14 +36,14 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   16 | ✅      | Publicar versão          | Transformar versão draft em published                    |
 |  16C | ✅      | Context Packs e Board    | Consolidação da gestão governamental (Jules Documental)  |
 |  17A | ✅      | Runtime contracts        | Análise do schema de runtime existente e contratos TS    |
-|  17B | 🟡      | Runtime repository       | Leitura e escrita isolada de runtime de instâncias       |
-|  17C | ⚪      | Runtime service          | Business logic do runner e instanciador                  |
-|  17D | ⚪      | Runtime server action    | Exposição server-side de comandos de instâncias          |
-|  17E | ⚪      | UI Mínima para instância | Visual para instanciar as execuções de um processo       |
-|  18A | ⚪      | Execução: Contratos      | Modelagem TS para processar as transições de etapas      |
-|  18B | ⚪      | Execução: Repository     | Operações de busca e finalização de steps                |
-|  18C | ⚪      | Execução: Service        | Regra de avanço de step simples                          |
-|  18D | ⚪      | Execução: API/UI         | Exposição de actions para transição da UI                |
+|  17B | ✅      | Runtime repository       | Leitura e escrita isolada de runtime de instâncias       |
+|  17C | ✅      | Runtime service          | Business logic do runner e instanciador                  |
+|  17D | ✅      | Runtime server action    | Exposição server-side de comandos de instâncias          |
+|  17E | ✅      | UI Mínima para instância | Visual para instanciar as execuções de um processo       |
+|  18A | ✅      | Execução: Contratos      | Modelagem TS para processar as transições de etapas      |
+|  18B | ✅      | Execução: Repository     | Operações de busca e finalização de steps                |
+|  18C | ✅      | Execução: Service        | Regra de avanço de step simples                          |
+|  18D | ✅      | Execução: API/UI         | Exposição de actions para transição da UI                |
 |  19A | ⚪      | Eventos: Contratos       | Tipos mínimos de eventos (`started`, `completed`)        |
 |  19B | ⚪      | Eventos: Repository      | Escrita de eventos base                                  |
 |  19C | ⚪      | Eventos: Integração      | Injetar disparo no Runtime service                       |
@@ -79,9 +79,9 @@ Fases 21–40 formam a fila Alfa (planejadas, não iniciadas).
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 17A
+Última fase técnica validada: Fase 18D
 Fase atual de documentação/contexto: Concluída
-Próxima fase técnica planejada: Fase 17B
+Próxima fase técnica planejada: Fase 19A
 ```
 
 ## 5. Regra

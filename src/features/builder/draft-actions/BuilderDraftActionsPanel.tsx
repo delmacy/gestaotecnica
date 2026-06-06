@@ -4,6 +4,8 @@ import React, { useState, useRef } from "react";
 import type { BuilderEditorActions, BuilderEditorState } from "../state";
 import { createDraftDownloadPayload, parseDraftJsonContent } from "./builder-draft-file";
 import { clearBuilderDraftFromLocalStorage } from "../local-persistence";
+import { useTransition } from "react";
+import { startProcessInstanceAction, advanceStepAction } from "@/features/workflow/runtime/runtime.actions";
 
 export type BuilderDraftActionsPanelProps = {
   state: BuilderEditorState;
@@ -79,6 +81,42 @@ export function BuilderDraftActionsPanel({ state, actions, onOfficialSave, onPub
       });
       setErrorMsg(null);
     }
+  };
+
+  const [isPendingStart, startTransition] = useTransition();
+  const [activeInstanceId, setActiveInstanceId] = useState<string | null>(null);
+
+  const handleStartInstance = () => {
+    if (!state.officialPersistence?.latestVersionId) return;
+
+    const versionId = state.officialPersistence.latestVersionId;
+
+    startTransition(async () => {
+      const res = await startProcessInstanceAction(versionId);
+      if ("ok" in res && res.ok === true) {
+        setActiveInstanceId((res as any).data.id);
+        alert("Instância iniciada com sucesso! ID: " + (res as any).data.id);
+      } else {
+        alert("Falha ao iniciar instância: " + (res as any).error?.message);
+      }
+    });
+  };
+
+  const handleAdvanceStep = () => {
+    if (!activeInstanceId) return;
+
+    startTransition(async () => {
+      const res = await advanceStepAction(activeInstanceId);
+      if ("ok" in res && res.ok === true) {
+        const nextStatus = (res as any).data.status;
+        alert(`Step avançado! Próximo estado da instância: ${nextStatus}`);
+        if (nextStatus === "completed") {
+           setActiveInstanceId(null);
+        }
+      } else {
+        alert("Falha ao avançar: " + (res as any).error?.message);
+      }
+    });
   };
 
   const { lastSavedAt, message: persistenceMessage } = state.localPersistence || {};
@@ -159,6 +197,26 @@ export function BuilderDraftActionsPanel({ state, actions, onOfficialSave, onPub
               : publicationStatus === "published"
               ? "Publicado"
               : "Publicar"}
+          </button>
+        )}
+
+        {publicationStatus === "published" && latestVersionId && !activeInstanceId && (
+          <button
+            onClick={handleStartInstance}
+            disabled={isPendingStart}
+            className="text-xs font-medium text-white px-4 py-1.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors shadow-sm ml-2"
+          >
+            {isPendingStart ? "Instanciando..." : "Instanciar"}
+          </button>
+        )}
+
+        {activeInstanceId && (
+          <button
+            onClick={handleAdvanceStep}
+            disabled={isPendingStart}
+            className="text-xs font-medium text-white px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors shadow-sm ml-2"
+          >
+            {isPendingStart ? "Avançando..." : "Avançar Step"}
           </button>
         )}
 

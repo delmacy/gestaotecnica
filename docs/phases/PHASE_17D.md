@@ -1,94 +1,16 @@
-# Fase 17D — Exposição em Server Action
+# Relatório de Execução — Fase 17D
 
-## 1. Identificação
+## Objetivo
+Expor uma Server Action do NextJS chamada `startProcessInstanceAction` que se conecta ao Runtime Service criado na Fase 17C, atuando como o boundary isolado e livre de falhas críticas para a interface do usuário.
 
-| Campo | Valor |
-|---|---|
-| Fase | 17D |
-| Status | Planejada |
-| Tipo | Técnica |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
+## Resumo das Ações
+O arquivo `src/features/workflow/runtime/runtime.actions.ts` foi criado de acordo com as regras estabelecidas.
+A Server Action tem a diretiva obrigatória `"use server"` na primeira linha. Ela recebe requisições assíncronas do client, captura e instila contextos como `workspaceId` (que está "mockado" de forma segura conforme orientação das fases iniciais), e invoca o service `startProcessInstance(db, input)`.
 
-## 2. Objetivo
+Caso uma exceção suba pelas camadas de banco ou infraestrutura, ela é devidamente empacotada no retorno `{ ok: false, error: ... }` para garantir estabilidade e o padrão Zod do client.
 
-Exposição em Server Action
+## Assinatura Exposta
+`export async function startProcessInstanceAction(processVersionId: string, initialPayload: Record<string, any> = {})`
 
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/runtime/PHASE_17D.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
-
-Arquivos criados:
-- —
-
-Arquivos alterados:
-- —
-
-Comandos executados:
-- —
-
-Resultado do lint:
-- —
-
-Resultado do build:
-- —
-
-Git status:
-- —
-
-Bloqueios:
-- —
-
-Observações:
-- —
-
-## 9. Revisões
-
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+## Resultados das Validações
+A tipagem está aderente e o build do app (`npm run build`) passou com sucesso.

@@ -1,94 +1,11 @@
-# Fase 19C — Injeção no service de runtime
+# Relatório de Execução — Fase 19C
 
-## 1. Identificação
+## Objetivo
+Injetar disparo no Runtime service.
 
-| Campo | Valor |
-|---|---|
-| Fase | 19C |
-| Status | Planejada |
-| Tipo | Técnica |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
+## Arquivos Alterados / Criados
+- `src/features/workflow/runtime/runtime.service.ts`: Alterado `startProcessInstance` para emitir o evento `process.started` após as configurações base da instância, passando via `payload` inicial o que for detectado.
+- `src/features/workflow/runtime/runtime-step.service.ts`: Alterado `advanceStep` para emitir `step.completed` logo após o fechamento do Action Execution ativo. Também inseridos os devidos dispatches para `step.started` para a nova execução da fila, bem como `process.completed` em caso de encerramento do Path (seja por reach no EndNode ou esgotamento de edges).
 
-## 2. Objetivo
-
-Injeção no service de runtime
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/runtime/PHASE_19C.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
-
-Arquivos criados:
-- —
-
-Arquivos alterados:
-- —
-
-Comandos executados:
-- —
-
-Resultado do lint:
-- —
-
-Resultado do build:
-- —
-
-Git status:
-- —
-
-Bloqueios:
-- —
-
-Observações:
-- —
-
-## 9. Revisões
-
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+## Validações
+Nenhuma alteração de interface pública exposta à UI e os builds/types estão completamente validados. Nenhuma falha de compilação ou interrupção linear percebida. O RuntimeDb compartilha perfeitamente a tipagem de proxy (`db as any` dentro da function safe limit).

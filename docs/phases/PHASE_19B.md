@@ -1,94 +1,11 @@
-# Fase 19B — Schema e repository base de registro (append)
+# Relatório de Execução — Fase 19B
 
-## 1. Identificação
+## Objetivo
+Criar o repository base de registro (append) e leitura para a tabela de events da Engine, garantindo a injeção do banco transacional.
 
-| Campo | Valor |
-|---|---|
-| Fase | 19B |
-| Status | Planejada |
-| Tipo | Técnica |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
+## Arquivos Alterados / Criados
+- `src/features/workflow/runtime/events/events.repository.ts`: Criadas funções `logEvent` (insere) e `getEventsByInstanceId` (recupera lista blindada por workspace).
+- `src/features/workflow/runtime/events/index.ts`: Adicionado re-export do repositório.
 
-## 2. Objetivo
-
-Schema e repository base de registro (append)
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/runtime/PHASE_19B.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
-
-Arquivos criados:
-- —
-
-Arquivos alterados:
-- —
-
-Comandos executados:
-- —
-
-Resultado do lint:
-- —
-
-Resultado do build:
-- —
-
-Git status:
-- —
-
-Bloqueios:
-- —
-
-Observações:
-- —
-
-## 9. Revisões
-
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+## Validações
+O TypeScript e o Drizzle não reclamaram dos tipos. Os `events` estão mapeados fielmente ao Postgres (como strings/uuid/jsonb).

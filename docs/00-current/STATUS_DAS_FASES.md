@@ -44,10 +44,10 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |  18B | ✅      | Execução: Repository     | Operações de busca e finalização de steps                |
 |  18C | ✅      | Execução: Service        | Regra de avanço de step simples                          |
 |  18D | ✅      | Execução: API/UI         | Exposição de actions para transição da UI                |
-|  19A | ⚪      | Eventos: Contratos       | Tipos mínimos de eventos (`started`, `completed`)        |
-|  19B | ⚪      | Eventos: Repository      | Escrita de eventos base                                  |
-|  19C | ⚪      | Eventos: Integração      | Injetar disparo no Runtime service                       |
-|  19D | ⚪      | Eventos: Trace Receipt   | Estrutura de rastreio/comprovante simples                |
+|  19A | ✅      | Eventos: Contratos       | Tipos mínimos de eventos (`started`, `completed`)        |
+|  19B | ✅      | Eventos: Repository      | Escrita de eventos base                                  |
+|  19C | ✅      | Eventos: Integração      | Injetar disparo no Runtime service                       |
+|  19D | ✅      | Eventos: Trace Receipt   | Estrutura de rastreio/comprovante simples                |
 |  20A | ⚪      | Hardening: Smoke Tests   | Validação do fluxo (Criar -> Instanciar -> Concluir)     |
 |  20B | ⚪      | Hardening: Any Cleanup   | Remoção de `any` críticos na tipagem                     |
 |  20C | ⚪      | Hardening: Checklist MVP | Relatório consolidado do fim da primeira jornada técnica |
@@ -79,9 +79,9 @@ Fases 21–40 formam a fila Alfa (planejadas, não iniciadas).
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 18D
+Última fase técnica validada: Fase 19D
 Fase atual de documentação/contexto: Concluída
-Próxima fase técnica planejada: Fase 19A
+Próxima fase técnica planejada: Fase 20A
 ```
 
 ## 5. Regra

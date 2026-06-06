@@ -12,6 +12,7 @@ import type { RuntimeResult } from "./runtime.errors";
 
 // Imports limitados da definitions boundary apenas para path-finding e reading
 import { getProcessVersionById } from "../definitions/process-definition.queries";
+import { logEvent } from "./events";
 
 // Helper defension against dynamic object formats
 function extractNodesAndEdges(definitionJson: any) {
@@ -82,6 +83,18 @@ export async function advanceStep(
       finishedAt: new Date(),
     });
 
+    // 3b. Registrar Evento de Conclusão do Step Atual
+    await logEvent(db as any, {
+      workspaceId,
+      instanceId: processInstanceId,
+      eventType: "step.completed",
+      entityType: "action_execution",
+      entityId: actionExecutionId,
+      actorType: input.actorId ? "user" : "system",
+      actorId: input.actorId,
+      payload: output || {},
+    });
+
     // 4. Load Definition for Path-Finding
     const version = await getProcessVersionById(db as any, instance.processVersionId);
     if (!version || !version.definition) {
@@ -112,6 +125,17 @@ export async function advanceStep(
     if (outgoingEdges.length === 0) {
       // Reached End or terminal node
       await updateProcessInstanceStatus(db, workspaceId, processInstanceId, "completed");
+
+      // Registrar Evento de Fim de Processo
+      await logEvent(db as any, {
+        workspaceId,
+        instanceId: processInstanceId,
+        eventType: "process.completed",
+        entityType: "process_instance",
+        entityId: processInstanceId,
+        payload: { reason: "no_more_edges" },
+      });
+
       return {
         ok: true,
         data: {
@@ -137,6 +161,16 @@ export async function advanceStep(
     if (nextNode.type === "end") {
       // Next node is explicitly the end block. We can just complete the process.
       await updateProcessInstanceStatus(db, workspaceId, processInstanceId, "completed");
+
+      await logEvent(db as any, {
+        workspaceId,
+        instanceId: processInstanceId,
+        eventType: "process.completed",
+        entityType: "process_instance",
+        entityId: processInstanceId,
+        payload: { reason: "reached_end_node" },
+      });
+
       return {
         ok: true,
         data: {
@@ -154,6 +188,16 @@ export async function advanceStep(
       actionKey: nextNodeId,
       status: "pending",
       // inputPayload remains empty by default, the next operator must supply it
+    });
+
+    // 6b. Registrar Evento de Início de Novo Step
+    await logEvent(db as any, {
+      workspaceId,
+      instanceId: processInstanceId,
+      eventType: "step.started",
+      entityType: "action_execution",
+      entityId: newActionExecution.id,
+      payload: { actionKey: nextNodeId },
     });
 
     return {

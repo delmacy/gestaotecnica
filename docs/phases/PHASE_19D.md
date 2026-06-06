@@ -1,94 +1,12 @@
-# Fase 19D — Trace Receipt rudimentar
+# Relatório de Execução — Fase 19D
 
-## 1. Identificação
+## Objetivo
+Criar Server Action que expõe uma timeline serializável para a UI demonstrando o comprovante histórico da execução de um Processo blindado por `workspaceId`.
 
-| Campo | Valor |
-|---|---|
-| Fase | 19D |
-| Status | Planejada |
-| Tipo | Técnica |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
+## Arquivos Alterados / Criados
+- `src/features/workflow/runtime/events/events.server.ts`: Abstração de negócio (Server) exportando a função de obter a timeline a partir do repository de eventos, acoplando `workspaceId`.
+- `src/features/workflow/runtime/events/events.actions.ts`: A interface NextJS Server Action `getTimelineForInstanceAction` expondo a chamada `events.server.ts` de forma segura. Retorna `{ ok: true, data }` em caso de sucesso.
+- `src/features/workflow/runtime/events/index.ts`: Atualizado com os novos exports.
 
-## 2. Objetivo
-
-Trace Receipt rudimentar
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/runtime/PHASE_19D.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
-
-Arquivos criados:
-- —
-
-Arquivos alterados:
-- —
-
-Comandos executados:
-- —
-
-Resultado do lint:
-- —
-
-Resultado do build:
-- —
-
-Git status:
-- —
-
-Bloqueios:
-- —
-
-Observações:
-- —
-
-## 9. Revisões
-
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+## Validações
+O TypeScript compilou perfeitamente e os objetos expostos na Action formam corretamente serializações de timeline seguras e agnósticas da UI.

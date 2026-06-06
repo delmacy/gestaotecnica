@@ -28,11 +28,19 @@ automação autônoma
 ## Próxima fase técnica autorizada na fila do MVP/Transição
 
 ```text
+<<<<<<< HEAD
+Fase 21 — Runtime lifecycle
+=======
 Fase 20 — Builder Control Plane Shell
 (Consulte o WORK_BOARD para status detalhado das pendências anteriores)
+>>>>>>> 66763cd (docs: realign phases 20-40 around process candidates and agent boundaries)
 ```
 
 ## Referência Rápida
 
+<<<<<<< HEAD
+Para iniciar a execução da Fase 21, aguarde a documentação descritiva da arquitetura alfa em `docs/planning/alpha/`.
+=======
 Para iniciar a execução da Fase 20, o responsável técnico deve consultar o planejamento detalhado em:
 [docs/planning/alpha/PHASE_20.md](../planning/alpha/PHASE_20.md)
+>>>>>>> 66763cd (docs: realign phases 20-40 around process candidates and agent boundaries)

@@ -1,94 +1,12 @@
-# Fase 19A — Contratos simples de eventos (started, completed)
+# Relatório de Execução — Fase 19A
 
-## 1. Identificação
+## Objetivo
+Criar os contratos mínimos TypeScript e esquemas Zod para eventos (`started`, `completed`) sem implementar acoplamento assíncrono.
 
-| Campo | Valor |
-|---|---|
-| Fase | 19A |
-| Status | Planejada |
-| Tipo | Técnica |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
+## Arquivos Alterados / Criados
+- `src/features/workflow/runtime/events/events.types.ts`: Tipos TS para inserção (`LogEventInput`) e leitura (`EventRecord`).
+- `src/features/workflow/runtime/events/events.validation.ts`: Validação Zod garantindo os enums (`process.started`, `process.completed`, `step.started`, `step.completed`) e a tipagem correta de payload via `z.record(z.string(), z.unknown())`.
+- `src/features/workflow/runtime/events/index.ts`: Arquivo de exportação.
 
-## 2. Objetivo
-
-Contratos simples de eventos (started, completed)
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/runtime/PHASE_19A.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
-
-Arquivos criados:
-- —
-
-Arquivos alterados:
-- —
-
-Comandos executados:
-- —
-
-Resultado do lint:
-- —
-
-Resultado do build:
-- —
-
-Git status:
-- —
-
-Bloqueios:
-- —
-
-Observações:
-- —
-
-## 9. Revisões
-
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+## Validações
+O TypeScript compilou sem erros e a verificação do ESLint não encontrou anomalias (npm run build completou com sucesso).

@@ -1,34 +1,35 @@
 # Fase 24 — Human Review and Governance
 
 ## Objetivo
-Documentar e estabelecer as fundações para Human Review and Governance.
+Estabelecer a camada de regras (Service) para transição de status e aprovação humana.
 
 ## Contexto
-Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
+Garantir a regra inviolável: 'Agente propõe, humano aprova'. Apenas um ator humano válido pode alterar o status para 'approved'.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/candidates/candidate.service.ts`
+- `src/features/builder/candidates/candidate.errors.ts`
 
 ## Arquivos proibidos
-- Modificação direta do runtime estabelecido no MVP.
-- Criação prematura de tabelas sem autorização na Fase.
+- Formulários UI complexos.
 
 ## Regras
-- Garantir a filosofia "Agente propõe, humano valida, System Builder executa, Postgres prova, n8n integra".
-- Process Candidates representam a camada anterior à publicação.
+- Injetar o DB no Service.
+- Lançar erro `UNAUTHORIZED_REVIEWER` se um ator não-humano ou sem permissão tentar aprovar.
 
 ## Etapas
-- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Human Review and Governance.
+1. Implementar `approveCandidate(db, candidateId, reviewerId, justification)`.
+2. Implementar `rejectCandidate(db, candidateId, reviewerId, justification)`.
+3. Validar mudança de status no DB.
 
 ## Validações
-- Revisão arquitetural documental.
-- (Se técnico) Linting e type checks sem falhas.
+- Testes ou validação conceitual na camada de lógica pura.
 
 ## Relatório final esperado
-- Arquivos modificados e resumo da implementação entregue.
+- Serviço de aprovação exportando as funções cruciais.
 
 ## Regra de parada
-- Entregar apenas o escopo de Human Review and Governance sem invadir o território das próximas fases documentais ou agênticas.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -40,10 +41,10 @@ docs/00-current/ANTI_ESCOPO_ATUAL.md
 Fase 24 — Human Review and Governance
 
 Objetivo:
-Implementar Human Review and Governance
+Estabelecer a camada de regras (Service) para transição de status e aprovação humana.
 
 Escopo:
--
+Permitido alterar apenas a camada Service dos Candidates.
 
 Não alterar:
 - Produção de Runtime oficial sem aprovação.
@@ -53,14 +54,14 @@ Regras:
 Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar a base para Human Review and Governance.
+1. Crie a regra de transição de estados de aprovação com exigência de justificativa humana.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados e a aderência à tese de Process Candidates.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira de Human Review and Governance.
+Não ultrapassar a fronteira de Human Review and Governance. Pare e solicite review.
 ```

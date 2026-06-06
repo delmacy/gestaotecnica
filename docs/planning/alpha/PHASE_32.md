@@ -1,34 +1,33 @@
 # Fase 32 — Signal Inbox and Observation Pipeline
 
 ## Objetivo
-Documentar e estabelecer as fundações para Signal Inbox and Observation Pipeline.
+Modelar a conversão de Sinais brutos da Inbox para Observações Agênticas.
 
 ## Contexto
-Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
+Os sinais coletados do n8n (e.g., mensagem de solicitação repetida no Slack) precisam de uma fila de observação onde os agentes futuros agirão.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/platform/signals/signals.types.ts`
+- `src/features/platform/signals/observation.service.ts`
 
 ## Arquivos proibidos
-- Modificação direta do runtime estabelecido no MVP.
-- Criação prematura de tabelas sem autorização na Fase.
+- UI do Builder.
 
 ## Regras
-- Garantir a filosofia "Agente propõe, humano valida, System Builder executa, Postgres prova, n8n integra".
-- Process Candidates representam a camada anterior à publicação.
+- O Signal não vira Processo automaticamente. Ele vira 'Observation', agrupado em evidências para montar um Candidate.
 
 ## Etapas
-- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Signal Inbox and Observation Pipeline.
+1. Criar os contratos TypeScript de Sinais, Ocorrências e Evidências agrupadas.
+2. Criar função local `groupSignalsIntoObservation()`.
 
 ## Validações
-- Revisão arquitetural documental.
-- (Se técnico) Linting e type checks sem falhas.
+- Estruturas TypeScript validadas.
 
 ## Relatório final esperado
-- Arquivos modificados e resumo da implementação entregue.
+- Tipos do Observation Pipeline prontos.
 
 ## Regra de parada
-- Entregar apenas o escopo de Signal Inbox and Observation Pipeline sem invadir o território das próximas fases documentais ou agênticas.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -40,10 +39,10 @@ docs/00-current/ANTI_ESCOPO_ATUAL.md
 Fase 32 — Signal Inbox and Observation Pipeline
 
 Objetivo:
-Implementar Signal Inbox and Observation Pipeline
+Modelar a conversão de Sinais brutos da Inbox para Observações Agênticas.
 
 Escopo:
--
+Contratos Typescript de Sinais e Evidências.
 
 Não alterar:
 - Produção de Runtime oficial sem aprovação.
@@ -53,14 +52,14 @@ Regras:
 Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar a base para Signal Inbox and Observation Pipeline.
+1. Defina como um 'Signal' cru é convertido em 'Observation' e 'Evidence' na linguagem de Typescript.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados e a aderência à tese de Process Candidates.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira de Signal Inbox and Observation Pipeline.
+Não ultrapassar a fronteira de Signal Inbox and Observation Pipeline. Pare e solicite review.
 ```

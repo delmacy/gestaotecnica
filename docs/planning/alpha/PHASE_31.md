@@ -1,34 +1,34 @@
 # Fase 31 — n8n as Integration Boundary
 
 ## Objetivo
-Documentar e estabelecer as fundações para n8n as Integration Boundary.
+Estabelecer a abstração de webhook de entrada para o sistema, onde o n8n transportará os dados informais para o Builder.
 
 ## Contexto
-Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
+O n8n atua apenas transportando sinais de Slack/WhatsApp. O System Builder precisa ter o webhook universal (inbox) para recebê-los.
 
 ## Arquivos permitidos
-- TBD
+- `src/app/api/integrations/webhook/route.ts`
+- `src/features/platform/integrations/webhook.service.ts`
 
 ## Arquivos proibidos
-- Modificação direta do runtime estabelecido no MVP.
-- Criação prematura de tabelas sem autorização na Fase.
+- Código próprio do n8n (não mexer em docker-compose do n8n).
+- Lógica forte de runtime.
 
 ## Regras
-- Garantir a filosofia "Agente propõe, humano valida, System Builder executa, Postgres prova, n8n integra".
-- Process Candidates representam a camada anterior à publicação.
+- Todo webhook externo deve ser recebido, assinado (secret), desempacotado e salvo em uma tabela crua de `signal_inbox`.
 
 ## Etapas
-- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: n8n as Integration Boundary.
+1. Criar API Endpoint genérico para Webhooks.
+2. Criar tabela simples `signal_inbox` ou similar usando Zod JSONB.
 
 ## Validações
-- Revisão arquitetural documental.
-- (Se técnico) Linting e type checks sem falhas.
+- Retorno HTTP 202 imediato para o n8n para não bloquear a thread.
 
 ## Relatório final esperado
-- Arquivos modificados e resumo da implementação entregue.
+- Webhook Inbox ativo e exportado.
 
 ## Regra de parada
-- Entregar apenas o escopo de n8n as Integration Boundary sem invadir o território das próximas fases documentais ou agênticas.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -40,10 +40,10 @@ docs/00-current/ANTI_ESCOPO_ATUAL.md
 Fase 31 — n8n as Integration Boundary
 
 Objetivo:
-Implementar n8n as Integration Boundary
+Estabelecer a abstração de webhook de entrada para o sistema, onde o n8n transportará os dados informais para o Builder.
 
 Escopo:
--
+Apenas Endpoint universal de Webhook de integrações.
 
 Não alterar:
 - Produção de Runtime oficial sem aprovação.
@@ -53,14 +53,14 @@ Regras:
 Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar a base para n8n as Integration Boundary.
+1. Crie o endpoint `/api/integrations/webhook` garantindo validação de segredo de integração.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados e a aderência à tese de Process Candidates.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira de n8n as Integration Boundary.
+Não ultrapassar a fronteira de n8n as Integration Boundary. Pare e solicite review.
 ```

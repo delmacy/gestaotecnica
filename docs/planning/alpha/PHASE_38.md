@@ -1,34 +1,33 @@
 # Fase 38 — Security, Privacy and Consent for Observation
 
 ## Objetivo
-Documentar e estabelecer as fundações para Security, Privacy and Consent for Observation.
+Adicionar escopo de consentimento nos níveis de Workspace.
 
 ## Contexto
-Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
+Para ler Slack ou E-mail via n8n, o Workspace precisa autorizar explicitamente a coleta de sinais (Opt-in).
 
 ## Arquivos permitidos
-- TBD
+- `src/features/platform/workspaces/workspace.types.ts`
+- `src/db/runtime/schema/workspaces.ts`
 
 ## Arquivos proibidos
-- Modificação direta do runtime estabelecido no MVP.
-- Criação prematura de tabelas sem autorização na Fase.
+- Migrations automáticas do Drizzle no banco de dados de produção.
 
 ## Regras
-- Garantir a filosofia "Agente propõe, humano valida, System Builder executa, Postgres prova, n8n integra".
-- Process Candidates representam a camada anterior à publicação.
+- A autorização é um JSONB dentro do Workspace definindo `dataCollectionOptIn: true | false`.
 
 ## Etapas
-- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Security, Privacy and Consent for Observation.
+1. Atualizar schema local de `workspaces.ts` para suportar as flags de consentimento de observação.
+2. Atualizar contratos TS.
 
 ## Validações
-- Revisão arquitetural documental.
-- (Se técnico) Linting e type checks sem falhas.
+- Drizzle TS validation.
 
 ## Relatório final esperado
-- Arquivos modificados e resumo da implementação entregue.
+- Schema preparado para a governança de privacidade.
 
 ## Regra de parada
-- Entregar apenas o escopo de Security, Privacy and Consent for Observation sem invadir o território das próximas fases documentais ou agênticas.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -40,10 +39,10 @@ docs/00-current/ANTI_ESCOPO_ATUAL.md
 Fase 38 — Security, Privacy and Consent for Observation
 
 Objetivo:
-Implementar Security, Privacy and Consent for Observation
+Adicionar escopo de consentimento nos níveis de Workspace.
 
 Escopo:
--
+Modificação do Schema do Workspace para Flags de consentimento.
 
 Não alterar:
 - Produção de Runtime oficial sem aprovação.
@@ -53,14 +52,14 @@ Regras:
 Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar a base para Security, Privacy and Consent for Observation.
+1. Introduza no Drizzle Schema do Workspace as diretivas e configurações ativas de privacidade e coleta de dados agênticos.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados e a aderência à tese de Process Candidates.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira de Security, Privacy and Consent for Observation.
+Não ultrapassar a fronteira de Security, Privacy and Consent for Observation. Pare e solicite review.
 ```

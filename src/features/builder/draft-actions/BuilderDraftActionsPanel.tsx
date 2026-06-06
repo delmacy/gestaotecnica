@@ -20,6 +20,12 @@ export function BuilderDraftActionsPanel({ state, actions, onOfficialSave, onPub
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Sync internal UI state when the external state replaces the draft entirely
+  React.useEffect(() => {
+    setName(state.draft.name);
+    setDescription(state.draft.description ?? "");
+  }, [state.draft.name, state.draft.description]);
+
   const handleApplyDetails = () => {
     actions.renameDraft({ name, description });
   };

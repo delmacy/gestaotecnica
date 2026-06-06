@@ -41,9 +41,9 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |  17D | ✅      | Runtime server action    | Exposição server-side de comandos de instâncias          |
 |  17E | ✅      | UI Mínima para instância | Visual para instanciar as execuções de um processo       |
 |  18A | ✅      | Execução: Contratos      | Modelagem TS para processar as transições de etapas      |
-|  18B | ⚪      | Execução: Repository     | Operações de busca e finalização de steps                |
-|  18C | ⚪      | Execução: Service        | Regra de avanço de step simples                          |
-|  18D | ⚪      | Execução: API/UI         | Exposição de actions para transição da UI                |
+|  18B | ✅      | Execução: Repository     | Operações de busca e finalização de steps                |
+|  18C | ✅      | Execução: Service        | Regra de avanço de step simples                          |
+|  18D | ✅      | Execução: API/UI         | Exposição de actions para transição da UI                |
 |  19A | ⚪      | Eventos: Contratos       | Tipos mínimos de eventos (`started`, `completed`)        |
 |  19B | ⚪      | Eventos: Repository      | Escrita de eventos base                                  |
 |  19C | ⚪      | Eventos: Integração      | Injetar disparo no Runtime service                       |
@@ -79,9 +79,9 @@ Fases 21–40 formam a fila Alfa (planejadas, não iniciadas).
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 18A
+Última fase técnica validada: Fase 18D
 Fase atual de documentação/contexto: Concluída
-Próxima fase técnica planejada: Fase 18B
+Próxima fase técnica planejada: Fase 19A
 ```
 
 ## 5. Regra

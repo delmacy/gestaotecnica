@@ -1,10 +1,10 @@
-# Fase 17E — UI mínima para teste de instância
+# Fase 20D — Demo E2E documentada
 
 ## 1. Identificação
 
 | Campo | Valor |
 |---|---|
-| Fase | 17E |
+| Fase | 20D |
 | Status | Planejada |
 | Tipo | Técnica |
 | Responsável principal | Jules Dev / Jules Documental |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-UI mínima para teste de instância
+Demo E2E documentada. Fim do MVP técnico.
 
 ## 3. Escopo permitido
 
@@ -35,7 +35,7 @@ UI mínima para teste de instância
 ## 7. Plano aprovado
 
 Referência:
-- `docs/planning/runtime/PHASE_17E.md`
+- `docs/planning/runtime/PHASE_20D.md`
 
 Resumo:
 - —

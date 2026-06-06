@@ -1,11 +1,11 @@
-# Fase 17E — UI mínima para teste de instância
+# Fase 17A — Runtime contracts e análise do schema existente
 
 ## 1. Identificação
 
 | Campo | Valor |
 |---|---|
-| Fase | 17E |
-| Status | Planejada |
+| Fase | 17A |
+| Status | Aprovada com ressalvas |
 | Tipo | Técnica |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
@@ -14,7 +14,11 @@
 
 ## 2. Objetivo
 
-UI mínima para teste de instância
+Runtime contracts e análise do schema existente.
+
+Observação: contratos foram criados em `src/features/workflow/runtime`.
+
+Ressalva: uso inicial de any/payloads foi reduzido ou será acompanhado.
 
 ## 3. Escopo permitido
 
@@ -35,7 +39,7 @@ UI mínima para teste de instância
 ## 7. Plano aprovado
 
 Referência:
-- `docs/planning/runtime/PHASE_17E.md`
+- `docs/planning/runtime/PHASE_17A.md`
 
 Resumo:
 - —

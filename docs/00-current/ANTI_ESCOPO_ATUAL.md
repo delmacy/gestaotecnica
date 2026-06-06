@@ -27,3 +27,11 @@ Este documento lista o que **NÃO DEVE** ser feito pelas IAs ou desenvolvedores 
 *   **Jules Dev:** NÃO altera documentos de controle gerenciais.
 *   **Gerenciamento do Board:** Apenas o **Jules Documental** é o responsável por criar e atualizar o arquivo `docs/00-current/WORK_BOARD.md` e espelhar o status entre as fases.
 *   **Limites de Execução Planejada:** Jules Dev não deve executar fases futuras mesmo que os arquivos de planejamento (ex: Fases 17, 18, 19, 20) já existam e estejam em `docs/planning`. O planejamento de fases futuras representa **apenas uma fila** e direção visualizada, não é uma autorização irrestrita de implementação. Cada fase técnica deve ser executada individualmente, seguida de merge e revisão da IA Revisora e do Delmacy, antes de iniciar o prompt da próxima. A existência de documentação detalhada para fases futuras **NÃO** significa passe livre para implementação contínua.
+
+## 4. Regra de preservação histórica
+
+*   **Não apagar histórico de fase.**
+*   **Não sobrescrever relatórios anteriores.**
+*   **Jules Dev pode acrescentar relatório ao arquivo da fase, mas não editar board/status.**
+*   **Correções devem ser registradas como nova entrada em “Histórico de correções”.**
+*   **Planejamento futuro não autoriza implementação futura:** O planejamento das fases 21–40 (Produto Alfa) não autoriza a implementação dessas fases. Jules Dev só pode implementar a fase explicitamente autorizada no WORK_BOARD (atualmente o bloco do MVP técnico 17-20). Fases futuras servem apenas para antecipação documental, não para execução automática.

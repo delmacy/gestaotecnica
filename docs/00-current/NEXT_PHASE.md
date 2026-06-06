@@ -9,10 +9,9 @@ O planejamento governamental para todo o resto do MVP técnico (Fases 17 a 20) f
 ## Próxima fase técnica autorizada
 
 ```text
-Fase 20A — Hardening: Smoke Tests
+Fase 21 — Runtime lifecycle
 ```
 
 ## Referência Rápida
 
-Para iniciar a execução da Fase 20A, o responsável técnico (Jules Dev) deve consultar o planejamento detalhado e restrições em:
-[docs/planning/runtime/PHASE_20A.md](../planning/runtime/PHASE_20A.md)
+Para iniciar a execução da Fase 21, aguarde a documentação descritiva da arquitetura alfa em `docs/planning/alpha/`.

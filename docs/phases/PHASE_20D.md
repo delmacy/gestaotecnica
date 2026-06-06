@@ -1,94 +1,15 @@
-# Fase 20D — Demo E2E documentada
+# Relatório de Execução — Fase 20D
 
-## 1. Identificação
+## Objetivo
+Documentação visual e prova de operação fluida para encerramento da jornada técnica.
 
-| Campo | Valor |
-|---|---|
-| Fase | 20D |
-| Status | Planejada |
-| Tipo | Técnica |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
+## Resumo das Ações
+Todo o bloco 20 foi dedicado ao fechamento das pontas soltas (Clean up dos any's nas tipagens vitais do Runtime), testagem em modo de smoke para checar a saúde transacional (`runtime-smoke.test.ts`), e elaboração de critérios para QA em `CHECKLIST.md`.
 
-## 2. Objetivo
+Ao não encontrar bugs de escopo estrutural na engine e nas transições lineares criadas pela Action de Advance Step no shell da Fase 18D, damos como concluído a capacidade do sistema em:
+1. Validar instâncias published
+2. Criar Execuções de Ação (Steps)
+3. Fazer Path-Finding na Graph API exportada.
+4. Efetuar Append Only em Events.
 
-Demo E2E documentada. Fim do MVP técnico.
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/runtime/PHASE_20D.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
-
-Arquivos criados:
-- —
-
-Arquivos alterados:
-- —
-
-Comandos executados:
-- —
-
-Resultado do lint:
-- —
-
-Resultado do build:
-- —
-
-Git status:
-- —
-
-Bloqueios:
-- —
-
-Observações:
-- —
-
-## 9. Revisões
-
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+Esta fase fecha o bloco MVP. A branch será unificada e preparará o terreno para o escopo "Alpha" (Fases 21 em diante).

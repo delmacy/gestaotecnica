@@ -48,10 +48,10 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |  19B | ✅      | Eventos: Repository      | Escrita de eventos base                                  |
 |  19C | ✅      | Eventos: Integração      | Injetar disparo no Runtime service                       |
 |  19D | ✅      | Eventos: Trace Receipt   | Estrutura de rastreio/comprovante simples                |
-|  20A | ⚪      | Hardening: Smoke Tests   | Validação do fluxo (Criar -> Instanciar -> Concluir)     |
-|  20B | ⚪      | Hardening: Any Cleanup   | Remoção de `any` críticos na tipagem                     |
-|  20C | ⚪      | Hardening: Checklist MVP | Relatório consolidado do fim da primeira jornada técnica |
-|  20D | ⚪      | Hardening: Demo E2E      | Documentação visual e prova de operação fluida           |
+|  20A | ✅      | Hardening: Smoke Tests   | Validação do fluxo (Criar -> Instanciar -> Concluir)     |
+|  20B | ✅      | Hardening: Any Cleanup   | Remoção de `any` críticos na tipagem                     |
+|  20C | ✅      | Hardening: Checklist MVP | Relatório consolidado do fim da primeira jornada técnica |
+|  20D | ✅      | Hardening: Demo E2E      | Documentação visual e prova de operação fluida           |
 |   21 | ⚪      | Runtime lifecycle        | Fase 21 Alfa Planejada                                   |
 |   22 | ⚪      | Runtime timeline         | Fase 22 Alfa Planejada                                   |
 |   23 | ⚪      | Runtime detail UI        | Fase 23 Alfa Planejada                                   |
@@ -79,9 +79,9 @@ Fases 21–40 formam a fila Alfa (planejadas, não iniciadas).
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 19D
+Última fase técnica validada: Fase 20D
 Fase atual de documentação/contexto: Concluída
-Próxima fase técnica planejada: Fase 20A
+Próxima fase técnica planejada: Fase 21
 ```
 
 ## 5. Regra

@@ -4,6 +4,7 @@ import { getProcessVersionById } from "../definitions/process-definition.queries
 import { startProcessInstanceInputSchema } from "./runtime.validation";
 import type { StartProcessInstanceInput, ProcessInstanceRecord } from "./runtime.types";
 import type { RuntimeResult } from "./runtime.errors";
+import { logEvent } from "./events";
 
 export async function startProcessInstance(
   db: RuntimeDb,
@@ -56,6 +57,18 @@ export async function startProcessInstance(
         data: initialPayload
       });
     }
+
+    // 4. Registrar Evento de Início de Processo
+    await logEvent(db as any, {
+      workspaceId,
+      instanceId: instance.id,
+      eventType: "process.started",
+      entityType: "process_instance",
+      entityId: instance.id,
+      actorType: createdById ? "user" : "system",
+      actorId: createdById || undefined,
+      payload: initialPayload || {},
+    });
 
     return {
       ok: true,

@@ -1,94 +1,12 @@
-# Fase 17E — UI mínima para teste de instância
+# Relatório de Execução — Fase 17E
 
-## 1. Identificação
+## Objetivo
+Adicionar botão ou painel mínimo para iniciar instância de processo publicado utilizando a Action exposta da fase anterior para provar a comunicação de ponta a ponta sem criar painéis gigantes.
 
-| Campo | Valor |
-|---|---|
-| Fase | 17E |
-| Status | Planejada |
-| Tipo | Técnica |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
+## Resumo das Ações
+O botão "Instanciar" foi adicionado no componente `BuilderDraftActionsPanel` (`src/features/builder/draft-actions/BuilderDraftActionsPanel.tsx`), logo ao lado do botão de "Publicar".
+Ele aparece apenas se a versão atual está no estado `published`.
+Utiliza `useTransition` para evitar concorrência e dá um feedback via `alert` simples conforme instruído para o escopo mínimo de POC.
 
-## 2. Objetivo
-
-UI mínima para teste de instância
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/runtime/PHASE_17E.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
-
-Arquivos criados:
-- —
-
-Arquivos alterados:
-- —
-
-Comandos executados:
-- —
-
-Resultado do lint:
-- —
-
-Resultado do build:
-- —
-
-Git status:
-- —
-
-Bloqueios:
-- —
-
-Observações:
-- —
-
-## 9. Revisões
-
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+## Resultados das Validações
+Nenhum erro de lint/type. E permite a validação visual do fluxo completo do Bloco 17 (Criação do Processo no banco através do Runtime).

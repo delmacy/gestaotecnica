@@ -1,94 +1,18 @@
-# Fase 17C — Runtime service para iniciar instâncias
+# Relatório de Execução — Fase 17C
 
-## 1. Identificação
+## Objetivo
+Criar regra de negócio para iniciar instância a partir de uma process version published, validar o input usando Zod e usar o repository da camada anterior.
 
-| Campo | Valor |
-|---|---|
-| Fase | 17C |
-| Status | Planejada |
-| Tipo | Técnica |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
+## Resumo das Ações
+Foi criado o arquivo `src/features/workflow/runtime/runtime.service.ts` com a função `startProcessInstance`. Esta função:
+1. Valida o input recebido contra `startProcessInstanceInputSchema`.
+2. Verifica no banco se a Process Version referenciada existe e se seu status é efetivamente "published". Se não for, retorna `{ok: false, error: {...}}`.
+3. Chama o repository para registrar e retornar o envelope `ProcessInstanceRecord` da execução.
+4. Salva o payload inicial (se aplicável).
+5. Tudo envolto num bloco `try/catch` de segurança genérico.
 
-## 2. Objetivo
+## Assinatura Exposta
+`export async function startProcessInstance(db: RuntimeDb, input: StartProcessInstanceInput): Promise<RuntimeResult<ProcessInstanceRecord>>`
 
-Runtime service para iniciar instâncias
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/runtime/PHASE_17C.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
-
-Arquivos criados:
-- —
-
-Arquivos alterados:
-- —
-
-Comandos executados:
-- —
-
-Resultado do lint:
-- —
-
-Resultado do build:
-- —
-
-Git status:
-- —
-
-Bloqueios:
-- —
-
-Observações:
-- —
-
-## 9. Revisões
-
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+## Resultados das Validações
+O Typescript compilou e não apresentou vazamentos de "any" nas assinaturas expostas. O padrão de retorno exigido nas políticas ({ok, data} ou {ok, error}) foi rigorosamente obedecido.

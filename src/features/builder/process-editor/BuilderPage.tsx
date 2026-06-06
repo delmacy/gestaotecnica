@@ -14,9 +14,6 @@ import { validateBuilderDraft } from "./validate-builder-draft";
 import { saveBuilderDraftOfficially } from "../persistence/builder-save.client";
 import { listSavedProcesses, loadSavedProcess } from "../persistence/builder-load.client";
 import { publishBuilderProcess } from "../persistence/builder-publish.client";
-import { startBuilderProcessInstance } from "../persistence/builder-runtime.client";
-const TEMPORARY_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001";
-
 import { SavedProcessesPanel } from "../saved-processes/SavedProcessesPanel";
 import type { SavedProcessListItem } from "../persistence/builder-load.types";
 
@@ -27,18 +24,7 @@ export function BuilderPage() {
   const [savedProcessesLoading, setSavedProcessesLoading] = React.useState(false);
   const [savedProcessesError, setSavedProcessesError] = React.useState<string | undefined>();
 
-
-  const handleRefreshSavedProcesses = React.useCallback(async () => {
-    setSavedProcessesLoading(true);
-    setSavedProcessesError(undefined);
-    const result = await listSavedProcesses({ workspaceId: TEMPORARY_WORKSPACE_ID });
-    if (result.ok) {
-      setSavedProcesses(result.data.items);
-    } else {
-      setSavedProcessesError(result.error.message);
-    }
-    setSavedProcessesLoading(false);
-  }, []);
+  const TEMPORARY_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001";
 
   React.useEffect(() => {
     // Only attempt to restore if we haven't already done so
@@ -60,12 +46,20 @@ export function BuilderPage() {
     }
 
     // Auto-refresh saved processes once restored
-    setTimeout(() => {
-      handleRefreshSavedProcesses();
-    }, 0);
-  }, [editor.actions, editor.state.localPersistence?.restored, handleRefreshSavedProcesses]);
+    handleRefreshSavedProcesses();
+  }, [editor.actions, editor.state.localPersistence?.restored]);
 
-
+  const handleRefreshSavedProcesses = React.useCallback(async () => {
+    setSavedProcessesLoading(true);
+    setSavedProcessesError(undefined);
+    const result = await listSavedProcesses({ workspaceId: TEMPORARY_WORKSPACE_ID });
+    if (result.ok) {
+      setSavedProcesses(result.data.items);
+    } else {
+      setSavedProcessesError(result.error.message);
+    }
+    setSavedProcessesLoading(false);
+  }, [TEMPORARY_WORKSPACE_ID]);
 
   const handleOpenSavedProcess = React.useCallback(async (processDefinitionId: string) => {
     if (editor.state.dirty) {
@@ -96,7 +90,7 @@ export function BuilderPage() {
         message: result.ok ? "O processo não possui um draft salvo na última versão." : result.error.message,
       });
     }
-  }, [editor.state.dirty, editor.actions]);
+  }, [editor.state.dirty, editor.actions, TEMPORARY_WORKSPACE_ID]);
 
   useBuilderLocalAutosave({
     draft: editor.state.draft,
@@ -202,29 +196,6 @@ export function BuilderPage() {
     }
   };
 
-
-  const handleStartProcessInstance = React.useCallback(async () => {
-    const { processDefinitionId, latestVersionId, publicationStatus } = editor.state.officialPersistence || {};
-
-    if (!processDefinitionId || !latestVersionId || publicationStatus !== "published") {
-      alert("Publique o processo antes de iniciar uma instância.");
-      return;
-    }
-
-    // TODO: substituir por workspace real quando auth/workspace estiver integrado.
-    const result = await startBuilderProcessInstance({
-      workspaceId: TEMPORARY_WORKSPACE_ID,
-      processVersionId: latestVersionId,
-      initialPayload: {}
-    });
-
-    if (result.ok) {
-      alert(`Instância iniciada com sucesso! ID: ${result.data?.id}`);
-    } else {
-      alert(`Erro ao iniciar instância: ${result.error.message}`);
-    }
-  }, [editor.state.officialPersistence]);
-
   return (
     <BuilderLayout
       mode={editor.state.mode}
@@ -234,7 +205,7 @@ export function BuilderPage() {
       canvas={<BuilderCanvas state={editor.state} actions={editor.actions} />}
       inspector={<InspectorPanel state={editor.state} actions={editor.actions} />}
       validation={<BuilderValidationPanel draft={editor.state.draft} />}
-      draftActions={<BuilderDraftActionsPanel state={editor.state} actions={editor.actions} onOfficialSave={handleOfficialSave} onPublishOfficial={handlePublishOfficial} onStartInstance={handleStartProcessInstance} />}
+      draftActions={<BuilderDraftActionsPanel state={editor.state} actions={editor.actions} onOfficialSave={handleOfficialSave} onPublishOfficial={handlePublishOfficial} />}
       savedProcesses={
         <SavedProcessesPanel
           items={savedProcesses}

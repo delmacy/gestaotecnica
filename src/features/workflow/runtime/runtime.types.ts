@@ -18,7 +18,7 @@ export interface ProcessPayloadRecord {
   instanceId: string;
   workspaceId: string;
   schemaVersion: string;
-  data: Record<string, unknown>;
+  data: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,8 +29,8 @@ export interface ActionExecutionRecord {
   instanceId: string;
   actionKey: string;
   actorId: string | null;
-  inputPayload: Record<string, unknown>;
-  outputPayload: Record<string, unknown>;
+  inputPayload: Record<string, any>;
+  outputPayload: Record<string, any>;
   status: ActionExecutionStatus;
   error: string | null;
   startedAt: Date;
@@ -43,7 +43,7 @@ export interface StartProcessInstanceInput {
   workspaceId: string;
   processVersionId: string;
   createdById?: string;
-  initialPayload?: Record<string, unknown>;
+  initialPayload?: Record<string, any>;
 }
 
 export interface ProcessInstanceInsert {
@@ -61,12 +61,13 @@ export interface ActionExecutionInsert {
   instanceId: string;
   actionKey: string;
   actorId?: string | null;
-  inputPayload?: Record<string, unknown>;
-  outputPayload?: Record<string, unknown>;
+  inputPayload?: Record<string, any>;
+  outputPayload?: Record<string, any>;
   status?: ActionExecutionStatus;
   error?: string | null;
   finishedAt?: Date | null;
 }
+<<<<<<< HEAD
 
 // Step Execution concepts (mapped on top of actionExecution)
 
@@ -114,3 +115,5 @@ export interface UpdateActionExecutionInput {
   error?: string | null;
   finishedAt?: Date;
 }
+=======
+>>>>>>> cc290ca (docs: plan alpha product phases 21 to 40 and add sync instructions)

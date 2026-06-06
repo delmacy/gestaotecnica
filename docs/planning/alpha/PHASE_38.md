@@ -1,31 +1,33 @@
-# Fase 38 — Gestão Técnica blueprint inicial
+# Fase 38 — Security, Privacy and Consent for Observation
 
 ## Objetivo
-Estabelecer fundações para o Gestão Técnica blueprint inicial na fase alfa.
+Adicionar escopo de consentimento nos níveis de Workspace.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Para ler Slack ou E-mail via n8n, o Workspace precisa autorizar explicitamente a coleta de sinais (Opt-in).
 
 ## Arquivos permitidos
-- TBD
+- `src/features/platform/workspaces/workspace.types.ts`
+- `src/db/runtime/schema/workspaces.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Migrations automáticas do Drizzle no banco de dados de produção.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- A autorização é um JSONB dentro do Workspace definindo `dataCollectionOptIn: true | false`.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Atualizar schema local de `workspaces.ts` para suportar as flags de consentimento de observação.
+2. Atualizar contratos TS.
 
 ## Validações
-- Testes unitários para as novas regras de Gestão Técnica blueprint inicial.
+- Drizzle TS validation.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Schema preparado para a governança de privacidade.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +36,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 38 — Gestão Técnica blueprint inicial
+Fase 38 — Security, Privacy and Consent for Observation
 
 Objetivo:
-Implementar Gestão Técnica blueprint inicial
+Adicionar escopo de consentimento nos níveis de Workspace.
 
 Escopo:
--
+Modificação do Schema do Workspace para Flags de consentimento.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Introduza no Drizzle Schema do Workspace as diretivas e configurações ativas de privacidade e coleta de dados agênticos.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Gestão Técnica blueprint inicial.
+Não ultrapassar a fronteira de Security, Privacy and Consent for Observation. Pare e solicite review.
 ```

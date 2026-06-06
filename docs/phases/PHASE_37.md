@@ -1,4 +1,4 @@
-# Fase 37 — Blueprint apply flow
+# Fase 37 — Agent/Human Dual Elicitation
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 37 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Blueprint apply flow
+Agent/Human Dual Elicitation
 
 ## 3. Escopo permitido
 

@@ -1,31 +1,32 @@
-# Fase 36 — Blueprint import/export
+# Fase 36 — Process Improvement Proposals
 
 ## Objetivo
-Estabelecer fundações para o Blueprint import/export na fase alfa.
+Estabelecer o framework para submissão e avaliação de melhorias de processo.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Para evitar caos, agentes e humanos não editam diretamente um processo ativo; eles sugerem um 'Process Improvement Proposal' ligado àquele Processo.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/improvements/proposal.types.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Alteração destrutiva em versões ativas de `workflow.process_versions`.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Uma melhoria é fundamentalmente um Process Candidate derivado (forked) de um workflow existente.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Modelar a extensão `ImprovementProposal` herdando a estrutura do `ProcessCandidate`, adicionando o campo `originalProcessDefinitionId`.
+2. Definir campos para `expectedImpact` e `risk`.
 
 ## Validações
-- Testes unitários para as novas regras de Blueprint import/export.
+- Tipagem Typescript estrita.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Tipos base da extensão de melhorias concluídos.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +35,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 36 — Blueprint import/export
+Fase 36 — Process Improvement Proposals
 
 Objetivo:
-Implementar Blueprint import/export
+Estabelecer o framework para submissão e avaliação de melhorias de processo.
 
 Escopo:
--
+Modelagem de propostas de melhoria (Tipos TS).
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Desenvolva as interfaces TS que acoplam a tese de propostas de melhoria a Processos previamente publicados.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Blueprint import/export.
+Não ultrapassar a fronteira de Process Improvement Proposals. Pare e solicite review.
 ```

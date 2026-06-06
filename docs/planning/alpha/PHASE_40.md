@@ -1,31 +1,31 @@
-# Fase 40 — Workforce/OS módulo alfa
+# Fase 40 — Future Multi-Agent Operating Model
 
 ## Objetivo
-Estabelecer fundações para o Workforce/OS módulo alfa na fase alfa.
+Encerramento do bloco Alfa com a criação do manifesto local de Agentes Integrados.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Finalizar o ciclo atual preparando o repositório para o cenário em que QA Agent, Feature Agent e Process Agent rodam em orquestração.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/platform/gateway/agent-registry.types.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Não construir nenhum Agente em LangChain ou similar.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Apenas registro (Registry) estático listando os tipos de Agentes esperados que consumirão a API do Builder.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Declarar Enums/Tipos sobre os capabilities expostos a cada sub-agente (`qa`, `feature`, `process_builder`).
 
 ## Validações
-- Testes unitários para as novas regras de Workforce/OS módulo alfa.
+- Compilação limpa.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Fim do Bloco Alfa.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +34,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 40 — Workforce/OS módulo alfa
+Fase 40 — Future Multi-Agent Operating Model
 
 Objetivo:
-Implementar Workforce/OS módulo alfa
+Encerramento do bloco Alfa com a criação do manifesto local de Agentes Integrados.
 
 Escopo:
--
+Especificação da tipagem do Registry de Agentes.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Modele as interfaces do manifesto Multi-agente local apenas para efeito de permissões de API Gateway.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Workforce/OS módulo alfa.
+Não ultrapassar a fronteira de Future Multi-Agent Operating Model. Pare e solicite review.
 ```

@@ -1,31 +1,36 @@
-# Fase 23 — Runtime detail UI
+# Fase 23 — Process Candidate Data Model
 
 ## Objetivo
-Estabelecer fundações para o Runtime detail UI na fase alfa.
+Implementar o modelo físico Drizzle para suportar Process Candidates.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Após definir a ontologia e a UI, materializamos o schema lógico PostgreSQL no diretório do platform/builder.
 
 ## Arquivos permitidos
-- TBD
+- `src/db/platform/schema/candidates.ts`
+- `src/db/platform/schema/index.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Repositories e Services.
+- Execução de `db:push` no ambiente (apenas definição de código).
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Exigir `workspaceId` em todas as tabelas para Tenant Isolation.
+- Tabelas: `process_candidates`, `process_candidate_states`, etc.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Desenvolver o arquivo `candidates.ts` no Drizzle.
+2. Referenciar FKs para `workspaces` adequadamente.
+3. Exportar no `index.ts` central.
 
 ## Validações
-- Testes unitários para as novas regras de Runtime detail UI.
+- `npm run db:generate` passa com sucesso localmente.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Definições Drizzle exportadas e alinhadas aos tipos do bloco 21.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +39,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 23 — Runtime detail UI
+Fase 23 — Process Candidate Data Model
 
 Objetivo:
-Implementar Runtime detail UI
+Implementar o modelo físico Drizzle para suportar Process Candidates.
 
 Escopo:
--
+Restrito à pasta `src/db/platform/schema/`.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Crie o schema Drizzle mapeando a entidade ProcessCandidate.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Runtime detail UI.
+Não ultrapassar a fronteira de Process Candidate Data Model. Pare e solicite review.
 ```

@@ -1,31 +1,33 @@
-# Fase 37 — Blueprint apply flow
+# Fase 37 — Agent/Human Dual Elicitation
 
 ## Objetivo
-Estabelecer fundações para o Blueprint apply flow na fase alfa.
+Garantir a co-autoria nas metadados dos Candidates.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+O System Builder precisa saber se o candidato foi criado via Agent Gateway ou via Formulário Manual da UI do Builder.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/candidates/candidate.validation.ts` (modificação)
+- `src/features/builder/candidates/candidate.repository.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- UI Complexas e Lógicas de autenticação OpenID.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Auditar e salvar a coluna `origin` estritamente.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Ajustar o Repository do Candidate para gravar a origem.
+2. Adicionar o enum `origin: 'manual' | 'agent'` obrigatório nas inserções.
 
 ## Validações
-- Testes unitários para as novas regras de Blueprint apply flow.
+- Repositório e tipos integrados corretamente sem quebras.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Camada de persistência ajustada para Elicitação Dupla.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +36,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 37 — Blueprint apply flow
+Fase 37 — Agent/Human Dual Elicitation
 
 Objetivo:
-Implementar Blueprint apply flow
+Garantir a co-autoria nas metadados dos Candidates.
 
 Escopo:
--
+Repositório de Candidates e suas respectivas tipagens de validação.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Garanta a validação obrigatória da origem da elicitação (manual vs agente) em toda persistência do Candidate.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Blueprint apply flow.
+Não ultrapassar a fronteira de Agent/Human Dual Elicitation. Pare e solicite review.
 ```

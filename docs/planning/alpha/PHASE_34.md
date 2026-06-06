@@ -1,31 +1,31 @@
-# Fase 34 — Capability registry
+# Fase 34 — Feature Agent and Controlled Change
 
 ## Objetivo
-Estabelecer fundações para o Capability registry na fase alfa.
+Modelar o fluxo de propostas de alteração de sistema guiado pelo Feature Agent.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Quando um candidato altera uma action ou módulo existente, ele aciona o fluxo de Change Request. Esse processo visa controlar a alteração estrutural da Plataforma.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/platform/change-management/change.types.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Código dinâmico em produção (Eval/CodeGen).
 
 ## Regras
-- Manter escopo pequeno e granular.
+- O Feature Agent propõe 'planos técnicos'. O Humano revisa. O Dev implementa.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Definir estrutura de `FeatureProposal` contendo `ProcessAffected`, `ExpectedImpact`, `TechnicalPlan`.
 
 ## Validações
-- Testes unitários para as novas regras de Capability registry.
+- Estruturas TS imutáveis validadas.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Contratos de Gestão de Mudança implementados.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +34,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 34 — Capability registry
+Fase 34 — Feature Agent and Controlled Change
 
 Objetivo:
-Implementar Capability registry
+Modelar o fluxo de propostas de alteração de sistema guiado pelo Feature Agent.
 
 Escopo:
--
+Tipagens de Change Management no System Builder.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Crie a interface em TypeScript modelando uma Feature Proposal de acordo com a tese de agentes limitados.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Capability registry.
+Não ultrapassar a fronteira de Feature Agent and Controlled Change. Pare e solicite review.
 ```

@@ -1,31 +1,32 @@
-# Fase 33 — Capability contract
+# Fase 33 — Document Agent and Living Procedures
 
 ## Objetivo
-Estabelecer fundações para o Capability contract na fase alfa.
+Suportar a documentação baseada em processo (Living Procedures) gerada pelo Document Agent.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+O System Builder não quer manuais estáticos. Ele deve permitir anexar 'Documentation Nodes' ou resumos autogerados ligados a uma versão do Workflow.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/documentation/documentation.types.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Motor de Geração via OpenAI API.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- O Documento (procedimento operacional) é uma view do Processo, não um arquivo no Google Drive.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Criar modelo para `LivingProcedure` atrelado a um `ProcessVersionId`.
+2. Inserir suporte de metadados no schema de Workflow.
 
 ## Validações
-- Testes unitários para as novas regras de Capability contract.
+- TypeScript compila perfeitamente com os novos metadados atrelados às Definições de Processo.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Suporte a metadados de Procedimentos vivos adicionados.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +35,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 33 — Capability contract
+Fase 33 — Document Agent and Living Procedures
 
 Objetivo:
-Implementar Capability contract
+Suportar a documentação baseada em processo (Living Procedures) gerada pelo Document Agent.
 
 Escopo:
--
+Modelagem local dos metadados de Documentação Viva atrelados a processos.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Crie o modelo para armazenar resumos descritivos de Procedimentos Operacionais vinculados à Versão de um Processo.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Capability contract.
+Não ultrapassar a fronteira de Document Agent and Living Procedures. Pare e solicite review.
 ```

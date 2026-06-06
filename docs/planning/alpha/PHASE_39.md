@@ -1,31 +1,32 @@
-# Fase 39 — Helpdesk módulo alfa
+# Fase 39 — Paperclip-ready MVP Milestone
 
 ## Objetivo
-Estabelecer fundações para o Helpdesk módulo alfa na fase alfa.
+Checagem global antes de declarar o System Builder pronto para receber integração do Paperclip.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Validar se a tese inteira, desde Candidate até Opt-In, foi coberta sem criar dependência circular de código com o Paperclip.
 
 ## Arquivos permitidos
-- TBD
+- Todos os arquivos documentais e contratos de `src/features/platform/gateway` e `src/features/builder/candidates`.
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Desenvolvimento de novos componentes visuais grandes.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Trata-se de uma fase de Hardening focada exclusivamente nos limites do Agent Gateway e Process Candidate.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Executar testes de integração ou simulações usando Mocks contra a API Gateway.
+2. Garantir que as publicações automatizadas falham (401/403).
 
 ## Validações
-- Testes unitários para as novas regras de Helpdesk módulo alfa.
+- Testes rodando com sucesso provando bloqueios em segurança.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Relatório final de segurança do Gateway e governança de candidatos.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +35,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 39 — Helpdesk módulo alfa
+Fase 39 — Paperclip-ready MVP Milestone
 
 Objetivo:
-Implementar Helpdesk módulo alfa
+Checagem global antes de declarar o System Builder pronto para receber integração do Paperclip.
 
 Escopo:
--
+Hardening de Gateways.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Audite o acesso do Agent Gateway garantindo que, por design, ele é incapaz de alterar produção ou pular etapas de revisão humana.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Helpdesk módulo alfa.
+Não ultrapassar a fronteira de Paperclip-ready MVP Milestone. Pare e solicite review.
 ```

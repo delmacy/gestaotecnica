@@ -52,36 +52,38 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |  20B | ✅      | Hardening: Any Cleanup   | Remoção de `any` críticos na tipagem                     |
 |  20C | ✅      | Hardening: Checklist MVP | Relatório consolidado do fim da primeira jornada técnica |
 |  20D | ✅      | Hardening: Demo E2E      | Documentação visual e prova de operação fluida           |
-|   21 | ⚪      | Runtime lifecycle        | Fase 21 Alfa Planejada                                   |
-|   22 | ⚪      | Runtime timeline         | Fase 22 Alfa Planejada                                   |
-|   23 | ⚪      | Runtime detail UI        | Fase 23 Alfa Planejada                                   |
-|   24 | ⚪      | Auditoria mínima         | Fase 24 Alfa Planejada                                   |
-|   25 | ⚪      | Trace receipt v2         | Fase 25 Alfa Planejada                                   |
-|   26 | ⚪      | Outbox contract          | Fase 26 Alfa Planejada                                   |
-|   27 | ⚪      | Outbox dispatcher        | Fase 27 Alfa Planejada                                   |
-|   28 | ⚪      | Action registry types    | Fase 28 Alfa Planejada                                   |
-|   29 | ⚪      | Action registry CRUD     | Fase 29 Alfa Planejada                                   |
-|   30 | ⚪      | Built-in human task      | Fase 30 Alfa Planejada                                   |
-|   31 | ⚪      | Built-in form action     | Fase 31 Alfa Planejada                                   |
-|   32 | ⚪      | Built-in webhook         | Fase 32 Alfa Planejada                                   |
-|   33 | ⚪      | Capability contract      | Fase 33 Alfa Planejada                                   |
-|   34 | ⚪      | Capability registry      | Fase 34 Alfa Planejada                                   |
-|   35 | ⚪      | Blueprint contract       | Fase 35 Alfa Planejada                                   |
-|   36 | ⚪      | Blueprint import/export  | Fase 36 Alfa Planejada                                   |
-|   37 | ⚪      | Blueprint apply flow     | Fase 37 Alfa Planejada                                   |
-|   38 | ⚪      | Blueprint Gestão Técnica | Fase 38 Alfa Planejada                                   |
-|   39 | ⚪      | Helpdesk módulo alfa     | Fase 39 Alfa Planejada                                   |
-|   40 | ⚪      | Workforce/OS módulo alfa | Fase 40 Alfa Planejada                                   |
+|   20 | ⚪      | Builder Control Plane    | Fase 20 Alfa Planejada                                   |
+|   21 | ⚪      | Process Candidate Ontology | Fase 21 Alfa Planejada                                 |
+|   22 | ⚪      | Process Candidate UI     | Fase 22 Alfa Planejada                                   |
+|   23 | ⚪      | Candidate Data Model     | Fase 23 Alfa Planejada                                   |
+|   20 | ✅      | Builder Control Plane    | Refatoração layout shell para gestão alfa                |
+|   21 | ✅      | Process Candidates       | Ontologia e fundação                                     |
+|   22 | ⚪      | Process Candidate UI     | Fase 22 Alfa Planejada                                   |
+|   26 | ⚪      | Forms as Standardization | Fase 26 Alfa Planejada                                   |
+|   27 | ⚪      | Business Rules & Approval| Fase 27 Alfa Planejada                                   |
+|   28 | ⚪      | Agent Gateway Spec       | Fase 28 Alfa Planejada                                   |
+|   29 | ⚪      | Process Builder Agent    | Fase 29 Alfa Planejada                                   |
+|   30 | ⚪      | Paperclip Integration    | Fase 30 Alfa Planejada                                   |
+|   31 | ⚪      | n8n as Boundary          | Fase 31 Alfa Planejada                                   |
+|   32 | ⚪      | Signal Inbox Pipeline    | Fase 32 Alfa Planejada                                   |
+|   33 | ⚪      | Document Agent           | Fase 33 Alfa Planejada                                   |
+|   34 | ⚪      | Feature Agent            | Fase 34 Alfa Planejada                                   |
+|   35 | ⚪      | Metrics & Intelligence   | Fase 35 Alfa Planejada                                   |
+|   36 | ⚪      | Improvement Proposals    | Fase 36 Alfa Planejada                                   |
+|   37 | ⚪      | Agent/Human Elicitation  | Fase 37 Alfa Planejada                                   |
+|   38 | ⚪      | Security & Consent       | Fase 38 Alfa Planejada                                   |
+|   39 | ⚪      | Paperclip-ready MVP      | Fase 39 Alfa Planejada                                   |
+|   40 | ⚪      | Multi-Agent Model        | Fase 40 Alfa Planejada                                   |
 
-Fases 17A–20D formam a fila do MVP técnico.
-Fases 21–40 formam a fila Alfa (planejadas, não iniciadas).
+Fases 17–19 formam o encerramento do MVP técnico de Backend.
+Fases 20–40 formam a fila Alfa (planejadas, focadas em Process Candidates e arquitetura de Agentes).
 
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 20D
+Última fase técnica validada: Fase 21
 Fase atual de documentação/contexto: Concluída
-Próxima fase técnica planejada: Fase 21
+Próxima fase técnica planejada: Fase 22
 ```
 
 ## 5. Regra

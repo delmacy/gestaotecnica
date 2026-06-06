@@ -1,31 +1,35 @@
-# Fase 21 — Runtime lifecycle refinado
+# Fase 21 — Process Candidate Ontology
 
 ## Objetivo
-Estabelecer fundações para o Runtime lifecycle refinado na fase alfa.
+Definir os tipos de dados fundamentais (Typescript/Zod) e o modelo de domínio do Process Candidate.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Antes de criar o banco de dados, precisamos dos contratos Zod e TypeScript que estabelecem o conceito de Process Candidate no código do System Builder.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/candidates/candidate.types.ts`
+- `src/features/builder/candidates/candidate.validation.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- UI e Server Actions.
+- Modificação do schema do banco de dados (Drizzle).
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Usar apenas `Record<string, unknown>` para atributos dinâmicos.
+- Incluir status canônicos (draft, under_analysis, waiting_review, approved, rejected, published).
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Criar `candidate.types.ts` definindo `ProcessCandidate`, `CandidateState`, etc.
+2. Criar `candidate.validation.ts` com os schemas Zod correspondentes.
 
 ## Validações
-- Testes unitários para as novas regras de Runtime lifecycle refinado.
+- Compilação TypeScript 100% livre de erros (`tsc --noEmit`).
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Tipos exportados e validados.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +38,31 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 21 — Runtime lifecycle refinado
+Fase 21 — Process Candidate Ontology
 
 Objetivo:
-Implementar Runtime lifecycle refinado
+Definir os tipos de dados fundamentais (Typescript/Zod) e o modelo de domínio do Process Candidate.
 
 Escopo:
--
+Permitido apenas a pasta `src/features/builder/candidates/`.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Elabore os contratos em TypeScript.
+2. Construa a validação Zod estrita.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Runtime lifecycle refinado.
+Não ultrapassar a fronteira de Process Candidate Ontology. Pare e solicite review.
 ```

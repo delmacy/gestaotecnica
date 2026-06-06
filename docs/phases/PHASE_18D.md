@@ -1,15 +1,94 @@
-# Relatório de Execução — Fase 18D
+# Fase 18D — Exposição Server Action/UI da transição
 
-## Objetivo
-Expor uma Server Action (`advanceStepAction`) para avançar etapa e criar uma UI mínima para permitir essa iteração visualmente durante o desenvolvimento do MVP, sem timeline complexa nem events.
+## 1. Identificação
 
-## Resumo das Ações
-1. **Server Action**: Adicionado `advanceStepAction` ao `src/features/workflow/runtime/runtime.actions.ts`. Este método busca a etapa ativa e a avança injetando `workspaceId` e `processInstanceId` no service principal já construído (Fase 18C).
-2. **UI Mínima**: No arquivo `src/features/builder/draft-actions/BuilderDraftActionsPanel.tsx`, modificamos o fluxo do botão "Instanciar" da Fase 17E.
-   - Ao criar a instância com sucesso, salvamos no React state `activeInstanceId`.
-   - Enquanto há uma instância ativa presa no estado local, substituímos o botão "Instanciar" por "Avançar Step".
-   - Cada clique exibe o progresso do avanço. Se o step retornar `"completed"` (que significa fim do ciclo linear e também `end` processual no service provisório), o state limpa a instância, devolvendo o controle normal da UI.
+| Campo | Valor |
+|---|---|
+| Fase | 18D |
+| Status | Planejada |
+| Tipo | Técnica |
+| Responsável principal | Jules Dev / Jules Documental |
+| Revisor | ChatGPT |
+| Data de abertura | YYYY-MM-DD |
+| Data de aprovação | — |
 
-## Resultados das Validações
-Nenhum quebra de typings detectada no build. Nenhuma dependência acidental de eventos foi gerada.
-O payload interage corretamente de ponta-a-ponta.
+## 2. Objetivo
+
+Exposição Server Action/UI da transição
+
+## 3. Escopo permitido
+
+- —
+
+## 4. Fora de escopo
+
+- —
+
+## 5. Arquivos planejados
+
+- —
+
+## 6. Critérios de aceite
+
+- —
+
+## 7. Plano aprovado
+
+Referência:
+- `docs/planning/runtime/PHASE_18D.md`
+
+Resumo:
+- —
+
+## 8. Execuções
+
+### Execução 001 — Jules Dev — YYYY-MM-DD
+
+Status: Pendente
+
+Arquivos criados:
+- —
+
+Arquivos alterados:
+- —
+
+Comandos executados:
+- —
+
+Resultado do lint:
+- —
+
+Resultado do build:
+- —
+
+Git status:
+- —
+
+Bloqueios:
+- —
+
+Observações:
+- —
+
+## 9. Revisões
+
+### Revisão 001 — ChatGPT — YYYY-MM-DD
+
+Resultado: Pendente
+
+Observações:
+- —
+
+Ressalvas:
+- —
+
+Decisão:
+- —
+
+## 10. Decisões específicas da fase
+
+- —
+
+## 11. Histórico de correções
+
+- —

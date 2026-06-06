@@ -1,31 +1,32 @@
-# Fase 30 — Built-in human task action
+# Fase 30 — Paperclip Integration Strategy
 
 ## Objetivo
-Estabelecer fundações para o Built-in human task action na fase alfa.
+Criar hooks locais na plataforma para suportar a infraestrutura de logging do Paperclip no futuro.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+O Paperclip gerencia logs e tarefas agênticas. O System Builder precisará retornar 'Correlation IDs' nas respostas para a rastreabilidade do agente.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/platform/gateway/agent-gateway.service.ts` (modificação)
+- `src/features/platform/gateway/gateway.types.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Integração real de chamadas para APIs de terceiros.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Toda resposta da API do Gateway deve incluir um `correlation_id` e um recibo rastreável de que a ação foi apenas registrada como Candidate.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Atualizar o Gateway Service para aceitar e ecoar `correlation_id` e `idempotency_key` em suas transações.
 
 ## Validações
-- Testes unitários para as novas regras de Built-in human task action.
+- Validação estrita do ID de correlação.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- API Gateway preparada para orquestração assíncrona rastreável.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +35,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 30 — Built-in human task action
+Fase 30 — Paperclip Integration Strategy
 
 Objetivo:
-Implementar Built-in human task action
+Criar hooks locais na plataforma para suportar a infraestrutura de logging do Paperclip no futuro.
 
 Escopo:
--
+Apenas modificações nos retornos da API Gateway para acomodar meta-dados do Paperclip.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Implemente o suporte a `correlation_id` e `idempotency_key` no Agent Gateway.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Built-in human task action.
+Não ultrapassar a fronteira de Paperclip Integration Strategy. Pare e solicite review.
 ```

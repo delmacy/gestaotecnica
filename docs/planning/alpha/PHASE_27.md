@@ -1,31 +1,33 @@
-# Fase 27 — Outbox repository/dispatcher
+# Fase 27 — Business Rules and Approval Policies
 
 ## Objetivo
-Estabelecer fundações para o Outbox repository/dispatcher na fase alfa.
+Estabelecer motor de regras condicionais e políticas de aprovação automáticas (como timeouts).
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+O Builder deve permitir que o arquiteto humano defina regras para o runtime (ex: aprovação tácita em 24h). Isso é guardado como regra no Candidate/Workflow.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/rules/rules.types.ts`
+- `src/features/builder/rules/rules.engine.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Não implementar Workers em background para executar os timeouts ainda.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- A regra é apenas declarativa nesta fase. A execução real fica delegada a sistemas de cron/workers futuros.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Declarar a interface de RuleDefinition.
+2. Configurar a engine que processará essas regras de negócio abstratamente.
 
 ## Validações
-- Testes unitários para as novas regras de Outbox repository/dispatcher.
+- Zod Validation.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Regras de Negócio e Políticas modeladas.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +36,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 27 — Outbox repository/dispatcher
+Fase 27 — Business Rules and Approval Policies
 
 Objetivo:
-Implementar Outbox repository/dispatcher
+Estabelecer motor de regras condicionais e políticas de aprovação automáticas (como timeouts).
 
 Escopo:
--
+Apenas definição declarativa de business rules.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Implemente o contrato TS/Zod para políticas de timeout, restrições e cargos na abstração de workflows.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Outbox repository/dispatcher.
+Não ultrapassar a fronteira de Business Rules and Approval Policies. Pare e solicite review.
 ```

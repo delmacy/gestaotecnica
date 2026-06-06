@@ -7,7 +7,13 @@ Este arquivo contém as diretrizes mestras para IAs e desenvolvedores atuando ne
 - **The Principle is the Process:** O valor está na fidelidade do espelhamento do processo.
 - **Understand. Mirror. Evolve:** Não pule etapas. Compreenda antes de codificar.
 
-## 2. Arquitetura de Separação
+## 2. Tese Arquitetural: Process Candidates & Agentes
+- **Process Candidate é a Ponte:** Todo processo formal descoberto através de sinais, integrações ou observações nasce como um "Process Candidate". Ele não vai para produção sem aprovação.
+- **Integração Paperclip:** O Paperclip é uma integração de agentes **futura**, não é a fonte da verdade nem uma dependência obrigatória do MVP.
+- **Limites de Agentes:** Agentes podem observar a operação e propor candidatos (Process Candidates), formulários, estados, e regras, mas **nunca publicam processos em produção sozinhos**. A publicação exige aprovação de um humano (Process Owner/Arquiteto).
+- **Core Platform:** O Postgres é a única Source of Truth. O System Builder é quem governa, versão e executa. O n8n é apenas um integrador de borda (signals, webhooks, eventos). A UI do Builder deve evoluir para um verdadeiro Control Plane.
+
+## 3. Arquitetura de Separação
 - **System Builder (Platform/Factory):** Localizado em `src/platform/`. É agnóstico ao negócio.
 - **Blueprint/Runtime (Client/App):** Localizado em `src/adaptations/` e `src/modules/`. Representa o domínio aplicado.
 - **Bancos Separados:**

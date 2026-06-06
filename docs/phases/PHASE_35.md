@@ -1,4 +1,4 @@
-# Fase 35 — Blueprint contract
+# Fase 35 — Metrics and Process Intelligence
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 35 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Blueprint contract
+Metrics and Process Intelligence
 
 ## 3. Escopo permitido
 

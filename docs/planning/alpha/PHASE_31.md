@@ -1,31 +1,34 @@
-# Fase 31 — Built-in form action
+# Fase 31 — n8n as Integration Boundary
 
 ## Objetivo
-Estabelecer fundações para o Built-in form action na fase alfa.
+Estabelecer a abstração de webhook de entrada para o sistema, onde o n8n transportará os dados informais para o Builder.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+O n8n atua apenas transportando sinais de Slack/WhatsApp. O System Builder precisa ter o webhook universal (inbox) para recebê-los.
 
 ## Arquivos permitidos
-- TBD
+- `src/app/api/integrations/webhook/route.ts`
+- `src/features/platform/integrations/webhook.service.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Código próprio do n8n (não mexer em docker-compose do n8n).
+- Lógica forte de runtime.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Todo webhook externo deve ser recebido, assinado (secret), desempacotado e salvo em uma tabela crua de `signal_inbox`.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Criar API Endpoint genérico para Webhooks.
+2. Criar tabela simples `signal_inbox` ou similar usando Zod JSONB.
 
 ## Validações
-- Testes unitários para as novas regras de Built-in form action.
+- Retorno HTTP 202 imediato para o n8n para não bloquear a thread.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Webhook Inbox ativo e exportado.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +37,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 31 — Built-in form action
+Fase 31 — n8n as Integration Boundary
 
 Objetivo:
-Implementar Built-in form action
+Estabelecer a abstração de webhook de entrada para o sistema, onde o n8n transportará os dados informais para o Builder.
 
 Escopo:
--
+Apenas Endpoint universal de Webhook de integrações.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Crie o endpoint `/api/integrations/webhook` garantindo validação de segredo de integração.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Built-in form action.
+Não ultrapassar a fronteira de n8n as Integration Boundary. Pare e solicite review.
 ```

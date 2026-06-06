@@ -1,94 +1,12 @@
-# Fase 21 — Runtime lifecycle refinado
+# Relatório de Execução — Fase 21
 
-## 1. Identificação
+## Objetivo
+Implementar a fundação da Ontologia de Process Candidates (tipos e schemas).
 
-| Campo | Valor |
-|---|---|
-| Fase | 21 |
-| Status | Planejada |
-| Tipo | Técnica / Produto alfa |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
+## Arquivos Alterados / Criados
+- `src/features/builder/candidates/candidate.types.ts`: Criada a tipagem do core domain `ProcessCandidateRecord` refletindo origin, status e o campo `evidence` que será usado pelos Agentes.
+- `src/features/builder/candidates/candidate.validation.ts`: Criados os validadores baseados nos Enums definidos na documentação de governança (`draft, under_analysis, waiting_review, approved, rejected, published`).
+- `src/features/builder/candidates/index.ts`: Exportações limpas da ontologia.
 
-## 2. Objetivo
-
-Runtime lifecycle refinado
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/alpha/PHASE_21.md`
-
-Resumo:
-- —
-
-## 8. Execuções
-
-### Execução 001 — Jules Dev — YYYY-MM-DD
-
-Status: Pendente
-
-Arquivos criados:
-- —
-
-Arquivos alterados:
-- —
-
-Comandos executados:
-- —
-
-Resultado do lint:
-- —
-
-Resultado do build:
-- —
-
-Git status:
-- —
-
-Bloqueios:
-- —
-
-Observações:
-- —
-
-## 9. Revisões
-
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+## Validações
+O TypeScript compilou sem erros e a estruturação restringe `proposedDefinition` e `evidence` a `Record<string, unknown>`, impedindo vazamento da keyword `any`.

@@ -1,4 +1,4 @@
-# Fase 40 — Workforce/OS módulo alfa
+# Fase 40 — Future Multi-Agent Operating Model
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 40 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Workforce/OS módulo alfa
+Future Multi-Agent Operating Model
 
 ## 3. Escopo permitido
 

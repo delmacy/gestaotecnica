@@ -1,31 +1,32 @@
-# Fase 29 — Action registry CRUD
+# Fase 29 — Process Builder Agent Specification
 
 ## Objetivo
-Estabelecer fundações para o Action registry CRUD na fase alfa.
+Documentar e mockar a estrutura do primeiro Agente autorizado a interagir com o Gateway.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+O Process Builder Agent será a entidade Paperclip responsável por observar recorrências. Precisamos mockar os payloads que ele vai enviar.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/platform/gateway/mocks/agent-payload.mock.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Nenhuma lógica de Machine Learning real ou Langchain/OpenAI.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- O foco é ter a interface JSON exata que o agente emitirá para propor um Candidate (estado sugerido, formulário inferido, justificativa).
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Criar os mocks em TypeScript refletindo a proposta hipotética de um agente.
+2. Inserir um teste de snapshot no gateway validando este mock.
 
 ## Validações
-- Testes unitários para as novas regras de Action registry CRUD.
+- Mocks testáveis contra o schema do gateway.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Payload do agente mapeado e mockado estritamente.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +35,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 29 — Action registry CRUD
+Fase 29 — Process Builder Agent Specification
 
 Objetivo:
-Implementar Action registry CRUD
+Documentar e mockar a estrutura do primeiro Agente autorizado a interagir com o Gateway.
 
 Escopo:
--
+Restrito à estruturação do JSON mock do Process Builder Agent.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Desenvolva o Mock Payload de acordo com a ontologia do Agentic Process Discovery.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Action registry CRUD.
+Não ultrapassar a fronteira de Process Builder Agent Specification. Pare e solicite review.
 ```

@@ -1,31 +1,33 @@
-# Fase 26 — Outbox contract
+# Fase 26 — Forms as Informality Standardization
 
 ## Objetivo
-Estabelecer fundações para o Outbox contract na fase alfa.
+Definir a engine de tradução de sinais informais (mensagens) em formulários estruturados no Builder.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Formulários padronizam informalidades. Sinais capturados de chats precisam ter campos estruturados para gerar transições em workflow.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/forms/form.engine.ts`
+- `src/features/builder/forms/form.types.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Integrações diretas de webhooks ou UI de usuários finais.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Um form no System Builder deve possuir referências claras de tipagem (texto, dropdown, origin).
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Modelar a abstração de Formulários (FormDefinition) acoplados ao candidato.
+2. Definir lógicas de validação dinâmica.
 
 ## Validações
-- Testes unitários para as novas regras de Outbox contract.
+- Typos e Zod estritos.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Motor e tipos de formulários do Builder.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +36,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 26 — Outbox contract
+Fase 26 — Forms as Informality Standardization
 
 Objetivo:
-Implementar Outbox contract
+Definir a engine de tradução de sinais informais (mensagens) em formulários estruturados no Builder.
 
 Escopo:
--
+Restrito ao pacote builder/forms.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Crie as definições de Tipos e Zod para Dynamic Forms baseados em inferência.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Outbox contract.
+Não ultrapassar a fronteira de Forms as Informality Standardization. Pare e solicite review.
 ```

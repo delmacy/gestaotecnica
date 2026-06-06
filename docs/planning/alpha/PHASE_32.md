@@ -1,31 +1,33 @@
-# Fase 32 — Built-in webhook placeholder
+# Fase 32 — Signal Inbox and Observation Pipeline
 
 ## Objetivo
-Estabelecer fundações para o Built-in webhook placeholder na fase alfa.
+Modelar a conversão de Sinais brutos da Inbox para Observações Agênticas.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Os sinais coletados do n8n (e.g., mensagem de solicitação repetida no Slack) precisam de uma fila de observação onde os agentes futuros agirão.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/platform/signals/signals.types.ts`
+- `src/features/platform/signals/observation.service.ts`
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- UI do Builder.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- O Signal não vira Processo automaticamente. Ele vira 'Observation', agrupado em evidências para montar um Candidate.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+1. Criar os contratos TypeScript de Sinais, Ocorrências e Evidências agrupadas.
+2. Criar função local `groupSignalsIntoObservation()`.
 
 ## Validações
-- Testes unitários para as novas regras de Built-in webhook placeholder.
+- Estruturas TypeScript validadas.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Tipos do Observation Pipeline prontos.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +36,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 32 — Built-in webhook placeholder
+Fase 32 — Signal Inbox and Observation Pipeline
 
 Objetivo:
-Implementar Built-in webhook placeholder
+Modelar a conversão de Sinais brutos da Inbox para Observações Agênticas.
 
 Escopo:
--
+Contratos Typescript de Sinais e Evidências.
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Defina como um 'Signal' cru é convertido em 'Observation' e 'Evidence' na linguagem de Typescript.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Built-in webhook placeholder.
+Não ultrapassar a fronteira de Signal Inbox and Observation Pipeline. Pare e solicite review.
 ```

@@ -17,6 +17,8 @@ import { publishBuilderProcess } from "../persistence/builder-publish.client";
 import { SavedProcessesPanel } from "../saved-processes/SavedProcessesPanel";
 import type { SavedProcessListItem } from "../persistence/builder-load.types";
 
+const TEMPORARY_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001";
+
 export function BuilderPage() {
   const editor = useBuilderEditorState();
 
@@ -24,7 +26,17 @@ export function BuilderPage() {
   const [savedProcessesLoading, setSavedProcessesLoading] = React.useState(false);
   const [savedProcessesError, setSavedProcessesError] = React.useState<string | undefined>();
 
-  const TEMPORARY_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001";
+  const handleRefreshSavedProcesses = React.useCallback(async () => {
+    setSavedProcessesLoading(true);
+    setSavedProcessesError(undefined);
+    const result = await listSavedProcesses({ workspaceId: TEMPORARY_WORKSPACE_ID });
+    if (result.ok) {
+      setSavedProcesses(result.data.items);
+    } else {
+      setSavedProcessesError(result.error.message);
+    }
+    setSavedProcessesLoading(false);
+  }, []);
 
   React.useEffect(() => {
     // Only attempt to restore if we haven't already done so
@@ -46,20 +58,8 @@ export function BuilderPage() {
     }
 
     // Auto-refresh saved processes once restored
-    handleRefreshSavedProcesses();
-  }, [editor.actions, editor.state.localPersistence?.restored]);
-
-  const handleRefreshSavedProcesses = React.useCallback(async () => {
-    setSavedProcessesLoading(true);
-    setSavedProcessesError(undefined);
-    const result = await listSavedProcesses({ workspaceId: TEMPORARY_WORKSPACE_ID });
-    if (result.ok) {
-      setSavedProcesses(result.data.items);
-    } else {
-      setSavedProcessesError(result.error.message);
-    }
-    setSavedProcessesLoading(false);
-  }, [TEMPORARY_WORKSPACE_ID]);
+    void Promise.resolve().then(handleRefreshSavedProcesses);
+  }, [editor.actions, editor.state.localPersistence?.restored, handleRefreshSavedProcesses]);
 
   const handleOpenSavedProcess = React.useCallback(async (processDefinitionId: string) => {
     if (editor.state.dirty) {
@@ -90,7 +90,7 @@ export function BuilderPage() {
         message: result.ok ? "O processo não possui um draft salvo na última versão." : result.error.message,
       });
     }
-  }, [editor.state.dirty, editor.actions, TEMPORARY_WORKSPACE_ID]);
+  }, [editor.state.dirty, editor.actions]);
 
   useBuilderLocalAutosave({
     draft: editor.state.draft,
@@ -205,7 +205,15 @@ export function BuilderPage() {
       canvas={<BuilderCanvas state={editor.state} actions={editor.actions} />}
       inspector={<InspectorPanel state={editor.state} actions={editor.actions} />}
       validation={<BuilderValidationPanel draft={editor.state.draft} />}
-      draftActions={<BuilderDraftActionsPanel state={editor.state} actions={editor.actions} onOfficialSave={handleOfficialSave} onPublishOfficial={handlePublishOfficial} />}
+      draftActions={
+        <BuilderDraftActionsPanel
+          key={`${editor.state.draft.id ?? "draft"}:${editor.state.draft.updatedAt ?? ""}:${editor.state.draft.name}`}
+          state={editor.state}
+          actions={editor.actions}
+          onOfficialSave={handleOfficialSave}
+          onPublishOfficial={handlePublishOfficial}
+        />
+      }
       savedProcesses={
         <SavedProcessesPanel
           items={savedProcesses}

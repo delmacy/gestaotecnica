@@ -1,4 +1,4 @@
-# Fase 21 — Runtime lifecycle refinado
+# Fase 21 — Process Candidate Ontology
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 21 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Runtime lifecycle refinado
+Process Candidate Ontology
 
 ## 3. Escopo permitido
 

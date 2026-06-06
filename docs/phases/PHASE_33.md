@@ -1,4 +1,4 @@
-# Fase 33 — Capability contract
+# Fase 33 — Document Agent and Living Procedures
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 33 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Capability contract
+Document Agent and Living Procedures
 
 ## 3. Escopo permitido
 

@@ -1,10 +1,10 @@
-# Fase 38 — Security, Privacy and Consent for Observation
+# Fase 20 — Builder Control Plane Shell
 
 ## 1. Identificação
 
 | Campo | Valor |
 |---|---|
-| Fase | 38 |
+| Fase | 20 |
 | Status | Planejada |
 | Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Security, Privacy and Consent for Observation
+Builder Control Plane Shell
 
 ## 3. Escopo permitido
 
@@ -35,7 +35,7 @@ Security, Privacy and Consent for Observation
 ## 7. Plano aprovado
 
 Referência:
-- `docs/planning/alpha/PHASE_38.md`
+- `docs/planning/alpha/PHASE_20.md`
 
 Resumo:
 - —

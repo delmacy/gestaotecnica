@@ -1,20 +1,94 @@
-# Relatório de Execução — Fase 18C
+# Fase 18C — Service de lógica básica de avanço de step
 
-## Objetivo
-Orquestrar uma engine síncrona simples que aplica a transição do step (action execution) atual e descobre qual é o próximo nó a ser executado com base na topologia da definition associada.
+## 1. Identificação
 
-## Resumo das Ações
-O arquivo `src/features/workflow/runtime/runtime-step.service.ts` já encontrava-se desenvolvido com a função `advanceStep` correspondente às especificações estritas.
+| Campo | Valor |
+|---|---|
+| Fase | 18C |
+| Status | Planejada |
+| Tipo | Técnica |
+| Responsável principal | Jules Dev / Jules Documental |
+| Revisor | ChatGPT |
+| Data de abertura | YYYY-MM-DD |
+| Data de aprovação | — |
 
-### Algoritmo de Path-Finding adotado:
-1. Valida se o input possui um ID de execução atual (`actionExecutionId`).
-2. Verifica e garante que a `processInstance` associada está `"active"`.
-3. Marca a etapa atual de execução (actionExecutionId) como completa via repository.
-4. Consulta a Drizzle Table `workflow.process_versions` correspondente à Definition da instância e efetua um `JSON.parse`/extração do mapa de `nodes` e `edges` salvos pelo canvas (Fase 11/12).
-5. O path-finding **linear** busca em `edges` qual aresta possui a chave atual como `source` (`edge.source === currentActionKey`).
-6. Obtém o `target` dessa aresta (o próximo `node.id`).
-7. Se for um nó do tipo `"end"`, chama `updateProcessInstanceStatus` para finalizar a instância inteira (`status = "completed"`).
-8. Se for um nó comum, ele apenas chama `insertActionExecution` para instanciar o próximo passo na fila do banco (com status `"pending"`).
+## 2. Objetivo
 
-## Resultados das Validações
-O algoritmo foi criado encapsulado sem chamadas à camada web, lidando apenas com regras de negócio transacionais puras. O padrão `{ok, data}` foi retornado com total type safety via TypeScript.
+Service de lógica básica de avanço de step
+
+## 3. Escopo permitido
+
+- —
+
+## 4. Fora de escopo
+
+- —
+
+## 5. Arquivos planejados
+
+- —
+
+## 6. Critérios de aceite
+
+- —
+
+## 7. Plano aprovado
+
+Referência:
+- `docs/planning/runtime/PHASE_18C.md`
+
+Resumo:
+- —
+
+## 8. Execuções
+
+### Execução 001 — Jules Dev — YYYY-MM-DD
+
+Status: Pendente
+
+Arquivos criados:
+- —
+
+Arquivos alterados:
+- —
+
+Comandos executados:
+- —
+
+Resultado do lint:
+- —
+
+Resultado do build:
+- —
+
+Git status:
+- —
+
+Bloqueios:
+- —
+
+Observações:
+- —
+
+## 9. Revisões
+
+### Revisão 001 — ChatGPT — YYYY-MM-DD
+
+Resultado: Pendente
+
+Observações:
+- —
+
+Ressalvas:
+- —
+
+Decisão:
+- —
+
+## 10. Decisões específicas da fase
+
+- —
+
+## 11. Histórico de correções
+
+- —

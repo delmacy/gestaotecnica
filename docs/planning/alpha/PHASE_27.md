@@ -1,31 +1,34 @@
-# Fase 27 — Outbox repository/dispatcher
+# Fase 27 — Business Rules and Approval Policies
 
 ## Objetivo
-Estabelecer fundações para o Outbox repository/dispatcher na fase alfa.
+Documentar e estabelecer as fundações para Business Rules and Approval Policies.
 
 ## Contexto
-Esta fase faz parte do bloco Alpha (21-40) para amadurecimento além do MVP técnico.
+Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
 
 ## Arquivos permitidos
 - TBD
 
 ## Arquivos proibidos
-- Mudar regras de negócio do MVP básico.
+- Modificação direta do runtime estabelecido no MVP.
+- Criação prematura de tabelas sem autorização na Fase.
 
 ## Regras
-- Manter escopo pequeno e granular.
+- Garantir a filosofia "Agente propõe, humano valida, System Builder executa, Postgres prova, n8n integra".
+- Process Candidates representam a camada anterior à publicação.
 
 ## Etapas
-- Etapas a serem detalhadas antes da execução da fase.
+- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Business Rules and Approval Policies.
 
 ## Validações
-- Testes unitários para as novas regras de Outbox repository/dispatcher.
+- Revisão arquitetural documental.
+- (Se técnico) Linting e type checks sem falhas.
 
 ## Relatório final esperado
-- Resumo das implementações.
+- Arquivos modificados e resumo da implementação entregue.
 
 ## Regra de parada
-- Encerrar as adições e documentar antes de passar de fase.
+- Entregar apenas o escopo de Business Rules and Approval Policies sem invadir o território das próximas fases documentais ou agênticas.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -34,29 +37,30 @@ AGENTS.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 27 — Outbox repository/dispatcher
+Fase 27 — Business Rules and Approval Policies
 
 Objetivo:
-Implementar Outbox repository/dispatcher
+Implementar Business Rules and Approval Policies
 
 Escopo:
 -
 
 Não alterar:
-Fases futuras ou implementações paralelas.
+- Produção de Runtime oficial sem aprovação.
+- Publicar workflows de forma automatizada por agentes.
 
 Regras:
-Ater-se ao escopo definido na documentação técnica.
+Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar base.
+1. Implementar a base para Business Rules and Approval Policies.
 
 Validações:
 Testes locais sem erros TS.
 
 Relatório final:
-Liste os arquivos tocados.
+Liste os arquivos tocados e a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira do Outbox repository/dispatcher.
+Não ultrapassar a fronteira de Business Rules and Approval Policies.
 ```

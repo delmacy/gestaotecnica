@@ -9,6 +9,15 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * O produto é um business system/process builder.
 * O processo vem antes da tela.
 * O Builder define; o Runtime executa.
+* **Process Candidate** passa a ser a camada estratégica antes de um workflow ser publicado.
+* **Paperclip** não será instalado no MVP atual. É uma integração futura de organização de agentes.
+* O Builder deve ser preparado para integração futura com Paperclip (Control Plane).
+* **Agent Gateway** será a fronteira futura para a comunicação com os agentes.
+* Agentes podem criar propostas/candidatos, mas **não publicam workflows sozinhos**.
+* n8n é apenas um integrador, não é o core.
+* Postgres continua sendo o source of truth isolado e inviolável.
+* Publicação de workflow exige revisão humana obrigatória.
+* A UI do Builder deve evoluir para um Control Plane denso.
 
 ## 2. Decisões técnicas
 

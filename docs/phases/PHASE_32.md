@@ -1,4 +1,4 @@
-# Fase 32 — Built-in webhook placeholder
+# Fase 32 — Signal Inbox and Observation Pipeline
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 32 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Built-in webhook placeholder
+Signal Inbox and Observation Pipeline
 
 ## 3. Escopo permitido
 

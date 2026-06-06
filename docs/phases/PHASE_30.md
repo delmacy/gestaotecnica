@@ -1,4 +1,4 @@
-# Fase 30 — Built-in human task action
+# Fase 30 — Paperclip Integration Strategy
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 30 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Built-in human task action
+Paperclip Integration Strategy
 
 ## 3. Escopo permitido
 

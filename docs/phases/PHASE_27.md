@@ -1,4 +1,4 @@
-# Fase 27 — Outbox repository/dispatcher
+# Fase 27 — Business Rules and Approval Policies
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 27 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Outbox repository/dispatcher
+Business Rules and Approval Policies
 
 ## 3. Escopo permitido
 

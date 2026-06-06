@@ -1,4 +1,4 @@
-# Fase 24 — Auditoria mínima
+# Fase 24 — Human Review and Governance
 
 ## 1. Identificação
 
@@ -6,7 +6,7 @@
 |---|---|
 | Fase | 24 |
 | Status | Planejada |
-| Tipo | Técnica / Produto alfa |
+| Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
 | Data de abertura | YYYY-MM-DD |
@@ -14,7 +14,7 @@
 
 ## 2. Objetivo
 
-Auditoria mínima
+Human Review and Governance
 
 ## 3. Escopo permitido
 

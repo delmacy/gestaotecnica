@@ -1,34 +1,32 @@
 # Fase 39 — Paperclip-ready MVP Milestone
 
 ## Objetivo
-Documentar e estabelecer as fundações para Paperclip-ready MVP Milestone.
+Checagem global antes de declarar o System Builder pronto para receber integração do Paperclip.
 
 ## Contexto
-Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
+Validar se a tese inteira, desde Candidate até Opt-In, foi coberta sem criar dependência circular de código com o Paperclip.
 
 ## Arquivos permitidos
-- TBD
+- Todos os arquivos documentais e contratos de `src/features/platform/gateway` e `src/features/builder/candidates`.
 
 ## Arquivos proibidos
-- Modificação direta do runtime estabelecido no MVP.
-- Criação prematura de tabelas sem autorização na Fase.
+- Desenvolvimento de novos componentes visuais grandes.
 
 ## Regras
-- Garantir a filosofia "Agente propõe, humano valida, System Builder executa, Postgres prova, n8n integra".
-- Process Candidates representam a camada anterior à publicação.
+- Trata-se de uma fase de Hardening focada exclusivamente nos limites do Agent Gateway e Process Candidate.
 
 ## Etapas
-- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Paperclip-ready MVP Milestone.
+1. Executar testes de integração ou simulações usando Mocks contra a API Gateway.
+2. Garantir que as publicações automatizadas falham (401/403).
 
 ## Validações
-- Revisão arquitetural documental.
-- (Se técnico) Linting e type checks sem falhas.
+- Testes rodando com sucesso provando bloqueios em segurança.
 
 ## Relatório final esperado
-- Arquivos modificados e resumo da implementação entregue.
+- Relatório final de segurança do Gateway e governança de candidatos.
 
 ## Regra de parada
-- Entregar apenas o escopo de Paperclip-ready MVP Milestone sem invadir o território das próximas fases documentais ou agênticas.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -40,10 +38,10 @@ docs/00-current/ANTI_ESCOPO_ATUAL.md
 Fase 39 — Paperclip-ready MVP Milestone
 
 Objetivo:
-Implementar Paperclip-ready MVP Milestone
+Checagem global antes de declarar o System Builder pronto para receber integração do Paperclip.
 
 Escopo:
--
+Hardening de Gateways.
 
 Não alterar:
 - Produção de Runtime oficial sem aprovação.
@@ -53,14 +51,14 @@ Regras:
 Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar a base para Paperclip-ready MVP Milestone.
+1. Audite o acesso do Agent Gateway garantindo que, por design, ele é incapaz de alterar produção ou pular etapas de revisão humana.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados e a aderência à tese de Process Candidates.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira de Paperclip-ready MVP Milestone.
+Não ultrapassar a fronteira de Paperclip-ready MVP Milestone. Pare e solicite review.
 ```

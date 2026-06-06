@@ -1,34 +1,32 @@
 # Fase 36 — Process Improvement Proposals
 
 ## Objetivo
-Documentar e estabelecer as fundações para Process Improvement Proposals.
+Estabelecer o framework para submissão e avaliação de melhorias de processo.
 
 ## Contexto
-Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
+Para evitar caos, agentes e humanos não editam diretamente um processo ativo; eles sugerem um 'Process Improvement Proposal' ligado àquele Processo.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/improvements/proposal.types.ts`
 
 ## Arquivos proibidos
-- Modificação direta do runtime estabelecido no MVP.
-- Criação prematura de tabelas sem autorização na Fase.
+- Alteração destrutiva em versões ativas de `workflow.process_versions`.
 
 ## Regras
-- Garantir a filosofia "Agente propõe, humano valida, System Builder executa, Postgres prova, n8n integra".
-- Process Candidates representam a camada anterior à publicação.
+- Uma melhoria é fundamentalmente um Process Candidate derivado (forked) de um workflow existente.
 
 ## Etapas
-- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Process Improvement Proposals.
+1. Modelar a extensão `ImprovementProposal` herdando a estrutura do `ProcessCandidate`, adicionando o campo `originalProcessDefinitionId`.
+2. Definir campos para `expectedImpact` e `risk`.
 
 ## Validações
-- Revisão arquitetural documental.
-- (Se técnico) Linting e type checks sem falhas.
+- Tipagem Typescript estrita.
 
 ## Relatório final esperado
-- Arquivos modificados e resumo da implementação entregue.
+- Tipos base da extensão de melhorias concluídos.
 
 ## Regra de parada
-- Entregar apenas o escopo de Process Improvement Proposals sem invadir o território das próximas fases documentais ou agênticas.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -40,10 +38,10 @@ docs/00-current/ANTI_ESCOPO_ATUAL.md
 Fase 36 — Process Improvement Proposals
 
 Objetivo:
-Implementar Process Improvement Proposals
+Estabelecer o framework para submissão e avaliação de melhorias de processo.
 
 Escopo:
--
+Modelagem de propostas de melhoria (Tipos TS).
 
 Não alterar:
 - Produção de Runtime oficial sem aprovação.
@@ -53,14 +51,14 @@ Regras:
 Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar a base para Process Improvement Proposals.
+1. Desenvolva as interfaces TS que acoplam a tese de propostas de melhoria a Processos previamente publicados.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados e a aderência à tese de Process Candidates.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira de Process Improvement Proposals.
+Não ultrapassar a fronteira de Process Improvement Proposals. Pare e solicite review.
 ```

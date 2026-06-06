@@ -1,34 +1,33 @@
 # Fase 37 — Agent/Human Dual Elicitation
 
 ## Objetivo
-Documentar e estabelecer as fundações para Agent/Human Dual Elicitation.
+Garantir a co-autoria nas metadados dos Candidates.
 
 ## Contexto
-Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
+O System Builder precisa saber se o candidato foi criado via Agent Gateway ou via Formulário Manual da UI do Builder.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/candidates/candidate.validation.ts` (modificação)
+- `src/features/builder/candidates/candidate.repository.ts`
 
 ## Arquivos proibidos
-- Modificação direta do runtime estabelecido no MVP.
-- Criação prematura de tabelas sem autorização na Fase.
+- UI Complexas e Lógicas de autenticação OpenID.
 
 ## Regras
-- Garantir a filosofia "Agente propõe, humano valida, System Builder executa, Postgres prova, n8n integra".
-- Process Candidates representam a camada anterior à publicação.
+- Auditar e salvar a coluna `origin` estritamente.
 
 ## Etapas
-- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Agent/Human Dual Elicitation.
+1. Ajustar o Repository do Candidate para gravar a origem.
+2. Adicionar o enum `origin: 'manual' | 'agent'` obrigatório nas inserções.
 
 ## Validações
-- Revisão arquitetural documental.
-- (Se técnico) Linting e type checks sem falhas.
+- Repositório e tipos integrados corretamente sem quebras.
 
 ## Relatório final esperado
-- Arquivos modificados e resumo da implementação entregue.
+- Camada de persistência ajustada para Elicitação Dupla.
 
 ## Regra de parada
-- Entregar apenas o escopo de Agent/Human Dual Elicitation sem invadir o território das próximas fases documentais ou agênticas.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -40,10 +39,10 @@ docs/00-current/ANTI_ESCOPO_ATUAL.md
 Fase 37 — Agent/Human Dual Elicitation
 
 Objetivo:
-Implementar Agent/Human Dual Elicitation
+Garantir a co-autoria nas metadados dos Candidates.
 
 Escopo:
--
+Repositório de Candidates e suas respectivas tipagens de validação.
 
 Não alterar:
 - Produção de Runtime oficial sem aprovação.
@@ -53,14 +52,14 @@ Regras:
 Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar a base para Agent/Human Dual Elicitation.
+1. Garanta a validação obrigatória da origem da elicitação (manual vs agente) em toda persistência do Candidate.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados e a aderência à tese de Process Candidates.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira de Agent/Human Dual Elicitation.
+Não ultrapassar a fronteira de Agent/Human Dual Elicitation. Pare e solicite review.
 ```

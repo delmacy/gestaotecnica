@@ -1,7 +1,19 @@
+<<<<<<< HEAD:docs/phases/PHASE_20A.md
+# Relatório de Execução — Fase 20A
+=======
 # Fase 20 — Builder Control Plane Shell
+>>>>>>> 66763cd (docs: realign phases 20-40 around process candidates and agent boundaries):docs/phases/PHASE_20.md
 
-## 1. Identificação
+## Objetivo
+Validação do fluxo (Criar -> Instanciar -> Concluir)
 
+<<<<<<< HEAD:docs/phases/PHASE_20A.md
+## Arquivos Alterados / Criados
+- `src/features/workflow/runtime/test/runtime-smoke.test.ts`: Criado simulador puro de serviço, que chama os métodos principais da engine sem acoplamento.
+
+## Validações
+O teste de smoke confirma que os contratos estão alinhados, recebendo injeção do banco transacional e as propriedades corretas (`workspaceId`, `processVersionId`).
+=======
 | Campo | Valor |
 |---|---|
 | Fase | 20 |
@@ -92,3 +104,4 @@ Decisão:
 ## 11. Histórico de correções
 
 - —
+>>>>>>> 66763cd (docs: realign phases 20-40 around process candidates and agent boundaries):docs/phases/PHASE_20.md

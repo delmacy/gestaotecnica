@@ -1,34 +1,32 @@
 # Fase 33 — Document Agent and Living Procedures
 
 ## Objetivo
-Documentar e estabelecer as fundações para Document Agent and Living Procedures.
+Suportar a documentação baseada em processo (Living Procedures) gerada pelo Document Agent.
 
 ## Contexto
-Esta fase materializa a nova tese arquitetural onde o System Builder evolui para um control plane robusto. Foca em transformar trabalho real recorrente em processos observáveis através da camada "Process Candidate", respeitando rigorosamente a governança humana e o isolamento de integrações externas como o Paperclip e o n8n.
+O System Builder não quer manuais estáticos. Ele deve permitir anexar 'Documentation Nodes' ou resumos autogerados ligados a uma versão do Workflow.
 
 ## Arquivos permitidos
-- TBD
+- `src/features/builder/documentation/documentation.types.ts`
 
 ## Arquivos proibidos
-- Modificação direta do runtime estabelecido no MVP.
-- Criação prematura de tabelas sem autorização na Fase.
+- Motor de Geração via OpenAI API.
 
 ## Regras
-- Garantir a filosofia "Agente propõe, humano valida, System Builder executa, Postgres prova, n8n integra".
-- Process Candidates representam a camada anterior à publicação.
+- O Documento (procedimento operacional) é uma view do Processo, não um arquivo no Google Drive.
 
 ## Etapas
-- Detalhar e formalizar a estrutura na arquitetura do sistema correspondente ao conceito: Document Agent and Living Procedures.
+1. Criar modelo para `LivingProcedure` atrelado a um `ProcessVersionId`.
+2. Inserir suporte de metadados no schema de Workflow.
 
 ## Validações
-- Revisão arquitetural documental.
-- (Se técnico) Linting e type checks sem falhas.
+- TypeScript compila perfeitamente com os novos metadados atrelados às Definições de Processo.
 
 ## Relatório final esperado
-- Arquivos modificados e resumo da implementação entregue.
+- Suporte a metadados de Procedimentos vivos adicionados.
 
 ## Regra de parada
-- Entregar apenas o escopo de Document Agent and Living Procedures sem invadir o território das próximas fases documentais ou agênticas.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
 
 ## Prompt pronto para Jules Dev
 ```text
@@ -40,10 +38,10 @@ docs/00-current/ANTI_ESCOPO_ATUAL.md
 Fase 33 — Document Agent and Living Procedures
 
 Objetivo:
-Implementar Document Agent and Living Procedures
+Suportar a documentação baseada em processo (Living Procedures) gerada pelo Document Agent.
 
 Escopo:
--
+Modelagem local dos metadados de Documentação Viva atrelados a processos.
 
 Não alterar:
 - Produção de Runtime oficial sem aprovação.
@@ -53,14 +51,14 @@ Regras:
 Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
 
 Etapas:
-1. Implementar a base para Document Agent and Living Procedures.
+1. Crie o modelo para armazenar resumos descritivos de Procedimentos Operacionais vinculados à Versão de um Processo.
 
 Validações:
-Testes locais sem erros TS.
+Testes locais sem erros TS e validação visual onde aplicável.
 
 Relatório final:
-Liste os arquivos tocados e a aderência à tese de Process Candidates.
+Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
 
 Regra de parada:
-Não ultrapassar a fronteira de Document Agent and Living Procedures.
+Não ultrapassar a fronteira de Document Agent and Living Procedures. Pare e solicite review.
 ```

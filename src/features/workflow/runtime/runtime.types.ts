@@ -67,7 +67,6 @@ export interface ActionExecutionInsert {
   error?: string | null;
   finishedAt?: Date | null;
 }
-<<<<<<< HEAD
 
 // Step Execution concepts (mapped on top of actionExecution)
 
@@ -115,5 +114,3 @@ export interface UpdateActionExecutionInput {
   error?: string | null;
   finishedAt?: Date;
 }
-=======
->>>>>>> cc290ca (docs: plan alpha product phases 21 to 40 and add sync instructions)

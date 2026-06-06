@@ -4,6 +4,8 @@ import React, { useState, useRef } from "react";
 import type { BuilderEditorActions, BuilderEditorState } from "../state";
 import { createDraftDownloadPayload, parseDraftJsonContent } from "./builder-draft-file";
 import { clearBuilderDraftFromLocalStorage } from "../local-persistence";
+import { useTransition } from "react";
+import { startProcessInstanceAction } from "@/features/workflow/runtime/runtime.actions";
 
 export type BuilderDraftActionsPanelProps = {
   state: BuilderEditorState;
@@ -79,6 +81,23 @@ export function BuilderDraftActionsPanel({ state, actions, onOfficialSave, onPub
       });
       setErrorMsg(null);
     }
+  };
+
+  const [isPendingStart, startTransition] = useTransition();
+
+  const handleStartInstance = () => {
+    if (!state.officialPersistence?.latestVersionId) return;
+
+    const versionId = state.officialPersistence.latestVersionId;
+
+    startTransition(async () => {
+      const res = await startProcessInstanceAction(versionId);
+      if ("ok" in res && res.ok === true) {
+        alert("Instância iniciada com sucesso! ID: " + (res as any).data.id);
+      } else {
+        alert("Falha ao iniciar instância: " + (res as any).error?.message);
+      }
+    });
   };
 
   const { lastSavedAt, message: persistenceMessage } = state.localPersistence || {};
@@ -159,6 +178,16 @@ export function BuilderDraftActionsPanel({ state, actions, onOfficialSave, onPub
               : publicationStatus === "published"
               ? "Publicado"
               : "Publicar"}
+          </button>
+        )}
+
+        {publicationStatus === "published" && latestVersionId && (
+          <button
+            onClick={handleStartInstance}
+            disabled={isPendingStart}
+            className="text-xs font-medium text-white px-4 py-1.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors shadow-sm ml-2"
+          >
+            {isPendingStart ? "Instanciando..." : "Instanciar"}
           </button>
         )}
 

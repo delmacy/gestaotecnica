@@ -52,13 +52,12 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |  20B | ✅      | Hardening: Any Cleanup   | Remoção de `any` críticos na tipagem                     |
 |  20C | ✅      | Hardening: Checklist MVP | Relatório consolidado do fim da primeira jornada técnica |
 |  20D | ✅      | Hardening: Demo E2E      | Documentação visual e prova de operação fluida           |
-|   20 | ⚪      | Builder Control Plane    | Fase 20 Alfa Planejada                                   |
-|   21 | ⚪      | Process Candidate Ontology | Fase 21 Alfa Planejada                                 |
+|   20 | ✅      | Builder Control Plane    | Shell administrativo implementado                       |
+|   21 | ✅      | Process Candidate Ontology | Tipos e validação da ontologia implementados           |
 |   22 | ⚪      | Process Candidate UI     | Fase 22 Alfa Planejada                                   |
 |   23 | ⚪      | Candidate Data Model     | Fase 23 Alfa Planejada                                   |
-|   20 | ✅      | Builder Control Plane    | Refatoração layout shell para gestão alfa                |
-|   21 | ✅      | Process Candidates       | Ontologia e fundação                                     |
-|   22 | ⚪      | Process Candidate UI     | Fase 22 Alfa Planejada                                   |
+|   24 | ⚪      | Review and Governance    | Fase 24 Alfa Planejada                                   |
+|   25 | ⚪      | Publish to Template      | Fase 25 Alfa Planejada                                   |
 |   26 | ⚪      | Forms as Standardization | Fase 26 Alfa Planejada                                   |
 |   27 | ⚪      | Business Rules & Approval| Fase 27 Alfa Planejada                                   |
 |   28 | ⚪      | Agent Gateway Spec       | Fase 28 Alfa Planejada                                   |

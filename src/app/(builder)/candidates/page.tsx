@@ -1,77 +1,59 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ProcessCandidate, CandidateStatus } from '@/features/builder/candidates/candidate.types';
 import { CandidateList } from '@/components/builder/candidates/CandidateList';
 import { CandidateDetail } from '@/components/builder/candidates/CandidateDetail';
 import { Input } from '@/components/ui/input';
-
-const MOCK_CANDIDATES: ProcessCandidate[] = [
-  {
-    id: 'cand-1',
-    name: 'Onboarding de Fornecedor (Proposta)',
-    description: 'Processo sugerido para o cadastro e aprovação de novos fornecedores baseado nas ações da última semana.',
-    status: 'under_analysis',
-    origin: 'agent',
-    createdAt: new Date('2023-10-25T10:00:00Z'),
-    updatedAt: new Date('2023-10-25T14:30:00Z'),
-    metadata: {
-      source: 'Paperclip Integration',
-      confidenceScore: 0.85,
-      suggestedNodes: 5,
-    }
-  },
-  {
-    id: 'cand-2',
-    name: 'Revisão de Contratos de TI',
-    description: 'Fluxo manual de revisão desenhado pela equipe de compliance.',
-    status: 'draft',
-    origin: 'manual',
-    createdAt: new Date('2023-10-26T09:15:00Z'),
-    updatedAt: new Date('2023-10-26T09:15:00Z'),
-  },
-  {
-    id: 'cand-3',
-    name: 'Aprovação de Despesas de Viagem',
-    description: 'Candidato aprovado e pronto para publicação no Runtime.',
-    status: 'approved',
-    origin: 'manual',
-    createdAt: new Date('2023-10-20T11:20:00Z'),
-    updatedAt: new Date('2023-10-24T16:45:00Z'),
-    metadata: {
-      approverId: 'usr-456',
-      approvalNotes: 'Revisado e validado conforme política vigente.',
-    }
-  },
-  {
-    id: 'cand-4',
-    name: 'Integração de Novo Colaborador',
-    description: 'Fluxo sugerido pelo agente observando padrões de emails do RH.',
-    status: 'waiting_review',
-    origin: 'agent',
-    createdAt: new Date('2023-10-27T08:00:00Z'),
-    updatedAt: new Date('2023-10-27T08:00:00Z'),
-    metadata: {
-      source: 'Email Pattern Observer',
-    }
-  }
-];
+import { getCandidatesAction } from '@/features/builder/candidates/candidates.actions';
 
 export default function CandidatesPage() {
+  const [candidates, setCandidates] = useState<ProcessCandidate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<CandidateStatus | 'all'>('all');
 
-  const selectedCandidate = MOCK_CANDIDATES.find(c => c.id === selectedId) || null;
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getCandidatesAction({ workspaceId: "00000000-0000-0000-0000-000000000000" });
+        if (response.ok) {
+          setCandidates(response.data);
+        } else {
+          setError(response.error.message);
+        }
+      } catch {
+        setError("Erro ao carregar candidatos");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCandidates();
+  }, []);
+
+  const selectedCandidate = candidates.find(c => c.id === selectedId) || null;
 
   const filteredCandidates = useMemo(() => {
-    return MOCK_CANDIDATES.filter(candidate => {
+    return candidates.filter(candidate => {
       const matchesSearch = candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             (candidate.description && candidate.description.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus = statusFilter === 'all' || candidate.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [searchTerm, statusFilter]);
+  }, [candidates, searchTerm, statusFilter]);
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full p-6 text-destructive">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] p-6 gap-6">
@@ -107,7 +89,12 @@ export default function CandidatesPage() {
       </div>
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
-        <div className="lg:col-span-2 flex flex-col overflow-hidden">
+        <div className="lg:col-span-2 flex flex-col overflow-hidden relative">
+          {isLoading ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10">
+              <span className="text-muted-foreground">Carregando...</span>
+            </div>
+          ) : null}
           <CandidateList
             candidates={filteredCandidates}
             selectedId={selectedId}

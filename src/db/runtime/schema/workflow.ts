@@ -23,12 +23,15 @@ export const processDefinitions = workflowSchema.table(
     description: text("description"),
     blueprintKey: text("blueprint_key"),
     blueprintVersion: text("blueprint_version"),
+    sourceCandidateId: uuid("source_candidate_id"),
+    createdById: uuid("created_by_id").references(() => users.id),
     isActive: text("is_active").notNull().default("true"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     uniqueIndex("process_definitions_workspace_key_uidx").on(table.workspaceId, table.key),
+    uniqueIndex("process_definitions_source_candidate_uidx").on(table.sourceCandidateId),
     index("process_definitions_workspace_idx").on(table.workspaceId),
   ],
 );

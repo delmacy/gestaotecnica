@@ -75,6 +75,17 @@ export function getDb() {
   return getRuntimeDb();
 }
 
+export async function closeDatabaseConnections() {
+  await Promise.all([
+    platformClient?.end({ timeout: 5 }),
+    runtimeClient?.end({ timeout: 5 }),
+  ]);
+  platformClient = null;
+  runtimeClient = null;
+  platformDbInstance = null;
+  runtimeDbInstance = null;
+}
+
 export const platformDb = getPlatformDb();
 export const runtimeDb = getRuntimeDb();
 export type DbClient = ReturnType<typeof getRuntimeDb>;

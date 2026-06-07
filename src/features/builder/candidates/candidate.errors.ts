@@ -41,8 +41,8 @@ export class CandidateWorkspaceMismatchError extends CandidateError {
 }
 
 export class InvalidProposedDefinitionError extends CandidateError {
-  public issues?: any[];
-  constructor(message = "Invalid proposed definition", issues?: any[]) {
+  public issues?: unknown[];
+  constructor(message = "Invalid proposed definition", issues?: unknown[]) {
     super("INVALID_PROPOSED_DEFINITION", message);
     this.name = "InvalidProposedDefinitionError";
     this.issues = issues;
@@ -62,5 +62,12 @@ export class WorkflowPublicationFailedError extends CandidateError {
     super("WORKFLOW_PUBLICATION_FAILED", message);
     this.name = "WorkflowPublicationFailedError";
     this.cause = options?.cause;
+  }
+}
+
+export class CandidatePublicationConflictError extends CandidateError {
+  constructor(message = "Candidate publication conflicted with another operation") {
+    super("CANDIDATE_PUBLICATION_CONFLICT", message);
+    this.name = "CandidatePublicationConflictError";
   }
 }

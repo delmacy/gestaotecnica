@@ -9,7 +9,16 @@ Foram implementadas duas conexões principais para suportar a separação entre 
 - `platformDb`: Gerencia os dados da "Fábrica" (System Builder). Utiliza a variável `PLATFORM_DATABASE_URL`.
 - `runtimeDb`: Gerencia os dados operacionais do cliente (ex: Gestão Técnica). Utiliza a variável `RUNTIME_DATABASE_URL`.
 
-Ambas possuem fallback para `DATABASE_URL` caso as variáveis específicas não estejam presentes, facilitando o desenvolvimento local.
+Ambas possuem fallback para `DATABASE_URL`. No modo unificado adotado para
+desenvolvimento e testes, as três variáveis apontam para o mesmo banco
+`tec_db`, preservando a separação por schemas e permitindo transações atômicas.
+
+Preparação idempotente e teste de integração:
+
+```text
+npm run db:setup:unified-test
+npm run test:integration
+```
 
 ## 2. Organização de Schemas
 

@@ -16,9 +16,11 @@ Este arquivo contém as diretrizes mestras para IAs e desenvolvedores atuando ne
 ## 3. Arquitetura de Separação
 - **System Builder (Platform/Factory):** Localizado em `src/platform/`. É agnóstico ao negócio.
 - **Blueprint/Runtime (Client/App):** Localizado em `src/adaptations/` e `src/modules/`. Representa o domínio aplicado.
-- **Bancos Separados:**
-    - `system_builder_dev` (Plataforma/Metamodelo)
-    - `gestao_tecnica_dev` (Operação Real)
+- **Banco Unificado por Schemas:** Platform e Runtime usam `tec_db`.
+    - Preserve a separação lógica entre schemas Platform e Runtime.
+    - Use `DATABASE_URL`, `PLATFORM_DATABASE_URL` e `RUNTIME_DATABASE_URL`
+      apontando para `tec_db`.
+    - Não mova tabelas entre schemas para contornar contratos.
 
 ## 3. Regras de Código e Dados
 - **Drizzle Schemas:** Use schemas PostgreSQL explicitamente conforme `docs/database/SCHEMA_STRATEGY.md`.

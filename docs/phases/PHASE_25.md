@@ -174,3 +174,25 @@ Teste real:
 Validações:
 - `npm run db:setup:unified-test`
 - `npm run test:integration` — aprovado contra `tec_db`
+
+### Revisão 002 — Jules Tester — 2026-06-07
+
+Resultado: CORRETIVA NECESSÁRIA
+
+Observações:
+- O gate da implementação primária comprovou regras de estado e payload, mas
+  não comprovou rastreabilidade, atomicidade ou concorrência no banco real.
+- Testes unitários com asserções incorretas foram corrigidos durante a
+  auditoria.
+
+Ressalvas:
+- Rastreabilidade ainda não persistida na implementação primária.
+- Transação e proteção concorrente simuladas somente em memória.
+
+Decisão:
+- Abrir corretiva da Fase 25 conforme
+  `docs/40-operations/reports/PHASE_25_TEST_GATE_REPORT.md`.
+
+Observação posterior:
+- As descobertas desta revisão motivaram as Correções 001 e 002 registradas
+  acima, incluindo adapter Drizzle, migrations e teste de integração real.

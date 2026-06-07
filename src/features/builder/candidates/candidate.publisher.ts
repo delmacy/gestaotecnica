@@ -1,84 +1,144 @@
 import { validateBuilderDraft } from "../process-editor/validate-builder-draft";
 import type { BuilderDraft } from "../types";
 import {
+  CandidateAlreadyPublishedError,
   CandidateNotFoundError,
+  CandidatePublicationConflictError,
   CandidateWorkspaceMismatchError,
   InvalidCandidateTransitionError,
-} from "./candidate.errors";
-import {
   InvalidProposedDefinitionError,
-  CandidateAlreadyPublishedError,
   WorkflowPublicationFailedError,
 } from "./candidate.errors";
+import type { CandidateRepositoryDb } from "./candidates.repository";
 import type { ProcessCandidate } from "./candidate.types";
 
+export type CreatePublishedProcessInput = {
+  workspaceId: string;
+  draft: BuilderDraft;
+  createdBy: string;
+  name: string;
+  sourceCandidateId: string;
+};
+
+export type PublishedProcessResult = {
+  processDefinitionId: string;
+  processVersionId: string;
+  sourceCandidateId: string | null;
+};
+
 export interface PublisherRepositoryPort {
-  getCandidateById(db: any, candidateId: string): Promise<ProcessCandidate | null>;
-  updateCandidateStatus(db: any, candidateId: string, status: "published", updatedAt: Date): Promise<void>;
-  createProcessDefinition(db: any, input: any): Promise<any>;
-  runInTransaction<T>(db: any, callback: (tx: any) => Promise<T>): Promise<T>;
+  getCandidateById(db: CandidateRepositoryDb, candidateId: string): Promise<ProcessCandidate | null>;
+  createProcessDefinition(
+    db: CandidateRepositoryDb,
+    input: CreatePublishedProcessInput,
+  ): Promise<PublishedProcessResult>;
+  markCandidatePublished(
+    db: CandidateRepositoryDb,
+    input: { workspaceId: string; candidateId: string; updatedAt: Date },
+  ): Promise<boolean>;
+  runInTransaction<T>(
+    db: CandidateRepositoryDb,
+    callback: (tx: CandidateRepositoryDb) => Promise<T>,
+  ): Promise<T>;
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+
+  const candidate = error as { code?: unknown; cause?: unknown };
+  return candidate.code === "23505" || isUniqueViolation(candidate.cause);
+}
+
+function isBuilderDraft(value: Record<string, unknown>): value is Record<string, unknown> & BuilderDraft {
+  return (
+    typeof value.name === "string" &&
+    (value.status === "draft" || value.status === "published" || value.status === "archived") &&
+    Array.isArray(value.nodes) &&
+    Array.isArray(value.edges)
+  );
 }
 
 export async function publishApprovedCandidate(
-  db: any,
+  db: CandidateRepositoryDb,
   workspaceId: string,
   candidateId: string,
   publishedById: string,
-  repository: PublisherRepositoryPort
-): Promise<any> {
-  // If the db instance doesn't support transactions, we simulate execution within the limit
-  // and handle atomicity failures manually as instructed in limits
-  return repository.runInTransaction(db, async (tx) => {
-    const candidate = await repository.getCandidateById(tx, candidateId);
+  repository: PublisherRepositoryPort,
+): Promise<PublishedProcessResult> {
+  try {
+    return await repository.runInTransaction(db, async (tx) => {
+      const candidate = await repository.getCandidateById(tx, candidateId);
 
-    if (!candidate) {
-      throw new CandidateNotFoundError();
+      if (!candidate) {
+        throw new CandidateNotFoundError();
+      }
+
+      if (candidate.workspaceId !== workspaceId) {
+        throw new CandidateWorkspaceMismatchError();
+      }
+
+      if (candidate.status === "published") {
+        throw new CandidateAlreadyPublishedError();
+      }
+
+      if (candidate.status !== "approved") {
+        throw new InvalidCandidateTransitionError("Only approved candidates can be published");
+      }
+
+      if (!candidate.proposedDefinition || Object.keys(candidate.proposedDefinition).length === 0) {
+        throw new InvalidProposedDefinitionError("Proposed definition cannot be empty");
+      }
+
+      if (!isBuilderDraft(candidate.proposedDefinition)) {
+        throw new InvalidProposedDefinitionError("Proposed definition has an invalid structure");
+      }
+
+      const draft = candidate.proposedDefinition;
+      const validationResult = validateBuilderDraft(draft);
+
+      if (!validationResult.valid || draft.nodes.length === 0) {
+        throw new InvalidProposedDefinitionError(
+          "Proposed definition is invalid",
+          validationResult.issues,
+        );
+      }
+
+      const result = await repository.createProcessDefinition(tx, {
+        workspaceId,
+        draft,
+        createdBy: publishedById,
+        name: draft.name || candidate.name || "Processo sem nome",
+        sourceCandidateId: candidateId,
+      });
+
+      const markedPublished = await repository.markCandidatePublished(tx, {
+        workspaceId,
+        candidateId,
+        updatedAt: new Date(),
+      });
+
+      if (!markedPublished) {
+        throw new CandidatePublicationConflictError();
+      }
+
+      return result;
+    });
+  } catch (error) {
+    if (
+      error instanceof CandidateNotFoundError ||
+      error instanceof CandidateWorkspaceMismatchError ||
+      error instanceof CandidateAlreadyPublishedError ||
+      error instanceof InvalidCandidateTransitionError ||
+      error instanceof InvalidProposedDefinitionError ||
+      error instanceof CandidatePublicationConflictError
+    ) {
+      throw error;
     }
 
-    if (candidate.workspaceId !== workspaceId) {
-      throw new CandidateWorkspaceMismatchError();
+    if (isUniqueViolation(error)) {
+      throw new CandidateAlreadyPublishedError();
     }
 
-    if (candidate.status === "published") {
-      throw new CandidateAlreadyPublishedError("Candidate is already published");
-    }
-
-    if (candidate.status !== "approved") {
-      throw new InvalidCandidateTransitionError("Only approved candidates can be published");
-    }
-
-    if (!candidate.proposedDefinition || Object.keys(candidate.proposedDefinition).length === 0) {
-      throw new InvalidProposedDefinitionError("Proposed definition cannot be empty");
-    }
-
-    const draft = candidate.proposedDefinition as unknown as BuilderDraft;
-    const validationResult = validateBuilderDraft(draft);
-
-    if (!validationResult.valid) {
-      throw new InvalidProposedDefinitionError("Proposed definition is invalid", validationResult.issues);
-    }
-
-    // Map to CreateProcessDefinitionInput
-    const processName = draft.name || candidate.name || "Processo sem nome";
-
-    // Technical Block: We pass candidateId to the interface to preserve the reference.
-    // The actual repository adapter will need to find a place for it (e.g. metadata field when schema is updated)
-    const createProcessInput = {
-      workspaceId,
-      draft,
-      createdBy: publishedById,
-      name: processName,
-      sourceCandidateId: candidateId, // <--- Traceability preserved here in the interface contract
-    };
-
-    try {
-      const processVersion = await repository.createProcessDefinition(tx, createProcessInput);
-
-      await repository.updateCandidateStatus(tx, candidateId, "published", new Date());
-
-      return processVersion;
-    } catch (error) {
-      throw new WorkflowPublicationFailedError("Failed to publish workflow definition", { cause: error });
-    }
-  });
+    throw new WorkflowPublicationFailedError("Failed to publish workflow definition", { cause: error });
+  }
 }

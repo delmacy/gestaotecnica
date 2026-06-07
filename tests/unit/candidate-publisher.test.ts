@@ -8,8 +8,10 @@ import {
   InvalidCandidateTransitionError,
   InvalidProposedDefinitionError,
   CandidateAlreadyPublishedError,
+  CandidatePublicationConflictError,
   WorkflowPublicationFailedError,
 } from "../../src/features/builder/candidates/candidate.errors";
+import type { CandidateRepositoryDb } from "../../src/features/builder/candidates/candidates.repository";
 
 const validWorkspaceId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const validCandidateId = "11111111-1111-4111-8111-111111111111";
@@ -17,6 +19,7 @@ const validPublisherId = "publisher-123";
 
 const validProposedDefinition = {
   name: "Test Process",
+  status: "draft",
   nodes: [
     { id: "start", type: "start", position: { x: 0, y: 0 }, data: { blockType: "start", config: {} } },
     { id: "end", type: "end", position: { x: 100, y: 100 }, data: { blockType: "end", config: {} } },
@@ -42,43 +45,69 @@ const createBaseCandidate = (): ProcessCandidate => ({
 
 function createMockRepository(
   initialCandidate: ProcessCandidate | null,
-  options?: { failPublish?: boolean; simulateDelay?: number }
-): PublisherRepositoryPort & { getCandidateState: () => ProcessCandidate | null; getPublishedDefinition: () => any } {
-  const candidate = initialCandidate ? { ...initialCandidate } : null;
-  let publishedDefinition: any = null;
+  options?: { failPublish?: boolean; failStatusUpdate?: boolean; uniqueViolation?: boolean }
+): PublisherRepositoryPort & {
+  getCandidateState: () => ProcessCandidate | null;
+  getPublishedDefinition: () => Record<string, unknown> | null;
+} {
+  let candidate = initialCandidate ? { ...initialCandidate } : null;
+  let publishedDefinition: Record<string, unknown> | null = null;
 
   return {
     getCandidateById: async (_db, id) => candidate?.id === id ? candidate : null,
-    updateCandidateStatus: async (_db, id, status, updatedAt) => {
-      if (candidate && candidate.id === id) {
-        candidate.status = status;
-        candidate.updatedAt = updatedAt;
+    markCandidatePublished: async (_db, input) => {
+      if (options?.failStatusUpdate) return false;
+      if (
+        candidate &&
+        candidate.id === input.candidateId &&
+        candidate.workspaceId === input.workspaceId &&
+        candidate.status === "approved"
+      ) {
+        candidate.status = "published";
+        candidate.updatedAt = input.updatedAt;
+        return true;
       }
+      return false;
     },
     createProcessDefinition: async (_db, input) => {
       if (options?.failPublish) {
         throw new Error("DB Error");
       }
-      if (options?.simulateDelay) {
-        await new Promise(res => setTimeout(res, options.simulateDelay));
+      if (options?.uniqueViolation) {
+        throw { code: "23505" };
       }
       publishedDefinition = input;
-      return { id: "new-process-version-id" };
+      return {
+        processDefinitionId: "new-process-definition-id",
+        processVersionId: "new-process-version-id",
+        sourceCandidateId: input.sourceCandidateId,
+      };
     },
-    runInTransaction: async (_db, callback) => callback({}),
+    runInTransaction: async (_db, callback) => {
+      const candidateSnapshot = candidate ? { ...candidate } : null;
+      const definitionSnapshot = publishedDefinition;
+      try {
+        return await callback({} as CandidateRepositoryDb);
+      } catch (error) {
+        candidate = candidateSnapshot;
+        publishedDefinition = definitionSnapshot;
+        throw error;
+      }
+    },
     getCandidateState: () => candidate,
     getPublishedDefinition: () => publishedDefinition,
   };
 }
 
-const dummyDb = {};
+const dummyDb = {} as CandidateRepositoryDb;
 
 test("Candidate aprovado gera definição oficial e atualiza status", async () => {
   const repo = createMockRepository(createBaseCandidate());
 
   const result = await publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo);
 
-  assert.equal(result.id, "new-process-version-id");
+  assert.equal(result.processVersionId, "new-process-version-id");
+  assert.equal(result.sourceCandidateId, validCandidateId);
   assert.equal(repo.getCandidateState()?.status, "published");
   const definition = repo.getPublishedDefinition();
   assert.equal(definition.name, "Test Process");
@@ -193,25 +222,41 @@ test("Falha ao salvar workflow preserva Candidate como approved", async () => {
   );
 
   assert.equal(repo.getCandidateState()?.status, "approved");
+  assert.equal(repo.getPublishedDefinition(), null);
 });
 
-test("Tentativas concorrentes não criam múltiplas definições (simulação via lock/status)", async () => {
+test("Payload estruturalmente incompleto é recusado sem expor erro interno", async () => {
   const candidate = createBaseCandidate();
-  const repo = createMockRepository(candidate, { simulateDelay: 10 });
+  candidate.proposedDefinition = { name: "Sem arrays", status: "draft" };
+  const repo = createMockRepository(candidate);
 
-  // We simulate concurrency conceptually. If one call publishes it, the next shouldn't be able to.
-  // In our simple mock, we don't have DB locks, but if we do this sequentially quickly, it should work normally.
-  // To truly test concurrency, we'd need to mock the transaction to throw on second read if first modified it.
-  // For the scope of this test, we demonstrate that the second attempt will fail if the state was changed.
+  await assert.rejects(
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    InvalidProposedDefinitionError,
+  );
+});
 
-  const promise1 = publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo);
+test("Falha ao atualizar status reverte a definição criada", async () => {
+  const candidate = createBaseCandidate();
+  const repo = createMockRepository(candidate, { failStatusUpdate: true });
 
-  // Simulate another caller trying to publish when state already changed in DB
-  // Because our mock is in-memory and simple, we simulate the state change immediately for the second call.
-  candidate.status = "published";
+  await assert.rejects(
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    CandidatePublicationConflictError,
+  );
 
-  const promise2 = publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo);
+  assert.equal(repo.getCandidateState()?.status, "approved");
+  assert.equal(repo.getPublishedDefinition(), null);
+});
 
-  await promise1;
-  await assert.rejects(promise2, CandidateAlreadyPublishedError);
+test("Violação única concorrente é traduzida para CandidateAlreadyPublishedError", async () => {
+  const repo = createMockRepository(createBaseCandidate(), { uniqueViolation: true });
+
+  await assert.rejects(
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    CandidateAlreadyPublishedError,
+  );
+
+  assert.equal(repo.getCandidateState()?.status, "approved");
+  assert.equal(repo.getPublishedDefinition(), null);
 });

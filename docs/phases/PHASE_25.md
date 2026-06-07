@@ -103,3 +103,46 @@ Decisão:
 ## 11. Histórico de correções
 
 - —
+
+### Correção 001 — ChatGPT/Codex — 2026-06-07
+
+Status: Implementada, aguardando nova auditoria do Jules Tester
+
+Motivação:
+- Corrigir as descobertas Altas de rastreabilidade não persistida, atomicidade
+  não comprovada e proteção concorrente simulada apenas por mocks.
+
+Implementação:
+- Adicionado `source_candidate_id` persistente, consultável e único em
+  `workflow.process_definitions`. Ele é uma referência externa sem foreign key
+  cruzada, respeitando a separação entre os bancos Platform e Runtime.
+- Adicionado `created_by_id` para preservar a autoria humana da publicação.
+- Criado adapter Drizzle real para publicar Definition, Version e atualizar o
+  Candidate dentro da mesma transação.
+- A atualização do Candidate exige estado anterior `approved`; falhas ou
+  conflitos provocam rollback integral.
+- A constraint única de `source_candidate_id` impede publicações concorrentes
+  ou repetidas do mesmo Candidate.
+- O publisher passou a rejeitar drafts vazios ou estruturalmente incompletos.
+- `npm run test:unit` passou a executar todas as suítes unitárias em
+  `tests/unit`.
+
+Migration criada, não aplicada:
+- `drizzle/0020_phase25_candidate_publication_traceability.sql`
+
+Limite arquitetural:
+- O adapter transacional implementado exige que `builder` e `workflow` estejam
+  disponíveis na mesma conexão PostgreSQL entregue ao publisher.
+- No desenho-alvo com bancos Platform e Runtime separados, a atomicidade total
+  permanece bloqueada e exigirá uma estratégia explícita de saga/outbox em fase
+  própria. Não há alegação de transação distribuída.
+- A integração real tentou usar o `DATABASE_URL` configurado, mas o banco
+  apontado não existe no servidor (`3D000`). A migration não foi aplicada.
+- Para validar o modo co-localizado, o `DATABASE_URL` de teste deve conter os
+  schemas `builder`, `workflow` e `identity`. Para validar bancos separados,
+  serão necessárias URLs de teste distintas e uma estratégia de saga/outbox.
+
+Validações:
+- `npm run test:unit`
+- `npm run build`
+- `git diff --check`

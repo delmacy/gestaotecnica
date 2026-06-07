@@ -141,6 +141,13 @@
       "when": 1780795338765,
       "tag": "0019_candidates-builder-schema",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1780828402203,
+      "tag": "0020_phase25_candidate_publication_traceability",
+      "breakpoints": true
     }
   ]
 }

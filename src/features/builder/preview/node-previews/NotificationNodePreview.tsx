@@ -27,7 +27,7 @@ export function NotificationNodePreview({ node }: NodePreviewProps) {
             <span>Para: <span className="text-slate-800 font-mono font-normal ml-1 bg-slate-50 px-1 py-0.5 rounded">{recipientMode === "current_user" ? "Usuário Atual" : recipientRef}</span></span>
           </div>
           <div className="text-sm text-slate-800 bg-slate-50 p-3 rounded-md border border-slate-100 italic">
-            "{messageTemplate}"
+            &ldquo;{messageTemplate}&rdquo;
           </div>
         </div>
       </div>

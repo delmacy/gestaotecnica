@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProcessCandidate } from '@/features/builder/candidates/candidate.types';
+import type { ProcessCandidate } from '@/features/builder/candidates/candidate.types';
 import { CandidateBadge, OriginBadge } from './CandidateBadge';
 
 interface CandidateListProps {
@@ -28,10 +28,13 @@ export function CandidateList({ candidates, selectedId, onSelect }: CandidateLis
 
       <div className="divide-y max-h-[600px] overflow-y-auto">
         {candidates.map((candidate) => (
-          <div
+          <button
+            type="button"
             key={candidate.id}
             onClick={() => onSelect(candidate.id)}
-            className={`grid grid-cols-12 gap-4 p-3 items-center text-sm cursor-pointer transition-colors hover:bg-muted/50 ${selectedId === candidate.id ? 'bg-muted border-l-4 border-l-primary' : 'border-l-4 border-l-transparent'}`}
+            aria-pressed={selectedId === candidate.id}
+            aria-label={`Selecionar candidato ${candidate.name}`}
+            className={`grid w-full grid-cols-12 gap-4 p-3 items-center text-left text-sm transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset ${selectedId === candidate.id ? 'bg-muted border-l-4 border-l-primary' : 'border-l-4 border-l-transparent'}`}
           >
             <div className="col-span-5 font-medium truncate pr-4">
               {candidate.name}
@@ -45,7 +48,7 @@ export function CandidateList({ candidates, selectedId, onSelect }: CandidateLis
             <div className="col-span-2 text-right text-muted-foreground text-xs">
               {new Date(candidate.createdAt).toLocaleDateString('pt-BR')}
             </div>
-          </div>
+          </button>
         ))}
       </div>
     </div>

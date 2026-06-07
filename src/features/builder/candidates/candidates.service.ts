@@ -1,13 +1,15 @@
 import { getCandidates } from "./candidates.repository";
-import { ProcessCandidate } from "./candidate.types";
+import type { CandidateRepositoryDb } from "./candidates.repository";
+import type { ProcessCandidate } from "./candidate.types";
 
 export async function listCandidatesService(
-  db: any,
-  workspaceId: string
+  db: CandidateRepositoryDb,
+  workspaceId: string,
+  repository: typeof getCandidates = getCandidates
 ): Promise<ProcessCandidate[]> {
-  if (!workspaceId) {
+  if (!workspaceId.trim()) {
     throw new Error("Workspace ID is required");
   }
 
-  return getCandidates(db, workspaceId);
+  return repository(db, workspaceId);
 }

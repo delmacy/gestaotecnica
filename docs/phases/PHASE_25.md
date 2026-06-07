@@ -103,3 +103,19 @@ Decisão:
 ## 11. Histórico de correções
 
 - —
+### Revisão 002 — Jules Tester — 2026-06-07
+
+Resultado: CORRETIVA NECESSÁRIA
+
+Observações:
+- Foram executados todos os cenários estritos do Gate Profundo.
+- O código atual não possui garantia de integração real (schema de rastreabilidade ou transação db via Drizzle).
+- Três testes unitários estavam falhando por tipo de assert (`InvalidProposedDefinitionError`, `CandidateAlreadyPublishedError`) incorreto para Promises rejected. Foram corrigidos em arquivo e agora passam.
+
+Ressalvas:
+- Rastreabilidade ausente no schema real.
+- Falta de transação Drizzle real para provar a atomicidade em runtime real.
+- Falta de lock real para controle de concorrência.
+
+Decisão:
+- Abrir corretiva da Fase 25 conforme relatório em docs/40-operations/reports/PHASE_25_TEST_GATE_REPORT.md.

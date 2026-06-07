@@ -1,0 +1,12 @@
+--- tests/unit/candidate-publisher.test.ts
++++ tests/unit/candidate-publisher.test.ts
+@@ -214,5 +217,8 @@
+   const promise2 = publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo);
+
+   await promise1;
+-  await assert.rejects(promise2, CandidateAlreadyPublishedError);
++  await assert.rejects(promise2, (err: any) => {
++      assert.ok(err instanceof CandidateAlreadyPublishedError);
++      return true;
++  });
+ });

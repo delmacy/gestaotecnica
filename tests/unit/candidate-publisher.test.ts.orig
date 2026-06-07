@@ -166,13 +166,10 @@ test("Payload vazio é recusado", async () => {
   candidate.proposedDefinition = {};
   const repo = createMockRepository(candidate);
 
-  try {
-    await publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo);
-    assert.fail("Should have thrown InvalidProposedDefinitionError");
-  } catch (err: any) {
-    if (err.name === 'AssertionError') throw err;
-    assert.equal(err.name, "InvalidProposedDefinitionError");
-  }
+  await assert.rejects(
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    (err: any) => err instanceof InvalidProposedDefinitionError
+  );
 });
 
 test("Payload inválido (ex: sem nós) é recusado", async () => {
@@ -180,13 +177,10 @@ test("Payload inválido (ex: sem nós) é recusado", async () => {
   candidate.proposedDefinition = { name: "Test Process", nodes: [], edges: [] };
   const repo = createMockRepository(candidate);
 
-  try {
-    await publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo);
-    assert.fail("Should have thrown InvalidProposedDefinitionError");
-  } catch (err: any) {
-    if (err.name === 'AssertionError') throw err;
-    assert.equal(err.name, "InvalidProposedDefinitionError");
-  }
+  await assert.rejects(
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    InvalidProposedDefinitionError
+  );
 });
 
 test("Falha ao salvar workflow preserva Candidate como approved", async () => {
@@ -219,11 +213,5 @@ test("Tentativas concorrentes não criam múltiplas definições (simulação vi
   const promise2 = publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo);
 
   await promise1;
-  try {
-    await promise2;
-    assert.fail("Should have thrown CandidateAlreadyPublishedError");
-  } catch (err: any) {
-    if (err.name === 'AssertionError') throw err;
-    assert.equal(err.name, "CandidateAlreadyPublishedError");
-  }
+  await assert.rejects(promise2, (err: any) => err instanceof CandidateAlreadyPublishedError);
 });

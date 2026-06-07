@@ -20,6 +20,7 @@ async function main() {
     "documents",
     "storage",
     "blueprints",
+    "builder",
   ];
 
   try {

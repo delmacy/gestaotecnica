@@ -146,3 +146,31 @@ Validações:
 - `npm run test:unit`
 - `npm run build`
 - `git diff --check`
+
+### Correção 002 — ChatGPT/Codex — 2026-06-07
+
+Status: Validada com banco real
+
+Configuração:
+- Adotado banco unificado `tec_db` para desenvolvimento e testes.
+- `DATABASE_URL`, `PLATFORM_DATABASE_URL` e `RUNTIME_DATABASE_URL` locais
+  apontam para o mesmo banco.
+- Criado preparador idempotente `npm run db:setup:unified-test`.
+
+Banco:
+- Criado schema `builder` e tabela `builder.process_candidates`.
+- Aplicadas colunas de rastreabilidade/autoria em
+  `workflow.process_definitions`.
+- Reconciliados os drifts `workspace.workspaces.metadata` e
+  `workflow.process_versions.updated_at`.
+- Criada migration `0021_unified_tec_db_reconciliation.sql`.
+
+Teste real:
+- Criado `tests/integration/candidate-publisher.integration.test.ts`.
+- O teste cria workspace, usuário e Candidate isolados; publica usando o
+  adapter Drizzle real; valida rastreabilidade, autoria, versão, status e
+  idempotência; depois remove todos os dados criados.
+
+Validações:
+- `npm run db:setup:unified-test`
+- `npm run test:integration` — aprovado contra `tec_db`

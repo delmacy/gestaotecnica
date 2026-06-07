@@ -1,32 +1,31 @@
 # Estratégia de Schemas
 
-Dentro de cada banco de dados, utilizamos Schemas do PostgreSQL para organizar as tabelas por domínio de responsabilidade.
+## Banco unificado: `tec_db`
 
-## Banco: `system_builder_dev` (Platform)
+Para desenvolvimento, testes e o estágio atual do produto, Platform e Runtime
+compartilham o banco `tec_db`, mantendo a separação lógica por schemas. Isso
+permite transações atômicas entre Process Candidates e Workflow Definitions sem
+eliminar as fronteiras arquiteturais.
 
-| Schema | Descrição |
-| :--- | :--- |
-| `builder` | Configurações globais da engine e da plataforma. |
-| `registry` | Catálogo de módulos, capacidades e versões disponíveis. |
-| `blueprints` | Definições de pacotes de processos e configurações reutilizáveis. |
-| `modules` | Metadados específicos de módulos registrados. |
-| `integrations` | Catálogo de plugins e conectores externos. |
-| `audit` | Trilha de auditoria estrutural da plataforma. |
+| Schema | Responsabilidade | Descrição |
+| :--- | :--- | :--- |
+| `builder` | Platform | Configurações globais e Process Candidates. |
+| `registry` | Platform | Catálogo de módulos, capacidades e versões. |
+| `blueprints` | Platform | Definições de pacotes reutilizáveis. |
+| `identity` | Runtime | Usuários, autenticação, perfis e papéis. |
+| `workspace` | Runtime | Configurações do ambiente e membros. |
+| `workflow` | Runtime | Definições, versões, instâncias, transições e eventos. |
+| `documents` | Runtime | Metadados de documentos, versões e vínculos. |
+| `storage` | Runtime | Metadados de objetos armazenados. |
+| `notifications` | Runtime | Fila e histórico de notificações. |
 
-## Banco: `gestao_tecnica_dev` (Runtime/Client)
-
-| Schema | Descrição |
-| :--- | :--- |
-| `identity` | Usuários, autenticação, perfis e papéis (roles). |
-| `workspace` | Configurações do ambiente do cliente e membros. |
-| `workflow` | Instâncias de processos, estados, transições e eventos. |
-| `documents` | Metadados de documentos, versões e vínculos. |
-| `storage` | Metadados de objetos armazenados (MinIO). |
-| `notifications` | Fila e histórico de notificações do cliente. |
-| `integrations` | Configurações de webhooks e conectores específicos do cliente. |
-| `audit` | Trilha de auditoria operacional das instâncias e dados. |
+As conexões `DATABASE_URL`, `PLATFORM_DATABASE_URL` e `RUNTIME_DATABASE_URL`
+devem apontar para `tec_db` neste modo unificado.
 
 ## Regra de Modelagem
+
 - **metadata** deve ser relacional.
 - **payload** de dados dinâmicos deve ser `JSONB`.
-- O `workspace_id` é chave estrangeira mandatória em quase todas as tabelas do Runtime.
+- O `workspace_id` é obrigatório nas tabelas operacionais.
+- A separação por schemas continua sendo uma fronteira arquitetural, mesmo
+  quando uma transação precisa atravessar Platform e Runtime.

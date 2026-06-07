@@ -92,3 +92,50 @@ Decisão:
 ## 11. Histórico de correções
 
 - —
+
+## Execução Jules Dev - Formulários como Padronização de Informalidade
+
+**Data:** $(date -I)
+**Branch:** `phase-26-form-engine`
+**Commit Base:** `556dc2cb8bea91d1727a2a7a570b8034515279ca`
+
+### Arquivos Criados/Alterados
+- `src/features/builder/forms/form.types.ts` (Criado)
+- `src/features/builder/forms/form.engine.ts` (Criado)
+- `tests/unit/form-engine.test.ts` (Criado)
+
+### Contratos Definidos
+- `FormDefinition`
+- `FormFieldDefinition`
+- `FormSubmission`
+- `FormValidationResult`
+- `FormValidationIssue`
+- `InformalSignal`
+- `SignalOrigin`
+
+### Tipos de Campo Suportados
+- `text` (com regras de `minLength` e `maxLength`)
+- `dropdown` (exige opções explícitas)
+- `origin` (preservação obrigatória de `SignalOrigin`)
+
+### Política para Campos Desconhecidos
+- Campos desconhecidos submetidos no payload geram `unknown_field` de forma estrita de acordo com as diretrizes do FormsEngine, promovendo aderência robusta de contratos.
+
+### Regras de Normalização
+- Valores textuais são preenchidos com `trim()`.
+- O valor é populado via default quando ausente no dado submetido, desde que provido na Definition.
+- Campos como origin sobrepõem qualquer injeção informal por razões de confiança e preservação de origem.
+- O campo originalText é sempre preservado como evidência.
+- Nenhuma resposta ausente é preenchida falsamente.
+
+### Regras de Rastreabilidade
+- Toda submissão válida preserva o candidateId, o formDefinitionId e a origin.
+
+### Testes Executados e Resultados
+- Foram executados 23 testes unitários no total cobrindo todas as especificações funcionais requisitadas (como origin override e limits). Todos os testes (1 a 23) passaram com sucesso.
+
+### Riscos Residuais
+- As fases subsequentes precisam tratar a persistência real dos candidatos (ainda mantida ausente propositalmente).
+
+### Git Status Final
+- Código compilado, limpo, aderente a TDD, e validado visualmente via console.

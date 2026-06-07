@@ -17,4 +17,3 @@ entre agentes.
 O Jules Tester transforma critérios de aceite em evidências reproduzíveis. Ele
 não redefine regra de negócio, não mascara falhas e não altera o comportamento
 de produção sem autorização.
-

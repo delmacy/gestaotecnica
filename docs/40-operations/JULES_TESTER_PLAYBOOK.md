@@ -96,4 +96,3 @@ npx playwright test
 
 Quando houver suíte de integração específica, executá-la também e registrar o
 comando no relatório.
-

@@ -2,7 +2,7 @@
 
 import { getPlatformDb } from "@/db";
 import { listCandidatesService } from "./candidates.service";
-import { ProcessCandidate } from "./candidate.types";
+import type { ProcessCandidate } from "./candidate.types";
 
 export async function getCandidatesAction(payload: {
   workspaceId?: string;
@@ -25,12 +25,12 @@ export async function getCandidatesAction(payload: {
     const data = await listCandidatesService(db, payload.workspaceId);
 
     return { ok: true, data };
-  } catch (err: unknown) {
+  } catch {
     return {
       ok: false,
       error: {
         code: "INTERNAL_ERROR",
-        message: err instanceof Error ? err.message : "An unexpected error occurred",
+        message: "Não foi possível carregar os candidatos deste workspace.",
       },
     };
   }

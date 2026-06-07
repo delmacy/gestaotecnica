@@ -3,6 +3,7 @@ import postgres from "postgres";
 import * as legacySchema from "./legacy/schema";
 import * as registrySchema from "./platform/schema/registry";
 import * as blueprintsSchema from "./platform/schema/blueprints";
+import * as candidatesSchema from "./platform/schema/candidates";
 import * as workflowSchema from "./runtime/schema/workflow";
 import * as workspaceSchema from "./runtime/schema/workspace";
 import * as identitySchema from "./runtime/schema/identity";
@@ -14,6 +15,7 @@ const fullSchema = {
   ...legacySchema,
   ...registrySchema,
   ...blueprintsSchema,
+  ...candidatesSchema,
   ...workflowSchema,
   ...workspaceSchema,
   ...identitySchema,

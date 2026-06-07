@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProcessCandidate } from '@/features/builder/candidates/candidate.types';
+import type { ProcessCandidate } from '@/features/builder/candidates/candidate.types';
 import { CandidateBadge, OriginBadge } from './CandidateBadge';
 import { Button } from '@/components/ui/button';
 
@@ -37,10 +37,23 @@ export function CandidateDetail({ candidate }: CandidateDetailProps) {
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Metadados</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Evidências</h3>
           <div className="bg-muted p-3 rounded-md text-xs font-mono overflow-x-auto">
             <pre>
-              {candidate.metadata ? JSON.stringify(candidate.metadata, null, 2) : 'Nenhum metadado disponível.'}
+              {Object.keys(candidate.evidence).length > 0
+                ? JSON.stringify(candidate.evidence, null, 2)
+                : 'Nenhuma evidência disponível.'}
+            </pre>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Definição proposta</h3>
+          <div className="bg-muted p-3 rounded-md text-xs font-mono overflow-x-auto">
+            <pre>
+              {Object.keys(candidate.proposedDefinition).length > 0
+                ? JSON.stringify(candidate.proposedDefinition, null, 2)
+                : 'Nenhuma definição proposta disponível.'}
             </pre>
           </div>
         </div>

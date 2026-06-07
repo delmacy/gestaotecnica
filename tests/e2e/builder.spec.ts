@@ -1,16 +1,25 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Builder Interactivity", () => {
-  test("Ao clicar em um nó do Explorer, o Inspector deve aparecer", async ({ page }) => {
+  test("adiciona e edita um bloco pelo inspetor", async ({ page }) => {
     await page.goto("/builder");
 
-    await expect(page.getByRole("banner").getByText("System Assembler", { exact: true })).toBeVisible();
-    await expect(page.getByTestId("tree-item-orgs")).toBeVisible();
-    await expect(page.getByTestId("tree-item-catalog")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "System Builder" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Biblioteca de Blocos" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Inspetor de Propriedades" })).toBeVisible();
+    await expect(page.getByText("Selecione um bloco para editar suas propriedades.")).toBeVisible();
 
-    await page.getByTestId("tree-item-orgs").click();
+    const nodeCount = page.getByText(/^Nós: \d+$/);
+    const initialCount = Number((await nodeCount.textContent())?.replace(/\D/g, ""));
 
-    await expect(page.getByText("Selecione um elemento na árvore ou no canvas para ver suas propriedades.")).toBeHidden();
-    await expect(page.getByRole("heading", { name: "Organizações" })).toBeVisible();
+    await page.getByRole("button", { name: /Tarefa humana/ }).click();
+
+    await expect(nodeCount).toHaveText(`Nós: ${initialCount + 1}`);
+    await expect(page.getByText("Selecione um bloco para editar suas propriedades.")).toBeHidden();
+
+    const labelInput = page.getByLabel("Rótulo (Label)");
+    await expect(labelInput).toHaveValue("Tarefa humana");
+    await labelInput.fill("Revisar solicitação");
+    await expect(labelInput).toHaveValue("Revisar solicitação");
   });
 });

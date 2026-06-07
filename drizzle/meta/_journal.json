@@ -134,6 +134,13 @@
       "when": 1780794319691,
       "tag": "0018_petite_chameleon",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1780795338765,
+      "tag": "0019_candidates-builder-schema",
+      "breakpoints": true
     }
   ]
 }

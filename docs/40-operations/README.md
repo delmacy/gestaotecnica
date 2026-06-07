@@ -8,8 +8,9 @@ entre agentes.
 - `JULES_TESTER_PLAYBOOK.md`: papel, limites e fluxo de trabalho do Jules Tester.
 - `PROCESS_CANDIDATES_TEST_PLAN.md`: matriz inicial de testes automatizados do
   domínio Process Candidates.
-- `prompts/JULES_TESTER_PROCESS_CANDIDATES.md`: prompt executável para iniciar a
-  corretiva de testes após a Fase 23.
+- `prompts/JULES_TESTER_PROCESS_CANDIDATES.md`: gate profundo da Fase 23, com
+  auditoria, evidências reproduzíveis e decisão formal entre corretiva ou
+  aprovação para a próxima fase.
 
 ## Princípio
 

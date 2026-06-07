@@ -92,3 +92,36 @@ Decisão:
 ## 11. Histórico de correções
 
 - —
+
+### Execução 001 — Jules Dev — 2024-06-07
+
+Status: Concluído (UI Mínima)
+
+Arquivos criados:
+- `src/features/builder/candidates/candidate.types.ts`
+- `src/components/builder/candidates/CandidateBadge.tsx`
+- `src/components/builder/candidates/CandidateList.tsx`
+- `src/components/builder/candidates/CandidateDetail.tsx`
+- `src/app/(builder)/candidates/page.tsx`
+
+Arquivos alterados:
+- Nenhum.
+
+Comandos executados:
+- `npm run lint`
+- `npm run build`
+
+Resultado do lint:
+- Sem erros (após execução).
+
+Resultado do build:
+- Sucesso (após execução).
+
+Git status:
+- Arquivos adicionados à staging area para commit.
+
+Bloqueios:
+- Nenhum.
+
+Observações:
+- Implementada a interface de Process Candidates respeitando a Fase 21 implícita (tipos do candidato), renderizando lista e detalhes mockados. Não foi implementada persistência ou chamadas de banco de dados, em conformidade com as regras da fase.

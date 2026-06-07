@@ -128,3 +128,24 @@ Decisão:
 ## 11. Histórico de correções
 
 - —
+
+### Correção 001 — ChatGPT/Codex — 2026-06-06
+
+Resultado:
+- Contrato de Process Candidates alinhado com `workspace_id`, origens canônicas,
+  definição proposta, evidências e autoria.
+- Tabela movida para o schema PostgreSQL explícito `builder`.
+- UI corrigida para busca, filtro, seleção coerente, navegação por teclado,
+  loading e erro recuperável.
+- Erros internos do banco deixaram de expor queries SQL na interface.
+- Adicionada suíte automatizada unitária e E2E.
+
+Validações:
+- `npm run test:unit`
+- `npm run lint`
+- `npm run build`
+- `npx playwright test tests/e2e/candidates.spec.ts --project=chromium`
+
+Observação:
+- A migration corretiva foi gerada, mas não foi aplicada ao banco local porque
+  `system_builder_dev` não existe neste ambiente.

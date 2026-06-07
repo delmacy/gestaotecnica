@@ -45,3 +45,13 @@ Ao arquivar, adicionar no topo:
 > Documento histórico. Não usar como fonte principal de implementação.
 > Fonte atual: docs/00-current/
 ```
+
+## Operação de testes
+
+Para trabalhos de QA automatizado, começar por:
+
+```text
+40-operations/JULES_TESTER_PLAYBOOK.md
+40-operations/PROCESS_CANDIDATES_TEST_PLAN.md
+40-operations/prompts/JULES_TESTER_PROCESS_CANDIDATES.md
+```

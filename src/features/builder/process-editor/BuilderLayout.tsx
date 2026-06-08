@@ -21,30 +21,32 @@ export type BuilderLayoutProps = {
 
 export function BuilderLayout({ blockLibrary, canvas, inspector, validation, draftActions, savedProcesses, preview, mode = "builder", onModeChange, headerInfo }: BuilderLayoutProps) {
   return (
-    <div className="flex flex-col h-screen w-full bg-slate-50 overflow-hidden">
-      <header className="flex-none h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
-        <div className="flex flex-col">
-          <h1 className="text-sm font-bold text-slate-800 leading-tight">System Builder</h1>
-          <span className="text-[10px] text-slate-500 uppercase tracking-widest font-medium leading-tight">
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-background text-foreground">
+      <header className="flex h-16 flex-none shrink-0 items-center justify-between border-b border-border/80 bg-card/95 px-6 shadow-sm backdrop-blur">
+        <div className="flex min-w-0 flex-col">
+          <h1 className="truncate text-sm font-bold leading-tight tracking-tight text-foreground">System Builder</h1>
+          <span className="text-[10px] font-medium uppercase leading-tight tracking-[0.22em] text-muted-foreground">
             Construtor visual de processos
           </span>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           {onModeChange && (
-            <div className="flex items-center bg-slate-100 rounded-md p-1 border border-slate-200">
+            <div className="flex items-center rounded-xl border border-border bg-muted/70 p-1">
               <button
+                type="button"
                 onClick={() => onModeChange("builder")}
-                className={`px-3 py-1 text-xs font-semibold rounded transition-colors ${
-                  mode === "builder" ? "bg-white text-blue-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  mode === "builder" ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Builder
               </button>
               <button
+                type="button"
                 onClick={() => onModeChange("preview")}
-                className={`px-3 py-1 text-xs font-semibold rounded transition-colors ${
-                  mode === "preview" ? "bg-white text-blue-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  mode === "preview" ? "bg-background text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Preview
@@ -53,20 +55,20 @@ export function BuilderLayout({ blockLibrary, canvas, inspector, validation, dra
           )}
 
           {headerInfo && (
-            <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-700">{headerInfo.name}</span>
-              <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium">
-                {headerInfo.status}
-              </span>
-              {headerInfo.isDirty && (
-                <span className="px-2 py-0.5 rounded text-amber-600 bg-amber-50 border border-amber-200 font-medium">
-                  Não salvo
+            <div className="hidden items-center gap-4 text-xs md:flex">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="max-w-56 truncate font-semibold text-foreground">{headerInfo.name}</span>
+                <span className="rounded-full bg-secondary px-2 py-0.5 font-medium text-secondary-foreground">
+                  {headerInfo.status}
                 </span>
-              )}
-            </div>
-            <div className="h-4 w-px bg-slate-300"></div>
-              <div className="flex gap-3 text-slate-500 font-medium">
+                {headerInfo.isDirty && (
+                  <span className="rounded-lg border border-amber-200 bg-amber-50 px-2 py-0.5 font-medium text-amber-700">
+                    Não salvo
+                  </span>
+                )}
+              </div>
+              <div className="h-5 w-px bg-border" />
+              <div className="flex gap-3 font-medium text-muted-foreground">
                 <span>Nós: {headerInfo.nodeCount}</span>
                 <span>Conexões: {headerInfo.edgeCount}</span>
               </div>
@@ -76,33 +78,33 @@ export function BuilderLayout({ blockLibrary, canvas, inspector, validation, dra
       </header>
 
       {draftActions && (
-        <div className="flex-none z-20">
+        <div className="z-20 flex-none">
           {draftActions}
         </div>
       )}
 
-      <div className="flex-1 flex min-h-0 overflow-hidden">
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         {mode === "builder" ? (
           <>
-            <aside className="shrink-0 h-full flex flex-col overflow-hidden">
+            <aside className="flex h-full shrink-0 flex-col overflow-hidden border-r border-border/60 bg-sidebar/50">
               {savedProcesses}
               {blockLibrary}
             </aside>
 
-            <main className="flex-1 flex flex-col h-full overflow-hidden relative min-w-0">
-              <div className="flex-1 relative min-h-0">
+            <main className="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden bg-muted/25">
+              <div className="relative min-h-0 flex-1">
                 {canvas}
               </div>
               {validation}
             </main>
 
-            <aside className="shrink-0 h-full overflow-hidden">
+            <aside className="h-full shrink-0 overflow-hidden border-l border-border/60 bg-card/80">
               {inspector}
             </aside>
           </>
         ) : (
-          <main className="flex-1 flex flex-col h-full overflow-hidden relative min-w-0">
-            <div className="flex-1 relative min-h-0">
+          <main className="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden bg-muted/25">
+            <div className="relative min-h-0 flex-1">
               {preview}
             </div>
             {validation}

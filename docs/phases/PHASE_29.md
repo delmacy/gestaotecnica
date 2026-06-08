@@ -92,3 +92,39 @@ Decisão:
 ## 11. Histórico de correções
 
 - —
+
+### Execução 001 — Jules Dev — 2026-06-08
+
+Status: READY FOR REVIEW
+Arquivos criados:
+- src/features/platform/gateway/contracts/agent-payload.contract.ts
+- src/features/platform/gateway/contracts/agent-payload.schema.ts
+- src/features/platform/gateway/contracts/agent-payload.mapper.ts
+- src/features/platform/gateway/contracts/index.ts
+- src/features/platform/gateway/mocks/agent-payload.mock.ts
+- tests/unit/agent-payload-contract.test.ts
+Arquivos alterados:
+- src/app/api/agent/route.ts
+- src/features/platform/gateway/agent-gateway.test.ts
+- docs/00-current/NEXT_PHASE.md
+- docs/phases/PHASE_29.md
+Comandos executados:
+npm run lint
+npm run build
+npm run test:unit
+npm run test:integration
+git diff --check
+Resultado do lint: Ok
+Resultado do build: Ok
+Resultado dos testes: Ok
+Bloqueios: Nenhum
+Observações: Foi implementada a política de backward compatibility (Opção A) mantendo o schema antigo também válido.
+Frontend impact:
+- Área afetada: Agent Payload Contract / Gateway Backend
+- Rota(s): /api/agent
+- Usuário/persona: System / Agent
+- Workspace/global: Global com payload workspace-scoped
+- Estados cobertos: payload válido, payload inválido, payload legacy se mantido
+- Teste visual/E2E: Não aplicável nesta fase
+- Gap frontend pendente: Fase 29B exibirá melhor origem, evidências, formulários e estados sugeridos na UI de Candidate
+Decisão: Manter compatibilidade do payload legacy para garantir que testes anteriores passem

@@ -9,7 +9,6 @@ Replanejamento Alpha por contratos de feature.
 ## Próxima fase técnica autorizada
 
 ```text
-Fase 28B — Agent Candidate Inbox mínimo (se Fase 28 já estiver concluída localmente).
-Caso contrário, a Correção/Implementação da 28 e 28B.
+Fase 29B — Candidate Origin and Evidence UI
 ```
-Nenhuma fase seguinte (29 em diante) deve ser iniciada até a conclusão plena e revisão de UI (Frontend Parity Gate) da fase 28B.
+Nenhuma fase seguinte (30 em diante) deve ser iniciada até a conclusão plena e revisão de UI (Frontend Parity Gate) da fase 29B.

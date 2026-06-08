@@ -1,64 +1,63 @@
-# Fase 29 — Process Builder Agent Specification
+**Adendo documental — Frontend Parity Gate**
+
+# Fase 29 — Process Builder Agent Payload Contract
 
 ## Objetivo
-Documentar e mockar a estrutura do primeiro Agente autorizado a interagir com o Gateway.
+Documentar e mockar a estrutura do payload de Candidates enviado por Agentes.
 
 ## Contexto
-O Process Builder Agent será a entidade Paperclip responsável por observar recorrências. Precisamos mockar os payloads que ele vai enviar.
+Precisamos definir o contrato JSON exato que o agente usará para propor Candidates.
 
 ## Arquivos permitidos
 - `src/features/platform/gateway/mocks/agent-payload.mock.ts`
 
 ## Arquivos proibidos
-- Nenhuma lógica de Machine Learning real ou Langchain/OpenAI.
+- Lógica real de agentes (LLMs, Langchain, etc)
 
 ## Regras
-- O foco é ter a interface JSON exata que o agente emitirá para propor um Candidate (estado sugerido, formulário inferido, justificativa).
+- Payload deve contemplar estado sugerido, formulário e justificativa.
 
 ## Etapas
-1. Criar os mocks em TypeScript refletindo a proposta hipotética de um agente.
-2. Inserir um teste de snapshot no gateway validando este mock.
+1. Criar interfaces e mocks do payload.
+2. Validar mock contra gateway.
 
 ## Validações
-- Mocks testáveis contra o schema do gateway.
+- Validação de schema no Zod.
+- Teste de snapshot.
 
 ## Relatório final esperado
-- Payload do agente mapeado e mockado estritamente.
+- Contrato do agente mapeado e mockado.
 
 ## Regra de parada
-Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
+Pare após validar o contrato.
 
 ## Prompt pronto para Jules Dev
 ```text
 Antes de implementar, leia:
 AGENTS.md
+docs/planning/FRONTEND_PARITY_GATE.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 29 — Process Builder Agent Specification
+Fase 29 — Process Builder Agent Payload Contract
 
 Objetivo:
-Documentar e mockar a estrutura do primeiro Agente autorizado a interagir com o Gateway.
+Documentar e mockar a estrutura do payload de Candidates enviado por Agentes.
 
-Escopo:
-Restrito à estruturação do JSON mock do Process Builder Agent.
-
-Não alterar:
-- Produção de Runtime oficial sem aprovação.
-- Publicar workflows de forma automatizada por agentes.
-
-Regras:
-Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
-
-Etapas:
-1. Desenvolva o Mock Payload de acordo com a ontologia do Agentic Process Discovery.
-
-Validações:
-Testes locais sem erros TS e validação visual onde aplicável.
-
-Relatório final:
-Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
-
-Regra de parada:
-Não ultrapassar a fronteira de Process Builder Agent Specification. Pare e solicite review.
+Crie o contrato de payload para Process Candidates propostos por agentes.
 ```
+
+## Prompt pronto para Jules Tester (se aplicável)
+```text
+Fase 29
+Execute os testes unitários e de integração validando os escopos e limites de permissões.
+```
+
+Frontend impact:
+- Área afetada: Nenhuma diretamente (Mock)
+- Rota(s): N/A
+- Usuário/persona: System
+- Workspace/global: Global
+- Estados cobertos: N/A
+- Teste visual/E2E: N/A
+- Gap frontend pendente: Fase 29B para exibir esse payload.

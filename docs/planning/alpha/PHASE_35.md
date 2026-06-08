@@ -1,64 +1,61 @@
-# Fase 35 — Metrics and Process Intelligence
+**Adendo documental — Frontend Parity Gate**
+
+# Fase 35 — Metrics Backend
 
 ## Objetivo
-Criar os stubs e funções de leitura agregada para Métricas do Runtime.
+Consultas/Queries para lead time, rejeição, tempo de execução.
 
 ## Contexto
-Sem métricas, o agente não propõe melhorias baseadas em dados. Precisamos extrair Lead Time e Taxa de Rejeição das Action Executions.
+Process Intelligence básico extraindo dados das execuções de instâncias.
 
 ## Arquivos permitidos
-- `src/features/workflow/runtime/metrics/metrics.queries.ts`
+- Views/Queries de agregação de métricas no banco
 
 ## Arquivos proibidos
-- UI de Dashboard complexa ou Bibliotecas Gráficas externas.
+- Instalação de ferramentas BI externas
 
 ## Regras
-- Focar exclusivamente na agregação de dados via queries do banco PostgreSQL.
+- Dados agrupados por workspace e processo.
 
 ## Etapas
-1. Criar função `getProcessLeadTimeAverage()` agregando `action_executions`.
-2. Criar função `getApprovalRejectionRates()`.
+1. Criar consultas analíticas sobre `action_executions` e instâncias.
 
 ## Validações
-- Queries válidas utilizando Drizzle ORM.
+- Teste de output numérico das queries.
 
 ## Relatório final esperado
-- Camada de leitura agregada de métricas do runtime prontas.
+- APIs de métricas disponíveis.
 
 ## Regra de parada
-Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
+Pare antes dos gráficos.
 
 ## Prompt pronto para Jules Dev
 ```text
 Antes de implementar, leia:
 AGENTS.md
+docs/planning/FRONTEND_PARITY_GATE.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 35 — Metrics and Process Intelligence
+Fase 35 — Metrics Backend
 
 Objetivo:
-Criar os stubs e funções de leitura agregada para Métricas do Runtime.
+Consultas/Queries para lead time, rejeição, tempo de execução.
 
-Escopo:
-Queries de extração de relatórios base em `metrics.queries.ts`.
-
-Não alterar:
-- Produção de Runtime oficial sem aprovação.
-- Publicar workflows de forma automatizada por agentes.
-
-Regras:
-Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
-
-Etapas:
-1. Crie as consultas SQL (via Drizzle) focadas em extrair inteligência a partir da tabela de eventos de execução e passos.
-
-Validações:
-Testes locais sem erros TS e validação visual onde aplicável.
-
-Relatório final:
-Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
-
-Regra de parada:
-Não ultrapassar a fronteira de Metrics and Process Intelligence. Pare e solicite review.
+Implemente os endpoints e queries SQL para extrair métricas de execução de processos (Lead time, throughput).
 ```
+
+## Prompt pronto para Jules Tester (se aplicável)
+```text
+Fase 35
+Execute os testes unitários e de integração validando os escopos e limites de permissões.
+```
+
+Frontend impact:
+- Área afetada: Backend Analytics
+- Rota(s): N/A
+- Usuário/persona: System
+- Workspace/global: Workspace
+- Estados cobertos: Agregação
+- Teste visual/E2E: N/A
+- Gap frontend pendente: Fase 35B

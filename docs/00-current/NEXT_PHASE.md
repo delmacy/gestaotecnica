@@ -3,19 +3,12 @@
 ## Fase atual de organização
 
 ```text
-A documentação estratégica foi realinhada. O produto agora foca na tese do "Process Candidate" e no "Builder Control Plane" (Fase 20+).
+A documentação estratégica foi realinhada com o conceito de Frontend Parity Gate. O produto agora garante que o frontend não fique atrasado em relação ao backend para as fases Alpha (28 a 40). O foco é no "Process Candidate" e no "Builder Control Plane" com interfaces operáveis em cada passo.
 ```
 
-## Prioridade Atual (Foco Documental / Implementação Inicial Alpha)
+## Prioridade Atual
 
-A próxima fase deve priorizar as fundações do control plane, sem invadir multiagente ou paperclip:
-```text
-Builder Control Plane Shell
-Process Candidates
-UI manual de Process Candidates
-modelo documental de Process Candidate
-preparação agent-ready
-```
+A prioridade atual é continuar a fila técnica já validada no histórico de fases. A Fase 27B aprovou o Golden E2E canônico e a Fase 27C aprovou a compatibilidade visual do layout. A próxima implementação técnica autorizada é a Fase 28, respeitando a política de Frontend Parity Gate.
 
 **NÃO PRIORIZAR AINDA:**
 ```text
@@ -25,17 +18,17 @@ auto geração de código
 automação autônoma
 ```
 
-## Próxima fase técnica autorizada na fila do MVP/Transição
+## Próxima fase técnica autorizada
 
 ```text
-Fase 20 — Builder Control Plane Shell
-(Consulte o WORK_BOARD para status detalhado das pendências anteriores)
+Fase 28 — Agent Gateway Backend
+Frontend vinculado: Fase 28B — Agent Gateway Control Plane UI
 ```
 
 ## Referência Rápida
 
-Para iniciar a execução da Fase 20, o responsável técnico deve consultar o planejamento detalhado em:
-[docs/planning/alpha/PHASE_20.md](../planning/alpha/PHASE_20.md)
+Para iniciar a execução da Fase 28, o responsável técnico deve consultar o planejamento detalhado em:
+[docs/planning/alpha/PHASE_28.md](../planning/alpha/PHASE_28.md)
 
 ## Gate adicional obrigatório
 

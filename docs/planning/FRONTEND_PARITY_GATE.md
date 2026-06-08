@@ -1,5 +1,8 @@
 # Frontend Parity Gate — System Builder
 
+Este documento estabelece a política obrigatória de Frontend Parity Gate para o
+desenvolvimento do System Builder.
+
 ## Objetivo
 
 Garantir que cada avanço de backend, domínio, banco, workflow, capability,
@@ -10,10 +13,28 @@ O System Builder não deve evoluir como um backend invisível. A plataforma deve
 ser operável por usuários autenticados, com separação clara entre:
 
 - administração global da plataforma;
-- seleção e configuração de workspaces/clientes;
+- seleção e configuração de organizações e workspaces/clientes;
 - operação sensível dentro do workspace ativo;
 - capabilities globais reutilizáveis;
 - dados operacionais isolados por workspace.
+
+## Princípio Fundamental
+
+Nenhuma fase que altere backend, banco de dados, domínio, workflow, capability,
+form, rule, aprovação, integração ou governança deve ser marcada como completa
+sem:
+
+1. UI correspondente;
+2. ou fase frontend imediatamente vinculada no roadmap;
+3. ou gap frontend explícito e justificado temporariamente.
+
+## Direção de Produto
+
+- A plataforma global administra tenants, workspaces, usuários, capabilities globais e governança.
+- Gestão Técnica é operacional e feita por workspace/tenant.
+- Processos, dashboards, demandas, formulários, aprovações e dados operacionais são estritamente isolados por workspace.
+- Toda a operação e construção do System Builder deve rodar dentro de área autenticada, exceto rotas de `/auth/*`.
+- Capabilities são globais e reutilizáveis; instalações e configurações são por workspace.
 
 ## Regra Mestra
 
@@ -30,6 +51,14 @@ Toda fase nova deve responder explicitamente:
 
 Se a fase for estritamente backend, ela deve documentar o motivo e criar ao
 menos um item de backlog frontend vinculado.
+
+## Estratégias de Organização de Fases
+
+Para garantir esse princípio, o roadmap adota três abordagens:
+
+1. Backend sprint seguido de frontend sprint. Exemplo: 28 e 28B.
+2. Backend + frontend na mesma fase para escopos pequenos.
+3. Bloco backend de consolidação seguido por frontend de consolidação. Exemplo: 31, 32 e 32B.
 
 ## Escopo Obrigatório por Tipo de Fase
 
@@ -123,7 +152,8 @@ APROVADO PARA PRÓXIMA FASE
 ```
 
 a fase precisa comprovar que a interface acompanha o avanço técnico, salvo
-quando a fase for declaradamente documental ou infra invisível.
+quando a fase for declaradamente documental, infra invisível ou possuir fase
+frontend imediatamente vinculada e autorizada.
 
 ## Aplicação
 
@@ -135,4 +165,3 @@ Este gate vale para:
 - prompts de Jules Dev;
 - prompts de Jules Tester;
 - revisões feitas pelo ChatGPT/Codex.
-

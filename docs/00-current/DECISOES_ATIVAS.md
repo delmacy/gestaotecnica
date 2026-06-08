@@ -82,3 +82,10 @@ Frontend impact:
 Se houver gap frontend pendente, a fase não deve ser marcada como aprovação
 plena para próxima etapa, salvo quando for explicitamente infra invisível ou
 documentação.
+
+## 6. Frontend Parity Gate
+
+* Nenhuma capacidade técnica backend avança sem sua respectiva UI ou fase frontend vinculada no planejamento.
+* O roadmap precisa garantir que o frontend acompanhe o backend de forma planejada.
+* Área autenticada é o padrão.
+* Capabilities globais e dados workspace-scoped devem ser diferenciados claramente.

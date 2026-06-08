@@ -13,41 +13,49 @@ Interface para listar e visualizar escopos dos agentes.
 ## 3. Problema que resolve
 Visibilidade administrativa de quem tem chave de acesso (IA/Bots).
 
-## 4. Escopo permitido
+## 4. Domínio / DDD
+- Application Use Case: ManageAgentKeys
+- Persona: Platform Admin
+- Decisão Humana: Revogar chave em caso de incidente ou comportamento anômalo.
+- Estados da Entidade: active, suspended, revoked.
+- Erros de Domínio Visíveis: Falha ao revogar chave.
+- Audit Trail / Receipt: N/A
+
+## 5. Escopo permitido
 - `/admin/agents`.
 
-## 5. Fora de escopo
+## 6. Fora de escopo
 - Configuração complexa de RBAC de agente.
 
-## 6. Entidades e contratos
+## 7. Entidades e contratos
 N/A
 
-## 7. Estados e transições
+## 8. Estados e transições
 - Listar/desativar agente.
 
-## 8. Services, repositories e actions esperados
+## 9. Services, repositories e actions esperados
 - Actions crud agente.
 
-## 9. UI esperada
+## 10. UI esperada
 - Tabela `/admin/agents`. Erro, empty e loading.
 
-## 10. Testes obrigatórios
+## 11. Testes obrigatórios
 - E2E.
 
-## 11. Frontend impact
+## 12. Frontend impact
 - `/admin/agents`.
 
-## 12. Critérios de aceite
+## 13. Critérios de aceite
 - Administrador consegue desativar acesso de um agente através da UI.
 
-## 13. Regra de parada
+## 14. Regra de parada
 Ação funcional de toggle de key.
 
-## 14. Prompt para Jules Dev
+## 15. Prompt para Jules Dev
 `Implementar UI para Agent Registry (Fase 40B).`
 
-## 15. Prompt para Jules Tester
+## 16. Prompt para Jules Tester
 `N/A`
 
-## 16. Riscos e decisões
+## 17. Riscos e decisões
 - N/A

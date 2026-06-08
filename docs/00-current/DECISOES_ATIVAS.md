@@ -29,6 +29,9 @@ Este documento contém as decisões que devem guiar a implementação atual.
 
 ## 2. Decisões técnicas
 
+* **DDD Pragmático/Progressivo**: O projeto adotará conceitos de DDD progressivamente (bounded contexts, use cases, ports/adapters), sem exigir uma reescrita arquitetural global. Novas fases devem seguir o DDD Feature Contract.
+* **Isolamento de Regras**: Domínio não deve depender de detalhes de Paperclip/n8n. Payload externo será tratado por Anti-Corruption Layer. Repositories persistem (não decidem regras). API Routes adaptam HTTP (não concentram regras). UI opera casos de uso.
+* **Status Testável**: Status e transições de estado devem ser validados por testes no backend, evitando mutações arbitrárias na UI ou no repository.
 * **Fase 39** passa a ser o gate final Alpha de segurança.
 * **Fase 40/40B** (Agent Registry) deve ocorrer antes da Fase 39.
 * **Fase 38/38B** (Workspace Consent) deve ser antecipada antes de n8n/observations.

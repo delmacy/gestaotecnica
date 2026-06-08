@@ -13,44 +13,52 @@ Interface para humano promover/rejeitar Observation para Process Candidate.
 ## 3. Problema que resolve
 Permite controle humano no pipeline de observação.
 
-## 4. Escopo permitido
+## 4. Domínio / DDD
+- Application Use Case: ReviewObservation
+- Persona: Gestor de Processos / Administrador
+- Decisão Humana: Promover observação para Process Candidate ou rejeitar.
+- Estados da Entidade: new, under_review, promoted, rejected.
+- Erros de Domínio Visíveis: Rejeição sem justificativa bloqueada.
+- Audit Trail / Receipt: Justificativa de rejeição registrada.
+
+## 5. Escopo permitido
 - UI de `/observations`.
 
-## 5. Fora de escopo
+## 6. Fora de escopo
 - Edição total da observação, apenas aceite/rejeição.
 
-## 6. Entidades e contratos
+## 7. Entidades e contratos
 N/A
 
-## 7. Estados e transições
+## 8. Estados e transições
 - promote, reject.
 - justificativa obrigatória para rejeição.
 
-## 8. Services, repositories e actions esperados
+## 9. Services, repositories e actions esperados
 - Actions de update de status.
 
-## 9. UI esperada
+## 10. UI esperada
 - Rota `/observations`.
 - Detalhe da observation e listagem.
 - Link para Candidate criado.
 
-## 10. Testes obrigatórios
+## 11. Testes obrigatórios
 - E2E.
 
-## 11. Frontend impact
+## 12. Frontend impact
 - `/observations` UI.
 
-## 12. Critérios de aceite
+## 13. Critérios de aceite
 - Rejeitar exige texto. Promover redireciona ou cria Candidate.
 
-## 13. Regra de parada
+## 14. Regra de parada
 Fluxo funcionando.
 
-## 14. Prompt para Jules Dev
+## 15. Prompt para Jules Dev
 `Criar a UI de revisão de Observation (Fase 32B) permitindo promover ou rejeitar (com justificativa).`
 
-## 15. Prompt para Jules Tester
+## 16. Prompt para Jules Tester
 `N/A`
 
-## 16. Riscos e decisões
+## 17. Riscos e decisões
 - Ligação de Observation para Candidate.

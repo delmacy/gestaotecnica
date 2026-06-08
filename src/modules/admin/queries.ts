@@ -10,8 +10,21 @@ import {
   workflowTemplates,
   workspaceModuleConfigs,
 } from "@/db/schema";
-import { workspaces } from "@/db/runtime/schema/workspace";
+import { organizations, workspaces } from "@/db/runtime/schema/workspace";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
+
+type OrganizationRow = typeof organizations.$inferSelect;
+type WorkspaceRow = typeof workspaces.$inferSelect;
+
+export type OrganizationOverview = OrganizationRow & {
+  workspaceCount: number;
+  activeWorkspaceCount: number;
+};
+
+export type OrganizationWorkspacePanel = {
+  organization: OrganizationRow;
+  workspaces: WorkspaceRow[];
+};
 
 export async function getAdminSummary() {
   const db = getDb();
@@ -54,6 +67,54 @@ export async function getAdminUsers() {
     .leftJoin(authAccounts, eq(authAccounts.userId, users.id))
     .orderBy(desc(users.createdAt))
     .limit(100);
+}
+
+export async function getOrganizationsOverview(): Promise<OrganizationOverview[]> {
+  const db = getDb();
+
+  const [organizationRows, workspaceRows] = await Promise.all([
+    db.select().from(organizations).orderBy(asc(organizations.name)),
+    db
+      .select({
+        id: workspaces.id,
+        organizationId: workspaces.organizationId,
+        status: workspaces.status,
+      })
+      .from(workspaces),
+  ]) as [OrganizationRow[], Array<Pick<WorkspaceRow, "id" | "organizationId" | "status">>];
+
+  return organizationRows.map((organization: OrganizationRow) => {
+    const ownedWorkspaces = workspaceRows.filter((workspace) => workspace.organizationId === organization.id);
+
+    return {
+      ...organization,
+      workspaceCount: ownedWorkspaces.length,
+      activeWorkspaceCount: ownedWorkspaces.filter((workspace) => workspace.status === "active").length,
+    };
+  });
+}
+
+export async function getOrganizationWorkspacePanel(organizationId: string): Promise<OrganizationWorkspacePanel | null> {
+  const db = getDb();
+
+  const [organization] = await db
+    .select()
+    .from(organizations)
+    .where(eq(organizations.id, organizationId))
+    .limit(1);
+
+  if (!organization) return null;
+
+  const workspaceRows = await db
+    .select()
+    .from(workspaces)
+    .where(eq(workspaces.organizationId, organizationId))
+    .orderBy(asc(workspaces.name));
+
+  return {
+    organization,
+    workspaces: workspaceRows,
+  };
 }
 
 export async function getWorkspaceAdminData() {

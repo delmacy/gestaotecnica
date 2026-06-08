@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 
 const links = [
   { href: "/admin/users", label: "Usuarios" },
-  { href: "/admin/workspaces", label: "Workspace" },
+  { href: "/admin/organizations", label: "Organizações" },
+  { href: "/admin/workspaces", label: "Workspace ativo" },
   { href: "/admin/workflows", label: "Workflows" },
   { href: "/admin/permissions", label: "Permissoes" },
   { href: "/admin/queues", label: "Filas/SLA" },

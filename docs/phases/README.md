@@ -21,3 +21,22 @@ Agentes podem acrescentar seções novas, mas não devem remover execuções, re
 - Jules Dev pode acrescentar relatório de execução ao arquivo da fase correspondente.
 - Jules Dev não deve alterar `WORK_BOARD.md`, `NEXT_PHASE.md`, `STATUS_DAS_FASES.md` ou `DECISOES_ATIVAS.md`.
 - ChatGPT/revisor pode orientar revisão ou acrescentar revisão, se autorizado.
+
+## Frontend Parity Gate
+
+Toda execução de fase que altere backend, domínio, banco, workflow,
+capability, form, rule, aprovação, integração ou governança deve acrescentar
+ao relatório:
+
+```text
+Frontend impact:
+- Área afetada:
+- Rota(s):
+- Usuário/persona:
+- Workspace/global:
+- Estados cobertos:
+- Teste visual/E2E:
+- Gap frontend pendente:
+```
+
+Referência: `docs/planning/FRONTEND_PARITY_GATE.md`.

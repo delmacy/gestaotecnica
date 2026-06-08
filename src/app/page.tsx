@@ -19,7 +19,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const platformActions = [
-  { href: "/admin/workspaces", label: "Selecionar workspace", detail: "Cliente/tenant ativo", icon: BriefcaseBusiness },
+  { href: "/admin/organizations", label: "Selecionar workspace", detail: "Cliente/tenant ativo", icon: BriefcaseBusiness },
   { href: "/skills", label: "Capabilities globais", detail: "Disponíveis para qualquer cliente", icon: Bot },
   { href: "/workspace-config", label: "Instalar capabilities", detail: "Somente no workspace atual", icon: SlidersHorizontal },
   { href: "/admin/users", label: "Usuários e papéis", detail: "Acesso autenticado", icon: ShieldCheck },
@@ -33,7 +33,7 @@ const workspaceActions = [
 ];
 
 const governanceActions = [
-  { href: "/admin/workspaces", label: "Empresas", value: "Workspaces", icon: BriefcaseBusiness },
+  { href: "/admin/organizations", label: "Empresas", value: "Organizações", icon: BriefcaseBusiness },
   { href: "/admin/workflows", label: "Workflows", value: "Publicados", icon: Network },
   { href: "/reports", label: "Relatórios", value: "Operação", icon: FileCheck2 },
   { href: "/search", label: "Busca", value: "Global", icon: Search },

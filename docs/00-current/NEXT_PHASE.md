@@ -36,3 +36,13 @@ Fase 20 — Builder Control Plane Shell
 
 Para iniciar a execução da Fase 20, o responsável técnico deve consultar o planejamento detalhado em:
 [docs/planning/alpha/PHASE_20.md](../planning/alpha/PHASE_20.md)
+
+## Gate adicional obrigatório
+
+Antes de iniciar qualquer fase nova, Jules Dev e Jules Tester devem consultar:
+
+[docs/planning/FRONTEND_PARITY_GATE.md](../planning/FRONTEND_PARITY_GATE.md)
+
+Nenhuma fase que altere backend, banco, domínio, workflow, capability, form,
+rule, aprovação ou integração deve ser considerada completa sem declarar o
+impacto frontend correspondente ou registrar um gap frontend explícito.

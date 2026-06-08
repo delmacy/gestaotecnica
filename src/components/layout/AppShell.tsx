@@ -55,7 +55,7 @@ const navGroups: NavGroup[] = [
     mode: "platform",
     items: [
       { href: "/", label: "Command Center", description: "Visão geral segura", icon: LayoutDashboard },
-      { href: "/admin/workspaces", label: "Clientes", description: "Organizations e workspaces", icon: BriefcaseBusiness },
+      { href: "/admin/organizations", label: "Clientes", description: "Organizações e workspaces", icon: BriefcaseBusiness },
       { href: "/skills", label: "Capabilities globais", description: "Catálogo reutilizável", icon: Bot },
       { href: "/workspace-config", label: "Instalações", description: "Capabilities por workspace", icon: SlidersHorizontal },
       { href: "/admin/users", label: "Usuários", description: "Acessos e papéis", icon: Users },

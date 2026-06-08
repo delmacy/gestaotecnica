@@ -18,6 +18,14 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * Postgres continua sendo o source of truth isolado e inviolável.
 * Publicação de workflow exige revisão humana obrigatória.
 * A UI do Builder deve evoluir para um Control Plane denso.
+* Toda fase técnica deve aplicar o `Frontend Parity Gate`: backend, domínio,
+  banco, workflows, forms, rules, capabilities e integrações precisam ter
+  reflexo operável ou visível na área autenticada correspondente.
+* Dados de Gestão Técnica são sempre dados de um workspace/cliente selecionado.
+  O admin da plataforma pode acessá-los como administrador, mas eles não são
+  globais da plataforma.
+* Capabilities são globais e reutilizáveis; instalações, configurações,
+  processos, demandas, formulários, aprovações e dashboards são por workspace.
 
 ## 2. Decisões técnicas
 
@@ -55,3 +63,22 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * Estrutura de runtime `process_instances`. O runtime começa na Fase 17.
 * Integração com n8n via webhook/outbox.
 * Modelo de permissions/RBAC.
+
+## 5. Gate obrigatório de UI
+
+Todas as fases futuras devem incluir no relatório:
+
+```text
+Frontend impact:
+- Área afetada:
+- Rota(s):
+- Usuário/persona:
+- Workspace/global:
+- Estados cobertos:
+- Teste visual/E2E:
+- Gap frontend pendente:
+```
+
+Se houver gap frontend pendente, a fase não deve ser marcada como aprovação
+plena para próxima etapa, salvo quando for explicitamente infra invisível ou
+documentação.

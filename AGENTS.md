@@ -34,11 +34,23 @@ Antes de criar uma nova funcionalidade, documente em `docs/`:
 2. Qual processo ela suporta?
 3. Como será rastreada?
 
-## 5. Documentação de Referência
+## 5. Paridade Frontend Obrigatória
+- Toda evolução de backend, banco, domínio, capability, workflow, form, regra,
+  integração ou governança deve declarar seu impacto na interface.
+- O usuário deve conseguir operar ou visualizar a capacidade dentro da área
+  autenticada correta.
+- Dados operacionais pertencem ao workspace selecionado; capabilities são
+  globais e reutilizáveis, mas suas instalações são por workspace.
+- Se uma fase for estritamente backend, ela deve registrar o motivo e criar um
+  gap frontend rastreável.
+- O gate de referência é `docs/planning/FRONTEND_PARITY_GATE.md`.
+
+## 6. Documentação de Referência
 - `docs/foundation/MANIFESTO.md`
 - `docs/foundation/AI_CONSTITUTION.md`
 - `docs/foundation/ONTOLOGY.md`
 - `docs/architecture/PLATFORM_VS_CLIENT.md`
+- `docs/planning/FRONTEND_PARITY_GATE.md`
 
 ## Registro histórico por fase
 

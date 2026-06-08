@@ -6,10 +6,10 @@
 |---|---|
 | Fase técnica atual | Replanejamento Alpha |
 | Fase documental atual | Frontend Parity Gate aplicado ao bloco Alpha |
-| Última fase técnica aprovada | Fase 27B |
-| Última fase visual aprovada | Fase 27C |
-| Próxima fase técnica | Fase 28 |
-| Próxima fase frontend vinculada | Fase 28B |
+| Última fase técnica aprovada | Fase 29 |
+| Última fase visual aprovada | Fase 29B |
+| Próxima fase técnica | Fase 30 |
+| Próxima fase frontend vinculada | Fase 30B |
 | Responsável técnico | Jules Dev |
 | Responsável documental | Jules Documental |
 | Revisor | ChatGPT |

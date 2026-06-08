@@ -9,6 +9,6 @@ Replanejamento Alpha por contratos de feature.
 ## Próxima fase técnica autorizada
 
 ```text
-Fase 29B — Candidate Origin and Evidence UI
+Fase 30 — Paperclip Integration
 ```
-Nenhuma fase seguinte (30 em diante) deve ser iniciada até a conclusão plena e revisão de UI (Frontend Parity Gate) da fase 29B.
+A Fase 29B foi concluída com sucesso. Nenhuma fase seguinte deve ser iniciada até a conclusão da fase 30.

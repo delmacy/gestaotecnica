@@ -42,33 +42,48 @@ Resumo:
 
 ## 8. Execuções
 
-### Execução 001 — Jules Dev — YYYY-MM-DD
+### Execução 001 — Jules Dev — 2026-06-08
 
-Status: Pendente
+Status: Concluído
 
 Arquivos criados:
-- —
+- `src/components/builder/candidates/candidate-evidence-view-model.ts`
+- `src/components/builder/candidates/CandidateAgentSummary.tsx`
+- `src/components/builder/candidates/CandidateSuggestedStates.tsx`
+- `src/components/builder/candidates/CandidateSuggestedForms.tsx`
+- `src/components/builder/candidates/CandidateObservedSignals.tsx`
+- `src/components/builder/candidates/CandidateAttachments.tsx`
+- `tests/unit/candidate-evidence-view-model.test.ts`
+- `tests/e2e/candidate-evidence.spec.ts`
 
 Arquivos alterados:
-- —
+- `src/components/builder/candidates/CandidateDetail.tsx`
 
 Comandos executados:
-- —
+- `npm run lint`
+- `npm run build`
+- `npx tsx --test tests/unit/candidate-evidence-view-model.test.ts`
+- `npx playwright test tests/e2e/candidate-evidence.spec.ts --project=chromium`
+- `npm run test:e2e`
+- `npm run test:integration`
 
-Resultado do lint:
-- —
+Resultado do lint: Passou sem erros adicionais
+Resultado do build: Passou com sucesso
+Resultado dos testes: Unit tests e E2E tests executados com sucesso
+Bloqueios: Nenhum
 
-Resultado do build:
-- —
+Observações: Refatorado `CandidateDetail` para renderizar visualmente a evidência estruturada advinda do payload estendido (agente, origem, confiança, estados sugeridos, formulários sugeridos, sinais observados, anexos e metadados) enquanto mantém compatibilidade reversa via fallback técnico para formato legacy.
 
-Git status:
-- —
+Frontend impact:
+- Área afetada: Process Candidate Detail / Candidate Evidence UI
+- Rota(s): /candidates
+- Usuário/persona: Process Owner / Gestor Operacional / Admin da Plataforma
+- Workspace/global: Workspace
+- Estados cobertos: sem evidência, evidência legacy, evidência canônica de agente, suggested states, suggested forms, observed signals, attachments, metadata, raw JSON fallback
+- Teste visual/E2E: Candidate Detail renderizando dados estruturados do payload da Fase 29
+- Gap frontend pendente: Nenhum para Fase 29. Receipts/correlation/idempotency permanecem para Fase 30/30B.
 
-Bloqueios:
-- —
-
-Observações:
-- —
+Decisão: Pronto para revisão e PR.
 
 ## 9. Revisões
 

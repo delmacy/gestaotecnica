@@ -61,7 +61,8 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   26 | ⚪      | Forms as Standardization | Fase 26 Alfa Planejada                                   |
 |   27 | ⚪      | Business Rules & Approval| Fase 27 Alfa Planejada                                   |
 |   28 | ⚪      | Agent Gateway Spec       | Fase 28 Alfa Planejada                                   |
-|   29 | ⚪      | Process Builder Agent    | Fase 29 Alfa Planejada                                   |
+|   29 | ✅      | Process Builder Agent    | Contrato expandido de payload do Gateway                 |
+|  29B | ✅      | Candidate Evidence UI    | UI para visualizar payload estruturado do Gateway        |
 |   30 | ⚪      | Paperclip Integration    | Fase 30 Alfa Planejada                                   |
 |   31 | ⚪      | n8n as Boundary          | Fase 31 Alfa Planejada                                   |
 |   32 | ⚪      | Signal Inbox Pipeline    | Fase 32 Alfa Planejada                                   |

@@ -1,60 +1,56 @@
-# Fase 32B — Observation Review UI
+# Feature Contract — Fase 32B
+## 1. Identificação
+- Fase: 32B
+- Nome: Observation Review UI
+- Tipo: Frontend
+- Dependências: Fase 32
+- Fase frontend vinculada: N/A
+- Status: Planejada refinada
 
-## Objetivo
-Interface para revisar observations e convertê-las em Process Candidates.
+## 2. Objetivo
+Interface para humano promover/rejeitar Observation para Process Candidate.
 
-## Contexto
-O humano revisa Observations consolidadas e decide se devem originar um novo processo.
+## 3. Problema que resolve
+Permite controle humano no pipeline de observação.
 
-## Arquivos permitidos
-- UI de Observation
+## 4. Escopo permitido
+- UI de `/observations`.
 
-## Arquivos proibidos
-- Processamento backend adicional
+## 5. Fora de escopo
+- Edição total da observação, apenas aceite/rejeição.
 
-## Regras
-- Permitir ação manual de conversão em Process Candidate.
+## 6. Entidades e contratos
+N/A
 
-## Etapas
-1. Tela de listagem de Observations.
-2. Ação de 'Promover a Process Candidate'.
+## 7. Estados e transições
+- promote, reject.
+- justificativa obrigatória para rejeição.
 
-## Validações
-- Teste E2E promovendo observation a candidate.
+## 8. Services, repositories e actions esperados
+- Actions de update de status.
 
-## Relatório final esperado
-- Tela de revisão funcional.
+## 9. UI esperada
+- Rota `/observations`.
+- Detalhe da observation e listagem.
+- Link para Candidate criado.
 
-## Regra de parada
-Pare após concluir o fluxo de revisão visual.
+## 10. Testes obrigatórios
+- E2E.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+- `/observations` UI.
 
-Fase 32B — Observation Review UI
+## 12. Critérios de aceite
+- Rejeitar exige texto. Promover redireciona ou cria Candidate.
 
-Objetivo:
-Interface para revisar observations e convertê-las em Process Candidates.
+## 13. Regra de parada
+Fluxo funcionando.
 
-Implemente a UI para revisar Observations e promover a Process Candidates.
-```
+## 14. Prompt para Jules Dev
+`Criar a UI de revisão de Observation (Fase 32B) permitindo promover ou rejeitar (com justificativa).`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 32B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-Frontend impact:
-- Área afetada: Observation Review
-- Rota(s): /[workspace]/observations
-- Usuário/persona: Gestor Operacional / Arquiteto
-- Workspace/global: Workspace
-- Estados cobertos: Promover, Rejeitar, Agrupar
-- Teste visual/E2E: Verificar fluxo de conversão.
-- Gap frontend pendente: Nenhum
+## 16. Riscos e decisões
+- Ligação de Observation para Candidate.

@@ -1,60 +1,54 @@
-# Fase 35B — Workspace Dashboards
+# Feature Contract — Fase 35B
+## 1. Identificação
+- Fase: 35B
+- Nome: Workspace Dashboards
+- Tipo: Frontend
+- Dependências: Fase 35
+- Fase frontend vinculada: N/A
+- Status: Planejada refinada
 
-## Objetivo
-Dashboards operacionais de processo por workspace.
+## 2. Objetivo
+Componentes visuais simples para exibir as métricas de processo (`/dashboard`).
 
-## Contexto
-Visualização do Process Intelligence, lead times, gargalos.
+## 3. Problema que resolve
+Parity visual de Metrics.
 
-## Arquivos permitidos
-- Componentes de Gráficos / Métricas na UI
+## 4. Escopo permitido
+- `src/app/(builder)/dashboard/...`
 
-## Arquivos proibidos
-- Integração com sistemas pesados externos (PowerBI, etc)
+## 5. Fora de escopo
+- Interações complexas, gráficos avançados (D3).
 
-## Regras
-- Estados vazios e erro devem ser tratados.
+## 6. Entidades e contratos
+N/A
 
-## Etapas
-1. Tela de dashboard agregando os KPIs.
-2. Filtros por período/status.
+## 7. Estados e transições
+N/A
 
-## Validações
-- Teste visual dos componentes com dados mockados/reais.
+## 8. Services, repositories e actions esperados
+- UI components (MetricCard, StatusBreakdown).
 
-## Relatório final esperado
-- Dashboard analítico em operação.
+## 9. UI esperada
+- Rota: `/dashboard`.
+- Cards simples. Erro, empty, loading.
 
-## Regra de parada
-Pare após a UI de gráficos estar pronta.
+## 10. Testes obrigatórios
+- Visual e E2E.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+- Rota `/dashboard`.
 
-Fase 35B — Workspace Dashboards
+## 12. Critérios de aceite
+- Dashboard renderiza componentes de métrica.
 
-Objetivo:
-Dashboards operacionais de processo por workspace.
+## 13. Regra de parada
+UI testada e exibindo.
 
-Crie o Workspace Dashboard para exibir as métricas de processos geradas na Fase 35.
-```
+## 14. Prompt para Jules Dev
+`Implementar o dashboard de métricas usando os componentes simples (Fase 35B).`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 35B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-Frontend impact:
-- Área afetada: Dashboards
-- Rota(s): /[workspace]/dashboard
-- Usuário/persona: Gestor Operacional
-- Workspace/global: Workspace
-- Estados cobertos: Gráficos, Listas de ofensores
-- Teste visual/E2E: Verificar carregamento correto de stats.
-- Gap frontend pendente: Nenhum
+## 16. Riscos e decisões
+- N/A

@@ -1,64 +1,59 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 31
+## 1. Identificação
+- Fase: 31
+- Nome: n8n Signal Inbox Backend
+- Tipo: Backend
+- Dependências: Fase 37
+- Fase frontend vinculada: Fase 31B
+- Status: Planejada refinada
 
-# Fase 31 — n8n Webhook Inbox Backend
+## 2. Objetivo
+Endpoint seguro e schema para recepção de sinais do n8n (Signal Inbox).
 
-## Objetivo
-Criar a Inbox para recebimento de webhooks do n8n (signal_inbox).
+## 3. Problema que resolve
+Permite receber requisições de sistemas externos como n8n via webhook para avaliação.
 
-## Contexto
-O n8n é apenas um integrador, a plataforma centraliza a recepção via Inbox isolada.
+## 4. Escopo permitido
+- `src/app/api/webhooks/n8n/route.ts`
+- Novo schema e repository para `signal_inbox`.
 
-## Arquivos permitidos
-- Endpoint assinado
-- Armazenamento de sinais crus
+## 5. Fora de escopo
+- Processamento automático.
+- UI visual.
 
-## Arquivos proibidos
-- Lógica de processamento complexa imediata
+## 6. Entidades e contratos
+- Entidade: `signal_inbox`
+- Schema/Campos: `id`, `workspace_id`, `source`, `external_event_id`, `idempotency_key`, `status` (pending | processed | ignored | failed), `raw_payload`, `received_at`, `processed_at`, `error_code`, `correlation_id`.
+- workspace_id: Obrigatório.
 
-## Regras
-- Retornar HTTP 202 imediatamente.
-- Isolar dados crus por workspace.
+## 7. Estados e transições
+- pending -> processed | ignored | failed
 
-## Etapas
-1. Criar endpoint de webhook validando assinatura.
-2. Persistir na signal_inbox com status pendente.
+## 8. Services, repositories e actions esperados
+- Repository: para `signal_inbox`.
+- Endpoint `/api/webhooks/n8n` retorna HTTP 202.
 
-## Validações
-- Testes de webhook seguro.
+## 9. UI esperada
+N/A
 
-## Relatório final esperado
-- Endpoint webhook rodando e armazenando dados.
+## 10. Testes obrigatórios
+- E2E webhook.
+- Unit testes.
 
-## Regra de parada
-Pare após confirmar salvamento em banco.
+## 11. Frontend impact
+- Gap frontend pendente: Fase 31B vai cobrir a exibição.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 12. Critérios de aceite
+- Retorna 202; isolado por workspace; valida assinatura; usa idempotency_key.
 
-Fase 31 — n8n Webhook Inbox Backend
+## 13. Regra de parada
+Após o webhook registrar com sucesso no banco de dados.
 
-Objetivo:
-Criar a Inbox para recebimento de webhooks do n8n (signal_inbox).
+## 14. Prompt para Jules Dev
+`Criar endpoint e tabela para o n8n Signal Inbox (Fase 31), com suporte a idempotency_key.`
 
-Implemente a API de recepção de webhooks do n8n focado no padrão Inbox/HTTP 202.
-```
+## 15. Prompt para Jules Tester
+`Mandar payload mock para o webhook do n8n e checar o banco.`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 31
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
-
-Frontend impact:
-- Área afetada: Backend Webhook
-- Rota(s): /api/webhooks/n8n
-- Usuário/persona: System
-- Workspace/global: Workspace
-- Estados cobertos: Sucesso 202, Erro de assinatura
-- Teste visual/E2E: N/A
-- Gap frontend pendente: Fase 31B
+## 16. Riscos e decisões
+- Decisão: n8n não executa processo automaticamente.

@@ -1,61 +1,53 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 40
+## 1. Identificação
+- Fase: 40
+- Nome: Agent Registry Backend
+- Tipo: Backend
+- Dependências: N/A
+- Fase frontend vinculada: Fase 40B
+- Status: Planejada refinada
 
-# Fase 40 — Multi-Agent Operating Model
+## 2. Objetivo
+Registro de agentes externos no sistema (`agent_registry`).
 
-## Objetivo
-Registry estático de agentes autorizados e suas permissões.
+## 3. Problema que resolve
+Criar chaves de acesso controladas e limites (scopes).
 
-## Contexto
-Preparação para ter múltiplos agentes especializados (Process Agent, Form Agent, Review Agent).
+## 4. Escopo permitido
+- Tabela `agent_registry`.
 
-## Arquivos permitidos
-- Tabela/Config de Registry de Agentes
+## 5. Fora de escopo
+- Gerenciar LLM.
 
-## Arquivos proibidos
-- Múltiplos agentes dinâmicos de início
+## 6. Entidades e contratos
+- Entidade `agent_registry`: `id`, `key`, `name`, `type`, `status` (active | suspended | revoked), `scopes`, `created_at`, `updated_at`, `last_seen_at`.
 
-## Regras
-- Cada agente tem chaves e permissões específicas.
+## 7. Estados e transições
+- active -> suspended | revoked.
 
-## Etapas
-1. Implementar registry de agentes e roteamento por permissões.
+## 8. Services, repositories e actions esperados
+- Auth filter checando key no repo.
 
-## Validações
-- Autorização falhando se agente tenta ação fora do seu escopo.
+## 9. UI esperada
+N/A
 
-## Relatório final esperado
-- Modelo multiagente de backend base concluído.
+## 10. Testes obrigatórios
+- Integ Auth.
 
-## Regra de parada
-Pare antes da interface do registry.
+## 11. Frontend impact
+- Gap (40B).
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 12. Critérios de aceite
+- Rejeitar acesso fora do escopo ou key suspensa.
 
-Fase 40 — Multi-Agent Operating Model
+## 13. Regra de parada
+Testes passando.
 
-Objetivo:
-Registry estático de agentes autorizados e suas permissões.
+## 14. Prompt para Jules Dev
+`Implementar o registro de agentes no backend (Fase 40) com a tabela agent_registry e chaves vinculadas.`
 
-Crie a infraestrutura de backend para registrar múltiplos agentes e mapear suas capacidades (Registry).
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 40
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
-
-Frontend impact:
-- Área afetada: Backend Registry
-- Rota(s): N/A
-- Usuário/persona: System
-- Workspace/global: Global
-- Estados cobertos: CRUD API
-- Teste visual/E2E: N/A
-- Gap frontend pendente: Fase 40B
+## 16. Riscos e decisões
+- N/A

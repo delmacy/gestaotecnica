@@ -1,60 +1,55 @@
-# Fase 29B — Candidate Origin and Evidence UI
+# Feature Contract — Fase 29B
 
-## Objetivo
-Melhorar a tela de Process Candidate para exibir origem e evidências do agente.
+## 1. Identificação
+- Fase: 29B
+- Nome: Candidate Origin/Evidence Refinement
+- Tipo: Frontend
+- Dependências: Fase 29
+- Fase frontend vinculada: N/A
+- Status: Planejada refinada
 
-## Contexto
-Tornar visível para o Process Owner de onde veio a sugestão (humano vs agente).
+## 2. Objetivo
+Refinar a UI existente de Candidate para exibir melhor a origem, evidências e justificativas vindas do payload do agente.
 
-## Arquivos permitidos
-- UI de detalhes do Candidate
+## 3. Problema que resolve
+Garante o Frontend Parity Gate para os novos campos definidos na Fase 29.
 
-## Arquivos proibidos
-- Alterações no backend de Candidate (apenas leitura)
+## 4. Escopo permitido
+- `src/components/builder/candidates/CandidateDetail.tsx`
+- Componentes de listagem.
 
-## Regras
-- O UI deve suportar origem (manual vs agente) e rastreabilidade.
+## 5. Fora de escopo
+- Criação de logs de Gateway.
 
-## Etapas
-1. Atualizar tela de detalhes para exibir badge de origem.
-2. Exibir evidências e formulário inferido.
+## 6. Entidades e contratos
+N/A - Consome os dados expandidos de Candidate.
 
-## Validações
-- Teste visual de Candidates com origem agente vs humano.
+## 7. Estados e transições
+N/A
 
-## Relatório final esperado
-- Tela de Candidate exibe origem claramente.
+## 8. Services, repositories e actions esperados
+N/A
 
-## Regra de parada
-Pare após concluir a UI.
+## 9. UI esperada
+- Componentes visuais para `justification`, `evidence` estruturada, e `suggestedForms`.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 10. Testes obrigatórios
+- Teste visual.
 
-Fase 29B — Candidate Origin and Evidence UI
+## 11. Frontend impact
+- Área afetada: Candidate Detail.
 
-Objetivo:
-Melhorar a tela de Process Candidate para exibir origem e evidências do agente.
+## 12. Critérios de aceite
+- Detalhes adicionais do agente são visíveis na UI do candidato.
 
-Ajuste a UI do Candidate para mostrar a origem (Agente/Humano) e detalhes da proposta.
-```
+## 13. Regra de parada
+Após atualizar o componente `CandidateDetail.tsx`.
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 29B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 14. Prompt para Jules Dev
+`Implementar a Fase 29B. Atualize CandidateDetail.tsx para renderizar a justificativa e evidências com base no novo contrato de payload da Fase 29.`
 
-Frontend impact:
-- Área afetada: Process Candidate Details
-- Rota(s): /builder/candidates/[id]
-- Usuário/persona: Process Owner
-- Workspace/global: Workspace/Global
-- Estados cobertos: Origem agente, origem manual, com/sem evidências
-- Teste visual/E2E: Renderizar badge e evidências.
-- Gap frontend pendente: Nenhum
+## 15. Prompt para Jules Tester
+`Validar a UI de Candidate Detail com um mock que inclua os novos campos.`
+
+## 16. Riscos e decisões
+- Reconhece o estado atual e evolui iterativamente.

@@ -1,61 +1,53 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 37
+## 1. Identificação
+- Fase: 37
+- Nome: Origin/Authorship Backend
+- Tipo: Backend
+- Dependências: N/A
+- Fase frontend vinculada: Fase 37B
+- Status: Planejada refinada
 
-# Fase 37 — Agent/Human Dual Elicitation Backend
+## 2. Objetivo
+Adicionar campos padronizados de rastreabilidade às entidades.
 
-## Objetivo
-Persistir explicitamente a origem (manual/agente) em todos os níveis de definição.
+## 3. Problema que resolve
+Saber de forma determinística (agente/humano/integração) quem iniciou um registro e com qual ID de auditoria de borda, preparando os dados gerados antes de expor aos multi-agentes.
 
-## Contexto
-Toda parte do processo deve indicar quem elicitiou/sugeriu (Agente vs Humano).
+## 4. Escopo permitido
+- Schemas (`process_candidates`, `process_definitions`, `process_versions`).
 
-## Arquivos permitidos
-- Ajustes em schemas base (adicionar campos de origem/autor)
+## 5. Fora de escopo
+- Tabelas não relacionadas a fluxos.
 
-## Arquivos proibidos
-- Perda de dados existentes
+## 6. Entidades e contratos
+- Campos: `origin_type` (human | agent | integration | imported | system), `origin_id` nullable, `created_by_id` nullable, `agent_id` nullable, `source_label` nullable, `source_trace_id` nullable.
 
-## Regras
-- Registrar autor ID e tipo (bot vs user).
+## 7. Estados e transições
+N/A
 
-## Etapas
-1. Adicionar e popular dados de tracking de origem nas tabelas críticas.
+## 8. Services, repositories e actions esperados
+- Update Zods e Repos.
 
-## Validações
-- Testes validando salvamento de origem.
+## 9. UI esperada
+N/A
 
-## Relatório final esperado
-- Capacidade de dual elicitation estruturada.
+## 10. Testes obrigatórios
+- Lint e compile check.
 
-## Regra de parada
-Pare antes da tela.
+## 11. Frontend impact
+- Gap (37B).
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 12. Critérios de aceite
+- Campos migrados.
 
-Fase 37 — Agent/Human Dual Elicitation Backend
+## 13. Regra de parada
+Zod passando.
 
-Objetivo:
-Persistir explicitamente a origem (manual/agente) em todos os níveis de definição.
+## 14. Prompt para Jules Dev
+`Implementar Fase 37: Adicionar tipagem e campos de autoria/origem nas entidades canônicas.`
 
-Atualize a base de dados e os serviços do Builder para registrar de forma audível se uma definição veio de um humano ou de um agente.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 37
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
-
-Frontend impact:
-- Área afetada: Backend Tracking
-- Rota(s): N/A
-- Usuário/persona: System
-- Workspace/global: Global / Workspace
-- Estados cobertos: Tracking origin
-- Teste visual/E2E: N/A
-- Gap frontend pendente: Fase 37B
+## 16. Riscos e decisões
+- Progressivo, não atinge todas de uma vez.

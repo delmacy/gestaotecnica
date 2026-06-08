@@ -1,60 +1,53 @@
-# Fase 36B — Improvement Proposal UI
+# Feature Contract — Fase 36B
+## 1. Identificação
+- Fase: 36B
+- Nome: ImprovementProposal Persistence
+- Tipo: Backend
+- Dependências: Fase 36A
+- Fase frontend vinculada: Fase 36C
+- Status: Planejada refinada
 
-## Objetivo
-Interface para criar/revisar melhoria de processo, comparando atual vs proposto.
+## 2. Objetivo
+Persistir propostas de melhoria.
 
-## Contexto
-O Process Owner precisa aprovar as melhorias sugeridas.
+## 3. Problema que resolve
+Salvamento de diff estruturado.
 
-## Arquivos permitidos
-- UI de Diff/Comparação entre configuração atual e sugerida
+## 4. Escopo permitido
+- Tabelas, service.
 
-## Arquivos proibidos
-- Modificação de histórico auditável
+## 5. Fora de escopo
+- UI.
 
-## Regras
-- O usuário deve aprovar ou rejeitar claramente.
+## 6. Entidades e contratos
+- Schema `improvement_proposals`.
 
-## Etapas
-1. Tela de revisão exibindo lado a lado.
-2. Ação de Merge/Aprovar.
+## 7. Estados e transições
+N/A
 
-## Validações
-- Teste visual do Diff de configuração.
+## 8. Services, repositories e actions esperados
+- CRUD.
 
-## Relatório final esperado
-- Painel de revisão de melhoria concluído.
+## 9. UI esperada
+N/A
 
-## Regra de parada
-Pare após verificar a interface e o merge funcional.
+## 10. Testes obrigatórios
+- Integ.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+- Gap.
 
-Fase 36B — Improvement Proposal UI
+## 12. Critérios de aceite
+- DB reflete novo schema.
 
-Objetivo:
-Interface para criar/revisar melhoria de processo, comparando atual vs proposto.
+## 13. Regra de parada
+Services ok.
 
-Crie a interface que permite visualizar e aprovar sugestões de melhoria (Diff) em processos.
-```
+## 14. Prompt para Jules Dev
+`Implementar persistência para ImprovementProposal (Fase 36B).`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 36B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-Frontend impact:
-- Área afetada: Process Improvements UI
-- Rota(s): /[workspace]/improvements
-- Usuário/persona: Process Owner
-- Workspace/global: Workspace
-- Estados cobertos: Diff View, Approve, Reject
-- Teste visual/E2E: Verificar o componente de comparação visual.
-- Gap frontend pendente: Nenhum
+## 16. Riscos e decisões
+- N/A

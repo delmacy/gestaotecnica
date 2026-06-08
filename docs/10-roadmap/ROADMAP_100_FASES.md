@@ -15,16 +15,41 @@ Este documento projeta a evolução do System Builder a longo prazo, seguindo a 
 ## Bloco Alpha: Control Plane & Process Candidates (Fases 20-40)
 *Este bloco estabelece o "Process Candidate" como camada estratégica de descoberta, preparando a governança para aceitar propostas humanas e, futuramente, agênticas.*
 
-- **20. Builder Control Plane Shell:** UI administrativa avançada (sidebar, densidade, properties panel).
-- **21-25. Process Candidate Lifecycle:** Ontologia, UI Manual de Candidatos, Governança Humana e Publicação para Template.
-- **26-27. Regras e Formulários:** Forms como padronização da informalidade, e Políticas de Aprovação (ex: timeout, exceções).
-- **28-29. Agent Gateway & Builder Agent:** Especificação e APIs para comunicação imutável e controlada de Agentes propondo processos, além da especificação do primeiro Agente Construtor.
-- **30-31. Fronteiras de Integração:** Paperclip Integration Strategy e n8n como barramento de sinais.
-- **32-34. Observation Pipeline:** Signal Inbox, Document Agent (Procedimento Vivo), e Feature Agent (Mudança Controlada).
-- **35-37. Métricas & Elicitação Dupla:** Inteligência Operacional, Formato padrão de Proposta de Melhoria, e Metodologia de Elicitação Humano/Máquina.
-- **38-40. Governance & MVP Ready:** Consentimento de Observação, Milestone de MVP Paperclip-Ready, e Modelo Operacional Multiagente futuro.
+- **Fases 20-27:** Builder Control Plane Shell, Process Candidate Lifecycle, Regras e Formulários.
+- **Fase 28:** Agent Gateway Backend
+- **Fase 28B:** Agent Candidate Inbox UI
+- **Fase 29:** Agent Payload Contract
+- **Fase 29B:** Candidate Origin/Evidence UI Refinement
+- **Fase 30:** Gateway Metadata, Correlation ID, Idempotency Backend
+- **Fase 30B:** Gateway Receipts UI
+- **Fase 38:** Workspace Consent Backend
+- **Fase 38B:** Workspace Consent UI
+- **Fase 37:** Origin/Authorship Backend
+- **Fase 37B:** Origin Visibility UI
+- **Fase 31:** n8n Signal Inbox Backend
+- **Fase 31B:** Signal Inbox UI
+- **Fase 32:** Observation Pipeline Backend
+- **Fase 32B:** Observation Review UI
+- **Fase 33:** Living Procedures Backend
+- **Fase 33B:** Living Procedures UI
+- **Fase 35:** Metrics Backend
+- **Fase 35B:** Workspace Dashboards UI
+- **Fase 34A:** FeatureProposal Contract
+- **Fase 34B:** FeatureProposal Persistence
+- **Fase 34C:** FeatureProposal UI
+- **Fase 34D:** FeatureProposal Approval
+- **Fase 34E:** FeatureProposal Generate Version
+- **Fase 36A:** ImprovementProposal Contract
+- **Fase 36B:** ImprovementProposal Persistence
+- **Fase 36C:** Diff UI
+- **Fase 36D:** Approve Improvement
+- **Fase 36E:** Apply Improvement
+- **Fase 40:** Agent Registry Backend
+- **Fase 40B:** Agent Registry UI
+- **Fase 39:** Final Paperclip-ready Security Gate
 
 ## Além (Fases 41+)
+
 - **Automações Nativas Complexas:** Workers de longa duração.
 - **Multi-Tenant Real:** Billing e Separação física.
 - **Marketplace de Adaptações:** Módulos instaláveis entre instâncias.

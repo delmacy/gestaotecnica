@@ -1,60 +1,55 @@
-# Fase 33B — Living Procedures UI
+# Feature Contract — Fase 33B
+## 1. Identificação
+- Fase: 33B
+- Nome: Living Procedures UI
+- Tipo: Frontend
+- Dependências: Fase 33
+- Fase frontend vinculada: N/A
+- Status: Planejada refinada
 
-## Objetivo
-Visualizar procedimento vivo no workspace.
+## 2. Objetivo
+Exibição read-only em Markdown de procedimentos em `/procedures`.
 
-## Contexto
-Operadores precisam ler como executar as tarefas documentadas do processo.
+## 3. Problema que resolve
+Frontend Parity Gate de procedimentos documentais.
 
-## Arquivos permitidos
-- UI de visualização de Doc
+## 4. Escopo permitido
+- `/procedures` página.
 
-## Arquivos proibidos
-- Editor de rich text super complexo no momento (usar markdown básico)
+## 5. Fora de escopo
+- Editor complexo/Rico.
 
-## Regras
-- Linkar processo, versão, documentação e evidências.
+## 6. Entidades e contratos
+N/A
 
-## Etapas
-1. Visualizador de Markdown para o procedimento.
-2. Seção na tela de processo/execução.
+## 7. Estados e transições
+- Detalhe markdown.
 
-## Validações
-- Teste de renderização do doc.
+## 8. Services, repositories e actions esperados
+N/A
 
-## Relatório final esperado
-- Visualizador de doc pronto.
+## 9. UI esperada
+- Rota: `/procedures`.
+- Detalhe de markdown renderizado.
+- Estados de loading/erro e empty.
 
-## Regra de parada
-Pare após confirmar a visualização.
+## 10. Testes obrigatórios
+- Visual e E2E.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+- `/procedures`.
 
-Fase 33B — Living Procedures UI
+## 12. Critérios de aceite
+- Markdown renderizado corretamente com markdown parser.
 
-Objetivo:
-Visualizar procedimento vivo no workspace.
+## 13. Regra de parada
+Leitura concluída.
 
-Crie a UI de Living Procedures, exibindo as diretrizes/documentação de processos.
-```
+## 14. Prompt para Jules Dev
+`Criar a interface visual read-only para Living Procedures (Fase 33B).`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 33B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-Frontend impact:
-- Área afetada: Visualização de Processos
-- Rota(s): /[workspace]/procedures
-- Usuário/persona: Operador
-- Workspace/global: Workspace
-- Estados cobertos: Visualização limpa, Empty state
-- Teste visual/E2E: Renderizar Markdown.
-- Gap frontend pendente: Nenhum
+## 16. Riscos e decisões
+- Começamos read-only.

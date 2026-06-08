@@ -1,61 +1,57 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 38
 
-# Fase 38 — Privacy and Consent Backend
+## 1. Identificação
+- Fase: 38
+- Nome: Workspace Consent Backend
+- Tipo: Backend
+- Dependências: N/A
+- Fase frontend vinculada: Fase 38B
+- Status: Planejada refinada
 
-## Objetivo
-Garantir opt-in de observação por workspace.
+## 2. Objetivo
+Criar o backend para gerenciar o consentimento de observação de dados por workspace (opt-in para IA/agentes).
 
-## Contexto
-Agentes não podem acessar dados de workspaces sem consentimento explícito.
+## 3. Problema que resolve
+Garante que nenhum dado seja observado ou submetido via agentes sem autorização explícita do administrador do workspace, uma premissa de segurança para as próximas fases.
 
-## Arquivos permitidos
-- Configuração de Workspace (Tabelas/Flags)
+## 4. Escopo permitido
+- Schemas do Drizzle (`workspace_agent_settings`).
+- Validação no Agent Gateway.
 
-## Arquivos proibidos
-- Coleta invasiva padrão
+## 5. Fora de escopo
+- UI.
 
-## Regras
-- Opt-out deve ser o padrão (Privacy by Default).
+## 6. Entidades e contratos
+- Entidade: `workspace_agent_settings`
+- Campos: `workspace_id`, `agent_observation_enabled` (default false), `allowed_sources`, `updated_by_id`, `updated_at`.
 
-## Etapas
-1. Criar flags e APIs de consentimento por workspace.
+## 7. Estados e transições
+- Permite alterar `agent_observation_enabled` entre true/false.
 
-## Validações
-- Gateway deve barrar sinal de agente se opt-in for false.
+## 8. Services, repositories e actions esperados
+- Serviço para buscar/atualizar configurações.
+- Gateway deve barrar submissão se false.
 
-## Relatório final esperado
-- Lógica de privacidade e consentimento garantida.
+## 9. UI esperada
+N/A
 
-## Regra de parada
-Pare antes da UI.
+## 10. Testes obrigatórios
+- Unit e Integration.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+Gap pendente (38B).
 
-Fase 38 — Privacy and Consent Backend
+## 12. Critérios de aceite
+- Gateway rejeita requests para workspaces sem opt-in.
 
-Objetivo:
-Garantir opt-in de observação por workspace.
+## 13. Regra de parada
+Testes passando no gateway.
 
-Implemente a infraestrutura de Privacy & Consent (Opt-in) por workspace, bloqueando observação de agentes caso não haja consentimento.
-```
+## 14. Prompt para Jules Dev
+`Implementar Fase 38. Criar tabela workspace_agent_settings e bloquear requisições no Agent Gateway se o consentimento estiver desativado. Siga docs/planning/alpha/PHASE_38.md.`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 38
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-Frontend impact:
-- Área afetada: Backend Settings
-- Rota(s): N/A
-- Usuário/persona: System
-- Workspace/global: Workspace
-- Estados cobertos: Blocked, Allowed
-- Teste visual/E2E: N/A
-- Gap frontend pendente: Fase 38B
+## 16. Riscos e decisões
+- Default é false.

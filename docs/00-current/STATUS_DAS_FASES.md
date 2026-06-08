@@ -63,8 +63,9 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   28 | ⚪     | Agent Gateway Spec           | Fase 28 Alfa Planejada                                           |
 |   29 | ✅     | Process Builder Agent        | Contrato expandido de payload do Gateway                         |
 |  29B | ✅     | Candidate Evidence UI        | UI para visualizar payload estruturado do Gateway                |
-|   30 | ✅     | Gateway Metadata/Idempotency | Trata deduplicação e receipts via correlation_id/idempotency_key |
-|   31 | ⚪     | n8n as Boundary              | Fase 31 Alfa Planejada                                           |
+|   30 | ✅ (R) | Gateway Metadata/Idempotency | Trata deduplicação e receipts via correlation_id/idempotency_key |
+|  30B | ⚪     | Gateway Receipts UI          | Próxima autorizada                                               |
+|   31 | 🔴     | n8n as Boundary              | Fase 31 Alfa Planejada                                           |
 |   32 | ⚪     | Signal Inbox Pipeline        | Fase 32 Alfa Planejada                                           |
 |   33 | ⚪     | Document Agent               | Fase 33 Alfa Planejada                                           |
 |   34 | ⚪     | Feature Agent                | Fase 34 Alfa Planejada                                           |
@@ -81,12 +82,18 @@ Fases 20–40 formam a fila Alfa (planejadas, focadas em Process Candidates e ar
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 30
+Última fase técnica validada: Fase 30 (READY WITH RESERVATIONS)
+
+## 5. Atualização documental — 2026-06-08
+
+- Fase 30 foi mergeada com status READY WITH RESERVATIONS.
+- Próxima fase autorizada: Fase 30B.
+- Fase 31 permanece bloqueada até conclusão da 30B.
 Fase atual de documentação/contexto: Concluída
 Próxima fase técnica planejada: Fase 30B
 ```
 
-## 5. Regra
+## 6. Regra
 
 > Nenhuma fase deve ser considerada concluída apenas porque foi implementada. Ela deve ser revisada contra o escopo e registrada neste documento. O planejamento das fases de 17A a 20D é uma fila de execução futura, e a Fase 20D marca o fechamento documental do MVP técnico.
 

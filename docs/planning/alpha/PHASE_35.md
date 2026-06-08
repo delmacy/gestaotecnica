@@ -1,61 +1,53 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 35
+## 1. Identificação
+- Fase: 35
+- Nome: Metrics Backend
+- Tipo: Backend
+- Dependências: N/A
+- Fase frontend vinculada: Fase 35B
+- Status: Planejada refinada
 
-# Fase 35 — Metrics Backend
+## 2. Objetivo
+Service de agregação das métricas mínimas operacionais.
 
-## Objetivo
-Consultas/Queries para lead time, rejeição, tempo de execução.
+## 3. Problema que resolve
+Visão de saúde dos processos sem ferramentas complexas de BI.
 
-## Contexto
-Process Intelligence básico extraindo dados das execuções de instâncias.
+## 4. Escopo permitido
+- Queries customizadas de metrics.
 
-## Arquivos permitidos
-- Views/Queries de agregação de métricas no banco
+## 5. Fora de escopo
+- BI completo.
 
-## Arquivos proibidos
-- Instalação de ferramentas BI externas
+## 6. Entidades e contratos
+- Métricas: `total_instances`, `completed_instances`, `average_lead_time`, `completion_rate`, `failed_or_stalled_count`, `candidates_by_status`, `publication_count`.
 
-## Regras
-- Dados agrupados por workspace e processo.
+## 7. Estados e transições
+N/A
 
-## Etapas
-1. Criar consultas analíticas sobre `action_executions` e instâncias.
+## 8. Services, repositories e actions esperados
+- Aggregation Service.
 
-## Validações
-- Teste de output numérico das queries.
+## 9. UI esperada
+N/A
 
-## Relatório final esperado
-- APIs de métricas disponíveis.
+## 10. Testes obrigatórios
+- Testes nas queries de agregação.
 
-## Regra de parada
-Pare antes dos gráficos.
+## 11. Frontend impact
+- Gap pendente (35B).
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 12. Critérios de aceite
+- Retorna JSON de metrics válido.
 
-Fase 35 — Metrics Backend
+## 13. Regra de parada
+Queries ok.
 
-Objetivo:
-Consultas/Queries para lead time, rejeição, tempo de execução.
+## 14. Prompt para Jules Dev
+`Implementar as queries de agregação de métricas (Fase 35).`
 
-Implemente os endpoints e queries SQL para extrair métricas de execução de processos (Lead time, throughput).
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 35
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
-
-Frontend impact:
-- Área afetada: Backend Analytics
-- Rota(s): N/A
-- Usuário/persona: System
-- Workspace/global: Workspace
-- Estados cobertos: Agregação
-- Teste visual/E2E: N/A
-- Gap frontend pendente: Fase 35B
+## 16. Riscos e decisões
+- Simplicidade extrema no MVP.

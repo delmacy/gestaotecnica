@@ -1,63 +1,59 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 29
 
-# Fase 29 — Process Builder Agent Payload Contract
+## 1. Identificação
+- Fase: 29
+- Nome: Agent Payload Contract
+- Tipo: Backend / Documental
+- Dependências: Fase 28B
+- Fase frontend vinculada: Fase 29B
+- Status: Planejada refinada
 
-## Objetivo
-Documentar e mockar a estrutura do payload de Candidates enviado por Agentes.
+## 2. Objetivo
+Definir o contrato JSON exato do payload aceito pelo Agent Gateway.
 
-## Contexto
-Precisamos definir o contrato JSON exato que o agente usará para propor Candidates.
+## 3. Problema que resolve
+Agentes precisam de um contrato de payload tipado e robusto antes de começarem a enviar propostas reais com justificativas e evidências detalhadas.
 
-## Arquivos permitidos
-- `src/features/platform/gateway/mocks/agent-payload.mock.ts`
+## 4. Escopo permitido
+- `src/features/platform/gateway/agent-gateway.service.ts` (ou similar de contratos).
+- Schemas Zod de validação.
 
-## Arquivos proibidos
-- Lógica real de agentes (LLMs, Langchain, etc)
+## 5. Fora de escopo
+- Integração real com LLM.
+- Execução autônoma de publicação.
+- Paperclip real.
 
-## Regras
-- Payload deve contemplar estado sugerido, formulário e justificativa.
+## 6. Entidades e contratos
+Contrato sugerido:
+- `workspaceId`, `name`, `description`, `proposedDefinition`, `evidence`, `source`, `agentType`, `suggestedForms`, `suggestedStates`, `justification`.
+- Opcionais: `confidenceScore`, `observedSignals`.
 
-## Etapas
-1. Criar interfaces e mocks do payload.
-2. Validar mock contra gateway.
+## 7. Estados e transições
+N/A
 
-## Validações
-- Validação de schema no Zod.
-- Teste de snapshot.
+## 8. Services, repositories e actions esperados
+N/A - Foco em atualização de tipagem e validação (Zod Schema) no gateway.
 
-## Relatório final esperado
-- Contrato do agente mapeado e mockado.
+## 9. UI esperada
+N/A
 
-## Regra de parada
-Pare após validar o contrato.
+## 10. Testes obrigatórios
+- Unit: Testes de schema Zod (validar payloads corretos e rejeitar inválidos).
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+N/A (Gap será fechado na 29B)
 
-Fase 29 — Process Builder Agent Payload Contract
+## 12. Critérios de aceite
+- Zod schema atualizado e exportado para ser consumido na API.
 
-Objetivo:
-Documentar e mockar a estrutura do payload de Candidates enviado por Agentes.
+## 13. Regra de parada
+Quando os testes unitários do schema Zod passarem.
 
-Crie o contrato de payload para Process Candidates propostos por agentes.
-```
+## 14. Prompt para Jules Dev
+`Implementar a Fase 29. Refine o Agent Payload Contract (Zod schema) no Agent Gateway para incluir justification, suggestedForms, suggestedStates, evidence e source, conforme docs/planning/alpha/PHASE_29.md.`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 29
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`Verifique os testes unitários do payload schema.`
 
-Frontend impact:
-- Área afetada: Nenhuma diretamente (Mock)
-- Rota(s): N/A
-- Usuário/persona: System
-- Workspace/global: Global
-- Estados cobertos: N/A
-- Teste visual/E2E: N/A
-- Gap frontend pendente: Fase 29B para exibir esse payload.
+## 16. Riscos e decisões
+- Decisão: O payload será rigoroso para evitar lixo gerado por agentes.

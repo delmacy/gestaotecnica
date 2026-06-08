@@ -1,62 +1,55 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 32
+## 1. Identificação
+- Fase: 32
+- Nome: Observation Pipeline Backend
+- Tipo: Backend
+- Dependências: Fase 31
+- Fase frontend vinculada: Fase 32B
+- Status: Planejada refinada
 
-# Fase 32 — Observation Pipeline Backend
+## 2. Objetivo
+Estruturar o conceito e persistência de Observation a partir de sinais não estruturados.
 
-## Objetivo
-Lógica de agrupamento de sinais em observations/evidence.
+## 3. Problema que resolve
+Agrupa sinais brutos (Signal Inbox) em "Observações" determinísticas que podem ou não virar Process Candidates.
 
-## Contexto
-Sinais brutos não viram processo automaticamente; precisam ser consolidados em 'observations'.
+## 4. Escopo permitido
+- Tabela `observations` e lógica de agrupamento.
 
-## Arquivos permitidos
-- Serviço de agrupamento de sinais
-- Tabelas de Observation
+## 5. Fora de escopo
+- IA Real.
 
-## Arquivos proibidos
-- Auto-gerar processos sem revisão
+## 6. Entidades e contratos
+- Schema: `observations`
+- Campos: `id`, `workspace_id`, `title`, `summary`, `status` (new | under_review | promoted | rejected), `evidence`, `source_signal_ids`, `created_at`, `updated_at`, `created_by_type` (system | human | agent).
+- Regra de agrupamento: heurística simples (mesmo workspace, mesma source, mesmo categoria).
 
-## Regras
-- Sinais consolidados viram Observation, não Candidate de imediato.
+## 7. Estados e transições
+- new -> under_review -> promoted | rejected.
 
-## Etapas
-1. Lógica para transicionar Signal -> Observation com base em heurísticas ou regras.
+## 8. Services, repositories e actions esperados
+- Observation Repository/Service.
 
-## Validações
-- Testes de agrupamento de múltiplos sinais.
+## 9. UI esperada
+N/A
 
-## Relatório final esperado
-- Pipeline de observação backend concluído.
+## 10. Testes obrigatórios
+- Unit test de heurística de agrupamento.
 
-## Regra de parada
-Pare após as regras de negócio de agrupamento estarem feitas.
+## 11. Frontend impact
+- Gap frontend pendente: Fase 32B.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 12. Critérios de aceite
+- Sinais pendentes do inbox são agrupados em Observations.
 
-Fase 32 — Observation Pipeline Backend
+## 13. Regra de parada
+Teste passando no builder agrupador.
 
-Objetivo:
-Lógica de agrupamento de sinais em observations/evidence.
+## 14. Prompt para Jules Dev
+`Implementar o modelo de dados de Observation (Fase 32) usando agrupamento determinístico.`
 
-Crie o backend para consolidar sinais (Signal Inbox) em Observations.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 32
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
-
-Frontend impact:
-- Área afetada: Backend Pipeline
-- Rota(s): N/A
-- Usuário/persona: System
-- Workspace/global: Workspace
-- Estados cobertos: Agrupamento
-- Teste visual/E2E: N/A
-- Gap frontend pendente: Fase 32B
+## 16. Riscos e decisões
+- IA real adiada, usando heurística local.

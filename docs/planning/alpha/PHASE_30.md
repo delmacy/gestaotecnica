@@ -1,62 +1,56 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 30
 
-# Fase 30 — Paperclip Metadata Backend
+## 1. Identificação
+- Fase: 30
+- Nome: Gateway Metadata, Correlation ID, Idempotency
+- Tipo: Backend
+- Dependências: Fase 29
+- Fase frontend vinculada: Fase 30B
+- Status: Planejada refinada
 
-## Objetivo
-Adicionar suporte a `correlation_id`, `idempotency_key` e rastreamento de recibos.
+## 2. Objetivo
+Definir contrato de persistência para metadados de requisições de agentes (correlation_id, idempotency_key, receipts).
 
-## Contexto
-Preparar a infra para garantir rastreabilidade das interações do Paperclip.
+## 3. Problema que resolve
+Rastreabilidade, segurança e prevenção de duplicidade (idempotência) para chamadas automatizadas.
 
-## Arquivos permitidos
-- Banco de dados de rastreamento de eventos/receitas de agentes
+## 4. Escopo permitido
+- Schema do Drizzle.
+- Repositório e Service do Agent Gateway.
 
-## Arquivos proibidos
-- Integração real com Paperclip
+## 5. Fora de escopo
+- Interface visual.
 
-## Regras
-- Idempotência obrigatória para requests de agentes.
+## 6. Entidades e contratos
+- Nova entidade: `builder.agent_gateway_submissions` (ou genérica `trace_receipts`).
+- Campos: `correlation_id`, `idempotency_key`, `request_status`, `candidate_id`, `sanitized_payload`, `source`, `received_at`, `processed_at`, `error_code`.
 
-## Etapas
-1. Implementar armazenamento de metadados.
-2. Lógica de idempotência no gateway.
+## 7. Estados e transições
+- Status: pending, success, failed.
 
-## Validações
-- Testes de requisições duplicadas sendo barradas.
+## 8. Services, repositories e actions esperados
+- Função no service que verifica idempotência antes de processar.
 
-## Relatório final esperado
-- Rastreamento de metadados concluído.
+## 9. UI esperada
+N/A
 
-## Regra de parada
-Pare antes da interface de recibos.
+## 10. Testes obrigatórios
+- Integration: Testar que o mesmo idempotency_key não gera dois candidatos.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+- Gap frontend pendente: A ser coberto na Fase 30B.
 
-Fase 30 — Paperclip Metadata Backend
+## 12. Critérios de aceite
+- Tabela criada e endpoint do gateway registrando metadados.
 
-Objetivo:
-Adicionar suporte a `correlation_id`, `idempotency_key` e rastreamento de recibos.
+## 13. Regra de parada
+Após a migração e os testes do serviço passarem.
 
-Implemente suporte a metadados (idempotência, correlation_id) para requisições de agentes.
-```
+## 14. Prompt para Jules Dev
+`Implementar a Fase 30. Criar a entidade para guardar metadados do Gateway (idempotency, correlation) e implementar a lógica no Agent Gateway Service. Siga docs/planning/alpha/PHASE_30.md.`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 30
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-Frontend impact:
-- Área afetada: Backend de recibos
-- Rota(s): N/A
-- Usuário/persona: System
-- Workspace/global: Global
-- Estados cobertos: Duplicatas, novos requests
-- Teste visual/E2E: N/A
-- Gap frontend pendente: Fase 30B
+## 16. Riscos e decisões
+- Entidade específica será usada no Alpha para submissions, facilitando a visualização.

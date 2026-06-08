@@ -1,60 +1,53 @@
-# Fase 34B — Change Proposal UI
+# Feature Contract — Fase 34B
+## 1. Identificação
+- Fase: 34B
+- Nome: FeatureProposal Persistence/Service
+- Tipo: Backend
+- Dependências: Fase 34A
+- Fase frontend vinculada: Fase 34C
+- Status: Planejada refinada
 
-## Objetivo
-Tela para gerenciar e revisar propostas de mudança.
+## 2. Objetivo
+Criar persistência (tabelas e actions) para FeatureProposal.
 
-## Contexto
-Aprovação humana visual do FeatureProposal.
+## 3. Problema que resolve
+Salvar propostas no backend.
 
-## Arquivos permitidos
-- Painel de propostas de mudança
+## 4. Escopo permitido
+- Schema e repositorio.
 
-## Arquivos proibidos
-- Processo de publicação automática sem clique humano
+## 5. Fora de escopo
+- UI de diff ou lista.
 
-## Regras
-- Mostrar status, impacto e risco de forma visual.
+## 6. Entidades e contratos
+- Entidade baseada nos schemas da 34A.
 
-## Etapas
-1. UI de listagem e revisão das propostas.
-2. Ação de 'Aprovar Mudança' (gera nova versão de processo).
+## 7. Estados e transições
+- status persistido.
 
-## Validações
-- Teste E2E de aprovação de proposta gerando versão.
+## 8. Services, repositories e actions esperados
+- Repositories/Actions de crud básico.
 
-## Relatório final esperado
-- Interface de Change Proposal finalizada.
+## 9. UI esperada
+N/A
 
-## Regra de parada
-Pare após a UI estar operacional.
+## 10. Testes obrigatórios
+- Integ tests.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+- Gap pendente (34C).
 
-Fase 34B — Change Proposal UI
+## 12. Critérios de aceite
+- Salva dados no banco e vincula `workspace_id`.
 
-Objetivo:
-Tela para gerenciar e revisar propostas de mudança.
+## 13. Regra de parada
+Services testados.
 
-Crie a interface para listar, analisar e aprovar Propostas de Mudança em processos.
-```
+## 14. Prompt para Jules Dev
+`Implementar persistência de FeatureProposal (Fase 34B).`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 34B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-Frontend impact:
-- Área afetada: Change Management UI
-- Rota(s): /[workspace]/changes
-- Usuário/persona: Process Owner
-- Workspace/global: Workspace
-- Estados cobertos: Lista, Detalhe, Aprovação
-- Teste visual/E2E: Fluxo de aprovação.
-- Gap frontend pendente: Nenhum
+## 16. Riscos e decisões
+- N/A

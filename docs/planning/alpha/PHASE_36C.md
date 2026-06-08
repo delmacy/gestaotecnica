@@ -1,23 +1,23 @@
-# Feature Contract — Fase 37B
+# Feature Contract — Fase 36C
 ## 1. Identificação
-- Fase: 37B
-- Nome: Origin Visibility UI
+- Fase: 36C
+- Nome: Diff Read-only UI
 - Tipo: Frontend
-- Dependências: Fase 37
+- Dependências: Fase 36B
 - Fase frontend vinculada: N/A
 - Status: Planejada refinada
 
 ## 2. Objetivo
-Criar componentes visuais padrão (OriginBadge, OriginTooltip).
+Comparar atual vs proposto em `/improvements`.
 
 ## 3. Problema que resolve
-Mostrar no Builder UI se algo foi feito por IA ou humanos.
+Visualizar Diff em formato read-only.
 
 ## 4. Escopo permitido
-- Componentes e `CandidateList`.
+- UI `/improvements`.
 
 ## 5. Fora de escopo
-- UI em outras tabelas novas ainda não prontas.
+- Edição de diff.
 
 ## 6. Entidades e contratos
 N/A
@@ -29,22 +29,22 @@ N/A
 N/A
 
 ## 9. UI esperada
-- Badge reutilizável.
+- Página e components para side-by-side diff.
 
 ## 10. Testes obrigatórios
 - Visual.
 
 ## 11. Frontend impact
-- Todas as listagens suportadas.
+- `/improvements`.
 
 ## 12. Critérios de aceite
-- Componentes criados e em uso.
+- Exibe de forma compreensível os nodes alterados.
 
 ## 13. Regra de parada
-OriginBadge rodando ok na UI.
+Diff component ok.
 
 ## 14. Prompt para Jules Dev
-`Implementar a UI de autoria/origem e aplicar nos componentes existentes (Fase 37B).`
+`Criar UI de diff read-only para ImprovementProposal (Fase 36C).`
 
 ## 15. Prompt para Jules Tester
 `N/A`

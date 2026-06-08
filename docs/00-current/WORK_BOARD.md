@@ -19,7 +19,7 @@
 
 | Trilha | Responsável | Status | Observação |
 |---|---|---|---|
-| Documentação/contexto | Jules Documental | Concluída (Alpha 28-40) | Frontend Parity Gate aplicado ao planejamento Alpha |
+| Documentação/contexto | Jules Documental | Concluída | Replanejamento Alpha por contratos de feature |
 | Implementação | Jules Dev | Pendente | Implementará a fase técnica 28 |
 | Revisão | ChatGPT | Sob demanda | Revisa merges e coerência |
 | Decisão de produto | Delmacy | Ativo | Aprova direção e prioridades |

@@ -1,60 +1,53 @@
-# Fase 40B — Agent Registry UI
+# Feature Contract — Fase 40B
+## 1. Identificação
+- Fase: 40B
+- Nome: Agent Registry UI
+- Tipo: Frontend
+- Dependências: Fase 40
+- Fase frontend vinculada: N/A
+- Status: Planejada refinada
 
-## Objetivo
-Tela autenticada para visualizar agentes autorizados e configurar limites.
+## 2. Objetivo
+Interface para listar e visualizar escopos dos agentes.
 
-## Contexto
-Administradores da plataforma veem quais agentes estão conectados e o que podem fazer.
+## 3. Problema que resolve
+Visibilidade administrativa de quem tem chave de acesso (IA/Bots).
 
-## Arquivos permitidos
-- Painel de Agentes (Plataforma)
+## 4. Escopo permitido
+- `/admin/agents`.
 
-## Arquivos proibidos
-- Tela de gestão de modelo LLM interno (é só integração)
+## 5. Fora de escopo
+- Configuração complexa de RBAC de agente.
 
-## Regras
-- Interface deve deixar claro os escopos (scopes) e status da conexão.
+## 6. Entidades e contratos
+N/A
 
-## Etapas
-1. Lista de Agentes registrados.
-2. Modal de detalhes com histórico e capacidades.
+## 7. Estados e transições
+- Listar/desativar agente.
 
-## Validações
-- Testes visuais do grid e modais.
+## 8. Services, repositories e actions esperados
+- Actions crud agente.
 
-## Relatório final esperado
-- UI de Registry multiagente pronta.
+## 9. UI esperada
+- Tabela `/admin/agents`. Erro, empty e loading.
 
-## Regra de parada
-Final da fase Alpha de Agentes.
+## 10. Testes obrigatórios
+- E2E.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+- `/admin/agents`.
 
-Fase 40B — Agent Registry UI
+## 12. Critérios de aceite
+- Administrador consegue desativar acesso de um agente através da UI.
 
-Objetivo:
-Tela autenticada para visualizar agentes autorizados e configurar limites.
+## 13. Regra de parada
+Ação funcional de toggle de key.
 
-Implemente a interface de gestão de Agentes no Control Plane, listando capacidades e permissões de cada um.
-```
+## 14. Prompt para Jules Dev
+`Implementar UI para Agent Registry (Fase 40B).`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 40B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-Frontend impact:
-- Área afetada: Admin Platform / Agents
-- Rota(s): /admin/agents
-- Usuário/persona: Platform Admin
-- Workspace/global: Global
-- Estados cobertos: Connected, Disconnected, Scopes
-- Teste visual/E2E: Visualizar agentes listados.
-- Gap frontend pendente: Nenhum
+## 16. Riscos e decisões
+- N/A

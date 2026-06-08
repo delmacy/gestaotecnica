@@ -1,64 +1,62 @@
-# Fase 39 — Paperclip-ready MVP Milestone
+**Adendo documental — Frontend Parity Gate**
+
+# Fase 39 — Paperclip-ready Security Gate
 
 ## Objetivo
-Checagem global antes de declarar o System Builder pronto para receber integração do Paperclip.
+Auditoria global do gateway para provar segurança antes da integração Paperclip.
 
 ## Contexto
-Validar se a tese inteira, desde Candidate até Opt-In, foi coberta sem criar dependência circular de código com o Paperclip.
+Antes de plugar o Paperclip de verdade, precisamos provar com Tester Gate que nenhum agente altera produção.
 
 ## Arquivos permitidos
-- Todos os arquivos documentais e contratos de `src/features/platform/gateway` e `src/features/builder/candidates`.
+- Scripts de teste, painéis de status.
 
 ## Arquivos proibidos
-- Desenvolvimento de novos componentes visuais grandes.
+- Modificação de regras de negócio core
 
 ## Regras
-- Trata-se de uma fase de Hardening focada exclusivamente nos limites do Agent Gateway e Process Candidate.
+- Obrigatório Tester Gate com relatório formal de segurança.
 
 ## Etapas
-1. Executar testes de integração ou simulações usando Mocks contra a API Gateway.
-2. Garantir que as publicações automatizadas falham (401/403).
+1. Consolidar testes de invasão e bloqueio de publicação por agentes.
+2. Gerar relatório visual no painel de segurança.
 
 ## Validações
-- Testes rodando com sucesso provando bloqueios em segurança.
+- Todos os testes E2E/Gateway passando.
 
 ## Relatório final esperado
-- Relatório final de segurança do Gateway e governança de candidatos.
+- Sistema declarado Paperclip-ready.
 
 ## Regra de parada
-Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
+Pare após o sucesso dos testes.
 
 ## Prompt pronto para Jules Dev
 ```text
 Antes de implementar, leia:
 AGENTS.md
+docs/planning/FRONTEND_PARITY_GATE.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 39 — Paperclip-ready MVP Milestone
+Fase 39 — Paperclip-ready Security Gate
 
 Objetivo:
-Checagem global antes de declarar o System Builder pronto para receber integração do Paperclip.
+Auditoria global do gateway para provar segurança antes da integração Paperclip.
 
-Escopo:
-Hardening de Gateways.
-
-Não alterar:
-- Produção de Runtime oficial sem aprovação.
-- Publicar workflows de forma automatizada por agentes.
-
-Regras:
-Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
-
-Etapas:
-1. Audite o acesso do Agent Gateway garantindo que, por design, ele é incapaz de alterar produção ou pular etapas de revisão humana.
-
-Validações:
-Testes locais sem erros TS e validação visual onde aplicável.
-
-Relatório final:
-Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
-
-Regra de parada:
-Não ultrapassar a fronteira de Paperclip-ready MVP Milestone. Pare e solicite review.
+Crie o painel de status de segurança do Gateway e execute auditoria profunda para validar que Agentes NÃO podem bypassar aprovação humana.
 ```
+
+## Prompt pronto para Jules Tester (se aplicável)
+```text
+Fase 39
+Execute os testes unitários e de integração validando os escopos e limites de permissões.
+```
+
+Frontend impact:
+- Área afetada: Painel de Segurança Global
+- Rota(s): /admin/security
+- Usuário/persona: Platform Admin
+- Workspace/global: Global
+- Estados cobertos: Pass, Fail, Audit Logs
+- Teste visual/E2E: Dashboard mostrando status dos testes/gateways.
+- Gap frontend pendente: Nenhum

@@ -1,63 +1,61 @@
-# Fase 34 — Feature Agent and Controlled Change
+**Adendo documental — Frontend Parity Gate**
+
+# Fase 34 — Change Management Backend
 
 ## Objetivo
-Modelar o fluxo de propostas de alteração de sistema guiado pelo Feature Agent.
+Modelo de FeatureProposal para propor mudanças controladas em processos.
 
 ## Contexto
-Quando um candidato altera uma action ou módulo existente, ele aciona o fluxo de Change Request. Esse processo visa controlar a alteração estrutural da Plataforma.
+Toda mudança deve ter impacto, risco e processo afetado registrados.
 
 ## Arquivos permitidos
-- `src/features/platform/change-management/change.types.ts`
+- Tabelas e APIs de Change Management / FeatureProposal.
 
 ## Arquivos proibidos
-- Código dinâmico em produção (Eval/CodeGen).
+- Alteração autônoma de regras sem aprovação
 
 ## Regras
-- O Feature Agent propõe 'planos técnicos'. O Humano revisa. O Dev implementa.
+- Proposta requer estado de revisão.
 
 ## Etapas
-1. Definir estrutura de `FeatureProposal` contendo `ProcessAffected`, `ExpectedImpact`, `TechnicalPlan`.
+1. Modelo de proposta de mudança com métricas de impacto.
 
 ## Validações
-- Estruturas TS imutáveis validadas.
+- Testes de serviço de proposta.
 
 ## Relatório final esperado
-- Contratos de Gestão de Mudança implementados.
+- Backend de Change Management criado.
 
 ## Regra de parada
-Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
+Pare antes da tela.
 
 ## Prompt pronto para Jules Dev
 ```text
 Antes de implementar, leia:
 AGENTS.md
+docs/planning/FRONTEND_PARITY_GATE.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 34 — Feature Agent and Controlled Change
+Fase 34 — Change Management Backend
 
 Objetivo:
-Modelar o fluxo de propostas de alteração de sistema guiado pelo Feature Agent.
+Modelo de FeatureProposal para propor mudanças controladas em processos.
 
-Escopo:
-Tipagens de Change Management no System Builder.
-
-Não alterar:
-- Produção de Runtime oficial sem aprovação.
-- Publicar workflows de forma automatizada por agentes.
-
-Regras:
-Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
-
-Etapas:
-1. Crie a interface em TypeScript modelando uma Feature Proposal de acordo com a tese de agentes limitados.
-
-Validações:
-Testes locais sem erros TS e validação visual onde aplicável.
-
-Relatório final:
-Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
-
-Regra de parada:
-Não ultrapassar a fronteira de Feature Agent and Controlled Change. Pare e solicite review.
+Implemente o backend de gestão de mudança (FeatureProposal) para processos existentes.
 ```
+
+## Prompt pronto para Jules Tester (se aplicável)
+```text
+Fase 34
+Execute os testes unitários e de integração validando os escopos e limites de permissões.
+```
+
+Frontend impact:
+- Área afetada: Backend Changes
+- Rota(s): N/A
+- Usuário/persona: System
+- Workspace/global: Workspace
+- Estados cobertos: Draft, Pending Review, Approved
+- Teste visual/E2E: N/A
+- Gap frontend pendente: Fase 34B

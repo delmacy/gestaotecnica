@@ -52,6 +52,7 @@
 |---:|---|---|---|---|
 | 1 | Planejamento MVP (17-20) | Concluída | Jules Documental | Preparado o pacote da arquitetura de runtime, execução e eventos. |
 | 2 | Refinamentos | Pendente | Jules Documental | Ajustar prompts de 18-20 baseados em possíveis bloqueios da Fase 17. |
+| 3 | Frontend Parity Gate (28-40) | Concluída | Jules Documental | Replanejado fases Alpha 28-40 para garantir UI para cada backend avanço. |
 
 ## 5. Bloqueios
 
@@ -63,7 +64,7 @@ Nenhum bloqueio ativo.
 |---|---|---|
 | Atual | Planejamento fechado para MVP | A carga completa técnica de blocos 17 (Runtime), 18 (Steps), 19 (Events) e 20 (Hardening) foi documentada. O pipeline do agente de desenvolvimento (Dev) está abastecido, porém contido por limites de merge estritos a cada Fase. |
 | Atual | Histórico de fases | A 17A foi aprovada com ressalvas; a 17B está autorizada com atenção a payloads e schema real. O registro histórico das fases foi implementado em `docs/phases/`. |
-| Atual | Fila Alfa (21-40) | Foi planejado o bloco alpha compreendendo as fases 21-40 (`docs/planning/alpha/`). Essas fases NÃO estão autorizadas para implementação. A fila ativa continua sendo o bloco 17-20. |
+| Atual | Fila Alfa (21-40) | Foi replanejado o bloco alpha compreendendo as fases 21-40 (`docs/planning/alpha/`), com adoção do Frontend Parity Gate introduzindo fases B (ex: 28B, 29B) para UIs correspondentes. Essas fases NÃO estão autorizadas para implementação ainda. |
 
 ## 7. Handoff para Jules Dev
 

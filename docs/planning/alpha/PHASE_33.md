@@ -1,64 +1,61 @@
-# Fase 33 — Document Agent and Living Procedures
+**Adendo documental — Frontend Parity Gate**
+
+# Fase 33 — Living Procedures Backend
 
 ## Objetivo
-Suportar a documentação baseada em processo (Living Procedures) gerada pelo Document Agent.
+Criar modelo de documentação viva ligada ao processo/version.
 
 ## Contexto
-O System Builder não quer manuais estáticos. Ele deve permitir anexar 'Documentation Nodes' ou resumos autogerados ligados a uma versão do Workflow.
+Procedimentos devem evoluir junto com os processos (versões).
 
 ## Arquivos permitidos
-- `src/features/builder/documentation/documentation.types.ts`
+- Schema/Service para Procedimentos/Docs.
 
 ## Arquivos proibidos
-- Motor de Geração via OpenAI API.
+- UI de documentação complexa
 
 ## Regras
-- O Documento (procedimento operacional) é uma view do Processo, não um arquivo no Google Drive.
+- Doc ligada estritamente à versão publicada do processo.
 
 ## Etapas
-1. Criar modelo para `LivingProcedure` atrelado a um `ProcessVersionId`.
-2. Inserir suporte de metadados no schema de Workflow.
+1. Criar entidade/tabela de documentação atrelada a processo.
 
 ## Validações
-- TypeScript compila perfeitamente com os novos metadados atrelados às Definições de Processo.
+- Relacionamento banco validado.
 
 ## Relatório final esperado
-- Suporte a metadados de Procedimentos vivos adicionados.
+- Backend de living procedures.
 
 ## Regra de parada
-Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
+Pare antes da visualização.
 
 ## Prompt pronto para Jules Dev
 ```text
 Antes de implementar, leia:
 AGENTS.md
+docs/planning/FRONTEND_PARITY_GATE.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 33 — Document Agent and Living Procedures
+Fase 33 — Living Procedures Backend
 
 Objetivo:
-Suportar a documentação baseada em processo (Living Procedures) gerada pelo Document Agent.
+Criar modelo de documentação viva ligada ao processo/version.
 
-Escopo:
-Modelagem local dos metadados de Documentação Viva atrelados a processos.
-
-Não alterar:
-- Produção de Runtime oficial sem aprovação.
-- Publicar workflows de forma automatizada por agentes.
-
-Regras:
-Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
-
-Etapas:
-1. Crie o modelo para armazenar resumos descritivos de Procedimentos Operacionais vinculados à Versão de um Processo.
-
-Validações:
-Testes locais sem erros TS e validação visual onde aplicável.
-
-Relatório final:
-Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
-
-Regra de parada:
-Não ultrapassar a fronteira de Document Agent and Living Procedures. Pare e solicite review.
+Implemente a base de dados e API para Living Procedures atrelados a versões de processos.
 ```
+
+## Prompt pronto para Jules Tester (se aplicável)
+```text
+Fase 33
+Execute os testes unitários e de integração validando os escopos e limites de permissões.
+```
+
+Frontend impact:
+- Área afetada: Backend Docs
+- Rota(s): N/A
+- Usuário/persona: System
+- Workspace/global: Workspace
+- Estados cobertos: CRUD basico
+- Teste visual/E2E: N/A
+- Gap frontend pendente: Fase 33B

@@ -1,65 +1,61 @@
-# Fase 37 — Agent/Human Dual Elicitation
+**Adendo documental — Frontend Parity Gate**
+
+# Fase 37 — Agent/Human Dual Elicitation Backend
 
 ## Objetivo
-Garantir a co-autoria nas metadados dos Candidates.
+Persistir explicitamente a origem (manual/agente) em todos os níveis de definição.
 
 ## Contexto
-O System Builder precisa saber se o candidato foi criado via Agent Gateway ou via Formulário Manual da UI do Builder.
+Toda parte do processo deve indicar quem elicitiou/sugeriu (Agente vs Humano).
 
 ## Arquivos permitidos
-- `src/features/builder/candidates/candidate.validation.ts` (modificação)
-- `src/features/builder/candidates/candidate.repository.ts`
+- Ajustes em schemas base (adicionar campos de origem/autor)
 
 ## Arquivos proibidos
-- UI Complexas e Lógicas de autenticação OpenID.
+- Perda de dados existentes
 
 ## Regras
-- Auditar e salvar a coluna `origin` estritamente.
+- Registrar autor ID e tipo (bot vs user).
 
 ## Etapas
-1. Ajustar o Repository do Candidate para gravar a origem.
-2. Adicionar o enum `origin: 'manual' | 'agent'` obrigatório nas inserções.
+1. Adicionar e popular dados de tracking de origem nas tabelas críticas.
 
 ## Validações
-- Repositório e tipos integrados corretamente sem quebras.
+- Testes validando salvamento de origem.
 
 ## Relatório final esperado
-- Camada de persistência ajustada para Elicitação Dupla.
+- Capacidade de dual elicitation estruturada.
 
 ## Regra de parada
-Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
+Pare antes da tela.
 
 ## Prompt pronto para Jules Dev
 ```text
 Antes de implementar, leia:
 AGENTS.md
+docs/planning/FRONTEND_PARITY_GATE.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 37 — Agent/Human Dual Elicitation
+Fase 37 — Agent/Human Dual Elicitation Backend
 
 Objetivo:
-Garantir a co-autoria nas metadados dos Candidates.
+Persistir explicitamente a origem (manual/agente) em todos os níveis de definição.
 
-Escopo:
-Repositório de Candidates e suas respectivas tipagens de validação.
-
-Não alterar:
-- Produção de Runtime oficial sem aprovação.
-- Publicar workflows de forma automatizada por agentes.
-
-Regras:
-Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
-
-Etapas:
-1. Garanta a validação obrigatória da origem da elicitação (manual vs agente) em toda persistência do Candidate.
-
-Validações:
-Testes locais sem erros TS e validação visual onde aplicável.
-
-Relatório final:
-Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
-
-Regra de parada:
-Não ultrapassar a fronteira de Agent/Human Dual Elicitation. Pare e solicite review.
+Atualize a base de dados e os serviços do Builder para registrar de forma audível se uma definição veio de um humano ou de um agente.
 ```
+
+## Prompt pronto para Jules Tester (se aplicável)
+```text
+Fase 37
+Execute os testes unitários e de integração validando os escopos e limites de permissões.
+```
+
+Frontend impact:
+- Área afetada: Backend Tracking
+- Rota(s): N/A
+- Usuário/persona: System
+- Workspace/global: Global / Workspace
+- Estados cobertos: Tracking origin
+- Teste visual/E2E: N/A
+- Gap frontend pendente: Fase 37B

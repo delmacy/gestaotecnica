@@ -1,63 +1,61 @@
-# Fase 40 — Future Multi-Agent Operating Model
+**Adendo documental — Frontend Parity Gate**
+
+# Fase 40 — Multi-Agent Operating Model
 
 ## Objetivo
-Encerramento do bloco Alfa com a criação do manifesto local de Agentes Integrados.
+Registry estático de agentes autorizados e suas permissões.
 
 ## Contexto
-Finalizar o ciclo atual preparando o repositório para o cenário em que QA Agent, Feature Agent e Process Agent rodam em orquestração.
+Preparação para ter múltiplos agentes especializados (Process Agent, Form Agent, Review Agent).
 
 ## Arquivos permitidos
-- `src/features/platform/gateway/agent-registry.types.ts`
+- Tabela/Config de Registry de Agentes
 
 ## Arquivos proibidos
-- Não construir nenhum Agente em LangChain ou similar.
+- Múltiplos agentes dinâmicos de início
 
 ## Regras
-- Apenas registro (Registry) estático listando os tipos de Agentes esperados que consumirão a API do Builder.
+- Cada agente tem chaves e permissões específicas.
 
 ## Etapas
-1. Declarar Enums/Tipos sobre os capabilities expostos a cada sub-agente (`qa`, `feature`, `process_builder`).
+1. Implementar registry de agentes e roteamento por permissões.
 
 ## Validações
-- Compilação limpa.
+- Autorização falhando se agente tenta ação fora do seu escopo.
 
 ## Relatório final esperado
-- Fim do Bloco Alfa.
+- Modelo multiagente de backend base concluído.
 
 ## Regra de parada
-Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
+Pare antes da interface do registry.
 
 ## Prompt pronto para Jules Dev
 ```text
 Antes de implementar, leia:
 AGENTS.md
+docs/planning/FRONTEND_PARITY_GATE.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 40 — Future Multi-Agent Operating Model
+Fase 40 — Multi-Agent Operating Model
 
 Objetivo:
-Encerramento do bloco Alfa com a criação do manifesto local de Agentes Integrados.
+Registry estático de agentes autorizados e suas permissões.
 
-Escopo:
-Especificação da tipagem do Registry de Agentes.
-
-Não alterar:
-- Produção de Runtime oficial sem aprovação.
-- Publicar workflows de forma automatizada por agentes.
-
-Regras:
-Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
-
-Etapas:
-1. Modele as interfaces do manifesto Multi-agente local apenas para efeito de permissões de API Gateway.
-
-Validações:
-Testes locais sem erros TS e validação visual onde aplicável.
-
-Relatório final:
-Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
-
-Regra de parada:
-Não ultrapassar a fronteira de Future Multi-Agent Operating Model. Pare e solicite review.
+Crie a infraestrutura de backend para registrar múltiplos agentes e mapear suas capacidades (Registry).
 ```
+
+## Prompt pronto para Jules Tester (se aplicável)
+```text
+Fase 40
+Execute os testes unitários e de integração validando os escopos e limites de permissões.
+```
+
+Frontend impact:
+- Área afetada: Backend Registry
+- Rota(s): N/A
+- Usuário/persona: System
+- Workspace/global: Global
+- Estados cobertos: CRUD API
+- Teste visual/E2E: N/A
+- Gap frontend pendente: Fase 40B

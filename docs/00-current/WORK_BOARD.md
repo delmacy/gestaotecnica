@@ -4,10 +4,10 @@
 
 | Campo                           | Valor                                        |
 | ------------------------------- | -------------------------------------------- |
-| Fase técnica atual              | Fase 30B — Gateway Receipts UI               |
+| Fase técnica atual              | Fase 31 — n8n Signal Inbox Backend           |
 | Fase documental atual           | Frontend Parity Gate aplicado ao bloco Alpha |
-| Última fase técnica implementada| Fase 30                                      |
-| Status da última fase           | READY WITH RESERVATIONS                      |
+| Última fase técnica implementada| Fase 30B                                     |
+| Status da última fase           | READY FOR REVIEW                             |
 | Última fase frontend aprovada   | Fase 29B                                     |
 | Próxima fase frontend vinculada | Fase 30B                                     |
 | Responsável técnico             | Jules Dev                                    |
@@ -20,16 +20,15 @@
 | Trilha                | Responsável      | Status      | Observação                                    |
 | --------------------- | ---------------- | ----------- | --------------------------------------------- |
 | Documentação/contexto | Jules Documental | Concluída   | Replanejamento Alpha por contratos de feature |
-| Implementação         | Jules Dev        | Pendente    | Implementará a Fase 30B                       |
+| Implementação         | Jules Dev        | Pendente    | Aguardando merge da Fase 30B                  |
 | Revisão               | ChatGPT          | Sob demanda | Revisa merges e coerência                     |
 | Decisão de produto    | Delmacy          | Ativo       | Aprova direção e prioridades                  |
 
 ## 3. Fila técnica
 
-1. Fase 30 — Gateway Metadata, Correlation ID, Idempotency — Concluída com ressalva
-2. Fase 30B — Gateway Receipts UI — Próxima autorizada
-3. Fase 31 — n8n Signal Inbox Backend — Bloqueada até 30B
-4. Fase 31B — Signal Inbox UI — Planejada
+1. Fase 30B — Gateway Receipts UI — Aguardando Review
+2. Fase 31 — n8n Signal Inbox Backend — Bloqueada até 30B
+3. Fase 31B — Signal Inbox UI — Planejada
 5. Fase 32 — Observation Pipeline Backend — Planejada
 6. Fase 32B — Observation Review UI — Planejada
 
@@ -43,7 +42,7 @@
 
 ## 5. Bloqueios
 
-A Fase 31 está bloqueada até a conclusão da Fase 30B.
+A Fase 31 está bloqueada até a revisão e o merge da Fase 30B.
 
 ## 6. Decisões recentes
 
@@ -68,22 +67,22 @@ Planejamento futuro disponível (NÃO IMPLEMENTAR AINDA):
 **Atenção Jules Dev:** Antes de começar a implementar ou ler qualquer arquivo, você **deve** atualizar o seu ambiente git local executando um `git pull` na branch correta para garantir que pegou as últimas atualizações geradas pelo Jules Documental.
 
 ```text
-Próxima fase técnica: Fase 30B — Agent Receipts UI
+Próxima fase técnica: Fase 31 — n8n Signal Inbox Backend (após revisão)
 
 Consulte o documento principal de planejamento de onde deve partir o prompt exato para a sua implementação:
 
-docs/planning/alpha/PHASE_30B.md
+docs/planning/alpha/PHASE_31.md
 
 Registro:
-docs/phases/PHASE_30B.md
+docs/phases/PHASE_31.md
 
-NÃO AVANCE PARA FASES FUTURAS. Cumpra a 30B e retorne o resultado.
+NÃO AVANCE PARA FASES FUTURAS AINDA. Aguarde revisão da 30B.
 ```
 
 ## 8. Última revisão ChatGPT
 
 | Campo          | Valor                                  |
 | -------------- | -------------------------------------- |
-| Última revisão | Fase 30 concluída com ressalvas de E2E |
+| Última revisão | Fase 30B concluída aguardando review   |
 | Resultado      | Aguardando                             |
-| Observações    | Fase 30B autorizada. Fase 31 bloqueada.|
+| Observações    | Fase 31 bloqueada até merge.           |

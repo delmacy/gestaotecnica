@@ -6,27 +6,25 @@ Replanejamento Alpha por contratos de feature. DDD Maturity Alignment.
 
 ## Última fase técnica implementada
 
-Fase 30 — Gateway Metadata, Correlation ID, Idempotency
+Fase 30B — Gateway Receipts UI
 
 Status:
-Concluída com ressalva documentada.
+Concluída (Aguardando Revisão).
 
 Ressalva:
-A suíte completa de E2E apresentou flakiness/timing/seed em builder.spec.ts e candidate-evidence.spec.ts; os testes afetados foram executados isoladamente com sucesso. Não houve alteração intencional de UI na Fase 30.
+A suíte completa de E2E apresentou flakiness em ambiente headless sem X11.
 
 ## Próxima fase autorizada
 
-Fase 30B — Gateway Receipts UI
+Fase 31 — n8n Signal Inbox Backend
 
 Objetivo:
-Criar UI read-only para visualizar os receipts/submissões persistidos pela Fase 30.
+Criar endpoint e workflow para processamento inicial de sinais do n8n.
 
 ## Bloqueio
 
-Nenhuma fase seguinte, incluindo Fase 31 — n8n Signal Inbox Backend, deve ser iniciada antes da conclusão e revisão da Fase 30B.
+A Fase 31 deve aguardar a revisão e merge da Fase 30B.
 
 ## Interpretação correta
 
-A Fase 30 não foi integração real com Paperclip.
-A Fase 30B também não deve integrar Paperclip.
-A Fase 30B fecha o Frontend Parity Gate da Fase 30.
+A Fase 30B fecha o Frontend Parity Gate da Fase 30. Nenhuma das duas inclui integração real com o Paperclip.

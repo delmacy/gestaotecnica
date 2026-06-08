@@ -110,6 +110,7 @@ test("Candidate aprovado gera definição oficial e atualiza status", async () =
   assert.equal(result.sourceCandidateId, validCandidateId);
   assert.equal(repo.getCandidateState()?.status, "published");
   const definition = repo.getPublishedDefinition();
+  assert.ok(definition !== null, "definition should not be null");
   assert.equal(definition.name, "Test Process");
   assert.equal(definition.sourceCandidateId, validCandidateId, "A referência ao Candidate de origem deve ser preservada");
   assert.equal(definition.workspaceId, validWorkspaceId, "A definição publicada deve pertencer ao mesmo workspace");

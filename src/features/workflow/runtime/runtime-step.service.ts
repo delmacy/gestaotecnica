@@ -12,7 +12,7 @@ import type { RuntimeResult } from "./runtime.errors";
 
 // Imports limitados da definitions boundary apenas para path-finding e reading
 import { getProcessVersionById } from "../definitions/process-definition.queries";
-import { logEvent } from "./events";
+import { logEvent } from "./events/events.repository";
 
 // Helper defension against dynamic object formats
 function extractNodesAndEdges(definitionJson: any) {
@@ -210,6 +210,7 @@ export async function advanceStep(
     };
 
   } catch (_error) {
+    console.error("AdvanceStep Error:", _error);
     return {
       ok: false,
       error: { code: "INTERNAL_ERROR", message: "Falha síncrona não tratada no Runtime Step Service." }

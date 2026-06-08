@@ -1,4 +1,4 @@
-import { processDefinitions, processVersions } from "@/db/platform/schema/workflow";
+import { processDefinitions, processVersions } from "@/db/runtime/schema/workflow";
 import { eq, desc, and } from "drizzle-orm";
 import type { ProcessDefinitionDb } from "./process-definition.repository";
 
@@ -17,7 +17,7 @@ export async function listProcessDefinitions(
   const whereClause = input.status
     ? and(
         eq(processDefinitions.workspaceId, input.workspaceId),
-        eq(processDefinitions.status, input.status)
+        eq(processDefinitions.isActive, input.status)
       )
     : eq(processDefinitions.workspaceId, input.workspaceId);
 
@@ -28,7 +28,7 @@ export async function listProcessDefinitions(
       key: processDefinitions.key,
       name: processDefinitions.name,
       description: processDefinitions.description,
-      status: processDefinitions.status,
+      status: processDefinitions.isActive,
       createdAt: processDefinitions.createdAt,
       updatedAt: processDefinitions.updatedAt,
     })
@@ -62,7 +62,7 @@ export async function getProcessDefinitionById(
       key: processDefinitions.key,
       name: processDefinitions.name,
       description: processDefinitions.description,
-      status: processDefinitions.status,
+      status: processDefinitions.isActive,
       createdAt: processDefinitions.createdAt,
       updatedAt: processDefinitions.updatedAt,
     })
@@ -85,8 +85,8 @@ export async function getProcessDefinitionById(
       processDefinitionId: processVersions.processDefinitionId,
       version: processVersions.version,
       status: processVersions.status,
-      definitionJson: processVersions.definitionJson,
-      createdBy: processVersions.createdBy,
+      definition: processVersions.definition,
+
       createdAt: processVersions.createdAt,
     })
     .from(processVersions)
@@ -102,7 +102,7 @@ export async function getProcessDefinitionById(
       processDefinitionId: v.processDefinitionId,
       version: v.version,
       status: v.status,
-      definition: v.definitionJson,
+      definition: v.definition,
       createdBy: v.createdBy,
       createdAt: v.createdAt ? v.createdAt.toISOString() : undefined,
     };
@@ -134,8 +134,8 @@ export async function getProcessVersionById(
       processDefinitionId: processVersions.processDefinitionId,
       version: processVersions.version,
       status: processVersions.status,
-      definitionJson: processVersions.definitionJson,
-      createdBy: processVersions.createdBy,
+      definition: processVersions.definition,
+
       createdAt: processVersions.createdAt,
     })
     .from(processVersions)
@@ -152,7 +152,7 @@ export async function getProcessVersionById(
     processDefinitionId: v.processDefinitionId,
     version: v.version,
     status: v.status,
-    definition: v.definitionJson,
+    definition: v.definition,
     createdBy: v.createdBy,
     createdAt: v.createdAt ? v.createdAt.toISOString() : undefined,
   };

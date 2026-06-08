@@ -1,5 +1,5 @@
 import { eq, desc, and } from "drizzle-orm";
-import { processDefinitions, processVersions } from "@/db/platform/schema/workflow";
+import { processDefinitions, processVersions } from "@/db/runtime/schema/workflow";
 
 // Avoid tight coupling to a specific Drizzle schema instance shape here if possible,
 // using a minimal structural interface for the `db` parameter.
@@ -26,7 +26,7 @@ export async function insertProcessDefinition(
       key: input.key,
       name: input.name,
       description: input.description ?? null,
-      status: input.status ?? "draft",
+      isActive: input.status === "draft" ? "false" : "true",
     })
     .returning();
 
@@ -39,7 +39,7 @@ export async function insertProcessVersion(
     processDefinitionId: string;
     version: number;
     status?: "draft" | "published" | "archived";
-    definitionJson: unknown;
+    definition: unknown;
     createdBy?: string | null;
   }
 ) {
@@ -49,7 +49,7 @@ export async function insertProcessVersion(
       processDefinitionId: input.processDefinitionId,
       version: input.version,
       status: input.status ?? "draft",
-      definitionJson: input.definitionJson,
+      definition: input.definition,
       createdBy: input.createdBy ?? null,
     })
     .returning();
@@ -88,7 +88,7 @@ export async function publishProcessVersionRecord(
   const [record] = await db
     .update(processVersions)
     .set({
-      status: "published",
+      isActive: "true",
     })
     .where(and(
       eq(processVersions.id, input.processVersionId),

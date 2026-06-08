@@ -74,7 +74,7 @@ export async function createProcessDefinition(
       processDefinitionId: definitionRow.id,
       version: 1,
       status: "draft",
-      definitionJson: serializedDraft,
+      definition: serializedDraft,
       createdBy: input.createdBy,
     });
 
@@ -115,7 +115,7 @@ export async function createProcessVersion(
       processDefinitionId: input.processDefinitionId,
       version: nextVersion,
       status: "draft",
-      definitionJson: serializedDraft,
+      definition: serializedDraft,
       createdBy: input.createdBy,
     });
 

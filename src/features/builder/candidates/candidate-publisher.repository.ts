@@ -63,7 +63,7 @@ export const drizzleCandidatePublisherRepository: PublisherRepositoryPort = {
       .values({
         processDefinitionId: definition.id,
         version: 1,
-        status: "draft",
+        status: "published",
         definition: serializeBuilderDraft(input.draft as BuilderDraft),
       })
       .returning();

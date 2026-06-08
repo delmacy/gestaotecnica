@@ -24,9 +24,9 @@ export async function logEvent(
       source: input.source,
       correlationId: input.correlationId,
       causationId: input.causationId,
-      payload: input.payload ?? {},
+      payload: Object.keys(input.payload || {}).length ? input.payload : {},
     })
-    .returning();
+    .returning({ id: events.id });
 
   return record as EventRecord;
 }

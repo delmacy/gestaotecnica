@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
+import { allowAuthenticatedArea } from "./auth-helper";
 
 test.describe("Builder Interactivity", () => {
   test("adiciona e edita um bloco pelo inspetor", async ({ page }) => {
+    await allowAuthenticatedArea(page);
     await page.goto("/builder");
 
     await expect(page.getByRole("heading", { name: "System Builder" })).toBeVisible();

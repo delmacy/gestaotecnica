@@ -26,6 +26,7 @@ import {
   Search,
   ShieldCheck,
   SlidersHorizontal,
+  Store,
   Users,
   Wrench,
 } from "lucide-react";
@@ -43,27 +44,27 @@ type NavItem = {
 type NavGroup = {
   label: string;
   description: string;
-  mode: "platform" | "workspace" | "governance";
+  mode: "platform" | "workspace" | "workspaceGovernance";
   items: NavItem[];
 };
 
 const navGroups: NavGroup[] = [
   {
-    label: "Plataforma",
-    description: "Construção, publicação e capacidades globais.",
+    label: "Administração da plataforma",
+    description: "Recursos globais, tenants e capacidades reutilizáveis.",
     mode: "platform",
     items: [
-      { href: "/", label: "Command Center", description: "Visão geral", icon: LayoutDashboard },
-      { href: "/builder", label: "Builder IDE", description: "Canvas e draft", icon: Code2 },
-      { href: "/candidates", label: "Candidatos", description: "Propostas de processo", icon: GitBranch },
-      { href: "/workspace-config", label: "Instalações", description: "Módulos por workspace", icon: SlidersHorizontal },
-      { href: "/skills", label: "Capabilities", description: "Catálogo de capacidades", icon: Bot },
-      { href: "/automations", label: "Automações", description: "Fluxos e integrações", icon: Rocket },
+      { href: "/", label: "Command Center", description: "Visão geral segura", icon: LayoutDashboard },
+      { href: "/admin/workspaces", label: "Clientes", description: "Organizations e workspaces", icon: BriefcaseBusiness },
+      { href: "/skills", label: "Capabilities globais", description: "Catálogo reutilizável", icon: Bot },
+      { href: "/workspace-config", label: "Instalações", description: "Capabilities por workspace", icon: SlidersHorizontal },
+      { href: "/admin/users", label: "Usuários", description: "Acessos e papéis", icon: Users },
+      { href: "/admin", label: "Admin", description: "Controles da plataforma", icon: ShieldCheck },
     ],
   },
   {
-    label: "Workspace cliente",
-    description: "Operação diária dentro do tenant selecionado.",
+    label: "Workspace selecionado",
+    description: "Dados sensíveis do cliente/tenant ativo.",
     mode: "workspace",
     items: [
       { href: "/operations", label: "Operações", description: "Painel de execução", icon: Activity },
@@ -77,14 +78,14 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "Governança",
-    description: "Administração, auditoria e informação compartilhada.",
-    mode: "governance",
+    label: "Governança do workspace",
+    description: "Processos, auditoria e leituras do tenant ativo.",
+    mode: "workspaceGovernance",
     items: [
-      { href: "/admin", label: "Admin", description: "Controles globais", icon: ShieldCheck },
-      { href: "/admin/workspaces", label: "Workspaces", description: "Empresas e tenants", icon: BriefcaseBusiness },
-      { href: "/admin/users", label: "Usuários", description: "Acessos e papéis", icon: Users },
+      { href: "/builder", label: "Builder IDE", description: "Modelagem do workspace", icon: Code2 },
+      { href: "/candidates", label: "Candidatos", description: "Propostas do workspace", icon: GitBranch },
       { href: "/admin/workflows", label: "Workflows", description: "Definições publicadas", icon: GitBranch },
+      { href: "/automations", label: "Automações", description: "Fluxos e integrações", icon: Rocket },
       { href: "/documents", label: "Documentos", description: "Evidências e arquivos", icon: FileText },
       { href: "/reports", label: "Relatórios", description: "Leituras gerenciais", icon: ClipboardCheck },
       { href: "/search", label: "Busca", description: "Consulta global", icon: Search },
@@ -95,25 +96,25 @@ const navGroups: NavGroup[] = [
 
 const modeMeta = {
   platform: {
-    label: "Operador da plataforma",
+    label: "Admin da plataforma",
     eyebrow: "System Builder",
-    title: "Control Plane",
-    description: "Modele capacidades, publique processos e governe workspaces.",
+    title: "Administração da plataforma",
+    description: "Gerencie tenants, usuários e capabilities globais.",
     icon: PanelsTopLeft,
   },
   workspace: {
-    label: "Cliente do workspace",
+    label: "Workspace selecionado",
     eyebrow: "Runtime",
-    title: "Operação do workspace",
-    description: "Execute processos, acompanhe demandas e use capabilities instaladas.",
+    title: "Dados do workspace",
+    description: "Dados operacionais isolados no tenant ativo.",
     icon: BriefcaseBusiness,
   },
-  governance: {
-    label: "Governança",
-    eyebrow: "Administração",
-    title: "Governança e auditoria",
-    description: "Controle usuários, workspaces, workflows e evidências.",
-    icon: ShieldCheck,
+  workspaceGovernance: {
+    label: "Governança do workspace",
+    eyebrow: "Workspace",
+    title: "Processos e auditoria",
+    description: "Workflows, candidates e relatórios do tenant ativo.",
+    icon: Store,
   },
 } as const;
 
@@ -152,7 +153,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </div>
               <div>
                 <p className="text-sm font-bold leading-tight text-sidebar-foreground">System Builder</p>
-                <p className="text-xs text-muted-foreground">Platform + Runtime</p>
+                <p className="text-xs text-muted-foreground">Área autenticada</p>
               </div>
             </Link>
           </div>
@@ -227,7 +228,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </div>
               <div className="hidden items-center gap-2 rounded-md border bg-card px-3 py-2 text-xs text-muted-foreground sm:flex">
                 <Compass className="size-4 text-primary" />
-                {activeMode.label}
+                Escopo: {activeMode.label}
               </div>
             </div>
 

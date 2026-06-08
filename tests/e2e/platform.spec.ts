@@ -1,16 +1,21 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from "@playwright/test";
+import { allowAuthenticatedArea } from "./auth-helper";
 
-test.describe('Platform E2E: Consolidação System Builder', () => {
+test.describe("Platform E2E: área autenticada", () => {
+  test("redireciona a raiz para login sem sessão", async ({ page }) => {
+    await page.goto("/");
 
-  test('Acessar Runtime Dinâmico trata erro de conexao do banco elegantemente', async ({ page }) => {
-    // Quando testado em CI sem DB local configurado, a nossa rota genérica captura a exceção/retorna Next.js default error (ou this page couldnt load).
-    // O objetivo do repositório ser um Builder foi cumprido estruturalmente.
-    // Em testes unitários locais, precisamos assumir que a renderização vai ser barrada pelo Drizzle caso o DB nao conecte.
+    await expect(page).toHaveURL(/\/auth\/login\?next=%2F$/);
+    await expect(page.getByRole("textbox", { name: "E-mail" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
+  });
 
-    // Verificamos pelo menos que o Builder Dashboard subiu na raiz:
-    await page.goto('/');
-    await expect(page.getByText('System Builder')).toBeVisible();
-    await expect(page.getByText('Plataforma de Construção de Sistemas e Runtime Dinâmico')).toBeVisible();
-    await expect(page.getByText('Multi-tenant')).toBeVisible();
+  test("exibe o Command Center quando há sessão", async ({ page }) => {
+    await allowAuthenticatedArea(page);
+    await page.goto("/");
+
+    await expect(page.getByRole("heading", { name: "System Builder Platform" })).toBeVisible();
+    await expect(page.getByText("Área autenticada para administrar a plataforma")).toBeVisible();
+    await expect(page.getByText("Dados do workspace selecionado")).toBeVisible();
   });
 });

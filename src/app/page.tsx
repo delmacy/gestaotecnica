@@ -9,8 +9,6 @@ import {
   BriefcaseBusiness,
   ClipboardList,
   FileCheck2,
-  GitBranch,
-  LayoutDashboard,
   ListChecks,
   Network,
   Search,
@@ -21,14 +19,14 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const platformActions = [
-  { href: "/builder", label: "Abrir Builder", detail: "Canvas e versões", icon: LayoutDashboard },
-  { href: "/candidates", label: "Revisar candidatos", detail: "Aprovação humana", icon: GitBranch },
-  { href: "/skills", label: "Capabilities", detail: "Catálogo global", icon: Bot },
-  { href: "/workspace-config", label: "Instalações", detail: "Workspace modules", icon: SlidersHorizontal },
+  { href: "/admin/workspaces", label: "Selecionar workspace", detail: "Cliente/tenant ativo", icon: BriefcaseBusiness },
+  { href: "/skills", label: "Capabilities globais", detail: "Disponíveis para qualquer cliente", icon: Bot },
+  { href: "/workspace-config", label: "Instalar capabilities", detail: "Somente no workspace atual", icon: SlidersHorizontal },
+  { href: "/admin/users", label: "Usuários e papéis", detail: "Acesso autenticado", icon: ShieldCheck },
 ];
 
 const workspaceActions = [
-  { href: "/operations", label: "Operações", detail: "Fila ativa", icon: Activity },
+  { href: "/operations", label: "Operações do workspace", detail: "Fila ativa do cliente", icon: Activity },
   { href: "/work-items", label: "Demandas", detail: "Entrada e triagem", icon: ListChecks },
   { href: "/service-orders", label: "Ordens de serviço", detail: "Execução técnica", icon: ClipboardList },
   { href: "/maintenance-plans", label: "Manutenção", detail: "Planos preventivos", icon: Wrench },
@@ -87,22 +85,24 @@ export default function SystemBuilderDashboard() {
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Command Center</p>
                 <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">System Builder Platform</h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  Controle de plataforma para modelar capacidades e runtime operacional para workspaces executarem processos reais.
+                  Área autenticada para administrar a plataforma e operar dados sensíveis sempre dentro de um workspace selecionado.
                 </p>
               </div>
               <div className="flex min-w-52 items-center gap-3 rounded-md border bg-background px-3 py-3">
                 <ShieldCheck className="size-5 text-primary" />
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground">Modo atual</p>
-                  <p className="text-sm font-semibold">Plataforma + Workspace</p>
+                  <p className="text-xs font-medium text-muted-foreground">Acesso</p>
+                  <p className="text-sm font-semibold">Sessão obrigatória</p>
                 </div>
               </div>
             </div>
 
             <div className="mt-6 grid gap-3 md:grid-cols-2">
               <div className="rounded-md border bg-background p-4">
-                <p className="text-sm font-semibold">Operar como plataforma</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">Builder, candidates, capabilities e publicação governada.</p>
+                <p className="text-sm font-semibold">Administração da plataforma</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Capabilities são globais e reutilizáveis. A instalação acontece por workspace.
+                </p>
                 <div className="mt-4 grid gap-2">
                   {platformActions.map((action) => (
                     <ActionLink key={action.href} {...action} />
@@ -111,8 +111,10 @@ export default function SystemBuilderDashboard() {
               </div>
 
               <div className="rounded-md border bg-background p-4">
-                <p className="text-sm font-semibold">Operar como cliente</p>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">Demandas, ordens, pessoas, ativos e rotinas do workspace.</p>
+                <p className="text-sm font-semibold">Dados do workspace selecionado</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Demandas, ordens, processos, formulários e relatórios pertencem somente ao cliente ativo.
+                </p>
                 <div className="mt-4 grid gap-2">
                   {workspaceActions.map((action) => (
                     <ActionLink key={action.href} {...action} />

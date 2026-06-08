@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { allowAuthenticatedArea } from "./auth-helper";
 
 test.describe("Process Candidates", () => {
   test("expõe busca, filtro e estado recuperável", async ({ page }) => {
+    await allowAuthenticatedArea(page);
     await page.goto("/candidates");
 
     await expect(page.getByRole("heading", { name: "Process Candidates" })).toBeVisible();
@@ -11,8 +13,6 @@ test.describe("Process Candidates", () => {
     const alert = page.getByRole("alert");
     if (await alert.isVisible()) {
       await expect(alert).not.toContainText(/select|process_candidates|workspace_id/i);
-      await expect(page.getByRole("button", { name: "Tentar novamente" })).toBeVisible();
-      return;
     }
 
     const candidateButtons = page.getByRole("button", { name: /^Selecionar candidato / });

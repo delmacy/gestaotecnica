@@ -1,15 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { AUTH_COOKIE } from "@/modules/auth/constants";
 
-const protectedPrefixes = ["/admin", "/workspace-config"];
+const publicPrefixes = ["/auth"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const isProtected = protectedPrefixes.some((prefix) =>
-    pathname.startsWith(prefix),
-  );
+  const isPublic = publicPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
-  if (!isProtected) return NextResponse.next();
+  if (isPublic) return NextResponse.next();
 
   const hasSession = Boolean(request.cookies.get(AUTH_COOKIE)?.value);
 
@@ -21,5 +19,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/workspace-config/:path*", "/workspace-config"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

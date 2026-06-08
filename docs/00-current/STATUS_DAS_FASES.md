@@ -88,3 +88,7 @@ Próxima fase técnica planejada: Fase 20
 ## 5. Regra
 
 > Nenhuma fase deve ser considerada concluída apenas porque foi implementada. Ela deve ser revisada contra o escopo e registrada neste documento. O planejamento das fases de 17A a 20D é uma fila de execução futura, e a Fase 20D marca o fechamento documental do MVP técnico.
+
+
+|   28 | ✅      | Agent Gateway Backend    | Integrado no MVP do Gateway                              |
+|  28B | ⚪      | Agent Candidate Inbox    | Reduzido, pendente para Desenvolvimento                   |

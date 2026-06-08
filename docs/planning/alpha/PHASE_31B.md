@@ -1,60 +1,55 @@
-# Fase 31B — Signal Inbox UI
+# Feature Contract — Fase 31B
+## 1. Identificação
+- Fase: 31B
+- Nome: Signal Inbox UI
+- Tipo: Frontend
+- Dependências: Fase 31
+- Fase frontend vinculada: N/A
+- Status: Planejada refinada
 
-## Objetivo
-Criar tela autenticada para listar sinais recebidos na Inbox.
+## 2. Objetivo
+Lista e detalhe de payloads brutos em `/inbox`.
 
-## Contexto
-Os gestores precisam visualizar os sinais crus recebidos pelas integrações n8n.
+## 3. Problema que resolve
+Frontend Parity Gate para visualizar requisições do n8n.
 
-## Arquivos permitidos
-- UI da Signal Inbox
+## 4. Escopo permitido
+- Rotas e componentes para exibir o `signal_inbox`.
 
-## Arquivos proibidos
-- Processamento automático de sinais (isso é backend)
+## 5. Fora de escopo
+- Edição do sinal.
 
-## Regras
-- Interface deve listar sinais por status e origem.
+## 6. Entidades e contratos
+N/A
 
-## Etapas
-1. Tela de lista de sinais.
-2. Drawer/Modal com payload cru JSON.
+## 7. Estados e transições
+- status: pending, processed.
 
-## Validações
-- Visualização de payload grande sem quebrar layout.
+## 8. Services, repositories e actions esperados
+- Server actions de leitura.
 
-## Relatório final esperado
-- Tela de Signal Inbox entregue.
+## 9. UI esperada
+- Rota: `/inbox` ou `/workspace/inbox`.
+- Drawer com payload JSON.
+- Estados vazios, populados, loading e error.
 
-## Regra de parada
-Pare após exibir os dados crus.
+## 10. Testes obrigatórios
+- Visual e E2E.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 11. Frontend impact
+- Rota: `/inbox`.
 
-Fase 31B — Signal Inbox UI
+## 12. Critérios de aceite
+- Pode ler JSON bruto e status.
 
-Objetivo:
-Criar tela autenticada para listar sinais recebidos na Inbox.
+## 13. Regra de parada
+Lista UI e drawer mostrando payload.
 
-Implemente a visualização frontend da Signal Inbox para os dados capturados na Fase 31.
-```
+## 14. Prompt para Jules Dev
+`Criar UI para Signal Inbox (Fase 31B) mostrando payloads e JSON em drawer.`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 31B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-Frontend impact:
-- Área afetada: Signal Inbox
-- Rota(s): /[workspace]/inbox
-- Usuário/persona: Gestor Operacional
-- Workspace/global: Workspace
-- Estados cobertos: Lista, Payload Modal
-- Teste visual/E2E: Visualização da lista.
-- Gap frontend pendente: Nenhum
+## 16. Riscos e decisões
+- Decisão: UI read-only simples sem processamento aqui.

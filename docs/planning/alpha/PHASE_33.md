@@ -1,61 +1,55 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 33
+## 1. Identificação
+- Fase: 33
+- Nome: Living Procedures Backend
+- Tipo: Backend
+- Dependências: N/A
+- Fase frontend vinculada: Fase 33B
+- Status: Planejada refinada
 
-# Fase 33 — Living Procedures Backend
+## 2. Objetivo
+Entidade `living_procedures` atrelada a uma versão de processo.
 
-## Objetivo
-Criar modelo de documentação viva ligada ao processo/version.
+## 3. Problema que resolve
+Associa documentação de procedimentos aos workflows (Process Versions).
 
-## Contexto
-Procedimentos devem evoluir junto com os processos (versões).
+## 4. Escopo permitido
+- Tabelas e Service de Living Procedures.
 
-## Arquivos permitidos
-- Schema/Service para Procedimentos/Docs.
+## 5. Fora de escopo
+- Gerador IA de documentos.
 
-## Arquivos proibidos
-- UI de documentação complexa
+## 6. Entidades e contratos
+- Entidade: `living_procedures`
+- Campos: `id`, `workspace_id`, `process_definition_id`, `process_version_id`, `title`, `body_markdown`, `status` (draft | published | archived), `created_by_id`, `updated_by_id`, `created_at`, `updated_at`.
+- Regra: procedimento publicado DEVE apontar para versão publicada de processo.
 
-## Regras
-- Doc ligada estritamente à versão publicada do processo.
+## 7. Estados e transições
+- draft -> published.
 
-## Etapas
-1. Criar entidade/tabela de documentação atrelada a processo.
+## 8. Services, repositories e actions esperados
+- CRUD Actions.
 
-## Validações
-- Relacionamento banco validado.
+## 9. UI esperada
+N/A
 
-## Relatório final esperado
-- Backend de living procedures.
+## 10. Testes obrigatórios
+- Unit e integrações de vínculo de chave.
 
-## Regra de parada
-Pare antes da visualização.
+## 11. Frontend impact
+- Gap frontend pendente: 33B.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 12. Critérios de aceite
+- Procedimento só pode publicar se processo for published.
 
-Fase 33 — Living Procedures Backend
+## 13. Regra de parada
+Testes de regra passando.
 
-Objetivo:
-Criar modelo de documentação viva ligada ao processo/version.
+## 14. Prompt para Jules Dev
+`Implementar persistência de Living Procedures (Fase 33) vinculando com versões publicadas de processo.`
 
-Implemente a base de dados e API para Living Procedures atrelados a versões de processos.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 33
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
-
-Frontend impact:
-- Área afetada: Backend Docs
-- Rota(s): N/A
-- Usuário/persona: System
-- Workspace/global: Workspace
-- Estados cobertos: CRUD basico
-- Teste visual/E2E: N/A
-- Gap frontend pendente: Fase 33B
+## 16. Riscos e decisões
+- Versionamento atrelado.

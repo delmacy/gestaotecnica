@@ -1,62 +1,63 @@
-# Fase 28B — Agent Gateway Control Plane UI
+# Feature Contract — Fase 28B
 
-## Objetivo
-Criar a UI autenticada do Control Plane para monitorar o Agent Gateway.
+## 1. Identificação
+- Fase: 28B
+- Nome: Agent Candidate Inbox mínimo
+- Tipo: Frontend
+- Dependências: Fase 28
+- Fase frontend vinculada: N/A (Esta é a fase frontend)
+- Status: Planejada refinada
 
-## Contexto
-A fase 28 criou o backend. Agora precisamos de visibilidade para os administradores da plataforma verem o que os agentes estão enviando.
+## 2. Objetivo
+Criar uma tela autenticada mínima para visualizar Process Candidates originados por agente.
 
-## Arquivos permitidos
-- Componentes UI para gateway control plane
+## 3. Problema que resolve
+O Agent Gateway permite a submissão de candidatos, mas não há visualização desses dados no painel administrativo/gestão. Isso cobre a regra de Frontend Parity Gate para a Fase 28.
 
-## Arquivos proibidos
-- Alterações na API de submissão do agente
+## 4. Escopo permitido
+- `src/app/(builder)/admin/gateway/page.tsx` ou equivalente.
+- Componentes de lista para visualizar candidatos com origem "agent".
 
-## Regras
-- Frontend Parity Gate: não avançar sem esta UI.
-- A tela deve ser autenticada (área logada).
+## 5. Fora de escopo
+- Implementar metadata complexa (correlation_id, idempotency, etc), que será tratada na Fase 30.
+- Editar processos diretamente nesta tela.
 
-## Etapas
-1. Criar tela de log/auditoria do gateway.
-2. Exibir status de submissões, falhas e Correlation IDs.
+## 6. Entidades e contratos
+N/A - Foco em Frontend. Os dados virão da estrutura existente de Process Candidates, filtrados.
 
-## Validações
-- Validar renderização visual das submissões.
-- Teste de E2E para visualização correta.
+## 7. Estados e transições
+- Visualização apenas.
+- Estados da lista: vazia, populada, loading, erro.
 
-## Relatório final esperado
-- Tela de Control Plane do Gateway operacional.
+## 8. Services, repositories e actions esperados
+- A UI deve consumir actions/queries existentes que listam candidatos (filtrando por origem).
 
-## Regra de parada
-Pare após garantir a paridade frontend.
+## 9. UI esperada
+- Rota: `/admin/gateway` ou `/candidates` com filtro.
+- Componentes: Tabela ou lista mínima.
+- Estado vazio: "Nenhum candidato originado por agentes."
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 10. Testes obrigatórios
+- E2E garantindo que a tela carrega e exibe itens com `origin=agent`.
 
-Fase 28B — Agent Gateway Control Plane UI
+## 11. Frontend impact
+- Área afetada: Dashboard / Gateway
+- Rota(s): `/admin/gateway`
+- Teste visual/E2E: Coberto.
+- Gap frontend pendente: Detalhes de rastreabilidade completa (Fase 30).
 
-Objetivo:
-Criar a UI autenticada do Control Plane para monitorar o Agent Gateway.
+## 12. Critérios de aceite
+- Usuário consegue navegar até a tela.
+- Lista exibe candidatos recebidos via API.
 
-Implemente a UI para o Agent Gateway Control Plane, mostrando logs e submissões baseadas no backend criado na fase 28.
-```
+## 13. Regra de parada
+Após a listagem básica funcionar e passar nos testes, sem tentar adicionar logs complexos.
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 28B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 14. Prompt para Jules Dev
+`Implementar a Fase 28B (Agent Candidate Inbox mínimo) conforme o contrato docs/planning/alpha/PHASE_28B.md. Criar a rota /admin/gateway ou adaptar /candidates para listar itens cuja origem seja 'agent'. Não implementar correlação/recibos ainda.`
 
-Frontend impact:
-- Área afetada: Agent Gateway Control Plane
-- Rota(s): /builder/gateway ou /admin/gateway
-- Usuário/persona: Admin da Plataforma
-- Workspace/global: Global
-- Estados cobertos: Lista vazia, lista populada, erro
-- Teste visual/E2E: Visualizar lista de submissões mockadas ou reais.
-- Gap frontend pendente: Nenhum
+## 15. Prompt para Jules Tester
+`Rodar testes e garantir que a rota de inbox de agentes está acessível e exibe o estado de carregamento e vazio de forma adequada.`
+
+## 16. Riscos e decisões
+- Decisão: Não prometer logs e receipts nesta fase para manter a entrega simples, alinhada com as limitações do MVP do Gateway.

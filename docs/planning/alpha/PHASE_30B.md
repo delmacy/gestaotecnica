@@ -1,60 +1,55 @@
-# Fase 30B — Agent Receipts and Traceability UI
+# Feature Contract — Fase 30B
 
-## Objetivo
-Criar painel de recibos e rastreabilidade para interações de agentes.
+## 1. Identificação
+- Fase: 30B
+- Nome: Gateway Receipts UI
+- Tipo: Frontend
+- Dependências: Fase 30
+- Fase frontend vinculada: N/A
+- Status: Planejada refinada
 
-## Contexto
-Apresentar os logs de `correlation_id` e recibos criados na Fase 30.
+## 2. Objetivo
+Criar interface para visualização de recibos de Gateway com base nos metadados da Fase 30.
 
-## Arquivos permitidos
-- UI de auditoria e logs
+## 3. Problema que resolve
+Frontend Parity Gate para os metadados de rastreabilidade (Correlation ID e Idempotency).
 
-## Arquivos proibidos
-- Mudanças nas rotas de API
+## 4. Escopo permitido
+- Criação de páginas e componentes para a rota `/admin/gateway/receipts`.
 
-## Regras
-- Incluir filtros por workspace, agente, status.
+## 5. Fora de escopo
+- Reenvio (retry) de requisições.
 
-## Etapas
-1. Criar tela de recibos.
-2. Ligar recibos ao Process Candidate gerado.
+## 6. Entidades e contratos
+N/A
 
-## Validações
-- Testes visuais da listagem e filtros.
+## 7. Estados e transições
+- Filtros de status.
 
-## Relatório final esperado
-- Painel de recibos operável.
+## 8. Services, repositories e actions esperados
+- Server actions de leitura dos recibos.
 
-## Regra de parada
-Pare após confirmar a rastreabilidade visual.
+## 9. UI esperada
+- Rota: `/admin/gateway/receipts`
+- Tabela com `correlation_id`, status, timestamp.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 10. Testes obrigatórios
+- E2E.
 
-Fase 30B — Agent Receipts and Traceability UI
+## 11. Frontend impact
+- Rota: `/admin/gateway/receipts`
 
-Objetivo:
-Criar painel de recibos e rastreabilidade para interações de agentes.
+## 12. Critérios de aceite
+- Administrador consegue ver o histórico de payloads recebidos e erros.
 
-Crie o painel visual para listar recibos e interações dos agentes.
-```
+## 13. Regra de parada
+Quando a lista estiver funcional com paginação/filtros simples.
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 30B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 14. Prompt para Jules Dev
+`Implementar Fase 30B. Crie a interface /admin/gateway/receipts para listar o histórico do gateway criado na Fase 30.`
 
-Frontend impact:
-- Área afetada: Auditoria / Gateway
-- Rota(s): /builder/gateway/receipts
-- Usuário/persona: Admin da Plataforma / Gestor
-- Workspace/global: Global / Workspace
-- Estados cobertos: Lista de recibos, link para candidate
-- Teste visual/E2E: Buscar por correlation ID e listar.
-- Gap frontend pendente: Nenhum
+## 15. Prompt para Jules Tester
+`N/A`
+
+## 16. Riscos e decisões
+- Foco apenas em leitura.

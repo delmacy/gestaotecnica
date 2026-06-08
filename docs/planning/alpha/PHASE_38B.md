@@ -1,60 +1,55 @@
-# Fase 38B — Workspace Consent UI
+# Feature Contract — Fase 38B
 
-## Objetivo
-Tela de configuração de consentimento de privacidade do workspace.
+## 1. Identificação
+- Fase: 38B
+- Nome: Workspace Consent UI
+- Tipo: Frontend
+- Dependências: Fase 38
+- Fase frontend vinculada: N/A
+- Status: Planejada refinada
 
-## Contexto
-Gestores de tenant ativam ou desativam a IA/Agent observation.
+## 2. Objetivo
+Interface para configurar o consentimento (opt-in) de IA no workspace.
 
-## Arquivos permitidos
-- Painel de configurações do workspace
+## 3. Problema que resolve
+Frontend Parity Gate da Fase 38.
 
-## Arquivos proibidos
-- Omitir os termos do consentimento
+## 4. Escopo permitido
+- `src/app/(builder)/settings/ai/page.tsx` ou similar.
 
-## Regras
-- Texto claro sobre as integrações permitidas e uso de dados.
+## 5. Fora de escopo
+- Relatórios de uso de IA.
 
-## Etapas
-1. Criar seção de 'AI & Agentes' no Settings do workspace.
-2. Toggle de opt-in.
+## 6. Entidades e contratos
+N/A
 
-## Validações
-- Teste de ativação/desativação da configuração.
+## 7. Estados e transições
+- Salvando, erro, sucesso.
 
-## Relatório final esperado
-- Tela de consentimento ativa.
+## 8. Services, repositories e actions esperados
+- Action de toggle consent.
 
-## Regra de parada
-Pare após salvar e refletir o estado visual.
+## 9. UI esperada
+- Rota: `/settings/ai` ou conforme política.
+- Switch toggle para habilitar.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 10. Testes obrigatórios
+- E2E.
 
-Fase 38B — Workspace Consent UI
+## 11. Frontend impact
+- Rota `/settings/ai`.
 
-Objetivo:
-Tela de configuração de consentimento de privacidade do workspace.
+## 12. Critérios de aceite
+- Usuário pode ligar/desligar opt-in.
 
-Crie a interface nas configurações do workspace para gerenciar o opt-in de agentes de IA.
-```
+## 13. Regra de parada
+UI funcional atualizando o backend.
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 38B
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
+## 14. Prompt para Jules Dev
+`Implementar Fase 38B. Criar UI em /settings/ai para o toggle de workspace consent criado na Fase 38.`
 
-Frontend impact:
-- Área afetada: Configuração de Workspace
-- Rota(s): /[workspace]/settings/ai
-- Usuário/persona: Workspace Admin
-- Workspace/global: Workspace
-- Estados cobertos: Toggle On/Off, Textos explicativos
-- Teste visual/E2E: Troca de estado salva.
-- Gap frontend pendente: Nenhum
+## 15. Prompt para Jules Tester
+`N/A`
+
+## 16. Riscos e decisões
+- Simplicidade inicial: um único botão de toggle.

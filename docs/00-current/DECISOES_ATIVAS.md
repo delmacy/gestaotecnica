@@ -29,6 +29,16 @@ Este documento contém as decisões que devem guiar a implementação atual.
 
 ## 2. Decisões técnicas
 
+* **Fase 39** passa a ser o gate final Alpha de segurança.
+* **Fase 40/40B** (Agent Registry) deve ocorrer antes da Fase 39.
+* **Fase 38/38B** (Workspace Consent) deve ser antecipada antes de n8n/observations.
+* **Fase 28B** será reduzida para Agent Candidate Inbox mínimo.
+* **Fases 30/30B** assumem correlation_id, idempotency e receipts completos.
+* **Fases 34 e 36** serão quebradas em subfases (A-E) para melhor rastreabilidade.
+* **Rotas Alpha** usarão 'workspace ativo por contexto', salvo decisão futura.
+* Jules Dev não deve implementar nenhuma fase sem contrato no novo `FEATURE_CONTRACT_TEMPLATE.md`.
+
+
 * O domínio do Builder não depende de React Flow.
 * React Flow/`@xyflow/react` é adaptador visual dentro de `src/features/builder/canvas`.
 * O modelo canônico usa `BuilderDraft`, `BuilderNode` e `BuilderEdge`.

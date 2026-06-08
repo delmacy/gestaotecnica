@@ -1,62 +1,53 @@
-**Adendo documental — Frontend Parity Gate**
+# Feature Contract — Fase 39
+## 1. Identificação
+- Fase: 39
+- Nome: Final Paperclip-ready Security Gate
+- Tipo: Gate
+- Dependências: Fases 38, 40
+- Fase frontend vinculada: N/A
+- Status: Planejada refinada
 
-# Fase 39 — Paperclip-ready Security Gate
+## 2. Objetivo
+Auditoria final de segurança ("Paperclip-ready") para garantir a plataforma.
 
-## Objetivo
-Auditoria global do gateway para provar segurança antes da integração Paperclip.
+## 3. Problema que resolve
+Verifica se agentes conseguem by-passar processos.
 
-## Contexto
-Antes de plugar o Paperclip de verdade, precisamos provar com Tester Gate que nenhum agente altera produção.
+## 4. Escopo permitido
+- E2E Tests, relatórios.
 
-## Arquivos permitidos
-- Scripts de teste, painéis de status.
+## 5. Fora de escopo
+- Implementar Paperclip real.
 
-## Arquivos proibidos
-- Modificação de regras de negócio core
+## 6. Entidades e contratos
+N/A
 
-## Regras
-- Obrigatório Tester Gate com relatório formal de segurança.
+## 7. Estados e transições
+N/A
 
-## Etapas
-1. Consolidar testes de invasão e bloqueio de publicação por agentes.
-2. Gerar relatório visual no painel de segurança.
+## 8. Services, repositories e actions esperados
+N/A
 
-## Validações
-- Todos os testes E2E/Gateway passando.
+## 9. UI esperada
+- Rota `/admin/security` (opcional relatorio read-only).
 
-## Relatório final esperado
-- Sistema declarado Paperclip-ready.
+## 10. Testes obrigatórios
+- Testar limites do Agente Gateway.
 
-## Regra de parada
-Pare após o sucesso dos testes.
+## 11. Frontend impact
+- N/A.
 
-## Prompt pronto para Jules Dev
-```text
-Antes de implementar, leia:
-AGENTS.md
-docs/planning/FRONTEND_PARITY_GATE.md
-docs/00-current/WORK_BOARD.md
-docs/00-current/ANTI_ESCOPO_ATUAL.md
+## 12. Critérios de aceite
+- Relatório prova que agentes não publicam.
 
-Fase 39 — Paperclip-ready Security Gate
+## 13. Regra de parada
+Teste de limite concluído e commitado.
 
-Objetivo:
-Auditoria global do gateway para provar segurança antes da integração Paperclip.
+## 14. Prompt para Jules Dev
+`Executar testes integrados de segurança e compilar relatório do Security Gate final (Fase 39).`
 
-Crie o painel de status de segurança do Gateway e execute auditoria profunda para validar que Agentes NÃO podem bypassar aprovação humana.
-```
+## 15. Prompt para Jules Tester
+`N/A`
 
-## Prompt pronto para Jules Tester (se aplicável)
-```text
-Fase 39
-Execute os testes unitários e de integração validando os escopos e limites de permissões.
-```
-
-Frontend impact:
-- Área afetada: Painel de Segurança Global
-- Rota(s): /admin/security
-- Usuário/persona: Platform Admin
-- Workspace/global: Global
-- Estados cobertos: Pass, Fail, Audit Logs
-- Teste visual/E2E: Dashboard mostrando status dos testes/gateways.
-- Gap frontend pendente: Nenhum
+## 16. Riscos e decisões
+- N/A

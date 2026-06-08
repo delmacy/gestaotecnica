@@ -163,3 +163,11 @@ Frontend impact:
 
 Decisão:
 READY WITH RESERVATIONS (E2E Flakiness Documented).
+
+### Revisão documental pós-merge — 2026-06-08
+
+Resultado:
+- Fase 30 mantida como READY WITH RESERVATIONS.
+- Ressalva de E2E preservada.
+- Próxima fase autorizada: Fase 30B — Gateway Receipts UI.
+- Fase 31 bloqueada até fechamento do Frontend Parity Gate da Fase 30.

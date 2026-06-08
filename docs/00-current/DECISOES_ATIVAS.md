@@ -102,3 +102,9 @@ documentação.
 * O roadmap precisa garantir que o frontend acompanhe o backend de forma planejada.
 * Área autenticada é o padrão.
 * Capabilities globais e dados workspace-scoped devem ser diferenciados claramente.
+
+## Decisão — Pós-Fase 30
+
+A Fase 30 foi aceita com ressalva documentada por flakiness de E2E na suíte completa. Como a fase não alterou UI e os testes afetados passaram isoladamente, a próxima fase autorizada será a Fase 30B, responsável por fechar o Frontend Parity Gate por meio da UI de receipts.
+
+A Fase 31 permanece bloqueada até a conclusão da Fase 30B.

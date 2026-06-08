@@ -1,64 +1,62 @@
-# Fase 30 — Paperclip Integration Strategy
+**Adendo documental — Frontend Parity Gate**
+
+# Fase 30 — Paperclip Metadata Backend
 
 ## Objetivo
-Criar hooks locais na plataforma para suportar a infraestrutura de logging do Paperclip no futuro.
+Adicionar suporte a `correlation_id`, `idempotency_key` e rastreamento de recibos.
 
 ## Contexto
-O Paperclip gerencia logs e tarefas agênticas. O System Builder precisará retornar 'Correlation IDs' nas respostas para a rastreabilidade do agente.
+Preparar a infra para garantir rastreabilidade das interações do Paperclip.
 
 ## Arquivos permitidos
-- `src/features/platform/gateway/agent-gateway.service.ts` (modificação)
-- `src/features/platform/gateway/gateway.types.ts`
+- Banco de dados de rastreamento de eventos/receitas de agentes
 
 ## Arquivos proibidos
-- Integração real de chamadas para APIs de terceiros.
+- Integração real com Paperclip
 
 ## Regras
-- Toda resposta da API do Gateway deve incluir um `correlation_id` e um recibo rastreável de que a ação foi apenas registrada como Candidate.
+- Idempotência obrigatória para requests de agentes.
 
 ## Etapas
-1. Atualizar o Gateway Service para aceitar e ecoar `correlation_id` e `idempotency_key` em suas transações.
+1. Implementar armazenamento de metadados.
+2. Lógica de idempotência no gateway.
 
 ## Validações
-- Validação estrita do ID de correlação.
+- Testes de requisições duplicadas sendo barradas.
 
 ## Relatório final esperado
-- API Gateway preparada para orquestração assíncrona rastreável.
+- Rastreamento de metadados concluído.
 
 ## Regra de parada
-Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
+Pare antes da interface de recibos.
 
 ## Prompt pronto para Jules Dev
 ```text
 Antes de implementar, leia:
 AGENTS.md
+docs/planning/FRONTEND_PARITY_GATE.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 30 — Paperclip Integration Strategy
+Fase 30 — Paperclip Metadata Backend
 
 Objetivo:
-Criar hooks locais na plataforma para suportar a infraestrutura de logging do Paperclip no futuro.
+Adicionar suporte a `correlation_id`, `idempotency_key` e rastreamento de recibos.
 
-Escopo:
-Apenas modificações nos retornos da API Gateway para acomodar meta-dados do Paperclip.
-
-Não alterar:
-- Produção de Runtime oficial sem aprovação.
-- Publicar workflows de forma automatizada por agentes.
-
-Regras:
-Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
-
-Etapas:
-1. Implemente o suporte a `correlation_id` e `idempotency_key` no Agent Gateway.
-
-Validações:
-Testes locais sem erros TS e validação visual onde aplicável.
-
-Relatório final:
-Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
-
-Regra de parada:
-Não ultrapassar a fronteira de Paperclip Integration Strategy. Pare e solicite review.
+Implemente suporte a metadados (idempotência, correlation_id) para requisições de agentes.
 ```
+
+## Prompt pronto para Jules Tester (se aplicável)
+```text
+Fase 30
+Execute os testes unitários e de integração validando os escopos e limites de permissões.
+```
+
+Frontend impact:
+- Área afetada: Backend de recibos
+- Rota(s): N/A
+- Usuário/persona: System
+- Workspace/global: Global
+- Estados cobertos: Duplicatas, novos requests
+- Teste visual/E2E: N/A
+- Gap frontend pendente: Fase 30B

@@ -55,3 +55,9 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * Estrutura de runtime `process_instances`. O runtime começa na Fase 17.
 * Integração com n8n via webhook/outbox.
 * Modelo de permissions/RBAC.
+
+## 4. Frontend Parity Gate
+* Nenhuma capacidade técnica backend avança sem sua respectiva UI ou fase frontend vinculada no planejamento.
+* O roadmap precisa garantir que o frontend acompanhe o backend de forma planejada.
+* Área autenticada é o padrão.
+* Capabilities globais e dados workspace-scoped devem ser diferenciados claramente.

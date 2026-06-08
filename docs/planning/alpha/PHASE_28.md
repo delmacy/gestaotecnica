@@ -1,10 +1,13 @@
-# Fase 28 — Agent Gateway Specification
+**Adendo documental — Frontend Parity Gate**
+
+# Fase 28 — Agent Gateway Backend
 
 ## Objetivo
 Implementar a camada Server-Side da API protegida para os Agentes Externos (Boundary).
 
 ## Contexto
 O System Builder não pode ser violado. Toda interação futura do Paperclip deve passar pelo Agent Gateway usando `x-agent-key`.
+Apenas permite submissão de Process Candidates. O frontend será coberto na fase 28B.
 
 ## Arquivos permitidos
 - `src/app/api/agent/route.ts`
@@ -12,6 +15,7 @@ O System Builder não pode ser violado. Toda interação futura do Paperclip dev
 
 ## Arquivos proibidos
 - Criação do Agente Paperclip em si.
+- UI do gateway.
 
 ## Regras
 - Restringir fortemente a API. Proibir PUT/POST que afetem workflows publicados diretamente.
@@ -28,39 +32,35 @@ O System Builder não pode ser violado. Toda interação futura do Paperclip dev
 - Acesso seguro do gateway estabelecido.
 
 ## Regra de parada
-Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos acima.
+Não inicie o escopo da fase seguinte. Respeite os limites granulares definidos.
 
 ## Prompt pronto para Jules Dev
 ```text
 Antes de implementar, leia:
 AGENTS.md
+docs/planning/FRONTEND_PARITY_GATE.md
 docs/00-current/WORK_BOARD.md
 docs/00-current/ANTI_ESCOPO_ATUAL.md
 
-Fase 28 — Agent Gateway Specification
+Fase 28 — Agent Gateway Backend
 
 Objetivo:
 Implementar a camada Server-Side da API protegida para os Agentes Externos (Boundary).
 
-Escopo:
-Apenas endpoints de controle `/api/agent/` e respectivo service local.
-
-Não alterar:
-- Produção de Runtime oficial sem aprovação.
-- Publicar workflows de forma automatizada por agentes.
-
-Regras:
-Ater-se ao escopo definido na documentação técnica. O System Builder é o core, o Agent apenas sugere.
-
-Etapas:
-1. Construa o Agent Gateway validando o cabeçalho e impedindo modificações em produção.
-
-Validações:
-Testes locais sem erros TS e validação visual onde aplicável.
-
-Relatório final:
-Liste os arquivos tocados e comprove a aderência à tese de Process Candidates.
-
-Regra de parada:
-Não ultrapassar a fronteira de Agent Gateway Specification. Pare e solicite review.
+Implemente o Agent Gateway backend focado na criação de Process Candidates via API. A UI será feita na próxima fase.
 ```
+
+## Prompt pronto para Jules Tester (se aplicável)
+```text
+Fase 28
+Execute os testes unitários e de integração validando os escopos e limites de permissões.
+```
+
+Frontend impact:
+- Área afetada: Agent Gateway (Backend apenas)
+- Rota(s): /api/agent
+- Usuário/persona: System / Agent
+- Workspace/global: Global
+- Estados cobertos: Sucesso, Unauthorized
+- Teste visual/E2E: Não aplicável
+- Gap frontend pendente: Fase 28B abrirá a UI para listar as submissões.

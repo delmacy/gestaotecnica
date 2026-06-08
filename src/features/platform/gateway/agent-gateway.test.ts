@@ -4,15 +4,46 @@ import proxyquire from "proxyquire";
 import { mockValidCanonicalPayload } from "./mocks/agent-payload.mock";
 
 const { POST } = proxyquire("@/app/api/agent/route", {
-  "@/features/platform/gateway/agent-gateway.service": {
-    submitCandidateFromAgent: async (payload: any) => {
+  "@/features/platform/gateway/agent-gateway-metadata.service": {
+    processAgentSubmissionWithMetadata: async (payload: any, headers: any) => {
+      const { agentProcessCandidatePayloadSchema, legacyAgentSubmissionSchema, mapAgentPayloadToCandidateInput, mapLegacyPayloadToCandidateInput } = require("@/features/platform/gateway/contracts");
+      const canonicalResult = agentProcessCandidatePayloadSchema.safeParse(payload);
+      const legacyResult = legacyAgentSubmissionSchema.safeParse(payload);
+
+      let data;
+      if (canonicalResult.success) {
+        data = {
+          id: "mock-id-123",
+          ...mapAgentPayloadToCandidateInput(canonicalResult.data),
+          status: "draft",
+          origin: "agent",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        return { ok: true, data, receipt: { correlationId: "mock-corr", idempotencyKey: "mock-idem", status: "success" } };
+      }
+      if (legacyResult.success) {
+        data = {
+          id: "mock-id-123",
+          ...mapLegacyPayloadToCandidateInput(legacyResult.data),
+          status: "draft",
+          origin: "agent",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        return { ok: true, data, receipt: { correlationId: "mock-corr", idempotencyKey: "mock-idem", status: "success" } };
+      }
       return {
-        id: "mock-id-123",
-        ...payload,
-        status: "draft",
-        origin: "agent",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        ok: false,
+        error: {
+          code: "INVALID_PAYLOAD",
+          message: "Payload validation failed for both canonical and legacy formats.",
+          details: {
+            canonicalErrors: canonicalResult.error?.format() || {},
+            legacyErrors: legacyResult.error?.format() || {},
+          },
+        },
+        receipt: { correlationId: "mock-corr", idempotencyKey: "mock-idem", status: "failed" },
       };
     },
   },

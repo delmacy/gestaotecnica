@@ -9,6 +9,7 @@ Replanejamento Alpha por contratos de feature.
 ## Próxima fase técnica autorizada
 
 ```text
-Fase 30 — Paperclip Integration
+Fase 30B — Agent Receipts and Traceability UI
 ```
-A Fase 29B foi concluída com sucesso. Nenhuma fase seguinte deve ser iniciada até a conclusão da fase 30.
+
+A Fase 30 foi concluída com sucesso (READY WITH RESERVATIONS devido a flakiness de E2E). A próxima fase é a UI de Receipts.

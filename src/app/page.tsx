@@ -1,65 +1,163 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Layers, Database, Activity, GitBranch } from "lucide-react";
+import type React from "react";
 import Link from "next/link";
+import {
+  Activity,
+  ArrowRight,
+  Bot,
+  BriefcaseBusiness,
+  ClipboardList,
+  FileCheck2,
+  GitBranch,
+  LayoutDashboard,
+  ListChecks,
+  Network,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  Wrench,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+const platformActions = [
+  { href: "/builder", label: "Abrir Builder", detail: "Canvas e versões", icon: LayoutDashboard },
+  { href: "/candidates", label: "Revisar candidatos", detail: "Aprovação humana", icon: GitBranch },
+  { href: "/skills", label: "Capabilities", detail: "Catálogo global", icon: Bot },
+  { href: "/workspace-config", label: "Instalações", detail: "Workspace modules", icon: SlidersHorizontal },
+];
+
+const workspaceActions = [
+  { href: "/operations", label: "Operações", detail: "Fila ativa", icon: Activity },
+  { href: "/work-items", label: "Demandas", detail: "Entrada e triagem", icon: ListChecks },
+  { href: "/service-orders", label: "Ordens de serviço", detail: "Execução técnica", icon: ClipboardList },
+  { href: "/maintenance-plans", label: "Manutenção", detail: "Planos preventivos", icon: Wrench },
+];
+
+const governanceActions = [
+  { href: "/admin/workspaces", label: "Empresas", value: "Workspaces", icon: BriefcaseBusiness },
+  { href: "/admin/workflows", label: "Workflows", value: "Publicados", icon: Network },
+  { href: "/reports", label: "Relatórios", value: "Operação", icon: FileCheck2 },
+  { href: "/search", label: "Busca", value: "Global", icon: Search },
+];
+
+const readinessRows = [
+  { label: "Seed golden", value: "27B", state: "Em validação" },
+  { label: "Forms", value: "26", state: "Integrado" },
+  { label: "Rules", value: "27", state: "Integrado" },
+  { label: "Gateway", value: "28", state: "Próximo" },
+];
+
+function ActionLink({
+  href,
+  label,
+  detail,
+  icon: Icon,
+}: {
+  href: string;
+  label: string;
+  detail: string;
+  icon: React.ComponentType<{ className?: string }>;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex min-h-16 items-center gap-3 rounded-md border bg-card px-3 py-3 transition-colors hover:border-primary/50 hover:bg-secondary/60"
+    >
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <Icon className="size-4" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold leading-5">{label}</span>
+        <span className="block text-xs leading-4 text-muted-foreground">{detail}</span>
+      </span>
+      <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+    </Link>
+  );
+}
 
 export default function SystemBuilderDashboard() {
   return (
-    <div className="flex-1 overflow-y-auto bg-background p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <header className="mb-8 border-b pb-4">
-          <h1 className="text-4xl font-extrabold tracking-tight">System Builder</h1>
-          <p className="text-xl text-muted-foreground mt-2">Plataforma de Construção de Sistemas e Runtime Dinâmico</p>
-        </header>
+    <div className="px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6">
+        <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+          <div className="rounded-md border bg-card p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Command Center</p>
+                <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">System Builder Platform</h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                  Controle de plataforma para modelar capacidades e runtime operacional para workspaces executarem processos reais.
+                </p>
+              </div>
+              <div className="flex min-w-52 items-center gap-3 rounded-md border bg-background px-3 py-3">
+                <ShieldCheck className="size-5 text-primary" />
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">Modo atual</p>
+                  <p className="text-sm font-semibold">Plataforma + Workspace</p>
+                </div>
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link href="/builder">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full border-primary/20 bg-primary/5">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Builder Experience</CardTitle>
-                <Layers className="size-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">IDE Visual</div>
-                <p className="text-xs text-muted-foreground mt-1">Crie processos, views e fluxos</p>
-              </CardContent>
-            </Card>
-          </Link>
+            <div className="mt-6 grid gap-3 md:grid-cols-2">
+              <div className="rounded-md border bg-background p-4">
+                <p className="text-sm font-semibold">Operar como plataforma</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">Builder, candidates, capabilities e publicação governada.</p>
+                <div className="mt-4 grid gap-2">
+                  {platformActions.map((action) => (
+                    <ActionLink key={action.href} {...action} />
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-md border bg-background p-4">
+                <p className="text-sm font-semibold">Operar como cliente</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">Demandas, ordens, pessoas, ativos e rotinas do workspace.</p>
+                <div className="mt-4 grid gap-2">
+                  {workspaceActions.map((action) => (
+                    <ActionLink key={action.href} {...action} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Tenants</CardTitle>
-              <Database className="size-4 text-muted-foreground" />
+            <CardHeader>
+              <CardTitle className="text-base">Maturidade do ciclo</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">Multi-tenant</div>
-              <p className="text-xs text-muted-foreground mt-1">Workspaces e isolamento de dados</p>
+            <CardContent className="space-y-3">
+              {readinessRows.map((row) => (
+                <div key={row.label} className="flex items-center justify-between gap-3 rounded-md border bg-background px-3 py-2">
+                  <div>
+                    <p className="text-sm font-medium">{row.label}</p>
+                    <p className="text-xs text-muted-foreground">{row.state}</p>
+                  </div>
+                  <span className="rounded-md bg-secondary px-2 py-1 text-xs font-semibold text-secondary-foreground">{row.value}</span>
+                </div>
+              ))}
             </CardContent>
           </Card>
+        </section>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Runtime Engines</CardTitle>
-              <Activity className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">Event Bus</div>
-              <p className="text-xs text-muted-foreground mt-1">Processamento de Outbox</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Automações</CardTitle>
-              <GitBranch className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">Flow Runner</div>
-              <p className="text-xs text-muted-foreground mt-1">Execução server-side de nós</p>
-            </CardContent>
-          </Card>
-        </div>
+        <section className="grid gap-4 lg:grid-cols-4">
+          {governanceActions.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href}>
+                <Card className="h-full transition-colors hover:border-primary/50 hover:bg-secondary/40">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-sm font-medium">{item.label}</CardTitle>
+                    <Icon className="size-4 text-primary" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-semibold">{item.value}</div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </section>
       </div>
     </div>
   );

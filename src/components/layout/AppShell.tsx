@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
-  Archive,
   Bot,
   Boxes,
   BriefcaseBusiness,
@@ -13,6 +12,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   Code2,
+  Compass,
   FileText,
   GitBranch,
   Home,
@@ -20,9 +20,12 @@ import {
   ListChecks,
   Network,
   PackageCheck,
+  PanelLeftClose,
+  PanelsTopLeft,
+  Rocket,
   Search,
-  Settings,
   ShieldCheck,
+  SlidersHorizontal,
   Users,
   Wrench,
 } from "lucide-react";
@@ -39,53 +42,80 @@ type NavItem = {
 
 type NavGroup = {
   label: string;
+  description: string;
+  mode: "platform" | "workspace" | "governance";
   items: NavItem[];
 };
 
 const navGroups: NavGroup[] = [
   {
-    label: "Operação",
+    label: "Plataforma",
+    description: "Construção, publicação e capacidades globais.",
+    mode: "platform",
     items: [
-      { href: "/", label: "Dashboard", description: "Visão geral", icon: LayoutDashboard },
-      { href: "/work-items", label: "Demandas", description: "Itens de trabalho", icon: ListChecks },
+      { href: "/", label: "Command Center", description: "Visão geral", icon: LayoutDashboard },
+      { href: "/builder", label: "Builder IDE", description: "Canvas e draft", icon: Code2 },
+      { href: "/candidates", label: "Candidatos", description: "Propostas de processo", icon: GitBranch },
+      { href: "/workspace-config", label: "Instalações", description: "Módulos por workspace", icon: SlidersHorizontal },
+      { href: "/skills", label: "Capabilities", description: "Catálogo de capacidades", icon: Bot },
+      { href: "/automations", label: "Automações", description: "Fluxos e integrações", icon: Rocket },
+    ],
+  },
+  {
+    label: "Workspace cliente",
+    description: "Operação diária dentro do tenant selecionado.",
+    mode: "workspace",
+    items: [
+      { href: "/operations", label: "Operações", description: "Painel de execução", icon: Activity },
+      { href: "/work-items", label: "Demandas", description: "Entrada e triagem", icon: ListChecks },
       { href: "/service-orders", label: "Ordens", description: "OS e execução", icon: ClipboardList },
-      { href: "/schedules", label: "Escalas", description: "Agenda operacional", icon: CalendarDays },
+      { href: "/planning", label: "Planejamento", description: "Carteira operacional", icon: Network },
+      { href: "/schedules", label: "Escalas", description: "Agenda e plantões", icon: CalendarDays },
       { href: "/assets", label: "Ativos", description: "Patrimônio técnico", icon: Boxes },
       { href: "/workforce", label: "Efetivo", description: "Pessoas e disponibilidade", icon: Users },
-    ],
-  },
-  {
-    label: "System Builder",
-    items: [
-      { href: "/builder", label: "Builder IDE", description: "Canvas em tela cheia", icon: Code2 },
-      { href: "/candidates", label: "Candidatos", description: "Propostas de processo", icon: GitBranch },
-      { href: "/workspace-config", label: "Workspace", description: "Configuração", icon: Settings },
-      { href: "/skills", label: "Skills", description: "Capacidades", icon: Bot },
-      { href: "/search", label: "Busca", description: "Consulta global", icon: Search },
-    ],
-  },
-  {
-    label: "Gestão técnica",
-    items: [
-      { href: "/operations", label: "Operações", icon: Activity },
-      { href: "/planning", label: "Planejamento", icon: Network },
-      { href: "/maintenance-plans", label: "Manutenção", icon: Wrench },
-      { href: "/inventory", label: "Inventário", icon: Archive },
-      { href: "/documents", label: "Documentos", icon: FileText },
-      { href: "/reports", label: "Relatórios", icon: ClipboardCheck },
+      { href: "/maintenance-plans", label: "Manutenção", description: "Planos preventivos", icon: Wrench },
     ],
   },
   {
     label: "Governança",
+    description: "Administração, auditoria e informação compartilhada.",
+    mode: "governance",
     items: [
-      { href: "/admin", label: "Admin", icon: ShieldCheck },
-      { href: "/admin/users", label: "Usuários", icon: Users },
-      { href: "/admin/workspaces", label: "Workspaces", icon: BriefcaseBusiness },
-      { href: "/admin/workflows", label: "Workflows", icon: GitBranch },
-      { href: "/compliance", label: "Compliance", icon: PackageCheck },
+      { href: "/admin", label: "Admin", description: "Controles globais", icon: ShieldCheck },
+      { href: "/admin/workspaces", label: "Workspaces", description: "Empresas e tenants", icon: BriefcaseBusiness },
+      { href: "/admin/users", label: "Usuários", description: "Acessos e papéis", icon: Users },
+      { href: "/admin/workflows", label: "Workflows", description: "Definições publicadas", icon: GitBranch },
+      { href: "/documents", label: "Documentos", description: "Evidências e arquivos", icon: FileText },
+      { href: "/reports", label: "Relatórios", description: "Leituras gerenciais", icon: ClipboardCheck },
+      { href: "/search", label: "Busca", description: "Consulta global", icon: Search },
+      { href: "/compliance", label: "Compliance", description: "Auditoria e riscos", icon: PackageCheck },
     ],
   },
 ];
+
+const modeMeta = {
+  platform: {
+    label: "Operador da plataforma",
+    eyebrow: "System Builder",
+    title: "Control Plane",
+    description: "Modele capacidades, publique processos e governe workspaces.",
+    icon: PanelsTopLeft,
+  },
+  workspace: {
+    label: "Cliente do workspace",
+    eyebrow: "Runtime",
+    title: "Operação do workspace",
+    description: "Execute processos, acompanhe demandas e use capabilities instaladas.",
+    icon: BriefcaseBusiness,
+  },
+  governance: {
+    label: "Governança",
+    eyebrow: "Administração",
+    title: "Governança e auditoria",
+    description: "Controle usuários, workspaces, workflows e evidências.",
+    icon: ShieldCheck,
+  },
+} as const;
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -96,8 +126,16 @@ function shouldUseRawLayout(pathname: string) {
   return RAW_LAYOUT_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
+function getActiveGroup(pathname: string) {
+  return navGroups.find((group) => group.items.some((item) => isActivePath(pathname, item.href))) ?? navGroups[0];
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "/";
+  const activeGroup = getActiveGroup(pathname);
+  const activeItem = activeGroup.items.find((item) => isActivePath(pathname, item.href));
+  const activeMode = modeMeta[activeGroup.mode];
+  const ActiveModeIcon = activeMode.icon;
 
   if (shouldUseRawLayout(pathname)) {
     return <>{children}</>;
@@ -106,25 +144,41 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
-        <aside className="hidden w-72 shrink-0 border-r border-sidebar-border bg-sidebar/95 lg:flex lg:flex-col">
+        <aside className="hidden w-80 shrink-0 border-r border-sidebar-border bg-sidebar lg:flex lg:flex-col">
           <div className="border-b border-sidebar-border px-5 py-5">
             <Link href="/" className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+              <div className="flex size-10 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
                 <Home className="size-5" />
               </div>
               <div>
                 <p className="text-sm font-bold leading-tight text-sidebar-foreground">System Builder</p>
-                <p className="text-xs text-muted-foreground">Gestão técnica operacional</p>
+                <p className="text-xs text-muted-foreground">Platform + Runtime</p>
               </div>
             </Link>
+          </div>
+
+          <div className="border-b border-sidebar-border px-4 py-4">
+            <div className="flex items-start gap-3 rounded-md border border-sidebar-border bg-background/70 p-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <ActiveModeIcon className="size-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{activeMode.eyebrow}</p>
+                <p className="truncate text-sm font-semibold text-sidebar-foreground">{activeMode.label}</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">{activeMode.description}</p>
+              </div>
+            </div>
           </div>
 
           <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
             {navGroups.map((group) => (
               <section key={group.label} className="space-y-1">
-                <h2 className="px-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {group.label}
-                </h2>
+                <div className="px-3 pb-1">
+                  <h2 className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                    {group.label}
+                  </h2>
+                  <p className="mt-1 text-xs leading-4 text-muted-foreground">{group.description}</p>
+                </div>
                 <div className="space-y-1">
                   {group.items.map((item) => {
                     const Icon = item.icon;
@@ -135,14 +189,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         key={item.href}
                         href={item.href}
                         className={cn(
-                          "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
+                          "group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",
                           active
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm ring-1 ring-sidebar-border"
                             : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
                         )}
                       >
                         <Icon className={cn("size-4", active ? "text-primary" : "text-muted-foreground group-hover:text-sidebar-foreground")} />
-                        <span className="min-w-0 flex-1 truncate font-medium">{item.label}</span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-medium">{item.label}</span>
+                          {item.description ? (
+                            <span className="block truncate text-xs text-muted-foreground">{item.description}</span>
+                          ) : null}
+                        </span>
                       </Link>
                     );
                   })}
@@ -155,13 +214,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 border-b border-border/80 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70">
             <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Workspace operacional</p>
-                <h1 className="truncate text-lg font-semibold tracking-tight">Gestão Técnica / System Builder</h1>
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-card text-primary lg:hidden">
+                  <PanelLeftClose className="size-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{activeMode.eyebrow}</p>
+                  <h1 className="truncate text-lg font-semibold tracking-tight">
+                    {activeItem?.label ?? activeMode.title}
+                  </h1>
+                </div>
               </div>
-              <div className="hidden items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs text-muted-foreground sm:flex">
-                <span className="size-2 rounded-full bg-primary" />
-                Layout 27C compatível
+              <div className="hidden items-center gap-2 rounded-md border bg-card px-3 py-2 text-xs text-muted-foreground sm:flex">
+                <Compass className="size-4 text-primary" />
+                {activeMode.label}
               </div>
             </div>
 
@@ -173,7 +239,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                      "whitespace-nowrap rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
                       active ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"
                     )}
                   >

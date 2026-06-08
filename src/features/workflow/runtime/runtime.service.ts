@@ -4,7 +4,7 @@ import { getProcessVersionById } from "../definitions/process-definition.queries
 import { startProcessInstanceInputSchema } from "./runtime.validation";
 import type { StartProcessInstanceInput, ProcessInstanceRecord } from "./runtime.types";
 import type { RuntimeResult } from "./runtime.errors";
-import { logEvent } from "./events";
+import { logEvent } from "./events/events.repository";
 
 export async function startProcessInstance(
   db: RuntimeDb,

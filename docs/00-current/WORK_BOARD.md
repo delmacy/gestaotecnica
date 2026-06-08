@@ -4,11 +4,11 @@
 
 | Campo | Valor |
 |---|---|
-| Fase técnica atual | Fase 28 |
+| Fase técnica atual | Fase Corretiva 28/28B |
 | Fase documental atual | Frontend Parity Gate aplicado ao bloco Alpha |
-| Última fase técnica aprovada | Fase 27B |
-| Última fase visual aprovada | Fase 27C |
-| Próxima fase técnica | Fase 28 |
+| Última fase técnica aprovada | Fase 28 |
+| Última fase visual aprovada | Fase 28B |
+| Próxima fase técnica | Fase 29 |
 | Próxima fase frontend vinculada | Fase 28B |
 | Responsável técnico | Jules Dev |
 | Responsável documental | Jules Documental |
@@ -30,9 +30,10 @@
 |---:|---|---|---|---|
 | 1 | Runtime/Seed | Fase 27B | Concluída | Seed canônico e Golden E2E |
 | 2 | Layout | Fase 27C | Concluída | Shell visual compatível com backend e páginas |
-| 3 | Gateway | Fase 28 | Pendente | Agent Gateway Backend |
-| 4 | Gateway UI | Fase 28B | Planejada | Agent Gateway Control Plane UI |
-| 5 | Alpha | Fases 29-40 | Planejadas | Evolução com Frontend Parity Gate |
+| 3 | Gateway | Fase 28 | Concluída | Agent Gateway Backend |
+| 4 | Gateway UI | Fase 28B | Concluída | Agent Gateway Control Plane UI |
+| 5 | Paridade | Fase 28C | Concluída | Frontend Parity Gate aplicado e pendências de Agent Gateway / Process Candidate corrigidas |
+| 6 | Alpha | Fases 29-40 | Planejadas | Evolução com Frontend Parity Gate |
 
 ## 4. Fila documental
 

@@ -7,7 +7,7 @@ import { CandidateDetail } from '@/components/builder/candidates/CandidateDetail
 import { CandidateList } from '@/components/builder/candidates/CandidateList';
 import { filterProcessCandidates, findSelectedProcessCandidate } from '@/features/builder/candidates/candidate-filter';
 import { getCandidatesAction } from '@/features/builder/candidates/candidates.actions';
-import { TEMPORARY_CANDIDATES_WORKSPACE_ID } from '@/features/builder/candidates/constants';
+import { getActiveWorkspaceId } from '@/features/workspace/active-workspace';
 import type { CandidateStatus, ProcessCandidate } from '@/features/builder/candidates/candidate.types';
 
 export default function CandidatesPage() {
@@ -23,7 +23,7 @@ export default function CandidatesPage() {
     setError(null);
 
     try {
-      const response = await getCandidatesAction({ workspaceId: TEMPORARY_CANDIDATES_WORKSPACE_ID });
+      const response = await getCandidatesAction({ workspaceId: getActiveWorkspaceId() });
       if (response.ok) {
         setCandidates(response.data);
       } else {

@@ -60,7 +60,9 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   25 | ⚪      | Publish to Template      | Fase 25 Alfa Planejada                                   |
 |   26 | ⚪      | Forms as Standardization | Fase 26 Alfa Planejada                                   |
 |   27 | ⚪      | Business Rules & Approval| Fase 27 Alfa Planejada                                   |
-|   28 | ⚪      | Agent Gateway Spec       | Fase 28 Alfa Planejada                                   |
+|   28 | ✅      | Agent Gateway Backend    | Concluída com ressalva (aguardando 28B/28C)              |
+|  28B | ✅      | Gateway Control Plane    | Fase 28B Concluída                                       |
+|  28C | ✅      | Correção de Paridade     | Fase Corretiva Concluída                                 |
 |   29 | ⚪      | Process Builder Agent    | Fase 29 Alfa Planejada                                   |
 |   30 | ⚪      | Paperclip Integration    | Fase 30 Alfa Planejada                                   |
 |   31 | ⚪      | n8n as Boundary          | Fase 31 Alfa Planejada                                   |
@@ -80,9 +82,10 @@ Fases 20–40 formam a fila Alfa (planejadas, focadas em Process Candidates e ar
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 20D
+Última fase técnica validada: Fase 28
+Última fase visual validada: Fase 28B
 Fase atual de documentação/contexto: Concluída
-Próxima fase técnica planejada: Fase 20
+Próxima fase técnica planejada: Fase 29
 ```
 
 ## 5. Regra

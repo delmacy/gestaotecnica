@@ -1,4 +1,5 @@
 "use client";
+import { getActiveWorkspaceId } from '@/features/workspace/active-workspace';
 
 import React from "react";
 import { useBuilderEditorState } from "../state/use-builder-editor-state";
@@ -17,7 +18,7 @@ import { publishBuilderProcess } from "../persistence/builder-publish.client";
 import { SavedProcessesPanel } from "../saved-processes/SavedProcessesPanel";
 import type { SavedProcessListItem } from "../persistence/builder-load.types";
 
-const TEMPORARY_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001";
+
 
 export function BuilderPage() {
   const editor = useBuilderEditorState();
@@ -29,7 +30,7 @@ export function BuilderPage() {
   const handleRefreshSavedProcesses = React.useCallback(async () => {
     setSavedProcessesLoading(true);
     setSavedProcessesError(undefined);
-    const result = await listSavedProcesses({ workspaceId: TEMPORARY_WORKSPACE_ID });
+    const result = await listSavedProcesses({ workspaceId: getActiveWorkspaceId() });
     if (result.ok) {
       setSavedProcesses(result.data.items);
     } else {
@@ -73,7 +74,7 @@ export function BuilderPage() {
     });
 
     const result = await loadSavedProcess({
-      workspaceId: TEMPORARY_WORKSPACE_ID,
+      workspaceId: getActiveWorkspaceId(),
       processDefinitionId,
     });
 
@@ -126,7 +127,7 @@ export function BuilderPage() {
     });
 
     const result = await saveBuilderDraftOfficially({
-      workspaceId: TEMPORARY_WORKSPACE_ID,
+      workspaceId: getActiveWorkspaceId(),
       draft: editor.state.draft,
       createdBy: "system",
     });
@@ -175,7 +176,7 @@ export function BuilderPage() {
     });
 
     const result = await publishBuilderProcess({
-      workspaceId: TEMPORARY_WORKSPACE_ID,
+      workspaceId: getActiveWorkspaceId(),
       processDefinitionId,
       processVersionId: latestVersionId,
       publishedBy: "system",

@@ -60,6 +60,7 @@ const navGroups: NavGroup[] = [
       { href: "/workspace-config", label: "Instalações", description: "Capabilities por workspace", icon: SlidersHorizontal },
       { href: "/admin/users", label: "Usuários", description: "Acessos e papéis", icon: Users },
       { href: "/admin", label: "Admin", description: "Controles da plataforma", icon: ShieldCheck },
+      { href: "/admin/gateway", label: "Agent Gateway", description: "Auditoria de agentes", icon: ShieldCheck },
     ],
   },
   {

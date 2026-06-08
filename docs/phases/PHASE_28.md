@@ -5,7 +5,7 @@
 | Campo | Valor |
 |---|---|
 | Fase | 28 |
-| Status | Concluída |
+| Status | Concluída com ressalva (aguardando 28B/28C) |
 | Tipo | Produto alfa / Blueprint / Módulo |
 | Responsável principal | Jules Dev / Jules Documental |
 | Revisor | ChatGPT |
@@ -51,7 +51,7 @@ Implementar o Agent Gateway focado na criação de Process Candidates via API. A
 
 ### Execução 001 — Jules Dev — 2026-06-08
 
-Status: Concluído
+Status: Concluído com ressalva (aguardando 28B/28C)
 
 Arquivos criados:
 - `src/app/api/agent/route.ts`
@@ -118,3 +118,9 @@ Frontend impact:
 ## 12. Histórico de correções
 
 - —
+
+## 12. Revisão de Paridade Visual (Fase 28C)
+
+A implementação do Agent Gateway Backend foi revisada na Fase 28C (Correção de Paridade).
+A interface visual correspondente foi adicionada via `/admin/gateway` para garantir o *Frontend Parity Gate*.
+Auditorias futuras mais detalhadas (como Correlation IDs) continuam documentadas como pendências e serão tratadas em fases futuras.

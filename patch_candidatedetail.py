@@ -1,4 +1,7 @@
+with open("src/components/builder/candidates/CandidateDetail.tsx", "r") as f:
+    content = f.read()
 
+replacement = """
 import React, { useState, useTransition } from 'react';
 import type { ProcessCandidate } from '@/features/builder/candidates/candidate.types';
 import { CandidateBadge, OriginBadge } from './CandidateBadge';
@@ -45,7 +48,7 @@ export function CandidateDetail({ candidate }: CandidateDetailProps) {
       }
 
       if (!result.ok) {
-        setError(result.error?.message ?? "An error occurred");
+        setError(result.error.message);
       } else {
         setJustification('');
         // Reload is typically handled by parent component or a router refresh in Next.js
@@ -74,48 +77,11 @@ export function CandidateDetail({ candidate }: CandidateDetailProps) {
             {error}
           </div>
         )}
-        <div>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Descrição</h3>
-          <p className="text-sm">
-            {candidate.description || <span className="text-muted-foreground italic">Nenhuma descrição fornecida.</span>}
-          </p>
-        </div>
+"""
 
-        <div>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Evidências</h3>
-          <div className="bg-muted p-3 rounded-md text-xs font-mono overflow-x-auto">
-            <pre>
-              {Object.keys(candidate.evidence).length > 0
-                ? JSON.stringify(candidate.evidence, null, 2)
-                : 'Nenhuma evidência disponível.'}
-            </pre>
-          </div>
-        </div>
+content = content.replace("import React from 'react';\nimport type { ProcessCandidate } from '@/features/builder/candidates/candidate.types';\nimport { CandidateBadge, OriginBadge } from './CandidateBadge';\nimport { Button } from '@/components/ui/button';\n\ninterface CandidateDetailProps {\n  candidate: ProcessCandidate | null;\n}\n\nexport function CandidateDetail({ candidate }: CandidateDetailProps) {\n  if (!candidate) {\n    return (\n      <div className=\"h-full flex flex-col items-center justify-center p-8 text-center text-muted-foreground bg-muted/20 border rounded-md border-dashed\">\n        <p>Selecione um candidato na lista para visualizar os detalhes.</p>\n      </div>\n    );\n  }\n\n  return (\n    <div className=\"h-full flex flex-col border rounded-md bg-card overflow-hidden\">\n      <div className=\"p-4 border-b bg-muted/30\">\n        <div className=\"flex justify-between items-start mb-2\">\n          <h2 className=\"text-xl font-semibold leading-tight\">{candidate.name}</h2>\n        </div>\n        <div className=\"flex gap-2 mt-3\">\n          <CandidateBadge status={candidate.status} />\n          <OriginBadge origin={candidate.origin} />\n        </div>\n      </div>\n\n      <div className=\"flex-1 overflow-y-auto p-4 space-y-6\">\n", replacement)
 
-        <div>
-          <h3 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Definição proposta</h3>
-          <div className="bg-muted p-3 rounded-md text-xs font-mono overflow-x-auto">
-            <pre>
-              {Object.keys(candidate.proposedDefinition).length > 0
-                ? JSON.stringify(candidate.proposedDefinition, null, 2)
-                : 'Nenhuma definição proposta disponível.'}
-            </pre>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <h3 className="font-semibold text-muted-foreground mb-1">Criado em</h3>
-            <p>{new Date(candidate.createdAt).toLocaleString('pt-BR')}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold text-muted-foreground mb-1">Atualizado em</h3>
-            <p>{new Date(candidate.updatedAt).toLocaleString('pt-BR')}</p>
-          </div>
-        </div>
-      </div>
-
-
+bottom_replacement = """
       <div className="p-4 border-t bg-muted/30 flex flex-col gap-2">
         {isReviewable ? (
           <>
@@ -136,7 +102,8 @@ export function CandidateDetail({ candidate }: CandidateDetailProps) {
           </p>
         )}
       </div>
+"""
+content = content.replace('      <div className="p-4 border-t bg-muted/30 flex justify-end gap-2">\n        <Button variant="outline" size="sm" disabled>Recusar</Button>\n        <Button variant="default" size="sm" disabled>Aprovar para Publicação</Button>\n      </div>', bottom_replacement)
 
-    </div>
-  );
-}
+with open("src/components/builder/candidates/CandidateDetail.tsx", "w") as f:
+    f.write(content)

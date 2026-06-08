@@ -8,7 +8,7 @@ A documentação estratégica foi realinhada com o conceito de Frontend Parity G
 
 ## Prioridade Atual
 
-A prioridade atual é continuar a fila técnica já validada no histórico de fases. A Fase 27B aprovou o Golden E2E canônico e a Fase 27C aprovou a compatibilidade visual do layout. A próxima implementação técnica autorizada é a Fase 28, respeitando a política de Frontend Parity Gate.
+A prioridade atual é continuar a fila técnica já validada no histórico de fases. A Fase 27B aprovou o Golden E2E canônico e a Fase 27C aprovou a compatibilidade visual do layout. A próxima implementação técnica autorizada é a Fase 29, condicionada à revisão ChatGPT/Jules Tester e à finalização da correção 28C, respeitando a política de Frontend Parity Gate.
 
 **NÃO PRIORIZAR AINDA:**
 ```text
@@ -21,14 +21,14 @@ automação autônoma
 ## Próxima fase técnica autorizada
 
 ```text
-Fase 28 — Agent Gateway Backend
-Frontend vinculado: Fase 28B — Agent Gateway Control Plane UI
+Fase 29 — Process Builder Agent
+(NÃO AVANÇAR ATÉ QUE A CORREÇÃO 28C SEJA TOTALMENTE APROVADA E REVISADA)
 ```
 
 ## Referência Rápida
 
-Para iniciar a execução da Fase 28, o responsável técnico deve consultar o planejamento detalhado em:
-[docs/planning/alpha/PHASE_28.md](../planning/alpha/PHASE_28.md)
+Para iniciar a execução da Fase 29, o responsável técnico deve consultar o planejamento detalhado em:
+[docs/planning/alpha/PHASE_29.md](../planning/alpha/PHASE_29.md)
 
 ## Gate adicional obrigatório
 

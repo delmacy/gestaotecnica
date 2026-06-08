@@ -35,3 +35,65 @@ export async function getCandidatesAction(payload: {
     };
   }
 }
+
+import { approveCandidateService, rejectCandidateService } from "./candidates.service";
+import type { AuthorizationPort, CandidateRepositoryPort } from "./candidates.service";
+import { getCandidates, getCandidateById, updateCandidateStatus } from "./candidates.repository";
+
+// Minimal Alpha Auth Port since we don't have a real one yet
+const alphaAuthPort: AuthorizationPort = {
+  async isHumanAndAuthorized(reviewerId: string, workspaceId: string): Promise<boolean> {
+    return reviewerId !== undefined && reviewerId.trim() !== "";
+  }
+};
+
+const repositoryAdapter: CandidateRepositoryPort = {
+  getCandidateById,
+  updateCandidateStatus,
+};
+
+export async function approveCandidateAction(payload: {
+  workspaceId: string;
+  candidateId: string;
+  reviewerId: string;
+  justification: string;
+}) {
+  try {
+    const db = getPlatformDb();
+    const data = await approveCandidateService(
+      db,
+      payload.workspaceId,
+      payload.candidateId,
+      payload.reviewerId,
+      payload.justification,
+      alphaAuthPort,
+      repositoryAdapter
+    );
+    return { ok: true, data };
+  } catch (err: any) {
+    return { ok: false, error: { code: err.name || "INTERNAL_ERROR", message: err.message || "Failed to approve candidate" } };
+  }
+}
+
+export async function rejectCandidateAction(payload: {
+  workspaceId: string;
+  candidateId: string;
+  reviewerId: string;
+  justification: string;
+}) {
+  try {
+    const db = getPlatformDb();
+    const data = await rejectCandidateService(
+      db,
+      payload.workspaceId,
+      payload.candidateId,
+      payload.reviewerId,
+      payload.justification,
+      alphaAuthPort,
+      repositoryAdapter
+    );
+    return { ok: true, data };
+  } catch (err: any) {
+    return { ok: false, error: { code: err.name || "INTERNAL_ERROR", message: err.message || "Failed to reject candidate" } };
+  }
+}

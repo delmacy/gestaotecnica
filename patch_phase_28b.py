@@ -1,46 +1,9 @@
-# Fase 28B — Agent Gateway Control Plane UI
+with open("docs/phases/PHASE_28B.md", "r") as f:
+    content = f.read()
 
-## 1. Identificação
+content = content.replace('| Status | Em andamento (Fase Corretiva 28C) |', '| Status | Concluída |')
 
-| Campo | Valor |
-|---|---|
-| Fase | 28B |
-| Status | Concluída |
-| Tipo | Técnica/Documental |
-| Responsável principal | Jules Dev / Jules Documental |
-| Revisor | ChatGPT |
-| Data de abertura | YYYY-MM-DD |
-| Data de aprovação | — |
-
-## 2. Objetivo
-
-Agent Gateway Control Plane UI
-
-## 3. Escopo permitido
-
-- —
-
-## 4. Fora de escopo
-
-- —
-
-## 5. Arquivos planejados
-
-- —
-
-## 6. Critérios de aceite
-
-- —
-
-## 7. Plano aprovado
-
-Referência:
-- `docs/planning/alpha/PHASE_28B.md`
-
-Resumo:
-- —
-
-
+execution_report = """
 ## 8. Execuções
 
 ### Execução 001 — Jules Dev — YYYY-MM-DD
@@ -98,26 +61,9 @@ Frontend impact:
 - Teste visual/E2E: Coberto por `/tests/e2e/gateway.spec.ts`.
 - Gap frontend pendente: Auditoria completa do gateway será persistida em fase futura (Correlação IDs).
 
+"""
 
-## 9. Revisões
+content = content.replace('## 8. Execuções\n\n### Execução 001 — Jules Dev — YYYY-MM-DD\n\nStatus: Pendente\n\nArquivos criados:\n- —\n\nArquivos alterados:\n- —\n\nComandos executados:\n- —\n\nResultado do lint:\n- —\n\nResultado do build:\n- —\n\nGit status:\n- —\n\nBloqueios:\n- —\n\nObservações:\n- —\n', execution_report)
 
-### Revisão 001 — ChatGPT — YYYY-MM-DD
-
-Resultado: Pendente
-
-Observações:
-- —
-
-Ressalvas:
-- —
-
-Decisão:
-- —
-
-## 10. Decisões específicas da fase
-
-- —
-
-## 11. Histórico de correções
-
-- —
+with open("docs/phases/PHASE_28B.md", "w") as f:
+    f.write(content)

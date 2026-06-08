@@ -14,13 +14,30 @@ Descrever em 3 a 6 linhas o que será entregue.
 ## 3. Problema que resolve
 Explicar qual lacuna do produto ou arquitetura a fase fecha.
 
-## 4. Escopo permitido
+## 4. Domínio / DDD
+Campos obrigatórios (ver docs/planning/DDD_FEATURE_CONTRACT_ADDENDUM.md):
+- Bounded Context:
+- Ubiquitous Language:
+- Aggregate/Entity principal:
+- Value Objects:
+- Invariantes:
+- Domain Events:
+- Application Use Case:
+- Anti-Corruption Layer:
+- Repository Port:
+- Infrastructure Adapter:
+- Transaction Boundary:
+- Consistency/Idempotency:
+- Workspace Scope:
+- Audit/Trace:
+
+## 5. Escopo permitido
 Listar arquivos, módulos, schemas ou áreas que podem ser alterados.
 
-## 5. Fora de escopo
+## 6. Fora de escopo
 Listar explicitamente o que NÃO pode ser feito.
 
-## 6. Entidades e contratos
+## 7. Entidades e contratos
 Quando houver backend/banco:
 - Entidade:
 - Schema:
@@ -34,7 +51,7 @@ Quando houver backend/banco:
 - status:
 - audit fields:
 
-## 7. Estados e transições
+## 8. Estados e transições
 Quando houver workflow/status:
 - Estados permitidos:
 - Transições permitidas:
@@ -42,7 +59,7 @@ Quando houver workflow/status:
 - Quem pode executar:
 - O que acontece em erro:
 
-## 8. Services, repositories e actions esperados
+## 9. Services, repositories e actions esperados
 - Repository:
 - Service:
 - Server Action:
@@ -50,7 +67,7 @@ Quando houver workflow/status:
 - Query:
 - Adapter:
 
-## 9. UI esperada
+## 10. UI esperada
 Quando houver frontend:
 - Rota:
 - Persona:
@@ -63,7 +80,7 @@ Quando houver frontend:
 - Permissões:
 - Links/navegação:
 
-## 10. Testes obrigatórios
+## 11. Testes obrigatórios
 - Unit:
 - Integration:
 - E2E:
@@ -71,7 +88,7 @@ Quando houver frontend:
 - Lint:
 - git diff --check:
 
-## 11. Frontend impact
+## 12. Frontend impact
 - Área afetada:
 - Rota(s):
 - Usuário/persona:
@@ -80,19 +97,19 @@ Quando houver frontend:
 - Teste visual/E2E:
 - Gap frontend pendente:
 
-## 12. Critérios de aceite
+## 13. Critérios de aceite
 Lista objetiva do que precisa estar verdadeiro.
 
-## 13. Regra de parada
+## 14. Regra de parada
 O ponto exato onde Jules Dev deve parar.
 
-## 14. Prompt para Jules Dev
+## 15. Prompt para Jules Dev
 Prompt pronto, sem ambiguidade.
 
-## 15. Prompt para Jules Tester
+## 16. Prompt para Jules Tester
 Prompt pronto, com comandos e critérios.
 
-## 16. Riscos e decisões
+## 17. Riscos e decisões
 - Riscos técnicos:
 - Riscos de produto:
 - Decisões tomadas:

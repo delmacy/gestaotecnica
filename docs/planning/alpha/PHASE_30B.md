@@ -14,42 +14,50 @@ Criar interface para visualização de recibos de Gateway com base nos metadados
 ## 3. Problema que resolve
 Frontend Parity Gate para os metadados de rastreabilidade (Correlation ID e Idempotency).
 
-## 4. Escopo permitido
+## 4. Domínio / DDD
+- Application Use Case: ViewGatewayReceipts (Leitura)
+- Persona: Administrador da Plataforma / Gestor do Workspace
+- Decisão Humana: Apenas observação. Nenhuma transição de estado permitida.
+- Estados da Entidade: pending (amarelo), success (verde), failed (vermelho).
+- Erros de Domínio Visíveis: Detalhes de falha por idempotency ou validação de schema.
+- Audit Trail / Receipt: Exibição visual da correlação de eventos.
+
+## 5. Escopo permitido
 - Criação de páginas e componentes para a rota `/admin/gateway/receipts`.
 
-## 5. Fora de escopo
+## 6. Fora de escopo
 - Reenvio (retry) de requisições.
 
-## 6. Entidades e contratos
+## 7. Entidades e contratos
 N/A
 
-## 7. Estados e transições
+## 8. Estados e transições
 - Filtros de status.
 
-## 8. Services, repositories e actions esperados
+## 9. Services, repositories e actions esperados
 - Server actions de leitura dos recibos.
 
-## 9. UI esperada
+## 10. UI esperada
 - Rota: `/admin/gateway/receipts`
 - Tabela com `correlation_id`, status, timestamp.
 
-## 10. Testes obrigatórios
+## 11. Testes obrigatórios
 - E2E.
 
-## 11. Frontend impact
+## 12. Frontend impact
 - Rota: `/admin/gateway/receipts`
 
-## 12. Critérios de aceite
+## 13. Critérios de aceite
 - Administrador consegue ver o histórico de payloads recebidos e erros.
 
-## 13. Regra de parada
+## 14. Regra de parada
 Quando a lista estiver funcional com paginação/filtros simples.
 
-## 14. Prompt para Jules Dev
+## 15. Prompt para Jules Dev
 `Implementar Fase 30B. Crie a interface /admin/gateway/receipts para listar o histórico do gateway criado na Fase 30.`
 
-## 15. Prompt para Jules Tester
+## 16. Prompt para Jules Tester
 `N/A`
 
-## 16. Riscos e decisões
+## 17. Riscos e decisões
 - Foco apenas em leitura.

@@ -20,7 +20,8 @@
 | Trilha | Responsável | Status | Observação |
 |---|---|---|---|
 | Documentação/contexto | Jules Documental | Concluída | Replanejamento Alpha por contratos de feature |
-| Implementação | Jules Dev | Pendente | Implementará a fase técnica 28 |
+| Documentação/contexto | Jules Documental | Concluída | DDD Maturity Alignment - Feature contracts passam a exigir contexto de domínio, invariantes e use cases. |
+| Implementação | Jules Dev | Pendente | Implementará a fase técnica 30 |
 | Revisão | ChatGPT | Sob demanda | Revisa merges e coerência |
 | Decisão de produto | Delmacy | Ativo | Aprova direção e prioridades |
 
@@ -40,7 +41,8 @@
 |---:|---|---|---|---|
 | 1 | Planejamento MVP (17-20) | Histórico | Jules Documental | Mantido como referência de evolução anterior. |
 | 2 | Frontend Parity Gate (28-40) | Concluída | Jules Documental | Replanejado fases Alpha 28-40 para garantir UI para cada backend avanço. |
-| 3 | Próximo refinamento | Pendente | Jules Documental | Ajustar documentação caso a Fase 28 revele gaps no Agent Gateway. |
+| 3 | DDD Maturity Alignment | Concluída | Jules Documental | Feature contracts passam a exigir contexto de domínio, invariantes e use cases. |
+| 4 | Próximo refinamento | Pendente | Jules Documental | Ajustar documentação caso a Fase 30 revele gaps no Agent Gateway. |
 
 ## 5. Bloqueios
 
@@ -68,16 +70,16 @@ Planejamento futuro disponível (NÃO IMPLEMENTAR AINDA):
 **Atenção Jules Dev:** Antes de começar a implementar ou ler qualquer arquivo, você **deve** atualizar o seu ambiente git local executando um `git pull` na branch correta para garantir que pegou as últimas atualizações geradas pelo Jules Documental.
 
 ```text
-Próxima fase técnica: Fase 28 — Agent Gateway Backend
+Próxima fase técnica: Fase 30 — Gateway Metadata, Correlation ID, Idempotency
 
 Consulte o documento principal de planejamento de onde deve partir o prompt exato para a sua implementação:
 
-docs/planning/alpha/PHASE_28.md
+docs/planning/alpha/PHASE_30.md
 
 Registro:
-docs/phases/PHASE_28.md
+docs/phases/PHASE_30.md
 
-NÃO AVANCE PARA FASES FUTURAS. Cumpra a 28 e retorne o resultado.
+NÃO AVANCE PARA FASES FUTURAS. Cumpra a 30 e retorne o resultado.
 ```
 
 ## 8. Última revisão ChatGPT

@@ -13,43 +13,51 @@ Exibição read-only em Markdown de procedimentos em `/procedures`.
 ## 3. Problema que resolve
 Frontend Parity Gate de procedimentos documentais.
 
-## 4. Escopo permitido
+## 4. Domínio / DDD
+- Application Use Case: ViewLivingProcedure (Leitura)
+- Persona: Usuário do Workspace
+- Decisão Humana: N/A
+- Estados da Entidade: published (único estado visível para usuários normais).
+- Erros de Domínio Visíveis: Procedimento não encontrado.
+- Audit Trail / Receipt: N/A
+
+## 5. Escopo permitido
 - `/procedures` página.
 
-## 5. Fora de escopo
+## 6. Fora de escopo
 - Editor complexo/Rico.
 
-## 6. Entidades e contratos
+## 7. Entidades e contratos
 N/A
 
-## 7. Estados e transições
+## 8. Estados e transições
 - Detalhe markdown.
 
-## 8. Services, repositories e actions esperados
+## 9. Services, repositories e actions esperados
 N/A
 
-## 9. UI esperada
+## 10. UI esperada
 - Rota: `/procedures`.
 - Detalhe de markdown renderizado.
 - Estados de loading/erro e empty.
 
-## 10. Testes obrigatórios
+## 11. Testes obrigatórios
 - Visual e E2E.
 
-## 11. Frontend impact
+## 12. Frontend impact
 - `/procedures`.
 
-## 12. Critérios de aceite
+## 13. Critérios de aceite
 - Markdown renderizado corretamente com markdown parser.
 
-## 13. Regra de parada
+## 14. Regra de parada
 Leitura concluída.
 
-## 14. Prompt para Jules Dev
+## 15. Prompt para Jules Dev
 `Criar a interface visual read-only para Living Procedures (Fase 33B).`
 
-## 15. Prompt para Jules Tester
+## 16. Prompt para Jules Tester
 `N/A`
 
-## 16. Riscos e decisões
+## 17. Riscos e decisões
 - Começamos read-only.

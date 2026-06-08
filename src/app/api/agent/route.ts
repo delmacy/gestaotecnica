@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { submitCandidateFromAgent } from "@/features/platform/gateway/agent-gateway.service";
-
-const agentSubmissionSchema = z.object({
-  workspaceId: z.string().uuid("Invalid workspaceId. Must be a valid UUID."),
-  name: z.string().min(1, "Candidate name is required."),
-  description: z.string().optional(),
-  proposedDefinition: z.record(z.string(), z.unknown()).default({}),
-  evidence: z.record(z.string(), z.unknown()).default({}),
-});
+import {
+  agentProcessCandidatePayloadSchema,
+  legacyAgentSubmissionSchema,
+  mapAgentPayloadToCandidateInput,
+  mapLegacyPayloadToCandidateInput,
+} from "@/features/platform/gateway/contracts";
 
 export async function POST(request: Request) {
   try {
@@ -31,26 +28,43 @@ export async function POST(request: Request) {
     }
 
     const payload = await request.json();
-    const result = agentSubmissionSchema.safeParse(payload);
 
-    if (!result.success) {
+    const canonicalResult = agentProcessCandidatePayloadSchema.safeParse(payload);
+
+    if (canonicalResult.success) {
+      const candidateInput = mapAgentPayloadToCandidateInput(canonicalResult.data);
+      const candidate = await submitCandidateFromAgent(candidateInput);
+
       return NextResponse.json(
-        {
-          error: {
-            code: "INVALID_PAYLOAD",
-            message: "Payload validation failed.",
-            details: result.error.format(),
-          },
-        },
-        { status: 400 }
+        { ok: true, data: candidate },
+        { status: 200 }
       );
     }
 
-    const candidate = await submitCandidateFromAgent(result.data);
+    const legacyResult = legacyAgentSubmissionSchema.safeParse(payload);
+
+    if (legacyResult.success) {
+      const candidateInput = mapLegacyPayloadToCandidateInput(legacyResult.data);
+      const candidate = await submitCandidateFromAgent(candidateInput);
+
+      return NextResponse.json(
+        { ok: true, data: candidate },
+        { status: 200 }
+      );
+    }
 
     return NextResponse.json(
-      { ok: true, data: candidate },
-      { status: 200 }
+      {
+        error: {
+          code: "INVALID_PAYLOAD",
+          message: "Payload validation failed for both canonical and legacy formats.",
+          details: {
+            canonicalErrors: canonicalResult.error.format(),
+            legacyErrors: legacyResult.error.format(),
+          },
+        },
+      },
+      { status: 400 }
     );
   } catch (error) {
     console.error("Agent Gateway Submission Error:", error);

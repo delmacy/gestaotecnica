@@ -117,6 +117,10 @@ O projeto adota oficialmente a taxonomia de agentes Jules nomeados por função 
 Roles obrigatórios: Doc, Dev, Tester, Reviewer, Orchestrator.
 Domains obrigatórios abrangem Core, Auth, Runtime, Gateway, Workspace, AgentOps, SkillPacks, além de diversos Capability Modules de Negócio (ex: WorkIntakeModule, CaseManagementModule) e Adaptações (AdaptationGestaoTecnica).
 
-Cada prompt de execução de fase deve declarar qual o agente atuante, o domínio autorizado, arquivos permitidos, arquivos proibidos e a regra estrita de parada caso identifique que precisará tocar outro domínio.
+Essa regra existe para reduzir colisão, acoplamento, contaminação de core e conflitos entre módulos.
 
-Essa governança existe para reduzir colisão, acoplamento indevido, contaminação de core e conflitos de orquestração entre agentes nos módulos.
+## 8. Decisões de Auditoria (CAP-DOC-A)
+
+* A auditoria de contaminação por Gestão Técnica (CAP-DOC-A) foi concluída.
+* O documento `CORE_CONTAMINATION_AUDIT.md` foi criado para estabelecer os limites do "Core" do System Builder.
+* O legado será isolado em "Capabilities" ou bounded contexts temporários, e termos agnósticos serão utilizados no Core.

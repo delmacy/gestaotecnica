@@ -89,8 +89,12 @@ NÃO AVANCE PARA FASES FUTURAS AINDA. Aguarde revisão de AUTH-01 e 30B.
 | Resultado      | Aguardando                             |
 | Observações    | Fase 30B e 31 bloqueadas até merge.    |
 
+
 ## 9. Agent Work Board
 
-- DOC-GOV-01-T01 status: done
-- DOC-GOV-01-T02 status: done
-- Eventos registrados: Jobs iniciados, relatórios preenchidos
+| Task ID | Status |
+| --- | --- |
+| CAP-DOC-A-T01 | done |
+
+### Eventos
+- Auditoria de contaminação Core finalizada (CAP-DOC-A-T01). Áreas foram classificadas e documento docs/architecture/CORE_CONTAMINATION_AUDIT.md foi criado para guiar descontaminação futura e isolamento de módulos.

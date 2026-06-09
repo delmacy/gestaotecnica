@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { OperationsBoard } from "@/modules/operations/operations-board";
+import { requireAccessProfile } from "@/modules/auth/authorization";
 import {
   getAvailableTechniciansForOperations,
   getOperationsQueues,
@@ -9,6 +10,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function OperationsPage() {
+  await requireAccessProfile(["admin", "operador", "builder"]);
   const [summary, queues, technicians] = await Promise.all([
     getOperationsSummary(),
     getOperationsQueues(),

@@ -9,6 +9,9 @@ export function proxy(request: NextRequest) {
 
   if (isPublic) return NextResponse.next();
 
+  // Note: This proxy simply validates the existence of the session cookie for early rejection.
+  // Profile-based authorization must be handled at the route/page level using
+  // requireCurrentUser() and requireAccessProfile().
   const hasSession = Boolean(request.cookies.get(AUTH_COOKIE)?.value);
 
   if (hasSession) return NextResponse.next();

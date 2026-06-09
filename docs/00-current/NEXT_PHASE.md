@@ -6,17 +6,17 @@ Replanejamento Alpha por contratos de feature. DDD Maturity Alignment.
 
 ## Última fase técnica implementada
 
-Fase 30B — Gateway Receipts UI
+AUTH-01 — Authentication and Access Profiles Stabilization
 
 Status:
-Concluída (Aguardando Revisão).
+Concluída (READY FOR REVIEW).
 
 Ressalva:
-A suíte completa de E2E apresentou flakiness em ambiente headless sem X11.
+A Fase 30B foi temporariamente pausada para a execução do AUTH-01.
 
 ## Próxima fase autorizada
 
-Fase 31 — n8n Signal Inbox Backend
+Fase 30B — Gateway Receipts UI (Retomada após estabilização da autenticação)
 
 Objetivo:
 Criar endpoint e workflow para processamento inicial de sinais do n8n.

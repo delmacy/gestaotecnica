@@ -108,3 +108,7 @@ documentação.
 A Fase 30 foi aceita com ressalva documentada por flakiness de E2E na suíte completa. Como a fase não alterou UI e os testes afetados passaram isoladamente, a próxima fase autorizada será a Fase 30B, responsável por fechar o Frontend Parity Gate por meio da UI de receipts.
 
 A Fase 31 permanece bloqueada até a conclusão da Fase 30B.
+
+## Decisão — Pós-Fase 30 (AUTH-01)
+
+A Fase 30B foi pausada temporariamente para permitir a estabilização de autenticação e dos perfis de acesso através da fase corretiva AUTH-01. A próxima fase autorizada após AUTH-01 será a continuação/revisão da Fase 30B, e só em seguida a Fase 31.

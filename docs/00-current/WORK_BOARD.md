@@ -88,3 +88,16 @@ NÃO AVANCE PARA FASES FUTURAS AINDA. Aguarde revisão de AUTH-01 e 30B.
 | Última revisão | AUTH-01 concluída aguardando review    |
 | Resultado      | Aguardando                             |
 | Observações    | Fase 30B e 31 bloqueadas até merge.    |
+
+## Eventos Recentes: AUTH-01-T01
+- **Status da Tarefa**: AUTH-01-T01 [DONE]
+- **Auditoria concluída**:
+  - O fluxo atual de login foi analisado. Ele cria sessões na tabela `authSessions` (em `src/db/legacy/schema.ts`) via server action em `src/modules/auth/actions.ts`.
+  - Sessões são geradas e um cookie (`gestaotecnica_session`) é atribuído ao usuário.
+  - A middleware (`src/proxy.ts`) utiliza o cookie para permissões de rotas.
+- **Causa provável do erro detectada**:
+  - Exportação de objetos do schema com nomes repetidos. Em `src/db/schema.ts`, a exportação do `users` entra em conflito entre o schema legacy (`src/db/legacy/schema.ts`) e o novo schema `identity` introduzido em `src/db/runtime/schema/identity.ts` (onde `usersTable` é renomeado como `users` na exportação). Isso leva a acessos e joins incorretos em `src/modules/auth/actions.ts` onde a coluna `accessProfile` é necessária (e só existe no schema legacy).
+- **Ação sugerida**: Ir para a próxima box (`implementation`) para corrigir a importação/conflitos e adequar as queries ao novo schema consolidado ou isolá-los apropriadamente.
+- **Implementação**:
+  - A correção foi efetuada modificando as importações em `src/modules/auth/actions.ts` e `src/modules/auth/session.ts` para que extraiam `authAccounts`, `authSessions`, e `users` diretamente de `@/db/legacy/schema`, evitando o namespace confuso.
+  - Além disso foi corrigido um Type Error do React em `src/app/auth/login/page.tsx` no payload do `useActionState`, passando de `{ error: null }` para `{ error: "" }`.

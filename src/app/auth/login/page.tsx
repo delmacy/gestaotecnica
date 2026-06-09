@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 export default function LoginPage() {
-  const [state, formAction, isPending] = useActionState(login, { error: null });
+  const [state, formAction, isPending] = useActionState(login, { error: "" });
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">

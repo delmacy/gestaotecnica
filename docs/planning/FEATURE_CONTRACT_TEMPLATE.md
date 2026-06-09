@@ -1,6 +1,7 @@
 # Feature Contract — Fase X
 
 ## 1. Identificação
+
 - Fase:
 - Nome:
 - Tipo: Backend / Frontend / Full-stack / Documental / Gate
@@ -8,14 +9,30 @@
 - Fase frontend vinculada:
 - Status:
 
+## Jules Agent Boundary
+
+- Jules responsável:
+- Domínio autorizado:
+- Domínios proibidos:
+- Arquivos permitidos:
+- Arquivos proibidos:
+- Pode paralelizar?
+- Com quais agentes?
+- Conflitos esperados:
+- Regra de parada se tocar outro domínio:
+
 ## 2. Objetivo
+
 Descrever em 3 a 6 linhas o que será entregue.
 
 ## 3. Problema que resolve
+
 Explicar qual lacuna do produto ou arquitetura a fase fecha.
 
 ## 4. Domínio / DDD
+
 Campos obrigatórios (ver docs/planning/DDD_FEATURE_CONTRACT_ADDENDUM.md):
+
 - Bounded Context:
 - Ubiquitous Language:
 - Aggregate/Entity principal:
@@ -32,13 +49,17 @@ Campos obrigatórios (ver docs/planning/DDD_FEATURE_CONTRACT_ADDENDUM.md):
 - Audit/Trace:
 
 ## 5. Escopo permitido
+
 Listar arquivos, módulos, schemas ou áreas que podem ser alterados.
 
 ## 6. Fora de escopo
+
 Listar explicitamente o que NÃO pode ser feito.
 
 ## 7. Entidades e contratos
+
 Quando houver backend/banco:
+
 - Entidade:
 - Schema:
 - Campos:
@@ -52,7 +73,9 @@ Quando houver backend/banco:
 - audit fields:
 
 ## 8. Estados e transições
+
 Quando houver workflow/status:
+
 - Estados permitidos:
 - Transições permitidas:
 - Transições proibidas:
@@ -60,6 +83,7 @@ Quando houver workflow/status:
 - O que acontece em erro:
 
 ## 9. Services, repositories e actions esperados
+
 - Repository:
 - Service:
 - Server Action:
@@ -68,7 +92,9 @@ Quando houver workflow/status:
 - Adapter:
 
 ## 10. UI esperada
+
 Quando houver frontend:
+
 - Rota:
 - Persona:
 - Área autenticada:
@@ -81,6 +107,7 @@ Quando houver frontend:
 - Links/navegação:
 
 ## 11. Testes obrigatórios
+
 - Unit:
 - Integration:
 - E2E:
@@ -89,6 +116,7 @@ Quando houver frontend:
 - git diff --check:
 
 ## 12. Frontend impact
+
 - Área afetada:
 - Rota(s):
 - Usuário/persona:
@@ -98,18 +126,23 @@ Quando houver frontend:
 - Gap frontend pendente:
 
 ## 13. Critérios de aceite
+
 Lista objetiva do que precisa estar verdadeiro.
 
 ## 14. Regra de parada
+
 O ponto exato onde Jules Dev deve parar.
 
 ## 15. Prompt para Jules Dev
+
 Prompt pronto, sem ambiguidade.
 
 ## 16. Prompt para Jules Tester
+
 Prompt pronto, com comandos e critérios.
 
 ## 17. Riscos e decisões
+
 - Riscos técnicos:
 - Riscos de produto:
 - Decisões tomadas:

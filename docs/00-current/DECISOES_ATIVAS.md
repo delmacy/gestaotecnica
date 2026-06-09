@@ -41,7 +41,6 @@ Este documento contém as decisões que devem guiar a implementação atual.
 * **Rotas Alpha** usarão 'workspace ativo por contexto', salvo decisão futura.
 * Jules Dev não deve implementar nenhuma fase sem contrato no novo `FEATURE_CONTRACT_TEMPLATE.md`.
 
-
 * O domínio do Builder não depende de React Flow.
 * React Flow/`@xyflow/react` é adaptador visual dentro de `src/features/builder/canvas`.
 * O modelo canônico usa `BuilderDraft`, `BuilderNode` e `BuilderEdge`.
@@ -109,6 +108,12 @@ A Fase 30 foi aceita com ressalva documentada por flakiness de E2E na suíte com
 
 A Fase 31 permanece bloqueada até a conclusão da Fase 30B.
 
-## Decisão — Pós-Fase 30 (AUTH-01)
+## 7. Jules Agent Boundaries
 
-A Fase 30B foi pausada temporariamente para permitir a estabilização de autenticação e dos perfis de acesso através da fase corretiva AUTH-01. A próxima fase autorizada após AUTH-01 será a continuação/revisão da Fase 30B, e só em seguida a Fase 31.
+O projeto adotará agentes Jules nomeados por função e domínio:
+
+Jules <Role> <Domain> [Scope]
+
+Cada prompt deve declarar domínio autorizado, arquivos permitidos, arquivos proibidos e regra de parada.
+
+Essa regra existe para reduzir colisão, acoplamento, contaminação de core e conflitos entre módulos.

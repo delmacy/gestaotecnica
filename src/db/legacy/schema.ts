@@ -14,6 +14,11 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const userStatusEnum = pgEnum("user_status", ["active", "inactive"]);
+export const accessProfileEnum = pgEnum("access_profile", [
+  "builder",
+  "admin",
+  "operador",
+]);
 
 export const technicianLevelEnum = pgEnum("technician_level", [
   "trainee",
@@ -577,6 +582,9 @@ export const users = pgTable(
     name: text("name").notNull(),
     email: text("email").notNull().unique(),
     status: userStatusEnum("status").notNull().default("active"),
+    accessProfile: accessProfileEnum("access_profile")
+      .notNull()
+      .default("operador"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

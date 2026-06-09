@@ -13,7 +13,7 @@
 3. **Frontend Parity Gate**: Funcionalidades de backend devem ter um UI operável. Gaps explícitos devem ser limitados e bem justificados.
 4. **Sequência Mandatória**: As fases do bloco Alpha devem ser executadas de forma sequencial.
 5. **Workspace Isolation**: Todo acesso a dados sensíveis de processo precisa validar e utilizar o `workspace_id`.
-6. **Declaração de Agente e Domínio**: Toda fase deve declarar qual Jules atua. Toda fase deve declarar domínio autorizado. Jules não pode alterar domínio fora do contrato.
+6. **Declaração de Agente e Domínio**: Toda fase deve declarar qual Jules atua usando a taxonomia oficial `Jules <Role> <Domain> [Scope]`. Toda fase deve declarar domínio autorizado. Jules não pode alterar domínio fora do contrato.
 7. **Dependências e Gaps**: Se precisar alterar outro domínio, deve registrar dependency/gap.
 8. **Regras de Paralelização**:
     - Auth, Core, Runtime Engine, Registry e AppShell global não devem ser paralelizados sem aprovação explícita.

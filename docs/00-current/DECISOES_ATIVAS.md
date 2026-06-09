@@ -110,11 +110,12 @@ A Fase 31 permanece bloqueada até a conclusão da Fase 30B.
 
 ## 7. Jules Agent Boundaries
 
-O projeto adotará agentes Jules nomeados por função e domínio:
+O projeto adota oficialmente a taxonomia de agentes Jules nomeados por função e domínio:
 
-Jules <Role> <Domain> [Scope]
+`Jules <Role> <Domain> [Scope]`
 
-Cada prompt deve declarar domínio autorizado, arquivos permitidos, arquivos proibidos e regra de parada.
+Roles obrigatórios: Doc, Dev, Tester, Reviewer, Orchestrator.
+Domains obrigatórios abrangem Core, Auth, Runtime, Gateway, Workspace, AgentOps, SkillPacks, além de diversos Capability Modules de Negócio (ex: WorkIntakeModule, CaseManagementModule) e Adaptações (AdaptationGestaoTecnica).
 
 Essa regra existe para reduzir colisão, acoplamento, contaminação de core e conflitos entre módulos.
 

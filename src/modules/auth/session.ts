@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { getDb } from "@/db";
-import { authSessions, users } from "@/db/schema";
+import { authSessions, users } from "@/db/legacy/schema";
 import { AUTH_COOKIE } from "./constants";
 import { hashSessionToken } from "./crypto";
 

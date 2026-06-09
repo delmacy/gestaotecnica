@@ -1,16 +1,23 @@
 # Capability — documents
 
+## Core business
+Gerenciar documentos, versões, assinaturas e recibos.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | documents |
-| Capability type | information |
-| Primary domain | universal/documents |
-| Core business | Sustentar a capacidade organizacional de documents sem acoplamento setorial. |
-| Main entities | Document, FileVersion, Signature, Receipt |
-| Main processes | create document; review; sign; archive |
-| Main states | draft, review, approved, signed, archived |
-| Main events | create_document_completed, review_completed, sign_completed, archive_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | information |
+| Entidades principais | Document, FileVersion, Signature, Receipt |
+| Estados principais | draft, review, approved, signed, archived |
+| Processos principais | create document; review; sign; archive |
+| Relações | audit, approvals |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Um laudo é revisado, assinado e arquivado.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

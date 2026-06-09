@@ -1,16 +1,23 @@
 # Capability — requests
 
+## Core business
+Capturar, qualificar, priorizar e converter demandas.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | requests |
-| Capability type | work-management |
-| Primary domain | universal/requests |
-| Core business | Sustentar a capacidade organizacional de requests sem acoplamento setorial. |
-| Main entities | Request, RequestChannel, Triage |
-| Main processes | capture request; triage; prioritize; convert |
-| Main states | new, triage, qualified, converted, closed |
-| Main events | capture_request_completed, triage_completed, prioritize_completed, convert_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | work-management |
+| Entidades principais | Request, RequestChannel, Triage |
+| Estados principais | new, triage, qualified, converted, closed |
+| Processos principais | capture request; triage; prioritize; convert |
+| Relações | customers, communication, cases, work_orders |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Uma mensagem vira solicitação triada e depois ordem.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

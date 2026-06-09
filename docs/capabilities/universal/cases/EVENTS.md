@@ -1,3 +1,16 @@
 # Events — cases
 
-Eventos de referência: open_case_completed, coordinate_adaptive_work_completed, close_case_completed. Eventos registram ator, workspace, origem, instante, correlação e evidência.
+## Eventos de referência
+open_case_completed, coordinate_adaptive_work_completed, close_case_completed
+
+## Envelope mínimo
+event_id, event_type, capability, workspace_id quando operacional, actor, subject, occurred_at, correlation_id, source, version, evidence_refs e payload mínimo necessário.
+
+## Regras
+Eventos relevantes são imutáveis, atribuíveis e idempotentes quando recebidos de borda. Correções geram novo evento. Payload externo bruto não vira evento de domínio.
+
+## Exemplo
+Um caso complexo reúne atividades e decisões sem fluxo rígido.
+
+## Critério de pronto
+Produtor, consumidor, gatilho, evidência, privacidade e política de evolução foram definidos.

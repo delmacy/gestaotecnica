@@ -1,16 +1,23 @@
 # Capability — analytics
 
+## Core business
+Definir métricas, relatórios e insights verificáveis.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | analytics |
-| Capability type | intelligence |
-| Primary domain | universal/analytics |
-| Core business | Sustentar a capacidade organizacional de analytics sem acoplamento setorial. |
-| Main entities | Metric, Dataset, Report, Dashboard |
-| Main processes | define metric; calculate; publish insight |
-| Main states | draft, verified, published, deprecated |
-| Main events | define_metric_completed, calculate_completed, publish_insight_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | intelligence |
+| Entidades principais | Metric, Dataset, Report, Dashboard |
+| Estados principais | draft, verified, published, deprecated |
+| Processos principais | define metric; calculate; publish insight |
+| Relações | audit, enterprise_architecture |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Um dashboard publica tempo médio com fonte definida.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

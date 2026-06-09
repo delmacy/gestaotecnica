@@ -1,3 +1,16 @@
 # Process Model — cases
 
-Processos principais: open case; coordinate adaptive work; close case. Variantes precisam nascer de Process Mirroring e validação humana.
+## Processos principais
+open case; coordinate adaptive work; close case
+
+## Modelo de uso
+Cada processo registra gatilho, entrada, saída, ator, estados, decisões, exceções, evidências e eventos. Variantes surgem de Process Mirroring e são validadas antes de publicação.
+
+## Exemplo
+Um caso complexo reúne atividades e decisões sem fluxo rígido.
+
+## Relações
+requests, tasks, documents podem fornecer entradas, decisões, recursos ou saídas; a dependência deve permanecer explícita.
+
+## Critério de pronto
+Happy path e exceções são compreensíveis, responsabilidades e evidências estão claras e não há workflow rígido imposto sem validação.

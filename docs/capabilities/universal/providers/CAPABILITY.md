@@ -1,16 +1,23 @@
 # Capability — providers
 
+## Core business
+Qualificar e acompanhar fornecedores e prestadores.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | providers |
-| Capability type | relationship |
-| Primary domain | universal/providers |
-| Core business | Sustentar a capacidade organizacional de providers sem acoplamento setorial. |
-| Main entities | Provider, ProviderContact, Qualification |
-| Main processes | qualify provider; onboard provider; review performance |
-| Main states | candidate, qualified, active, suspended |
-| Main events | qualify_provider_completed, onboard_provider_completed, review_performance_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | relationship |
+| Entidades principais | Provider, ProviderContact, Qualification |
+| Estados principais | candidate, qualified, active, suspended |
+| Processos principais | qualify provider; onboard provider; review performance |
+| Relações | organization, procurement, contracts |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Um prestador é qualificado antes de receber ordem.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

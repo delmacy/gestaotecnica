@@ -1,16 +1,23 @@
 # Capability — cases
 
+## Core business
+Coordenar trabalho adaptativo com histórico contínuo.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | cases |
-| Capability type | work-management |
-| Primary domain | universal/cases |
-| Core business | Sustentar a capacidade organizacional de cases sem acoplamento setorial. |
-| Main entities | Case, CaseParticipant, CaseNote |
-| Main processes | open case; coordinate adaptive work; close case |
-| Main states | open, investigating, waiting, resolved, closed |
-| Main events | open_case_completed, coordinate_adaptive_work_completed, close_case_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | work-management |
+| Entidades principais | Case, CaseParticipant, CaseNote |
+| Estados principais | open, investigating, waiting, resolved, closed |
+| Processos principais | open case; coordinate adaptive work; close case |
+| Relações | requests, tasks, documents |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Um caso complexo reúne atividades e decisões sem fluxo rígido.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

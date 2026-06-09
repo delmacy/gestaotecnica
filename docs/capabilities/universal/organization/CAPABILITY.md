@@ -1,16 +1,23 @@
 # Capability — organization
 
+## Core business
+Estruturar organizações, workspaces, unidades e equipes.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | organization |
-| Capability type | foundation |
-| Primary domain | universal/organization |
-| Core business | Sustentar a capacidade organizacional de organization sem acoplamento setorial. |
-| Main entities | Organization, Workspace, Unit, Department, Team |
-| Main processes | create organization; structure workspace; manage units |
-| Main states | draft, active, suspended, archived |
-| Main events | create_organization_completed, structure_workspace_completed, manage_units_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | foundation |
+| Entidades principais | Organization, Workspace, Unit, Department, Team |
+| Estados principais | draft, active, suspended, archived |
+| Processos principais | create organization; structure workspace; manage units |
+| Relações | people, governance |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Uma empresa cria dois workspaces e três unidades operacionais.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

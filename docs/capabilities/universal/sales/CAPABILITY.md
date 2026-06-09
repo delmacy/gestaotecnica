@@ -1,16 +1,23 @@
 # Capability — sales
 
+## Core business
+Gerenciar oportunidades, propostas e fechamento comercial.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | sales |
-| Capability type | commercial |
-| Primary domain | universal/sales |
-| Core business | Sustentar a capacidade organizacional de sales sem acoplamento setorial. |
-| Main entities | Lead, Opportunity, Proposal, Deal |
-| Main processes | qualify lead; propose; negotiate; close |
-| Main states | lead, qualified, proposal, won, lost |
-| Main events | qualify_lead_completed, propose_completed, negotiate_completed, close_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | commercial |
+| Entidades principais | Lead, Opportunity, Proposal, Deal |
+| Estados principais | lead, qualified, proposal, won, lost |
+| Processos principais | qualify lead; propose; negotiate; close |
+| Relações | customers, contracts, finance |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Uma oportunidade aceita gera contrato.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

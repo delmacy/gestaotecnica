@@ -32,3 +32,34 @@ Revisor documental → Tasker/Jules Doc → especialista em processos → arquit
 
 ## 10. Status final
 READY FOR TASKER
+
+## 11. Segunda rodada documental
+
+### Arquivos enriquecidos
+- Oito modelos de Process Mirroring receberam campos, fluxo de uso, aceite, exemplo e anti-padrões.
+- Os cinco contratos centrais de capabilities foram convertidos em referência operacional.
+- As 24 capabilities universais receberam aprofundamento em capability, entidades, processos, regras, UI e eventos.
+- Seis mapas de Enterprise Architecture receberam finalidade, campos, exemplo e gate.
+- Governance e Enablement receberam modelos práticos ligados ao fluxo papel → permissão → instrução → execução → evidência → auditoria.
+- Tasker recebeu backlog granular, sprint documental, dependências, atribuições e gates.
+
+### Inconsistências corrigidas
+- GLOBAL_WORK_BOARD agora diferencia módulo criado, documento em review e task pronta.
+- Fases de criação já concluídas não permanecem em backlog.
+- Caminhos das capabilities apontam para `capabilities/universal/`.
+- READY FOR TASKER_EXECUTION foi explicitamente separado de READY FOR DEV.
+
+### Documentos ainda pendentes
+- Validação das capabilities com um processo e organização reais.
+- Execução do piloto de Process Mirroring.
+- Refinamento dos View Contracts por superfície/persona.
+- Validação de papéis, permissões e segregação de deveres no piloto.
+- Auditoria DEV-READINESS-001 antes de qualquer implementação.
+
+### Gaps técnicos registrados, não implementados
+Necessidades futuras de UI, runtime, integração, banco ou autorização permanecem em `tasker/DEPENDENCIES.md`; nenhuma implementação foi autorizada nesta rodada.
+
+### Status da segunda rodada
+READY FOR TASKER_EXECUTION
+
+Este status autoriza a execução das tasks documentais e do piloto. Não autoriza Jules Dev nem implementação de código.

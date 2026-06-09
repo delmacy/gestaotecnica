@@ -1,16 +1,23 @@
 # Capability — contracts
 
+## Core business
+Gerenciar contratos, partes, obrigações e vigência.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | contracts |
-| Capability type | legal |
-| Primary domain | universal/contracts |
-| Core business | Sustentar a capacidade organizacional de contracts sem acoplamento setorial. |
-| Main entities | Contract, Party, Obligation, Renewal |
-| Main processes | draft contract; review; sign; renew |
-| Main states | draft, review, active, expired, terminated |
-| Main events | draft_contract_completed, review_completed, sign_completed, renew_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | legal |
+| Entidades principais | Contract, Party, Obligation, Renewal |
+| Estados principais | draft, review, active, expired, terminated |
+| Processos principais | draft contract; review; sign; renew |
+| Relações | customers, providers, approvals, legal |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Um contrato alerta renovação e obrigação pendente.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

@@ -1,16 +1,23 @@
 # Capability — people
 
+## Core business
+Gerenciar pessoas, vínculos, papéis, competências e disponibilidade.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | people |
-| Capability type | foundation |
-| Primary domain | universal/people |
-| Core business | Sustentar a capacidade organizacional de people sem acoplamento setorial. |
-| Main entities | Person, RoleAssignment, TeamMembership, Skill |
-| Main processes | register person; assign role; manage availability |
-| Main states | invited, active, unavailable, inactive |
-| Main events | register_person_completed, assign_role_completed, manage_availability_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | foundation |
+| Entidades principais | Person, RoleAssignment, TeamMembership, Skill |
+| Estados principais | invited, active, unavailable, inactive |
+| Processos principais | register person; assign role; manage availability |
+| Relações | organization, governance, scheduling |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Uma técnica é vinculada à unidade e recebe papel e competência.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

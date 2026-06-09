@@ -1,16 +1,23 @@
 # Capability — finance
 
+## Core business
+Gerenciar obrigações financeiras, pagamentos e conciliação.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | finance |
-| Capability type | commercial |
-| Primary domain | universal/finance |
-| Core business | Sustentar a capacidade organizacional de finance sem acoplamento setorial. |
-| Main entities | Invoice, Payment, Account, Reconciliation |
-| Main processes | bill; collect; pay; reconcile |
-| Main states | open, due, paid, overdue, reconciled |
-| Main events | bill_completed, collect_completed, pay_completed, reconcile_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | commercial |
+| Entidades principais | Invoice, Payment, Account, Reconciliation |
+| Estados principais | open, due, paid, overdue, reconciled |
+| Processos principais | bill; collect; pay; reconcile |
+| Relações | sales, procurement, contracts, audit |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Uma fatura recebida é paga e conciliada.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

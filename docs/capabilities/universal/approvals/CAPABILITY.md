@@ -1,16 +1,23 @@
 # Capability — approvals
 
+## Core business
+Coordenar solicitações, decisões e escalonamentos humanos.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | approvals |
-| Capability type | control |
-| Primary domain | universal/approvals |
-| Core business | Sustentar a capacidade organizacional de approvals sem acoplamento setorial. |
-| Main entities | ApprovalRequest, ApprovalStep, Decision |
-| Main processes | request approval; decide; escalate |
-| Main states | pending, approved, rejected, expired |
-| Main events | request_approval_completed, decide_completed, escalate_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | control |
+| Entidades principais | ApprovalRequest, ApprovalStep, Decision |
+| Estados principais | pending, approved, rejected, expired |
+| Processos principais | request approval; decide; escalate |
+| Relações | people, governance, audit |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Uma compra acima do limite exige segunda aprovação.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

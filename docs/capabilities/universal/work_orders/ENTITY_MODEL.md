@@ -1,3 +1,18 @@
 # Entity Model — work_orders
 
-Entidades principais: WorkOrder, Execution, Evidence, Validation. Toda entidade operacional declara workspace_id, identidade, ciclo de vida, dono e rastreabilidade.
+## Entidades
+WorkOrder, Execution, Evidence, Validation
+
+## Campos comuns
+Cada entidade declara identidade, workspace scope quando operacional, owner, origem, estado, timestamps, versão e rastreabilidade. Relações cruzadas usam referências explícitas, não ownership implícito.
+
+## Regras de modelagem
+- Entidade possui ciclo de vida e responsável claros.
+- Dados flexíveis não substituem campos essenciais.
+- Alterações relevantes geram evento/auditoria.
+
+## Exemplo
+Uma ordem exige fotos e validação do supervisor.
+
+## Critério de pronto
+Identidades, relações, cardinalidades conceituais, estados, sensibilidade e fonte de verdade foram revisados.

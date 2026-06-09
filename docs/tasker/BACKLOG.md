@@ -1,12 +1,16 @@
-# Backlog
+# Backlog Operacional
 
-| ID | Módulo | Título | Tipo | Prioridade | Status | Dependências | Agente |
-|---|---|---|---|---|---|---|---|
-| DOC-001 | doc | Revisar reestruturação documental | documentation | critical | review | nenhuma | Revisor |
-| TASKER-001 | tasker | Operar primeiro sprint modular | architecture | high | ready | DOC-001 | Jules Doc |
-| PM-001 | process_mirroring | Executar piloto de espelhamento | documentation | high | ready | DOC-001 | Analista de Processo |
-| CAP-001 | capabilities | Revisar catálogo universal | architecture | high | ready | DOC-001 | Arquiteto |
-| EA-001 | enterprise_architecture | Criar mapa empresarial piloto | architecture | medium | backlog | PM-001, CAP-001 | Arquiteto |
-| GOV-001 | governance | Validar matriz de papéis piloto | decision | medium | backlog | EA-001 | Security Reviewer |
-| ENA-001 | enablement | Criar guia de operador piloto | documentation | medium | backlog | GOV-001 | Jules Doc |
-| UI-001 | ui | Contratar superfícies prioritárias | contract | medium | backlog | PM-001, CAP-001 | Jules Dev |
+| ID | Módulo | Título | Tipo | Prioridade | Status | Dependências | Aceite resumido | Agente |
+|---|---|---|---|---|---|---|---|---|
+| DOC-002 | doc | Revisar segunda rodada documental | documentation | critical | review | nenhuma | modelos e status coerentes | Revisor documental |
+| TASKER-001 | tasker | Validar fluxo de transição de tasks | architecture | high | ready | DOC-002 | uma task percorre ready até done com evidência | Jules Doc |
+| PM-PILOT-001 | process_mirroring | Selecionar processo piloto | decision | high | ready | DOC-002 | escopo, consentimento e participantes definidos | Analista de Processo |
+| PM-PILOT-002 | process_mirroring | Capturar fontes e observações piloto | documentation | high | backlog | PM-PILOT-001 | fontes e observações rastreáveis | Analista de Processo |
+| PM-PILOT-003 | process_mirroring | Validar espelho e gaps piloto | documentation | high | backlog | PM-PILOT-002 | ValidatedProcess ou ressalvas registradas | Analista + cliente |
+| CAP-VAL-001 | capabilities | Revisar fronteiras das 24 capabilities | architecture | high | ready | DOC-002 | sobreposições e dependências decididas | Arquiteto |
+| CAP-VAL-002 | capabilities | Validar capabilities no piloto | contract | high | backlog | PM-PILOT-003, CAP-VAL-001 | matches e gaps registrados | Arquiteto |
+| UI-CON-001 | ui | Refinar contratos de superfícies prioritárias | contract | medium | ready | DOC-002 | persona, estados e E2E esperado definidos | UX/Arquiteto |
+| EA-PILOT-001 | enterprise_architecture | Criar mapas do piloto | architecture | medium | backlog | PM-PILOT-003, CAP-VAL-002 | mapas possuem fonte, owner e gaps | Arquiteto |
+| GOV-PILOT-001 | governance | Validar papéis e SoD do piloto | decision | medium | backlog | EA-PILOT-001 | matriz aprovada com conflitos | Security Reviewer |
+| ENA-PILOT-001 | enablement | Criar guia e checklist piloto | documentation | medium | backlog | GOV-PILOT-001 | operador executa cenário simulado | Enablement |
+| DEV-READINESS-001 | tasker | Auditar prontidão para execução futura | test | high | blocked | CAP-VAL-002, UI-CON-001, GOV-PILOT-001 | decisão READY/NOT READY para Dev | Jules Tester |

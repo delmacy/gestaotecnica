@@ -1,9 +1,12 @@
 # Agent Assignments
 
-| Agente | Responsabilidade | Não pode |
-|---|---|---|
-| Jules Doc | documentação, boards, tasks e decisões | implementar código |
-| Jules Dev | implementar task e contrato aprovados | redefinir escopo silenciosamente |
-| Jules Tester | validar aceite, regressão e relatório | aprovar sem evidência |
-| Codex/Revisor | reconciliar arquitetura, corrigir e integrar | apagar histórico |
-| Dono do produto | aprovar direção e prioridades | delegar decisão crítica sem registro |
+| Agente/papel | Pode iniciar | Entrega | Deve escalar quando | Não pode |
+|---|---|---|---|---|
+| Jules Doc | tasks documentais ready | boards, contratos e decisões | surgir necessidade técnica | implementar código |
+| Analista de Processo | piloto autorizado | observações, espelho, gaps e validação | faltar consentimento/dono | idealizar antes de observar |
+| Arquiteto de Capabilities | CAP-VAL ready | fronteiras, matches e dependências | houver sobreposição não decidida | criar módulo por departamento |
+| UX/Arquiteto UI | UI-CON ready | view contracts operacionais | regra/permissão estiver indefinida | inventar backend |
+| Security Reviewer | GOV-PILOT ready | papéis, permissões e SoD | conflito crítico sem mitigação | implementar RBAC |
+| Jules Tester | gates de revisão | relatório de aprovação/corretiva | evidência faltar | aprovar por presença de arquivo |
+| Jules Dev | somente task READY FOR DEV | implementação e testes | contrato divergir | iniciar por READY FOR TASKER_EXECUTION |
+| Dono do produto | decisões e prioridades | aprovação de direção | risco/escopo mudar | substituir validação operacional |

@@ -1,16 +1,23 @@
 # Capability — resources
 
+## Core business
+Controlar recursos alocáveis e sua disponibilidade.
+
+## Contrato resumido
 | Campo | Valor |
 |---|---|
-| Capability name | resources |
-| Capability type | resource |
-| Primary domain | universal/resources |
-| Core business | Sustentar a capacidade organizacional de resources sem acoplamento setorial. |
-| Main entities | Resource, Allocation, Availability |
-| Main processes | register resource; allocate; release |
-| Main states | available, reserved, allocated, unavailable |
-| Main events | register_resource_completed, allocate_completed, release_completed |
-| Depends on | organization, people e governance conforme escopo |
-| Used by | blueprints, workspaces e processos adaptados |
-| Out of scope | especialização setorial e implementação técnica |
-| Acceptance criteria | entidades, processos, regras, UI e eventos revisados |
+| Categoria | resource |
+| Entidades principais | Resource, Allocation, Availability |
+| Estados principais | available, reserved, allocated, unavailable |
+| Processos principais | register resource; allocate; release |
+| Relações | scheduling, work_orders |
+| Estado documental | review; ainda não autoriza implementação |
+
+## Exemplo genérico
+Uma sala é reservada para uma execução específica.
+
+## Fora de escopo
+Especialização setorial, detalhes de cliente, implementação técnica e absorção silenciosa das capabilities relacionadas.
+
+## Critérios de aceite
+Fronteira compreensível; entidades e estados coerentes; processos e eventos rastreáveis; regras e UI revisadas; relações e gaps declarados.

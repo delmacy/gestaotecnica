@@ -1,23 +1,6 @@
-# Tasks
+# Tasks — Tasker
 
-### MOD-001 — Nome da task
-
-Descrição:
-
-Tipo:
-
-Prioridade:
-
-Status:
-
-Módulo:
-
-Fase:
-
-Dependências:
-
-Arquivos esperados:
-
-Critério de aceite:
-
-Observações:
+| ID | Título | Status |
+|---|---|---|
+| TASKER-001 | Operar primeiro sprint modular | ready |
+| TASKER-002 | Validar transições e dependências | backlog |

@@ -1,3 +1,3 @@
-# Módulo: tasker
+# Tasker
 
-Este módulo é responsável por: [Preencher com a descrição específica do módulo tasker].
+Gestor Markdown oficial de tasks, backlog, sprint, dependências e atribuição de agentes.

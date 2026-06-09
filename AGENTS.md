@@ -2,7 +2,7 @@
 
 Este arquivo contém as diretrizes mestras para IAs e desenvolvedores atuando neste repositório.
 
-> **Nota de Domínio de Agentes:** Consulte sempre `docs/planning/JULES_AGENT_BOUNDARIES.md` para verificar as regras de nomenclatura, limites de domínio e política de isolamento entre agentes antes de iniciar um prompt.
+> **Nota de Domínio de Agentes:** Consulte sempre `docs/archive/planning/JULES_AGENT_BOUNDARIES.md` para verificar as regras de nomenclatura, limites de domínio e política de isolamento entre agentes antes de iniciar um prompt.
 
 ## 1. Princípios de Decisão
 
@@ -29,7 +29,7 @@ Este arquivo contém as diretrizes mestras para IAs e desenvolvedores atuando ne
 
 ## 3. Regras de Código e Dados
 
-- **Drizzle Schemas:** Use schemas PostgreSQL explicitamente conforme `docs/database/SCHEMA_STRATEGY.md`.
+- **Drizzle Schemas:** Use schemas PostgreSQL explicitamente conforme `docs/archive/database/SCHEMA_STRATEGY.md`.
 - **JSONB:** Use para payloads flexíveis e snapshots, nunca para evitar modelagem necessária.
 - **workspace_id:** Obrigatório em todas as consultas e tabelas operacionais.
 - **Imutabilidade:** Eventos (`event_logs`) e trilhas de auditoria devem ser imutáveis.
@@ -52,21 +52,25 @@ Antes de criar uma nova funcionalidade, documente em `docs/`:
   globais e reutilizáveis, mas suas instalações são por workspace.
 - Se uma fase for estritamente backend, ela deve registrar o motivo e criar um
   gap frontend rastreável.
-- O gate de referência é `docs/planning/FRONTEND_PARITY_GATE.md`.
+- O gate de referência é `docs/archive/planning/FRONTEND_PARITY_GATE.md`.
 
 ## 6. Documentação de Referência
 
-- `docs/foundation/MANIFESTO.md`
-- `docs/foundation/AI_CONSTITUTION.md`
-- `docs/foundation/ONTOLOGY.md`
-- `docs/architecture/PLATFORM_VS_CLIENT.md`
-- `docs/planning/FRONTEND_PARITY_GATE.md`
+- `docs/PROJECT_MANIFEST.md`
+- `docs/ARCHITECTURE.md`
+- `docs/DEVELOPMENT_RULES.md`
+- `docs/GLOBAL_WORK_BOARD.md`
+- `docs/archive/foundation/MANIFESTO.md`
+- `docs/archive/foundation/AI_CONSTITUTION.md`
+- `docs/archive/foundation/ONTOLOGY.md`
+- `docs/archive/architecture/PLATFORM_VS_CLIENT.md`
+- `docs/archive/planning/FRONTEND_PARITY_GATE.md`
 
 ## Registro histórico por fase
 
 Além dos documentos de planejamento, o projeto mantém registro histórico em:
 
-`docs/phases/`
+`docs/archive/phases/`
 
 Regras:
 
@@ -76,7 +80,7 @@ Regras:
 - Jules Dev não deve alterar revisões anteriores.
 - Jules Documental estrutura os arquivos de fase e mantém o board.
 - `WORK_BOARD.md` mostra o estado atual.
-- `docs/phases/**` preserva histórico.
+- `docs/archive/phases/**` preserva histórico.
 
 ## 7. Sincronização de Ambiente
 

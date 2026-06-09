@@ -1,21 +1,3 @@
-# Instruções - tasker
+# Instruções — Tasker
 
-## Responsabilidade
-Módulo Jules Tasker / Task Manager.
-
-Responsável por organizar o trabalho dos agentes e transformar documentação em execução controlada. Cuida da criação e manutenção de tasks, status, vínculo, prioridade, critérios de aceite, dependências, e rastreabilidade.
-
-O Tasker NÃO deve ser um sistema complexo ainda. Nesta fase, ele deve ser documentado como um modelo Markdown de gestão de tarefas.
-
-## O que pode fazer
-- Organizar trabalho via arquivos Markdown.
-
-## O que não pode fazer
-- Implementar engine ou banco de dados complexo para tasks nesta fase.
-
-## Dependências
-- Permitidas: [Listar]
-- Proibidas: [Listar]
-
-## Definição de pronto
-- Testes passando, contratos atualizados, código limpo.
+Toda execução começa em SPRINT_BOARD.md. Tasks usam exclusivamente os campos e enums de TASK_MODEL.md. Transições de status exigem atualização de data, responsável e notas.

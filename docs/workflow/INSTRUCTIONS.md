@@ -1,19 +1,8 @@
-# Instruções - workflow
+# Instruções — workflow
 
-## Responsabilidade
-Módulo de processos.
-
-Responsável por definições de processos, estados, transições, etapas, execução conceitual de workflows, e work_boards de processos.
-
-## O que pode fazer
-- Modelar workflows.
-
-## O que não pode fazer
-- Não implementar engine complexa nesta fase.
-
-## Dependências
-- Permitidas: [Listar]
-- Proibidas: [Listar]
-
-## Definição de pronto
-- Testes passando, contratos atualizados, código limpo.
+1. Leia ../PROJECT_MANIFEST.md, ../ARCHITECTURE.md e ../DEVELOPMENT_RULES.md.
+2. Confirme a task em TASKS.md e suas dependências.
+3. Registre decisões arquiteturais antes de criar contratos.
+4. Preserve separação global versus workspace-scoped.
+5. Declare impacto frontend e rastreabilidade.
+6. Não implemente código sem task e contrato aprovados.

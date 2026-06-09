@@ -1,33 +1,14 @@
-# Work Board - integrations
+# Work Board — integrations
 
-## Objetivo do Módulo
-Objetivo principal deste módulo.
+| Campo | Valor |
+|---|---|
+| Objetivo | Definir bordas externas sem entregar controle do domínio. |
+| Estado | ready |
+| Escopo atual | Webhooks, sinais, receipts, normalização e aprovação. |
+| Próxima ação | Revisar contrato de sinais externos |
+| Responsável | Jules Doc / Arquiteto |
 
-## Escopo Atual
-- Definir escopo.
-
-## Fora de Escopo
-- O que não está no escopo.
-
-## Estado Atual
-- Em definição.
-
-## Fases
-1. Planejamento
-2. Execução
-3. Revisão
-
-## Tasks Principais
-- (A ser preenchido)
-
-## Critérios de Aceite
-- (A ser preenchido)
-
-## Pendências
-- Nenhuma.
-
-## Riscos
-- Nenhum identificado.
-
-## Próxima Ação Recomendada
-- Validar contratos.
+## Critérios de saída
+- Contratos documentais revisados.
+- Tasks com dependências e aceite explícitos.
+- Decisões e impacto frontend registrados.

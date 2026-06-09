@@ -1,33 +1,10 @@
-# Work Board - tasker
+# Work Board — Tasker
 
-## Objetivo do Módulo
-Objetivo principal deste módulo.
+| Estado | Tasks |
+|---|---|
+| in_progress | DOC-001 |
+| ready | TASKER-001, PM-001, CAP-001 |
+| backlog | EA-001, GOV-001, ENA-001 |
+| blocked | nenhuma |
 
-## Escopo Atual
-- Definir escopo.
-
-## Fora de Escopo
-- O que não está no escopo.
-
-## Estado Atual
-- Em definição.
-
-## Fases
-1. Planejamento
-2. Execução
-3. Revisão
-
-## Tasks Principais
-- (A ser preenchido)
-
-## Critérios de Aceite
-- (A ser preenchido)
-
-## Pendências
-- Nenhuma.
-
-## Riscos
-- Nenhum identificado.
-
-## Próxima Ação Recomendada
-- Validar contratos.
+Próxima ação: revisar a reestruturação e iniciar o piloto de Process Mirroring.

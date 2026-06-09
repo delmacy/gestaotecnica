@@ -1,33 +1,14 @@
-# Work Board - workflow
+# Work Board — workflow
 
-## Objetivo do Módulo
-Objetivo principal deste módulo.
+| Campo | Valor |
+|---|---|
+| Objetivo | Definir como trabalho validado se torna processo, caso adaptativo ou decisão versionada. |
+| Estado | ready |
+| Escopo atual | Process contracts, candidates, regras e publicação. |
+| Próxima ação | Revisar modelo de processo adaptado |
+| Responsável | Jules Doc / Arquiteto |
 
-## Escopo Atual
-- Definir escopo.
-
-## Fora de Escopo
-- O que não está no escopo.
-
-## Estado Atual
-- Em definição.
-
-## Fases
-1. Planejamento
-2. Execução
-3. Revisão
-
-## Tasks Principais
-- (A ser preenchido)
-
-## Critérios de Aceite
-- (A ser preenchido)
-
-## Pendências
-- Nenhuma.
-
-## Riscos
-- Nenhum identificado.
-
-## Próxima Ação Recomendada
-- Validar contratos.
+## Critérios de saída
+- Contratos documentais revisados.
+- Tasks com dependências e aceite explícitos.
+- Decisões e impacto frontend registrados.

@@ -1,19 +1,8 @@
-# Instruções - registry
+# Instruções — registry
 
-## Responsabilidade
-Módulo de catálogo de capacidades.
-
-Responsável por capabilities, features disponíveis, ações possíveis, módulos instaláveis, contratos de entrada e saída, e catálogo funcional da plataforma.
-
-## O que pode fazer
-- Registrar e catalogar capacidades da plataforma.
-
-## O que não pode fazer
-- Implementar features reais dentro deste módulo.
-
-## Dependências
-- Permitidas: [Listar]
-- Proibidas: [Listar]
-
-## Definição de pronto
-- Testes passando, contratos atualizados, código limpo.
+1. Leia ../PROJECT_MANIFEST.md, ../ARCHITECTURE.md e ../DEVELOPMENT_RULES.md.
+2. Confirme a task em TASKS.md e suas dependências.
+3. Registre decisões arquiteturais antes de criar contratos.
+4. Preserve separação global versus workspace-scoped.
+5. Declare impacto frontend e rastreabilidade.
+6. Não implemente código sem task e contrato aprovados.

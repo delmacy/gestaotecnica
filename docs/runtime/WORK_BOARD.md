@@ -1,33 +1,14 @@
-# Work Board - runtime
+# Work Board — runtime
 
-## Objetivo do Módulo
-Objetivo principal deste módulo.
+| Campo | Valor |
+|---|---|
+| Objetivo | Definir conceitualmente a execução segura de versões publicadas. |
+| Estado | ready |
+| Escopo atual | Instância, estado, ação, evento e recibo. |
+| Próxima ação | Definir contrato mínimo de execução |
+| Responsável | Jules Doc / Arquiteto |
 
-## Escopo Atual
-- Definir escopo.
-
-## Fora de Escopo
-- O que não está no escopo.
-
-## Estado Atual
-- Em definição.
-
-## Fases
-1. Planejamento
-2. Execução
-3. Revisão
-
-## Tasks Principais
-- (A ser preenchido)
-
-## Critérios de Aceite
-- (A ser preenchido)
-
-## Pendências
-- Nenhuma.
-
-## Riscos
-- Nenhum identificado.
-
-## Próxima Ação Recomendada
-- Validar contratos.
+## Critérios de saída
+- Contratos documentais revisados.
+- Tasks com dependências e aceite explícitos.
+- Decisões e impacto frontend registrados.

@@ -1,25 +1,29 @@
 # Architecture
 
-## Arquitetura Geral
-O System Builder é uma plataforma baseada em módulos autônomos geridos por contratos bem estabelecidos em Markdown.
+## Modelo modular
 
-## Módulos Principais
-- **core**: Base da aplicação, workspaces, projetos.
-- **doc**: Módulo de documentação interna e regras.
-- **tasker**: Gestão de tarefas, status e execuções.
-- **ui**: Interface do usuário, telas, estados visuais.
-- **workflow**: Definições de processos, etapas, execuções.
-- **registry**: Catálogo de capacidades, módulos instaláveis.
-- **integrations**: Contratos externos, n8n, webhooks.
-- **runtime**: Execução de instâncias e eventos.
+| Módulo | Responsabilidade | Saída principal |
+|---|---|---|
+| `doc` | Governar documentação | padrões e decisões |
+| `tasker` | Coordenar trabalho | tasks executáveis |
+| `process_mirroring` | Espelhar operação real | processo validado |
+| `capabilities` | Definir blocos universais | contratos de capability |
+| `enterprise_architecture` | Conectar organização | mapas empresariais |
+| `governance` | Definir limites de ação | papéis e políticas |
+| `enablement` | Orientar execução humana | guias e checklists |
+| `registry` | Indexar capabilities | catálogo e dependências |
+| `ui` | Contratar superfícies | view contracts |
+| `workflow` | Contratar processos | process contracts |
+| `runtime` | Contratar execução futura | execution contracts |
+| `integrations` | Contratar bordas | webhook/signal contracts |
+| `core` | Sustentar identidade e workspace | contratos centrais |
 
-## Fluxo de Trabalho Conceitual
-O trabalho flui do `tasker` para os módulos através de tarefas definidas. Mudanças visuais começam no `ui`, lógicas nos módulos específicos, sendo o `runtime` e o `core` os pilares finais.
+## Fluxo arquitetural
+Observed Work → Process Mirror → Capability Match → Enterprise Map → Adapted Process → Builder Contract.
 
-## Dependências Permitidas
-- Cada módulo deve depender o mínimo possível de outros.
-- Contratos (API_CONTRACT, VIEW_CONTRACT, etc.) devem ser usados para comunicação intermodular.
-
-## Dependências Proibidas
-- É estritamente proibido criar dependências circulares entre módulos.
-- Implementar lógicas em camadas inadequadas (ex: banco de dados avançado antes dos contratos definidos).
+## Dependências
+- Comunicação intermodular ocorre por contratos.
+- Dependências circulares são proibidas.
+- Registry indexa; não desenvolve capabilities.
+- Runtime executa somente versões publicadas.
+- Payload externo é normalizado antes de entrar no domínio.

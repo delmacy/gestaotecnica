@@ -1,15 +1,7 @@
-# Decisions
+# Decisões — workflow
 
-## DEC-000 — Exemplo de decisão
+## WORKFLOW-DEC-001 — Documentação precede implementação
 
-Data:
-
-Módulo:
-
-Decisão:
-
-Motivo:
-
-Consequência:
-
-Status:
+- **Status:** accepted
+- **Decisão:** este módulo evolui por tasks, decisões e contratos antes de código.
+- **Consequência:** qualquer necessidade técnica encontrada vira dependência no Tasker.

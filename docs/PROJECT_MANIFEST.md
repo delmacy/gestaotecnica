@@ -1,17 +1,21 @@
 # Project Manifest
 
-## Visão do System Builder
-O projeto System Builder é uma plataforma para criação de sistemas empresariais modulares baseados em processos.
+## Visão
+O System Builder transforma trabalho empresarial real em sistemas modulares executáveis, sem obrigar organizações a se adaptarem a ferramentas genéricas.
 
-## Propósito
-O sistema deve evoluir a partir de documentação, work boards, instruções por módulo, tasks bem definidas e contratos.
+## Tese
+Antes de automatizar, espelhar. Antes de padronizar, compreender. Antes de otimizar, respeitar a realidade.
 
-## Princípios
-- Markdown primeiro, Contrato depois, Código por último.
-- O projeto não tenta implementar banco de dados avançado, API Gateway completo ou runtime dinâmico antes da estabilização dos módulos principais.
+## Fluxo de valor
+Process Mirroring captura o trabalho atual; capabilities universais reconhecem blocos reutilizáveis; Enterprise Architecture conecta processos, dados e responsabilidades; Governance limita ações; Enablement orienta operadores; Builder e Runtime materializam apenas contratos aprovados.
 
-## Modularização
-O projeto é dividido em módulos com fronteiras bem definidas: core, doc, tasker, ui, workflow, registry, integrations e runtime.
+## Princípios obrigatórios
+- Markdown primeiro, contrato depois, código por último.
+- Capabilities representam capacidades, não departamentos.
+- Dados operacionais são workspace-scoped; catálogo de capabilities é global.
+- Agentes e integrações propõem; humanos aprovam publicação.
+- n8n é borda, Postgres é source of truth.
+- Toda capacidade operacional exige paridade frontend ou gap rastreável.
 
-## Relação entre documentação, contrato e código
-A documentação é a fonte da verdade. Nenhuma linha de código deve ser escrita sem uma task em Markdown e um contrato estabelecido.
+## Fonte histórica
+Ontologia, DDD, anti-escopo, decisões e estratégia de schemas permanecem preservados em `archive/`.

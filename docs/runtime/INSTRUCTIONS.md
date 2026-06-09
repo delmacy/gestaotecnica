@@ -1,19 +1,8 @@
-# Instruções - runtime
+# Instruções — runtime
 
-## Responsabilidade
-Módulo de execução.
-
-Responsável por como uma instância gerada deve funcionar, como processos são executados, como ações são chamadas, como estados mudam, e como dados mínimos são trafegados.
-
-## O que pode fazer
-- Documentar regras de runtime.
-
-## O que não pode fazer
-- Não implementar runtime dinâmico completo nesta fase.
-
-## Dependências
-- Permitidas: [Listar]
-- Proibidas: [Listar]
-
-## Definição de pronto
-- Testes passando, contratos atualizados, código limpo.
+1. Leia ../PROJECT_MANIFEST.md, ../ARCHITECTURE.md e ../DEVELOPMENT_RULES.md.
+2. Confirme a task em TASKS.md e suas dependências.
+3. Registre decisões arquiteturais antes de criar contratos.
+4. Preserve separação global versus workspace-scoped.
+5. Declare impacto frontend e rastreabilidade.
+6. Não implemente código sem task e contrato aprovados.

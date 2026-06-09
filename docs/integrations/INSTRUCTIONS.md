@@ -1,19 +1,8 @@
-# Instruções - integrations
+# Instruções — integrations
 
-## Responsabilidade
-Módulo de integrações.
-
-Responsável por n8n, webhooks, API Gateway futuro, contratos externos, eventos de entrada e saída, e integrações por cliente.
-
-## O que pode fazer
-- Documentar contratos de integrações.
-
-## O que não pode fazer
-- Não implementar API Gateway completo nesta fase. Apenas documentar o contrato conceitual.
-
-## Dependências
-- Permitidas: [Listar]
-- Proibidas: [Listar]
-
-## Definição de pronto
-- Testes passando, contratos atualizados, código limpo.
+1. Leia ../PROJECT_MANIFEST.md, ../ARCHITECTURE.md e ../DEVELOPMENT_RULES.md.
+2. Confirme a task em TASKS.md e suas dependências.
+3. Registre decisões arquiteturais antes de criar contratos.
+4. Preserve separação global versus workspace-scoped.
+5. Declare impacto frontend e rastreabilidade.
+6. Não implemente código sem task e contrato aprovados.

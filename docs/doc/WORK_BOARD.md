@@ -1,33 +1,14 @@
-# Work Board - doc
+# Work Board — doc
 
-## Objetivo do Módulo
-Objetivo principal deste módulo.
+| Campo | Valor |
+|---|---|
+| Objetivo | Governar a documentação como fonte de verdade operacional |
+| Estado | review |
+| Escopo atual | Revisão da reestruturação modular |
+| Próxima ação | Aprovar `DOCUMENTATION_RESTRUCTURE_REPORT.md` |
+| Responsável | Jules Doc / Revisor |
 
-## Escopo Atual
-- Definir escopo.
-
-## Fora de Escopo
-- O que não está no escopo.
-
-## Estado Atual
-- Em definição.
-
-## Fases
-1. Planejamento
-2. Execução
-3. Revisão
-
-## Tasks Principais
-- (A ser preenchido)
-
-## Critérios de Aceite
-- (A ser preenchido)
-
-## Pendências
-- Nenhuma.
-
-## Riscos
-- Nenhum identificado.
-
-## Próxima Ação Recomendada
-- Validar contratos.
+## Critérios de saída
+- Índices e referências resolvem para arquivos existentes.
+- Boards e tasks não permanecem genéricos.
+- Archive continua preservado.

@@ -11,7 +11,7 @@
 
 ## Jules Agent Boundary
 
-- Jules responsável:
+- Jules responsável (Jules <Role> <Domain> [Scope]):
 - Domínio autorizado:
 - Domínios proibidos:
 - Arquivos permitidos:
@@ -19,7 +19,7 @@
 - Pode paralelizar?
 - Com quais agentes?
 - Conflitos esperados:
-- Regra de parada se tocar outro domínio:
+- Regra de parada se tocar outro domínio (registre como gap e não implemente):
 
 ## 2. Objetivo
 

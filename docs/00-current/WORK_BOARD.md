@@ -4,9 +4,9 @@
 
 | Campo                           | Valor                                        |
 | ------------------------------- | -------------------------------------------- |
-| Fase técnica atual              | Fase 31 — n8n Signal Inbox Backend           |
+| Fase técnica atual              | AUTH-01 — Authentication and Access Profiles Stabilization |
 | Fase documental atual           | Frontend Parity Gate aplicado ao bloco Alpha |
-| Última fase técnica implementada| Fase 30B                                     |
+| Última fase técnica implementada| AUTH-01                                      |
 | Status da última fase           | READY FOR REVIEW                             |
 | Última fase frontend aprovada   | Fase 29B                                     |
 | Próxima fase frontend vinculada | Fase 30B                                     |
@@ -26,8 +26,9 @@
 
 ## 3. Fila técnica
 
-1. Fase 30B — Gateway Receipts UI — Aguardando Review
-2. Fase 31 — n8n Signal Inbox Backend — Bloqueada até 30B
+1. AUTH-01 — Estabilização de Autenticação — Aguardando Review
+2. Fase 30B — Gateway Receipts UI — Pausada temporariamente
+3. Fase 31 — n8n Signal Inbox Backend — Bloqueada até 30B
 3. Fase 31B — Signal Inbox UI — Planejada
 5. Fase 32 — Observation Pipeline Backend — Planejada
 6. Fase 32B — Observation Review UI — Planejada
@@ -42,6 +43,7 @@
 
 ## 5. Bloqueios
 
+A Fase 30B está pausada até a revisão e o merge de AUTH-01.
 A Fase 31 está bloqueada até a revisão e o merge da Fase 30B.
 
 ## 6. Decisões recentes
@@ -67,22 +69,22 @@ Planejamento futuro disponível (NÃO IMPLEMENTAR AINDA):
 **Atenção Jules Dev:** Antes de começar a implementar ou ler qualquer arquivo, você **deve** atualizar o seu ambiente git local executando um `git pull` na branch correta para garantir que pegou as últimas atualizações geradas pelo Jules Documental.
 
 ```text
-Próxima fase técnica: Fase 31 — n8n Signal Inbox Backend (após revisão)
+Próxima fase técnica: Fase 30B — Gateway Receipts UI (após revisão de AUTH-01)
 
 Consulte o documento principal de planejamento de onde deve partir o prompt exato para a sua implementação:
 
-docs/planning/alpha/PHASE_31.md
+docs/planning/alpha/PHASE_30B.md
 
 Registro:
-docs/phases/PHASE_31.md
+docs/phases/PHASE_30B.md
 
-NÃO AVANCE PARA FASES FUTURAS AINDA. Aguarde revisão da 30B.
+NÃO AVANCE PARA FASES FUTURAS AINDA. Aguarde revisão de AUTH-01 e 30B.
 ```
 
 ## 8. Última revisão ChatGPT
 
 | Campo          | Valor                                  |
 | -------------- | -------------------------------------- |
-| Última revisão | Fase 30B concluída aguardando review   |
+| Última revisão | AUTH-01 concluída aguardando review    |
 | Resultado      | Aguardando                             |
-| Observações    | Fase 31 bloqueada até merge.           |
+| Observações    | Fase 30B e 31 bloqueadas até merge.    |

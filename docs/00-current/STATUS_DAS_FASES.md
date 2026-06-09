@@ -64,7 +64,8 @@ Este arquivo registra o andamento fase a fase. Deve ser atualizado ao final de c
 |   29 | ✅     | Process Builder Agent        | Contrato expandido de payload do Gateway                         |
 |  29B | ✅     | Candidate Evidence UI        | UI para visualizar payload estruturado do Gateway                |
 |   30 | ✅ (R) | Gateway Metadata/Idempotency | Trata deduplicação e receipts via correlation_id/idempotency_key |
-|  30B | ✅     | Gateway Receipts UI          | Visualização dos Receipts, aguardando review                     |
+| AUTH | ✅     | AUTH-01                      | Fase corretiva: Perfis de Acesso e Setup de Builder.             |
+|  30B | 🟡     | Gateway Receipts UI          | Visualização dos Receipts, aguardando review (Pausada para AUTH) |
 |   31 | 🔴     | n8n as Boundary              | Fase 31 Alfa Planejada                                           |
 |   32 | ⚪     | Signal Inbox Pipeline        | Fase 32 Alfa Planejada                                           |
 |   33 | ⚪     | Document Agent               | Fase 33 Alfa Planejada                                           |
@@ -82,13 +83,14 @@ Fases 20–40 formam a fila Alfa (planejadas, focadas em Process Candidates e ar
 ## 4. Última fase validada
 
 ```text
-Última fase técnica validada: Fase 30B (READY FOR REVIEW)
+Última fase técnica validada: AUTH-01 (READY FOR REVIEW)
 
 ## 5. Atualização documental — 2026-06-08
 
-- Fase 30B aguarda revisão.
-- Próxima fase autorizada: Fase 31 (depende do merge da 30B).
-- Fase 31 permanece bloqueada até aprovação e merge da 30B.
+- AUTH-01 implementado.
+- Fase 30B pausada temporariamente devido à prioridade de autenticação.
+- Próxima fase autorizada: Fase 30B (após revisão/merge do AUTH-01).
+- Fase 31 permanece bloqueada.
 ```
 
 ## 6. Regra

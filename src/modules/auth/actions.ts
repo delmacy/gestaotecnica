@@ -12,6 +12,7 @@ import {
   verifyPassword,
 } from "./crypto";
 import { AUTH_COOKIE } from "./constants";
+import { AccessProfile, getDefaultRouteForProfile, canAccessRoute } from "./access-profiles";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -55,10 +56,10 @@ export async function setupFirstAdmin(formData: FormData) {
 
   const [user] = await db
     .insert(users)
-    .values({ name, email, status: "active" })
+    .values({ name, email, status: "active", accessProfile: "builder" })
     .onConflictDoUpdate({
       target: users.email,
-      set: { name, status: "active", updatedAt: new Date() },
+      set: { name, status: "active", accessProfile: "builder", updatedAt: new Date() },
     })
     .returning({ id: users.id });
 
@@ -70,13 +71,14 @@ export async function setupFirstAdmin(formData: FormData) {
   });
 
   await createSession(user.id);
-  redirect("/admin");
+  redirect(getDefaultRouteForProfile("builder"));
 }
 
-export async function login(formData: FormData) {
-  const email = readRequiredText(formData, "email").toLowerCase();
-  const password = readRequiredText(formData, "password");
-  const db = getDb();
+export async function login(prevState: any, formData: FormData) {
+  try {
+    const email = readRequiredText(formData, "email").toLowerCase();
+    const password = readRequiredText(formData, "password");
+    const db = getDb();
 
   const [account] = await db
     .select({
@@ -85,23 +87,38 @@ export async function login(formData: FormData) {
       salt: authAccounts.passwordSalt,
       isActive: authAccounts.isActive,
       userStatus: users.status,
+      accessProfile: users.accessProfile,
     })
     .from(authAccounts)
     .innerJoin(users, eq(authAccounts.userId, users.id))
     .where(eq(users.email, email))
     .limit(1);
 
-  if (
-    !account ||
-    !account.isActive ||
-    account.userStatus !== "active" ||
-    !verifyPassword(password, account.salt, account.hash)
-  ) {
-    throw new Error("Credenciais invalidas.");
-  }
+    if (
+      !account ||
+      !account.isActive ||
+      account.userStatus !== "active" ||
+      !verifyPassword(password, account.salt, account.hash)
+    ) {
+      return { error: "Credenciais inválidas." };
+    }
 
-  await createSession(account.userId);
-  redirect("/admin");
+    await createSession(account.userId);
+
+    const next = formData.get("next") as string;
+    const accessProfile = account.accessProfile as AccessProfile;
+
+    if (next && canAccessRoute(accessProfile, next)) {
+      redirect(next);
+    }
+
+    redirect(getDefaultRouteForProfile(accessProfile));
+  } catch (err: unknown) {
+    if ((err as Error).message === "NEXT_REDIRECT") {
+      throw err;
+    }
+    return { error: "Erro ao realizar login." };
+  }
 }
 
 export async function logout() {

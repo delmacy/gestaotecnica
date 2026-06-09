@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { logout } from "@/modules/auth/actions";
 import { getCurrentUser } from "@/modules/auth/session";
+import { requireAccessProfile } from "@/modules/auth/authorization";
 import { getAdminSummary } from "@/modules/admin/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,7 @@ const links = [
 ];
 
 export default async function AdminPage() {
+  await requireAccessProfile(["builder"]);
   const [user, summary] = await Promise.all([getCurrentUser(), getAdminSummary()]);
 
   return (

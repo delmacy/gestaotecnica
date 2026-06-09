@@ -117,3 +117,9 @@ Jules <Role> <Domain> [Scope]
 Cada prompt deve declarar domínio autorizado, arquivos permitidos, arquivos proibidos e regra de parada.
 
 Essa regra existe para reduzir colisão, acoplamento, contaminação de core e conflitos entre módulos.
+
+## 8. Decisões de Auditoria (CAP-DOC-A)
+
+* A auditoria de contaminação por Gestão Técnica (CAP-DOC-A) foi concluída.
+* O documento `CORE_CONTAMINATION_AUDIT.md` foi criado para estabelecer os limites do "Core" do System Builder.
+* O legado será isolado em "Capabilities" ou bounded contexts temporários, e termos agnósticos serão utilizados no Core.

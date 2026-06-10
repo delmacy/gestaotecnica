@@ -9,7 +9,7 @@
 | PM-PILOT-003 | process_mirroring | Validar espelho e gaps piloto | documentation | high | done  | PM-PILOT-002 | ValidatedProcess ou ressalvas registradas | Analista + cliente |
 | CAP-VAL-001 | capabilities | Revisar fronteiras das 24 capabilities | architecture | high | done | DOC-002 | sobreposições e dependências decididas | Arquiteto |
 | CAP-VAL-002 | capabilities | Validar capabilities no piloto | contract | high | blocked | PM-PILOT-003, CAP-VAL-001 | matches e gaps registrados | Arquiteto |
-| UI-CON-001 | ui | Refinar contratos de superfícies prioritárias | contract | medium | ready | DOC-002 | persona, estados e E2E esperado definidos | UX/Arquiteto |
+| UI-CON-001 | ui | Refinar contratos de superfícies prioritárias | contract | medium | review | DOC-002 | persona, estados e E2E esperado definidos | UX/Arquiteto |
 | EA-PILOT-001 | enterprise_architecture | Criar mapas do piloto | architecture | medium | backlog | PM-PILOT-003, CAP-VAL-002 | mapas possuem fonte, owner e gaps | Arquiteto |
 | GOV-PILOT-001 | governance | Validar papéis e SoD do piloto | decision | medium | backlog | EA-PILOT-001 | matriz aprovada com conflitos | Security Reviewer |
 | ENA-PILOT-001 | enablement | Criar guia e checklist piloto | documentation | medium | backlog | GOV-PILOT-001 | operador executa cenário simulado | Enablement |

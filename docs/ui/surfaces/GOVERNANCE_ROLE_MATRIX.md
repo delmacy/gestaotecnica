@@ -1,0 +1,23 @@
+# Governance Role Matrix Contract
+
+- **surface_id:** `UI-SURF-GOV-MATRIX`
+- **surface_name:** Governance Role Matrix
+- **purpose:** Gerenciar os papéis e permissões no sistema, definindo ações permitidas, ações proibidas, escopos por workspace, configurações de "Segregation of Duties" (SoD), aprovações, auditoria e princípio de least privilege.
+- **persona:** Security Reviewer, Workspace Admin, Platform Admin
+- **route_candidate:** `/admin/governance/roles` ou `/[workspace_id]/governance/roles`
+- **scope:** Regras de negócio em torno de autorização de usuários e prevenção de conflitos de acesso (ex: quem aprova não pode ser quem executa). Não lida com autenticação.
+- **workspace_or_global:** Ambos (Papéis globais de plataforma vs Papéis específicos de workspace).
+- **related_capabilities:** `organization`, `approvals`, `audit`, `people`
+- **data_inputs:** Criação/edição de Role, associação de permissões, definição de políticas de SoD.
+- **data_outputs:** Modelo de RBAC salvo.
+- **commands:** Criar Papel, Editar Permissões, Definir Regra de Conflito (SoD), Auditar Permissões.
+- **empty_state:** "Nenhum papel customizado definido."
+- **loading_state:** Skeletons exibindo matrizes ou listas de roles.
+- **error_state:** Falha ao salvar a matriz (ex: criação de conflito de SoD irreversível).
+- **success_state:** Matriz ou lista exibindo papéis e o resumo de suas permissões claramente.
+- **permissions:** Acesso exclusivo a perfis de Governança ou Administração.
+- **audit_events:** `role.created`, `role.updated`, `sod.violation_attempted`
+- **evidence_required:** Alterações de alto risco requerem justificativa ou aprovação dupla.
+- **frontend_risks:** Matrizes grandes (muitos papéis x muitas permissões) podem ser difíceis de visualizar e gerenciar; requer design cuidadoso.
+- **e2e_test_expectation:** O Admin tenta atribuir permissão de 'Executar' e 'Aprovar' para a mesma role. A interface acusa um aviso de SoD (Segregation of Duties) e exige justificativa.
+- **implementation_status:** `needs_validation` (depende da validação humana dos papéis reais).

@@ -11,7 +11,7 @@ Provar que a documentação consegue comandar um piloto de Process Mirroring e g
 | 4 | PM-PILOT-002 | review | fontes e observações simuladas capturadas e gaps reportados |
 | 5 | PM-PILOT-003 | done | Validated decision documented |
 | 6 | CAP-VAL-001 | done | revisão de fronteiras |
-| 7 | UI-CON-001 | ready | view contracts refinados |
+| 7 | UI-CON-001 | review | view contracts refinados |
 
 ## Gate de encerramento
 O sprint termina quando documentos centrais forem aprovados e o piloto estiver preparado. Jules Dev permanece bloqueado até DEV-READINESS-001.

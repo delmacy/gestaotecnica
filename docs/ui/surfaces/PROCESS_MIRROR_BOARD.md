@@ -1,0 +1,23 @@
+# Process Mirror Board Contract
+
+- **surface_id:** `UI-SURF-PM-BOARD`
+- **surface_name:** Process Mirror Board
+- **purpose:** Consolidar a visão do processo de espelhamento (As-Is), permitindo gerenciar fontes, registrar observações, manter a matriz de evidências, registrar gaps, aprovar variantes e emitir decisões de avanço ou bloqueio baseadas em validação humana.
+- **persona:** Process Analyst, Platform Admin, Validator (Cliente)
+- **route_candidate:** `/admin/process-mirror` ou `/[workspace_id]/process-mirror`
+- **scope:** Restrito à análise e validação de processos espelhados, deixando explícito que o uso de dados sintéticos não serve como confirmação operacional.
+- **workspace_or_global:** O espelhamento ocorre num contexto de workspace (analisando um processo de negócio real).
+- **related_capabilities:** `documents`, `audit`, `approvals`
+- **data_inputs:** Fontes (entrevistas, logs, etc.), observações, upload de matrizes/evidências, submissão de aprovação/rejeição.
+- **data_outputs:** Decisões de validação (Aprovado, Rejeitado, Needs Real Sources), registro de gaps.
+- **commands:** Adicionar Fonte, Adicionar Observação, Registrar Variantes, Validar, Sinalizar Dado Sintético.
+- **empty_state:** "Nenhum processo piloto ou espelho sendo analisado."
+- **loading_state:** Indicador de progresso enquanto os dados do espelho (fontes, gaps) carregam.
+- **error_state:** Alerta claro se os dados do piloto não puderem ser carregados.
+- **success_state:** Painel Kanban/Listagem exibindo as fases do espelho com clareza dos gaps atuais.
+- **permissions:** Acesso restrito a Analistas e Validadores designados.
+- **audit_events:** `mirror.source_added`, `mirror.observation_logged`, `mirror.validation_decision_made`
+- **evidence_required:** Necessário anexo ou link para fontes reais e evidências do processo As-Is para validar conclusões.
+- **frontend_risks:** Alto risco de aprovações errôneas se a UI não deixar absolutamente claro que os dados atuais são sintéticos e insuficientes para validação final.
+- **e2e_test_expectation:** O Analista adiciona uma observação baseada em dado sintético. O Validador verifica a board e percebe o alerta visual ("Synthetic Data"), rejeitando a validação estrutural (Needs Real Sources).
+- **implementation_status:** `needs_validation`

@@ -1,0 +1,23 @@
+# Tasker Board Contract
+
+- **surface_id:** `UI-SURF-TASKER-BOARD`
+- **surface_name:** Tasker Board
+- **purpose:** Gerenciar o ciclo de vida do trabalho (arquitetural e operacional), exibindo backlog, sprints ativos, dependências, agentes responsáveis, critérios de aceite e evidências de 'done'.
+- **persona:** Platform Admin, Project Manager, Agente (Ex: Jules Doc, Jules Dev)
+- **route_candidate:** `/admin/tasker`
+- **scope:** Coordenação transversal das tasks do projeto, acompanhamento de impedimentos (bloqueios) e evidências.
+- **workspace_or_global:** Global (as tasks controlam a fundação do próprio produto, operando num escopo acima de workspaces de negócio).
+- **related_capabilities:** `organization` (gestão global), `audit`
+- **data_inputs:** Criação/edição de tasks, transições de status (ready, in-progress, review, done, blocked), adição de comentários e evidências.
+- **data_outputs:** Histórico de status, registro de dependências, aprovação de review.
+- **commands:** Mover Task, Criar Task, Bloquear Task, Anexar Evidência, Aprovar Review.
+- **empty_state:** "Nenhuma task cadastrada no Backlog." ou "Sprint atual não possui tasks."
+- **loading_state:** Skeletons no formato de cartões Kanban.
+- **error_state:** Falha ao mover task ou recuperar histórico. Exibe notificação de erro.
+- **success_state:** Visão em colunas (Kanban) atualizada com as tasks em seus respectivos estados.
+- **permissions:** Administradores podem criar/editar/aprovar. Agentes/Técnicos podem mover suas próprias tasks de 'ready' até 'review' e adicionar evidências.
+- **audit_events:** `task.created`, `task.status_changed`, `task.blocked`
+- **evidence_required:** Exigido anexo ou link na transição para 'done'.
+- **frontend_risks:** Garantir que transições inválidas (ex: ir de in-progress para done sem passar por review e sem evidência) sejam bloqueadas já na UI, refletindo a regra de negócio.
+- **e2e_test_expectation:** O Agente move a task para 'done' sem anexar evidência; a UI bloqueia a ação. O Agente anexa o link da evidência e a transição é aceita.
+- **implementation_status:** `documented`

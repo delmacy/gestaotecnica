@@ -1,0 +1,29 @@
+# Technical Service Intake Contract
+
+- **surface_id:** `UI-SURF-TECH-INTAKE`
+- **surface_name:** Technical Service Intake & Execution
+- **purpose:** Suportar o ciclo de vida fim-a-fim do processo piloto (Gestão Técnica). Cobrindo a entrada do chamado, triagem, conversão em OS, atribuição, execução, evidência, validação e encerramento.
+- **persona:** Requester, Dispatcher, Technician, Supervisor
+- **route_candidate:** Múltiplas rotas compostas:
+  - `/[workspace_id]/requests/new` (Formulário de abertura)
+  - `/[workspace_id]/inbox/triage` (Inbox de triagem)
+  - `/[workspace_id]/requests/[id]` (Detalhe da solicitação / conversão)
+  - `/[workspace_id]/work-orders/queue` (Fila do técnico)
+  - `/[workspace_id]/work-orders/[id]/execution` (Registro de evidência)
+  - `/[workspace_id]/work-orders/[id]/validation` (Painel do supervisor)
+- **scope:** Aplicação das capabilities `requests`, `work_orders`, `documents` e `audit` no contexto específico do processo de serviço técnico.
+- **workspace_or_global:** Workspace
+- **related_capabilities:** `requests`, `work_orders`, `documents`, `audit`, `approvals`
+- **data_inputs:** Descrição do problema, prioridade, fotos/anexos, notas técnicas, aprovação/rejeição de serviço.
+- **data_outputs:** Requests e Work Orders formalizados, atualizações de status, trilha de auditoria.
+- **commands:** Abrir Request, Triar/Classificar, Converter para OS, Atribuir, Adicionar Evidência, Concluir Execução, Validar/Aprovar.
+- **empty_state:** Inboxes/filas exibem "Sem chamados pendentes".
+- **loading_state:** Skeletons de formulários e listas.
+- **error_state:** Erro de validação de formulário ou falha na conversão de estado; feedbacks inline.
+- **success_state:** Toast notifications e redirecionamento para o próximo passo ou dashboard pós-ação.
+- **permissions:** Requester (criar request), Dispatcher (triar e converter), Technician (executar e anexar), Supervisor (validar e encerrar).
+- **audit_events:** `request.created`, `request.triaged`, `work_order.created`, `work_order.assigned`, `work_order.execution_completed`, `work_order.validated`
+- **evidence_required:** A fase de execução do Técnico exige upload de anexo/foto documental para avançar para Validação.
+- **frontend_risks:** Fluxo multi-ator propenso a confusão se as transições de status não forem refletidas em tempo real nas inboxes.
+- **e2e_test_expectation:** O Requester cria um request; o Dispatcher o converte em OS; o Technician anexa evidência e marca como concluído; o Supervisor aprova e encerra. A Timeline exibe a auditoria completa.
+- **implementation_status:** `needs_validation` (Atualmente modelado sobre Process Mirroring com dados sintéticos. Requer fontes reais para garantir a precisão dos campos e transições).

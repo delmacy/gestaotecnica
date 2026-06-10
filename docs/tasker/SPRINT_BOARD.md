@@ -12,6 +12,8 @@ Provar que a documentação consegue comandar um piloto de Process Mirroring e g
 | 5 | PM-PILOT-003 | done | Validated decision documented |
 | 6 | CAP-VAL-001 | done | revisão de fronteiras |
 | 7 | UI-CON-001 | review | view contracts refinados |
+| 8 | REAL-SRC-001 | done | pacote de coleta de fontes reais criado |
+| 9 | REAL-SRC-002 | blocked | aguardando cliente fornecer fontes |
 
 ## Gate de encerramento
 O sprint termina quando documentos centrais forem aprovados e o piloto estiver preparado. Jules Dev permanece bloqueado até DEV-READINESS-001.

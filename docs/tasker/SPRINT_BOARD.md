@@ -9,8 +9,8 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 |---:|---|---|---|
 | 1 | BUILDER-SHELL-001 | done | Contrato e planejamento do Shell aprovados |
 | 2 | DEV-READINESS-BUILDER-SHELL-001 | done | Contrato auditado e autorizado para dev |
-| 3 | DEV-BUILDER-SHELL-001 | ready | Pull Request com layout base do Builder Shell aprovado |
-| 4 | TASKER-BOARD-001 | backlog | Contrato e planejamento do Board aprovados |
+| 3 | DEV-BUILDER-SHELL-001 | done | Pull Request com layout base do Builder Shell aprovado |
+| 4 | TASKER-BOARD-001 | ready | Contrato e planejamento do Board aprovados |
 | 5 | CAPABILITY-EXPLORER-001 | backlog | Contrato e planejamento do Explorer aprovados |
 | 6 | REGISTRY-VIEW-001 | backlog | Contrato e planejamento do Registry View aprovados |
 | 7 | DOCS-VIEWER-001 | backlog | Contrato e planejamento do Docs Viewer aprovados |

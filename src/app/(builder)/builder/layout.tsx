@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BuilderShell } from "@/components/builder/shell/BuilderShell";
 
 export const metadata: Metadata = {
   title: "System Builder | Architecture Environment",
@@ -11,8 +12,8 @@ export default function BuilderLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-background text-foreground overflow-hidden">
+    <BuilderShell>
       {children}
-    </div>
+    </BuilderShell>
   );
 }

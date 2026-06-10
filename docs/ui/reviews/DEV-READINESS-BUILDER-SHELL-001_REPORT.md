@@ -4,12 +4,21 @@
 DEV-READINESS-BUILDER-SHELL-001 — Auditar prontidão para desenvolvimento do Builder Shell
 
 ## 2. Arquivos lidos
-- docs/ui/surfaces/BUILDER_SHELL.md
+- AGENTS.md
+- docs/PROJECT_MANIFEST.md
+- docs/ARCHITECTURE.md
+- docs/DEVELOPMENT_RULES.md
+- docs/decisions/DEC-SB-001.md
+- docs/tasker/PRODUCT_FIRST_ROADMAP.md
 - docs/tasker/DEV_READINESS_MATRIX.md
 - docs/tasker/BACKLOG.md
 - docs/tasker/SPRINT_BOARD.md
+- docs/tasker/DEPENDENCIES.md
+- docs/ui/VIEW_CONTRACT.md
+- docs/ui/surfaces/BUILDER_SHELL.md
 - docs/ui/reviews/BUILDER-SHELL-001_NAVIGATION_MATRIX.md
 - docs/ui/reviews/BUILDER-SHELL-001_READINESS_CHECKLIST.md
+- docs/ui/reviews/BUILDER-SHELL-001_REPORT.md
 
 ## 3. Arquivos criados
 - docs/ui/reviews/DEV-READINESS-BUILDER-SHELL-001_AUDIT.md
@@ -22,31 +31,31 @@ DEV-READINESS-BUILDER-SHELL-001 — Auditar prontidão para desenvolvimento do B
 - docs/tasker/SPRINT_BOARD.md
 
 ## 5. Resultado da auditoria
-O contrato contido em `BUILDER_SHELL.md` atende aos requisitos documentais básicos. Não possui bloqueios relacionados a fontes reais ou obrigatoriedade de backend complexo em sua fundação.
+O contrato (`docs/ui/surfaces/BUILDER_SHELL.md`) foi auditado e está suficientemente detalhado para iniciar a construção do frontend base da plataforma, não havendo bloqueios arquiteturais. O desenvolvimento pode prosseguir sob o uso de mock data.
 
 ## 6. Decisão final
-READY_FOR_DEV_WITH_LIMITS
+**READY_FOR_DEV_WITH_LIMITS**
 
 ## 7. Limites para Jules Dev
-O desenvolvimento está restrito à construção da infraestrutura visual, usando mocks, layouts estáticos ou dados sintéticos para estruturar menus, topbar e as áreas globais do sistema. Não se deve acoplar autenticação, RBAC real, dependências reais de banco ou runtime de início. Ver `BUILDER-SHELL-DEV-SCOPE.md`.
+O desenvolvimento está estritamente limitado à implementação do layout shell (visual), menus de navegação estática, e rotas base. É proibida a integração com banco de dados real, autenticação real, RBAC real ou runtime. A UI deve exibir clara indicação visual de que opera em "Modo Sintético".
 
 ## 8. Gaps restantes
-O desenvolvimento do layout realocará mocks que, futuramente (em sub-fases de integração), deverão ser substituídos por lógica real com banco e auth, mas esse gap não impede a criação da estrutura base da plataforma.
+Faltam contratos formais para os conteúdos internos das páginas (os módulos específicos do Grupo A, como Tasker e Capability Explorer), bem como a definição e a disponibilização de fontes reais de uso operacional. Tais gaps não impedem a construção da casca do Shell em si.
 
 ## 9. Nova task de desenvolvimento criada
-Sim, `DEV-BUILDER-SHELL-001` adicionada aos quadros e definida como `ready`.
+Uma nova task `DEV-BUILDER-SHELL-001` (já prevista no backlog) foi promovida ao status "ready" e documentada com as devidas diretrizes de restrição para iniciar a implementação do código base.
 
 ## 10. Status de REAL-SRC-002
-Permanece `blocked`. Fontes reais continuam indisponíveis.
+Permanece **BLOCKED**.
 
 ## 11. Status de CAP-VAL-002
-Permanece `blocked`. A validação das capabilities em contexto real do piloto também aguarda fontes reais.
+Permanece **BLOCKED**.
 
 ## 12. Status de Gestão Técnica
-O módulo/piloto Gestão Técnica e a sua dependência direta de espelhamento real permanecem em `blocked` e aguardam o desenvolvimento do System Builder ser consolidado com dados sintéticos.
+Permanece **BLOCKED** aguardando fontes reais e conclusão do Builder Shell base.
 
 ## 13. Próximo agente recomendado
-**Jules Dev** (para a execução da recém liberada `DEV-BUILDER-SHELL-001`).
+**Jules Dev**, para iniciar a implementação visual do System Builder Shell (`DEV-BUILDER-SHELL-001`) sob as restrições documentadas em `BUILDER-SHELL-DEV-SCOPE.md`.
 
 ## 14. Status final
-READY_FOR_DEV_BUILDER_SHELL_WITH_LIMITS
+**READY_FOR_DEV_BUILDER_SHELL_WITH_LIMITS**

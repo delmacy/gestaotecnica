@@ -7,14 +7,15 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 
 | Ordem | Task | Status | Evidência de saída |
 |---:|---|---|---|
-| 1 | BUILDER-SHELL-001 | done | Contrato e planejamento do Shell aprovados e auditados |
-| 2 | DEV-BUILDER-SHELL-001 | ready | Pull Request com layout base do Builder Shell aprovado |
-| 3 | TASKER-BOARD-001 | backlog | Contrato e planejamento do Board aprovados |
-| 3 | CAPABILITY-EXPLORER-001 | backlog | Contrato e planejamento do Explorer aprovados |
-| 4 | REGISTRY-VIEW-001 | backlog | Contrato e planejamento do Registry View aprovados |
-| 5 | DOCS-VIEWER-001 | backlog | Contrato e planejamento do Docs Viewer aprovados |
-| 6 | PM-INTAKE-001 | backlog | Contrato e planejamento do PM Intake aprovados |
-| 7 | SOURCE-INTAKE-001 | backlog | Contrato e planejamento do Source Intake aprovados |
+| 1 | BUILDER-SHELL-001 | done | Contrato e planejamento do Shell aprovados |
+| 2 | DEV-READINESS-BUILDER-SHELL-001 | done | Contrato auditado e autorizado para dev |
+| 3 | DEV-BUILDER-SHELL-001 | ready | Pull Request com layout base do Builder Shell aprovado |
+| 4 | TASKER-BOARD-001 | backlog | Contrato e planejamento do Board aprovados |
+| 5 | CAPABILITY-EXPLORER-001 | backlog | Contrato e planejamento do Explorer aprovados |
+| 6 | REGISTRY-VIEW-001 | backlog | Contrato e planejamento do Registry View aprovados |
+| 7 | DOCS-VIEWER-001 | backlog | Contrato e planejamento do Docs Viewer aprovados |
+| 8 | PM-INTAKE-001 | backlog | Contrato e planejamento do PM Intake aprovados |
+| 9 | SOURCE-INTAKE-001 | backlog | Contrato e planejamento do Source Intake aprovados |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

@@ -3,6 +3,7 @@
 | ID | Origem | Dependência/gap | Motivo | Estado | Próxima ação |
 |---|---|---|---|---|---|
 | DEP-001 | Process Mirroring | organização e processo piloto reais | validar modelos contra realidade | open | dono do produto selecionar piloto |
+| DEP-001a| Process Mirroring | fontes reais do piloto | documentação atual usou dados sintéticos; faltam dados reais | open | PM-PILOT-003: validar coleta de fontes reais para os gaps mapeados |
 | DEP-002 | Capabilities | revisão de fronteiras e sobreposições | documentação inicial não prova universalidade | open | executar CAP-VAL-001 |
 | DEP-003 | UI | contratos por superfície e persona | não autorizar frontend genérico | open | executar UI-CON-001 |
 | DEP-004 | Governance | matriz de papel/permissão/SoD do piloto | RBAC técnico não deve preceder modelo | open | executar GOV-PILOT-001 |

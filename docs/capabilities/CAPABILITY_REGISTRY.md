@@ -1,6 +1,6 @@
 # Capability Registry
 
-O Registry é o índice documental oficial. Status documented significa contrato inicial existente; não significa validado em piloto nem pronto para Dev.
+O Registry é o índice documental oficial. Status documented significa contrato inicial existente; não significa validado em piloto nem pronto para Dev. **O Registry deve atuar como índice oficial das capabilities, não como o local onde a capability é desenvolvida. O conteúdo em si reside em `docs/capabilities/universal/`.**
 
 | Capability | Categoria | Relações principais | Estado documental | Próximo gate |
 |---|---|---|---|---|

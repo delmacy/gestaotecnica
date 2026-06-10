@@ -18,6 +18,7 @@ Identidade, workspace quando operacional, ciclo de vida, proprietário, origem, 
 
 ## Uso
 Capabilities especializam estes conceitos somente quando necessário. Igualdade de nome não autoriza compartilhar tabela ou ciclo de vida sem decisão arquitetural.
+Lembre-se que capabilities são pacotes de domínio completos e não apenas tabelas de banco de dados, não representando departamentos da vida real.
 
 ## Critério de pronto
 Entidades possuem fronteira de domínio, identidade, estado, owner, workspace scope e eventos relevantes.

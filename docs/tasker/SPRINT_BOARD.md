@@ -7,7 +7,7 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 
 | Ordem | Task | Status | Evidência de saída |
 |---:|---|---|---|
-| 1 | BUILDER-SHELL-001 | backlog | Contrato e planejamento do Shell aprovados |
+| 1 | BUILDER-SHELL-001 | review | Contrato e planejamento do Shell aprovados |
 | 2 | TASKER-BOARD-001 | backlog | Contrato e planejamento do Board aprovados |
 | 3 | CAPABILITY-EXPLORER-001 | backlog | Contrato e planejamento do Explorer aprovados |
 | 4 | REGISTRY-VIEW-001 | backlog | Contrato e planejamento do Registry View aprovados |

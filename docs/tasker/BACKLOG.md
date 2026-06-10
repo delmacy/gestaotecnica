@@ -6,7 +6,7 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 
 | ID | Módulo | Título | Tipo | Prioridade | Status |
 |---|---|---|---|---|---|
-| BUILDER-SHELL-001 | ui | Planejar shell principal do System Builder | architecture | high | backlog |
+| BUILDER-SHELL-001 | ui | Planejar shell principal do System Builder | architecture | high | review |
 | TASKER-BOARD-001 | ui | Preparar Tasker Board para desenvolvimento | architecture | high | backlog |
 | CAPABILITY-EXPLORER-001 | ui | Preparar Capability Explorer para desenvolvimento | architecture | high | backlog |
 | REGISTRY-VIEW-001 | ui | Preparar Registry read-only | architecture | medium | backlog |

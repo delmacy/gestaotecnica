@@ -1,0 +1,144 @@
+# Development Readiness Matrix
+
+Esta matriz avalia individualmente a prontidão dos módulos para desenvolvimento de código, separando a plataforma agnóstica dos casos de uso reais de clientes (conforme DEC-SB-001).
+
+| module | depends_on | can_use_synthetic_data | requires_real_sources | requires_database | requires_runtime | status | reason | next_action |
+|---|---|---|---|---|---|---|---|---|
+| DEV-READINESS-BUILDER-SHELL-001 | UI_CONTRACT_SHELL | true | false | false | false | NOT_READY | Contrato pendente | Planejar Builder Shell |
+| DEV-READINESS-TASKER-BOARD-001 | UI_CONTRACT_TASKER | true | false | true | false | NOT_READY | Contrato pendente | Planejar Tasker Board |
+| DEV-READINESS-CAPABILITY-EXPLORER-001 | UI_CONTRACT_CAPABILITY | true | false | false | false | NOT_READY | Contrato pendente | Planejar Capability Explorer |
+| DEV-READINESS-PM-INTAKE-001 | UI_CONTRACT_PM | true | false | true | false | NOT_READY | Contrato pendente | Planejar PM Intake |
+| DEV-READINESS-DOCS-VIEWER-001 | UI_CONTRACT_DOCS | true | false | false | false | NOT_READY | Contrato pendente | Planejar Docs Viewer |
+| DEV-READINESS-WORKFLOW-BUILDER-001 | UI_CONTRACT_WORKFLOW | true | false | true | false | NOT_READY | Contrato pendente | Planejar Workflow Builder |
+| DEV-READINESS-RUNTIME-001 | RUNTIME_CONTRACT | false | false | true | true | NOT_READY | Contrato base do runtime pendente | Definir contrato de runtime |
+| DEV-READINESS-GESTAO-TECNICA-001 | PM_PILOT_REAL_SOURCES | false | true | true | true | BLOCKED | Fontes reais e plataforma base indisponíveis | Aguardar REAL-SRC-002 e conclusão do Builder Shell |
+# Backlog Operacional
+
+O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do System Builder como plataforma, utilizando dados sintéticos e adiando as validações de cliente real (Gestão Técnica) para um momento em que a plataforma esteja funcional.
+
+## Grupo A — Plataforma Builder liberável agora
+
+| ID | Módulo | Título | Tipo | Prioridade | Status |
+|---|---|---|---|---|---|
+| BUILDER-SHELL-001 | ui | Planejar shell principal do System Builder | architecture | high | backlog |
+| TASKER-BOARD-001 | ui | Preparar Tasker Board para desenvolvimento | architecture | high | backlog |
+| CAPABILITY-EXPLORER-001 | ui | Preparar Capability Explorer para desenvolvimento | architecture | high | backlog |
+| REGISTRY-VIEW-001 | ui | Preparar Registry read-only | architecture | medium | backlog |
+| DOCS-VIEWER-001 | ui | Preparar visualizador de docs/workboards | architecture | medium | backlog |
+| PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | backlog |
+| SOURCE-INTAKE-001 | ui | Preparar Source Inventory / Evidence Intake | architecture | medium | backlog |
+| GAP-TRACKER-001 | ui | Preparar Gap Tracker | architecture | medium | backlog |
+| AS-IS-MIRROR-001 | ui | Preparar As-Is Mirror Board | architecture | medium | backlog |
+| UI-CONTRACTS-VIEWER-001 | ui | Preparar visualizador de contratos de UI | architecture | medium | backlog |
+
+## Grupo B — Plataforma Builder com design/contrato antes de código
+
+| ID | Módulo | Título | Tipo | Prioridade | Status |
+|---|---|---|---|---|---|
+| FORM-BUILDER-001 | ui | Planejar Form Builder | contract | high | backlog |
+| VIEW-BUILDER-001 | ui | Planejar View Builder | contract | high | backlog |
+| WORKFLOW-BUILDER-001 | ui | Planejar Workflow Builder | contract | high | backlog |
+| GOVERNANCE-MATRIX-001 | ui | Planejar Role/Permission Matrix | contract | medium | backlog |
+| OPERATOR-GUIDE-001 | ui | Planejar Operator Guide | contract | medium | backlog |
+| ENTERPRISE-MAP-001 | ui | Planejar Enterprise Map | contract | medium | backlog |
+
+## Grupo C — Runtime e integrações futuras
+
+| ID | Módulo | Título | Tipo | Prioridade | Status |
+|---|---|---|---|---|---|
+| RUNTIME-CONTRACT-001 | runtime | Refinar contrato de runtime | contract | medium | backlog |
+| EVENT-RECEIPT-001 | runtime | Refinar modelo de eventos/recibos | contract | medium | backlog |
+| INTEGRATION-CONTRACT-001 | integrations | Refinar contrato de webhooks/n8n | contract | medium | backlog |
+| API-GATEWAY-FUTURE-001 | integrations | Registrar API Gateway como futuro, não imediato | contract | medium | backlog |
+
+## Grupo D — Cliente Gestão Técnica / fontes reais / piloto real
+
+| ID | Módulo | Título | Tipo | Prioridade | Status |
+|---|---|---|---|---|---|
+| REAL-SRC-002 | process_mirroring | Receber fontes reais anonimizadas | documentation | high | blocked |
+| CAP-VAL-002 | capabilities | Validar capabilities no piloto real | contract | high | blocked |
+| GT-PILOT-001 | process_mirroring | Planejar Gestão Técnica como primeiro cliente | architecture | medium | blocked |
+| GT-RUNTIME-001 | runtime | Desenvolver processo real da Gestão Técnica | implementation | medium | blocked |
+
+---
+## Histórico (Concluídas/Antigas)
+*(Tasks antigas preservadas para rastreabilidade)*
+| ID | Módulo | Título | Status |
+|---|---|---|---|
+| DOC-002 | doc | Revisar segunda rodada documental | done |
+| TASKER-001 | tasker | Validar fluxo de transição de tasks | done |
+| PM-PILOT-001 | process_mirroring | Selecionar processo piloto | done |
+| PM-PILOT-002 | process_mirroring | Capturar fontes e observações piloto | review |
+| PM-PILOT-003 | process_mirroring | Validar espelho e gaps piloto | done |
+| CAP-VAL-001 | capabilities | Revisar fronteiras das 24 capabilities | done |
+| UI-CON-001 | ui | Refinar contratos de superfícies prioritárias | review |
+| REAL-SRC-001 | process_mirroring | Preparar pacote de coleta de fontes reais | done |
+| EA-PILOT-001 | enterprise_architecture | Criar mapas do piloto | backlog |
+| GOV-PILOT-001 | governance | Validar papéis e SoD do piloto | backlog |
+| ENA-PILOT-001 | enablement | Criar guia e checklist piloto | backlog |
+| DEV-READINESS-001 | tasker | Auditar prontidão para execução futura | blocked |
+# Sprint Board — System Builder Platform First
+
+## Objetivo
+Priorizar a construção estrutural do System Builder utilizando dados sintéticos (quando necessário), permitindo o avanço do desenvolvimento enquanto os dados reais do piloto Gestão Técnica (Grupo D) permanecem em bloqueio.
+
+## Tasks Prioritárias (Grupo A - Plataforma Builder liberável agora)
+
+| Ordem | Task | Status | Evidência de saída |
+|---:|---|---|---|
+| 1 | BUILDER-SHELL-001 | backlog | Contrato e planejamento do Shell aprovados |
+| 2 | TASKER-BOARD-001 | backlog | Contrato e planejamento do Board aprovados |
+| 3 | CAPABILITY-EXPLORER-001 | backlog | Contrato e planejamento do Explorer aprovados |
+| 4 | REGISTRY-VIEW-001 | backlog | Contrato e planejamento do Registry View aprovados |
+| 5 | DOCS-VIEWER-001 | backlog | Contrato e planejamento do Docs Viewer aprovados |
+| 6 | PM-INTAKE-001 | backlog | Contrato e planejamento do PM Intake aprovados |
+| 7 | SOURCE-INTAKE-001 | backlog | Contrato e planejamento do Source Intake aprovados |
+
+*(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
+
+## Gate de encerramento
+O sprint atual será concluído quando as tarefas do Grupo A estiverem em estado 'ready' e passarem por seus respectivos Gates de Readiness (DEV_READINESS_MATRIX), autorizando o avanço para o desenvolvimento de código sem depender da Gestão Técnica.
+# View Contract
+
+Este documento atua como o contrato operacional mestre para o desenvolvimento de UI (superfícies front-end). Não é apenas uma lista de superfícies, mas um conjunto rigoroso de requisitos que cada superfície deve declarar e aprovar antes de qualquer desenvolvimento técnico ser iniciado.
+
+## Padrão Obrigatório de Contrato por Superfície
+
+Cada superfície documentada (e.g., nos arquivos `.md` sob `docs/ui/surfaces/`) deve declarar explicitamente os seguintes campos:
+
+- **surface_id:** Identificador único (ex: `UI-SURF-001`).
+- **surface_name:** Nome claro e descritivo da superfície.
+- **purpose:** Propósito de negócio ou técnico da superfície.
+- **persona:** A pessoa ou ator que opera esta superfície (ex: Admin, Requester, Technician).
+- **route_candidate:** A proposta de URL ou local onde essa superfície será acessada (ex: `/admin/capabilities`).
+- **scope:** Limite operacional (o que esta superfície cobre e o que deixa de fora).
+- **workspace_or_global:** Declara se a UI opera num contexto de `workspace` ou se é `global`.
+- **related_capabilities:** Capabilities associadas a esta superfície (ex: `organization`, `requests`).
+- **data_inputs:** Dados requeridos de fora (ex: Formulários, Filtros).
+- **data_outputs:** Como os dados são salvos ou enviados adiante.
+- **commands:** Comandos principais que a interface dispara (ex: Aprovar, Rejeitar, Avançar passo).
+- **empty_state:** O que a UI mostra quando não há dados.
+- **loading_state:** Como a UI se comporta no aguardo dos dados.
+- **error_state:** Tratamento e visualização de erros.
+- **success_state:** Exibição do sucesso na operação.
+- **permissions:** Roles e permissões do usuário requeridas.
+- **audit_events:** Eventos gerados que impactam a trilha de auditoria.
+- **evidence_required:** Necessidades de evidências associadas, como fotos ou notas.
+- **frontend_risks:** Possíveis riscos de UX, performance ou complexidade.
+- **e2e_test_expectation:** Expectativa do teste de ponta-a-ponta (ex: 'O Technician abre a tela, preenche o log e vê a success screen').
+- **implementation_status:** O status real da implementação da UI. Deve ser preenchido usando os status permitidos.
+
+## Status Permitidos para implementation_status
+
+Cada superfície DEVE ser categorizada usando um destes status estritos:
+
+- **documented:** Contrato conceitual desenhado; não avaliado nem validado.
+- **needs_validation:** Depende de dados operacionais reais ou de validação humana antes do design ou dev.
+- **blocked:** Bloqueado por alguma outra dependência técnica ou de negócio.
+- **ready_for_design:** Contrato provado; pronto para design de UI ou arquitetura.
+- **ready_for_dev_after_gate:** Pronto para codificação de UI; mas *somente* depois de gates específicos abertos. (Nota: Nenhuma superfície receberá este status nas fases documentais iniciais, como UI-CON-001).
+
+## Regras
+- Frontend desconectado de task, contrato ou workspace é estritamente proibido.
+- Se uma UI usar dados sintéticos na documentação, ela não pode ser considerada confirmada (deve ser `needs_validation`).
+- Qualquer alteração a essas superfícies ou suas regras requer uma reavaliação dos contratos de capability e do processo.

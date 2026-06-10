@@ -4,7 +4,7 @@ Esta matriz avalia individualmente a prontidão dos módulos para desenvolviment
 
 | module | depends_on | can_use_synthetic_data | requires_real_sources | requires_database | requires_runtime | status | reason | next_action |
 |---|---|---|---|---|---|---|---|---|
-| DEV-READINESS-BUILDER-SHELL-001 | UI_CONTRACT_SHELL | true | false | false | false | NOT_READY | Contrato pendente | Planejar Builder Shell |
+| DEV-READINESS-BUILDER-SHELL-001 | UI_CONTRACT_SHELL | true | false | false | false | READY_FOR_READINESS_REVIEW | Contrato criado em BUILDER_SHELL.md, aguarda auditoria para liberar dev | Auditoria de prontidão e autorização para código |
 | DEV-READINESS-TASKER-BOARD-001 | UI_CONTRACT_TASKER | true | false | true | false | NOT_READY | Contrato pendente | Planejar Tasker Board |
 | DEV-READINESS-CAPABILITY-EXPLORER-001 | UI_CONTRACT_CAPABILITY | true | false | false | false | NOT_READY | Contrato pendente | Planejar Capability Explorer |
 | DEV-READINESS-PM-INTAKE-001 | UI_CONTRACT_PM | true | false | true | false | NOT_READY | Contrato pendente | Planejar PM Intake |

@@ -2,6 +2,17 @@
 
 Este documento atua como o contrato operacional mestre para o desenvolvimento de UI (superfícies front-end). Não é apenas uma lista de superfícies, mas um conjunto rigoroso de requisitos que cada superfície deve declarar e aprovar antes de qualquer desenvolvimento técnico ser iniciado.
 
+## Superfícies Prioritárias (Grupo A)
+
+As seguintes superfícies são consideradas prioritárias para a estruturação do System Builder:
+
+- **Builder Shell (`BUILDER_SHELL.md`):** Superfície raiz e principal da plataforma. Atua como o container de navegação para todos os demais módulos.
+- **Tasker Board (`TASKER_BOARD.md`):** Gestão de tarefas.
+- **Capability Explorer (`CAPABILITY_EXPLORER.md`):** Visualização de capabilities.
+- **Process Mirror Board (`PROCESS_MIRROR_BOARD.md`):** Visualização do espelho de processos.
+
+*(As demais superfícies encontram-se documentadas no diretório `docs/ui/surfaces/` e seguem o fluxo de priorização definido no backlog).*
+
 ## Padrão Obrigatório de Contrato por Superfície
 
 Cada superfície documentada (e.g., nos arquivos `.md` sob `docs/ui/surfaces/`) deve declarar explicitamente os seguintes campos:

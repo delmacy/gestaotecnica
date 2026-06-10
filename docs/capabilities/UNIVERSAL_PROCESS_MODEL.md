@@ -14,6 +14,7 @@ Intenção, gatilho, entrada, saída, atores, precondições, estados, decisões
 - Casos adaptativos não devem ser forçados em sequência fixa.
 - Toda mudança vem de Process Mirroring e validação.
 - Publicação exige versão e aprovação humana.
+- **Capabilities orquestram processos**: Elas não são o processo em si ou um departamento, mas o domínio encapsulando a execução do fluxo e eventos relacionados.
 
 ## Critério de pronto
 O processo é explicável por usuários, possui começo/fim ou condição de continuidade, cobre exceções e aponta eventos e evidências.

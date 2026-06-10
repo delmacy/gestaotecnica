@@ -1,3 +1,4 @@
 # Capability Index
 
-O índice canônico é ../capabilities/CAPABILITY_REGISTRY.md. Registry publica somente capabilities revisadas e informa dependências e versões.
+O índice canônico é `../capabilities/CAPABILITY_REGISTRY.md`.
+O Registry atua como o índice oficial das capabilities e publica somente capabilities revisadas, informando dependências e versões. Não é o local onde a capability é desenvolvida.

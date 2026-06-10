@@ -17,7 +17,12 @@ Classificar capacidades organizacionais de forma estável, independente de depar
 | legal | Como obrigações e riscos jurídicos são geridos? | contracts, legal |
 
 ## Regras de classificação
-Uma capability possui intenção, entidades, processos, estados, eventos e regras. Não é tela, tabela, departamento ou integração. Sobreposição exige composição ou decisão registrada.
+- **capability não é departamento.**
+- **capability não é tela.**
+- **capability não é tabela.**
+- **capability não é integração.**
+- **capability é um pacote de domínio, entidades, processos, estados, eventos e regras.**
+- **capabilities podem ser compostas, mas não devem absorver responsabilidades de outra sem decisão explícita.**
 
 ## Critério de pronto
 Nome e intenção são inequívocos; categoria e dependências são justificadas; limites e fora de escopo estão explícitos; existe responsável por revisão.

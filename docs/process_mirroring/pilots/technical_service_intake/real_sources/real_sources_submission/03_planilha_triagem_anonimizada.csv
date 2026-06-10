@@ -1,0 +1,6 @@
+id_chamado,data_abertura,canal_origem,cliente_solicitante,status_atual,prioridade,atendente_responsavel,descricao_problema,observacoes_triagem
+CH-1045,2024-05-10,WhatsApp,Cliente A,aguardando resposta,media,Atendente 1,Equipamento Z com luz vermelha,Faltou informar o patrimônio
+CH-1046,2024-05-10,Telefone,Cliente B,virou OS,alta,Atendente 2,Equipamento Z não liga cheiro queimado,OS gerada imediatamente
+CH-1047,2024-05-11,E-mail,Cliente C,em analise,baixa,Atendente 1,Cabo de rede com mau contato,Aguardando o numero do ponto
+CH-1048,2024-05-11,WhatsApp,Cliente D,resolvido,media,Atendente 3,Dúvida de acesso,Resolvido no Nível 1
+CH-1049,2024-05-12,Portal,Cliente E,virou OS,media,Atendente 2,Instalação de software,Aprovado pelo gestor

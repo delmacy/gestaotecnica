@@ -14,7 +14,8 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 5 | TASKER-BOARD-001 | done | Contrato e planejamento do Board aprovados |
 | 6 | DEV-READINESS-TASKER-BOARD-001 | done | Contrato auditado e autorizado para dev |
 | 7 | DEV-TASKER-BOARD-001 | done | Interface desenvolvida em client-side |
-| 8 | CAPABILITY-EXPLORER-001 | ready | Contrato e planejamento do Explorer aprovados |
+| 8 | DEV-REVIEW-TASKER-BOARD-001 | done | Relatório de revisão do Tasker Board aprovado |
+| 9 | CAPABILITY-EXPLORER-001 | ready | Contrato e planejamento do Explorer aprovados |
 | 7 | REGISTRY-VIEW-001 | backlog | Contrato e planejamento do Registry View aprovados |
 | 8 | DOCS-VIEWER-001 | backlog | Contrato e planejamento do Docs Viewer aprovados |
 | 9 | PM-INTAKE-001 | backlog | Contrato e planejamento do PM Intake aprovados |

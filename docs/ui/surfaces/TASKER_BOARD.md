@@ -20,4 +20,4 @@
 - **evidence_required:** Arquivos Markdown e relatórios de execução
 - **frontend_risks:** Risco de confusão com o modelo de Work Orders do cliente real. Manter a linguagem e abstração puramente voltadas para a construção do System Builder.
 - **e2e_test_expectation:** O Platform Admin abre o board, visualiza as tasks agrupadas, abre detalhes de uma task "ready", move para "in_progress" e verifica as dependências bloqueadas no Grupo D.
-- **implementation_status:** documented
+- **implementation_status:** ready_for_dev_after_gate

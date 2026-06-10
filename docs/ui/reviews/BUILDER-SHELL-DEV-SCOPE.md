@@ -1,54 +1,58 @@
-# Builder Shell Dev Scope
+# DEV-BUILDER-SHELL-001 - Dev Scope
 
 ## 1. Objetivo do desenvolvimento permitido
-Prover a infraestrutura visual (layout global) para o System Builder Platform, estabelecendo a navegação entre submódulos base, independentemente de integrações reais de backend estarem concluídas.
+Implementar a estrutura visual fundamental (Shell) do System Builder, fornecendo layout global, sistema de navegação base e containers para os futuros módulos operacionais. Esta etapa não constrói lógicas de negócio ou persistência; o foco é estabelecer a UI inicial sob dados sintéticos.
 
 ## 2. Arquivos candidatos prováveis
-- `src/app/builder/layout.tsx`
-- `src/app/builder/page.tsx`
-- `src/components/shell/Sidebar.tsx`
-- `src/components/shell/Topbar.tsx`
+*Nota: Esta lista sugere possíveis caminhos para o desenvolvimento da plataforma atual (ex. Next.js). Jules Dev deve adequá-la à estrutura real do repositório.*
+
+- `src/app/builder/layout.tsx` (Layout principal do Shell)
+- `src/app/builder/page.tsx` (Dashboard/Home mockado)
+- Componentes da interface (`src/components/shell/...`)
+- Constantes ou fixtures para dados sintéticos (`src/lib/mocks/shell-data.ts`)
 
 ## 3. Componentes candidatos
-- Estrutura de Menu/Navegação
-- Breadcrumbs Dinâmicos
-- Workspace Selector (UI)
-- User Profile/Auth State Dropdown (UI simulada)
-- System Mode/Status Badges
+- `ShellLayout`
+- `TopBar`
+- `SidebarNavigation`
+- `WorkspaceSelector`
+- `SyntheticModeIndicator`
+- `Breadcrumbs`
 
 ## 4. Rotas candidatas
 - `/builder`
-- `/builder/tasker` (placeholder/layout apenas se a stack permitir sem dependências da view do tasker)
-- `/builder/capabilities` (placeholder)
+- `/builder/tasker` (Apenas página com estado "Coming Soon" ou "Mock")
+- `/builder/capabilities` (Apenas página placeholder)
+- `/builder/registry` (Apenas página placeholder)
+- `/builder/process-mirroring` (Apenas página placeholder)
+- `/builder/docs` (Apenas página placeholder)
+- `/builder/ui-contracts` (Apenas página placeholder)
+- `/builder/settings` (Apenas página placeholder)
 
 ## 5. Dados permitidos
-- Uso explícito de mock data para navegação e estado de usuário (ex: sessão persistente estática para Platform Admin).
-- Mock de lista de workspaces ou contexto de tenant.
-- Dados estáticos para renderizar a sidebar e menus de módulos.
+- Dados sintéticos criados em escopo local (`const user = { name: "Builder Architect" }`).
+- Lista estática de workspaces para o seletor.
+- Links hardcoded de navegação.
 
 ## 6. Dados proibidos
-- Integração real com banco de dados para estado de layout no primeiro PR.
-- Integração de autenticação complexa (ex: fluxos JWT completos, OAuth providers externos não configurados globalmente em fixture).
-- API Routes ou integrações reais de Runtime ou API Gateway.
-- Permissões definitivas reais usando banco (RBAC técnico complexo).
+- Consultas diretas ao banco de dados real via Drizzle/ORM para o Shell base.
+- Chamadas para API Gateway não implementadas.
+- Qualquer dado de origem da "Gestão Técnica" real.
 
 ## 7. Regras visuais obrigatórias
-- **Top Bar:** Com indicador claro de Workspace Context e Status (ex: "Sintético/Demo").
-- **Sidebar:** Deve renderizar módulos futuros em estado *disabled* (Workflow Builder, Form Builder, etc).
-- **Conteúdo Principal:** Deve preparar um slot `<main>` estruturado para injetar as views dos módulos.
+- **Indicador de Modo Sintético:** Presença de um banner ou badge permanente, perfeitamente visível, sinalizando "Dados Sintéticos" ou "Modo Simulado" (Synthetic Mode).
+- **Módulos Disabled:** Os módulos previstos como futuros (Runtime, Form Builder, etc.) devem ser exibidos na UI (ex. na sidebar), porém como inativos/desabilitados.
+- **Hierarquia:** A Topbar e a Sidebar devem persistir ao longo da navegação das rotas filhas no `Main Content Area`.
 
 ## 8. Critérios de aceite
-- O dev cria o layout sem causar falhas no build do Next.js.
-- O componente Layout é agnóstico a banco de dados.
-- Ao rodar a aplicação, o usuário vê o Shell estático e navega (ainda que de forma placeholder) pelas rotas do Grupo A.
-- Um indicador explícito de "Synthetic Mode" ou "Demo" está visível no Shell.
+- O usuário deve conseguir acessar a rota `/builder` e ver a estrutura principal (Topbar e Sidebar).
+- O alerta de modo sintético deve estar visível e claro em todas as telas sob `/builder`.
+- O menu de navegação lateral deve apresentar os módulos do Grupo A ativos.
+- O menu de navegação lateral deve apresentar os módulos Futuros desabilitados.
+- A navegação pelas rotas candidatas (ex: `/builder/tasker`) deve ocorrer sem recarregar totalmente a página (transição SPA).
 
 ## 9. Testes esperados
-- Teste unitário para componentes de menu/breadcrumbs demonstrando a estrutura correta (ex: verificar presença de módulos disabled vs enabled).
+- Teste E2E (Playwright, caso já configurado): Confirmar renderização do `ShellLayout`, presença do indicador de "Modo Sintético" e funcionalidade básica de roteamento/transição na sidebar (verificar o URL modificado). Não é necessário E2E completo sem banco.
 
 ## 10. Gatilhos de parada
-Se, durante o desenvolvimento:
-- Houver exigência imprevista de chamadas reais ao banco em componentes de servidor de layout que bloqueie renderização base.
-- Houver necessidade de capturar fontes reais de um cliente piloto.
-- A configuração do n8n, API Gateway ou auth layer de produção for um impeditivo técnico para o render.
-**Ação:** O Dev deve interromper o progresso no requisito técnico e relatar em Review, optando sempre por dados mockados.
+Se houver dependência bloqueante de qualquer um dos itens listados na seção "Limites" ou "Dados proibidos" (banco real, auth real, schemas do client real), pare o desenvolvimento e atualize o Board, pois a construção do Shell base deve ser auto-contida nesta iteração.

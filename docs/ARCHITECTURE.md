@@ -1,5 +1,12 @@
 # Architecture
 
+## Camadas de Escopo e Foco
+
+A arquitetura do projeto obedece à decisão (DEC-SB-001) que define três camadas prioritárias:
+1. **System Builder Platform (Foco Imediato):** Módulos e infraestrutura base. Construção estrutural e agnóstica de cliente.
+2. **Demo Sintética (Facilitador):** Dados sintéticos (SIMULATED_OBSERVATION) que permitem desenvolver a plataforma sem dependência de fontes reais bloqueantes.
+3. **Gestão Técnica (Piloto Futuro):** Instância de cliente real, cujo espelhamento exige fontes reais mas que não impede o avanço das camadas 1 e 2.
+
 ## Modelo modular
 
 | Módulo | Responsabilidade | Saída principal |

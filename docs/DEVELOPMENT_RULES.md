@@ -7,6 +7,8 @@
 4. Documente decisão; defina contrato; somente depois implemente.
 
 ## Regras
+- **Foco na Plataforma:** Priorizar o desenvolvimento das fundações do *System Builder* sobre implementações de clientes específicos (como "Gestão Técnica").
+- **Dados Sintéticos:** Módulos de plataforma podem e devem usar dados sintéticos, fixtures ou referências simuladas (explicitamente marcados) para não bloquear o avanço da arquitetura enquanto fontes reais não estiverem disponíveis.
 - Cada módulo mantém work board executável.
 - Nenhuma task inicia sem dependências, arquivos esperados e critérios de aceite.
 - Mudanças entre módulos exigem decisão e dependências registradas.

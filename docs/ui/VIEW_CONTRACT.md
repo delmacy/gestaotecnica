@@ -1,13 +1,44 @@
 # View Contract
 
-Toda superfície declara persona, rota, escopo global/workspace, dados, comandos, estados vazio/carregando/erro/sucesso, permissões, auditoria e teste E2E.
+Este documento atua como o contrato operacional mestre para o desenvolvimento de UI (superfícies front-end). Não é apenas uma lista de superfícies, mas um conjunto rigoroso de requisitos que cada superfície deve declarar e aprovar antes de qualquer desenvolvimento técnico ser iniciado.
 
-## Superfícies prioritárias
-- Capability Explorer: catálogo global e instalação por workspace.
-- Process Mirror Board: fontes, observações, variantes, gaps e validação.
-- Tasker Board: backlog, sprint, dependências e responsáveis.
-- Enterprise Map: capabilities, processos, sistemas, dados e responsáveis.
-- Governance/Role Matrix: papéis, escopos e conflitos.
-- Operator Guide: instruções, checklist e evidências por papel.
+## Padrão Obrigatório de Contrato por Superfície
 
-Frontend desconectado de task, contrato ou workspace é proibido.
+Cada superfície documentada (e.g., nos arquivos `.md` sob `docs/ui/surfaces/`) deve declarar explicitamente os seguintes campos:
+
+- **surface_id:** Identificador único (ex: `UI-SURF-001`).
+- **surface_name:** Nome claro e descritivo da superfície.
+- **purpose:** Propósito de negócio ou técnico da superfície.
+- **persona:** A pessoa ou ator que opera esta superfície (ex: Admin, Requester, Technician).
+- **route_candidate:** A proposta de URL ou local onde essa superfície será acessada (ex: `/admin/capabilities`).
+- **scope:** Limite operacional (o que esta superfície cobre e o que deixa de fora).
+- **workspace_or_global:** Declara se a UI opera num contexto de `workspace` ou se é `global`.
+- **related_capabilities:** Capabilities associadas a esta superfície (ex: `organization`, `requests`).
+- **data_inputs:** Dados requeridos de fora (ex: Formulários, Filtros).
+- **data_outputs:** Como os dados são salvos ou enviados adiante.
+- **commands:** Comandos principais que a interface dispara (ex: Aprovar, Rejeitar, Avançar passo).
+- **empty_state:** O que a UI mostra quando não há dados.
+- **loading_state:** Como a UI se comporta no aguardo dos dados.
+- **error_state:** Tratamento e visualização de erros.
+- **success_state:** Exibição do sucesso na operação.
+- **permissions:** Roles e permissões do usuário requeridas.
+- **audit_events:** Eventos gerados que impactam a trilha de auditoria.
+- **evidence_required:** Necessidades de evidências associadas, como fotos ou notas.
+- **frontend_risks:** Possíveis riscos de UX, performance ou complexidade.
+- **e2e_test_expectation:** Expectativa do teste de ponta-a-ponta (ex: 'O Technician abre a tela, preenche o log e vê a success screen').
+- **implementation_status:** O status real da implementação da UI. Deve ser preenchido usando os status permitidos.
+
+## Status Permitidos para implementation_status
+
+Cada superfície DEVE ser categorizada usando um destes status estritos:
+
+- **documented:** Contrato conceitual desenhado; não avaliado nem validado.
+- **needs_validation:** Depende de dados operacionais reais ou de validação humana antes do design ou dev.
+- **blocked:** Bloqueado por alguma outra dependência técnica ou de negócio.
+- **ready_for_design:** Contrato provado; pronto para design de UI ou arquitetura.
+- **ready_for_dev_after_gate:** Pronto para codificação de UI; mas *somente* depois de gates específicos abertos. (Nota: Nenhuma superfície receberá este status nas fases documentais iniciais, como UI-CON-001).
+
+## Regras
+- Frontend desconectado de task, contrato ou workspace é estritamente proibido.
+- Se uma UI usar dados sintéticos na documentação, ela não pode ser considerada confirmada (deve ser `needs_validation`).
+- Qualquer alteração a essas superfícies ou suas regras requer uma reavaliação dos contratos de capability e do processo.

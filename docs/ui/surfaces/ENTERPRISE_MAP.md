@@ -1,0 +1,23 @@
+# Enterprise Map Contract
+
+- **surface_id:** `UI-SURF-ENT-MAP`
+- **surface_name:** Enterprise Map
+- **purpose:** Exibir a arquitetura corporativa do workspace, mapeando a interconexão entre capabilities operacionais, processos de negócio, sistemas, dados e seus respectivos responsáveis (owners). Base para visualizar value streams futuros.
+- **persona:** Platform Admin, Enterprise Architect, Workspace Admin
+- **route_candidate:** `/[workspace_id]/enterprise-map`
+- **scope:** Visualização agregada de como os componentes de negócio se integram no contexto de um workspace.
+- **workspace_or_global:** Workspace
+- **related_capabilities:** `organization`, `audit` (indiretamente, para rastrear alterações no mapa)
+- **data_inputs:** Nenhuma inserção direta nesta tela; os dados são derivados dos contratos e cadastros das capabilities e processos.
+- **data_outputs:** Relatórios ou exportações visuais do mapa corporativo.
+- **commands:** Filtrar por Capability, Filtrar por Processo, Exportar Mapa.
+- **empty_state:** "O mapa corporativo ainda não foi consolidado. Registre capabilities e processos."
+- **loading_state:** Indicador de renderização de grafos/mapas visuais.
+- **error_state:** Falha ao construir os relacionamentos. Sugere atualizar a página.
+- **success_state:** Renderização de um diagrama ou grafo interativo conectando capabilities, sistemas e responsáveis.
+- **permissions:** Visualização restrita a perfis de gestão/arquitetura (Enterprise Architect, Admins).
+- **audit_events:** `enterprise_map.viewed`, `enterprise_map.exported`
+- **evidence_required:** A consolidação exige que o Process Mirror real seja executado (daí a dependência).
+- **frontend_risks:** Visualização de grafos pode se tornar complexa/lenta com muitos nós se não houver agrupamento eficiente.
+- **e2e_test_expectation:** O Enterprise Architect entra no mapa e consegue visualizar que a capability 'work_orders' está conectada ao processo 'Technical Service Intake'.
+- **implementation_status:** `needs_validation` (depende do piloto real e de CAP-VAL-002 para garantir que os modelos reflitam a operação verdadeira).

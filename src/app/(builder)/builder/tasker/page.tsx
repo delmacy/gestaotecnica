@@ -1,8 +1,9 @@
+import { TaskerBoard } from "@/components/builder/tasker/TaskerBoard";
+
 export default function TaskerPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-      <h1 className="text-2xl font-bold mb-2">Tasker</h1>
-      <p className="text-muted-foreground">Este módulo está sendo construído (Mock State).</p>
+    <div className="h-[calc(100vh-64px)] w-full">
+      <TaskerBoard />
     </div>
   );
 }

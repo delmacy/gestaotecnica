@@ -7,7 +7,7 @@ Este documento atua como o contrato operacional mestre para o desenvolvimento de
 As seguintes superfícies são consideradas prioritárias para a estruturação do System Builder:
 
 - **Builder Shell (`BUILDER_SHELL.md`):** Superfície raiz e principal da plataforma. Atua como o container de navegação para todos os demais módulos.
-- **Tasker Board (`TASKER_BOARD.md`):** Gestão de tarefas.
+- **Tasker Board (`TASKER_BOARD.md`):** Superfície de coordenação do desenvolvimento do System Builder. Rota candidata: `/builder/tasker`.
 - **Capability Explorer (`CAPABILITY_EXPLORER.md`):** Visualização de capabilities.
 - **Process Mirror Board (`PROCESS_MIRROR_BOARD.md`):** Visualização do espelho de processos.
 

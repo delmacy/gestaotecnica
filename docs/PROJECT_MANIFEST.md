@@ -3,6 +3,11 @@
 ## Visão
 O System Builder transforma trabalho empresarial real em sistemas modulares executáveis, sem obrigar organizações a se adaptarem a ferramentas genéricas.
 
+O escopo do projeto organiza-se em três camadas principais:
+1. **System Builder Platform:** A plataforma estrutural e o foco imediato do desenvolvimento.
+2. **Demo Sintética / Exemplos Internos:** Dados e fixtures usados para viabilizar e testar a construção da plataforma.
+3. **Gestão Técnica como Cliente:** O primeiro cliente real futuro, cuja validação operacional não bloqueia as fundações da plataforma.
+
 ## Tese
 Antes de automatizar, espelhar. Antes de padronizar, compreender. Antes de otimizar, respeitar a realidade.
 

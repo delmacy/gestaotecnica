@@ -1,19 +1,21 @@
-# Sprint Board — Validação Documental
+# Sprint Board — System Builder Platform First
 
 ## Objetivo
-Provar que a documentação consegue comandar um piloto de Process Mirroring e gerar contratos revisáveis. Este sprint não autoriza código.
+Priorizar a construção estrutural do System Builder utilizando dados sintéticos (quando necessário), permitindo o avanço do desenvolvimento enquanto os dados reais do piloto Gestão Técnica (Grupo D) permanecem em bloqueio.
+
+## Tasks Prioritárias (Grupo A - Plataforma Builder liberável agora)
 
 | Ordem | Task | Status | Evidência de saída |
 |---:|---|---|---|
-| 1 | DOC-002 | done | checklist de consistência aprovado |
-| 2 | TASKER-001 | done | histórico de transições e decisão |
-| 3 | PM-PILOT-001 | done | termo de escopo do piloto |
-| 4 | PM-PILOT-002 | review | fontes e observações simuladas capturadas e gaps reportados |
-| 5 | PM-PILOT-003 | done | Validated decision documented |
-| 6 | CAP-VAL-001 | done | revisão de fronteiras |
-| 7 | UI-CON-001 | review | view contracts refinados |
-| 8 | REAL-SRC-001 | done | pacote de coleta de fontes reais criado |
-| 9 | REAL-SRC-002 | blocked | aguardando cliente fornecer fontes |
+| 1 | BUILDER-SHELL-001 | backlog | Contrato e planejamento do Shell aprovados |
+| 2 | TASKER-BOARD-001 | backlog | Contrato e planejamento do Board aprovados |
+| 3 | CAPABILITY-EXPLORER-001 | backlog | Contrato e planejamento do Explorer aprovados |
+| 4 | REGISTRY-VIEW-001 | backlog | Contrato e planejamento do Registry View aprovados |
+| 5 | DOCS-VIEWER-001 | backlog | Contrato e planejamento do Docs Viewer aprovados |
+| 6 | PM-INTAKE-001 | backlog | Contrato e planejamento do PM Intake aprovados |
+| 7 | SOURCE-INTAKE-001 | backlog | Contrato e planejamento do Source Intake aprovados |
+
+*(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 
 ## Gate de encerramento
-O sprint termina quando documentos centrais forem aprovados e o piloto estiver preparado. Jules Dev permanece bloqueado até DEV-READINESS-001.
+O sprint atual será concluído quando as tarefas do Grupo A estiverem em estado 'ready' e passarem por seus respectivos Gates de Readiness (DEV_READINESS_MATRIX), autorizando o avanço para o desenvolvimento de código sem depender da Gestão Técnica.

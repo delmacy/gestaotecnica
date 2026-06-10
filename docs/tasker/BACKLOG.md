@@ -10,6 +10,8 @@
 | CAP-VAL-001 | capabilities | Revisar fronteiras das 24 capabilities | architecture | high | done | DOC-002 | sobreposições e dependências decididas | Arquiteto |
 | CAP-VAL-002 | capabilities | Validar capabilities no piloto | contract | high | blocked | PM-PILOT-003, CAP-VAL-001 | matches e gaps registrados | Arquiteto |
 | UI-CON-001 | ui | Refinar contratos de superfícies prioritárias | contract | medium | review | DOC-002 | persona, estados e E2E esperado definidos | UX/Arquiteto |
+| REAL-SRC-001 | process_mirroring | Preparar pacote de coleta de fontes reais | documentation | high | done | PM-PILOT-003 | pacote criado e aguardando cliente | Jules Doc |
+| REAL-SRC-002 | process_mirroring | Receber e analisar fontes reais anonimizadas | documentation | high | blocked | REAL-SRC-001 | fontes reais validadas e gaps resolvidos | Analista de Processo |
 | EA-PILOT-001 | enterprise_architecture | Criar mapas do piloto | architecture | medium | backlog | PM-PILOT-003, CAP-VAL-002 | mapas possuem fonte, owner e gaps | Arquiteto |
 | GOV-PILOT-001 | governance | Validar papéis e SoD do piloto | decision | medium | backlog | EA-PILOT-001 | matriz aprovada com conflitos | Security Reviewer |
 | ENA-PILOT-001 | enablement | Criar guia e checklist piloto | documentation | medium | backlog | GOV-PILOT-001 | operador executa cenário simulado | Enablement |

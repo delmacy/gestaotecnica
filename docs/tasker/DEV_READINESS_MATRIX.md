@@ -6,7 +6,7 @@ Esta matriz avalia individualmente a prontidão dos módulos para desenvolviment
 |---|---|---|---|---|---|---|---|---|
 | DEV-READINESS-BUILDER-SHELL-001 | UI_CONTRACT_SHELL | true | false | false | false | DONE | Shell pode ser implementado como layout/plataforma visual com dados sintéticos, sem autenticação real, sem RBAC real, sem banco, sem runtime e sem fontes reais. | Implementação e revisão concluídas |
 | DEV-REVIEW-BUILDER-SHELL-001 | DEV-BUILDER-SHELL-001 | true | false | false | false | DONE | Revisão do código do Builder Shell concluída com sucesso. | Passar para o próximo módulo. |
-| DEV-READINESS-TASKER-BOARD-001 | UI_CONTRACT_TASKER | true | false | true | false | READY_FOR_READINESS_REVIEW | Contrato pendente | Planejar Tasker Board |
+| DEV-READINESS-TASKER-BOARD-001 | UI_CONTRACT_TASKER | true | false | false | false | READY_FOR_READINESS_REVIEW | Contrato visual, mock data, regras de transição e matriz de paridade do Tasker Board foram documentados. Aguarda auditoria de readiness antes de implementação. | Auditar readiness do Tasker Board |
 | DEV-READINESS-CAPABILITY-EXPLORER-001 | UI_CONTRACT_CAPABILITY | true | false | false | false | NOT_READY | Contrato pendente | Planejar Capability Explorer |
 | DEV-READINESS-PM-INTAKE-001 | UI_CONTRACT_PM | true | false | true | false | NOT_READY | Contrato pendente | Planejar PM Intake |
 | DEV-READINESS-DOCS-VIEWER-001 | UI_CONTRACT_DOCS | true | false | false | false | NOT_READY | Contrato pendente | Planejar Docs Viewer |

@@ -1,23 +1,23 @@
-# Tasker Board Contract
+# Tasker Board
 
-- **surface_id:** `UI-SURF-TASKER-BOARD`
+- **surface_id:** UI-SURF-TASKER-BOARD
 - **surface_name:** Tasker Board
-- **purpose:** Gerenciar o ciclo de vida do trabalho (arquitetural e operacional), exibindo backlog, sprints ativos, dependências, agentes responsáveis, critérios de aceite e evidências de 'done'.
-- **persona:** Platform Admin, Project Manager, Agente (Ex: Jules Doc, Jules Dev)
-- **route_candidate:** `/admin/tasker`
-- **scope:** Coordenação transversal das tasks do projeto, acompanhamento de impedimentos (bloqueios) e evidências.
-- **workspace_or_global:** Global (as tasks controlam a fundação do próprio produto, operando num escopo acima de workspaces de negócio).
-- **related_capabilities:** `organization` (gestão global), `audit`
-- **data_inputs:** Criação/edição de tasks, transições de status (ready, in-progress, review, done, blocked), adição de comentários e evidências.
-- **data_outputs:** Histórico de status, registro de dependências, aprovação de review.
-- **commands:** Mover Task, Criar Task, Bloquear Task, Anexar Evidência, Aprovar Review.
-- **empty_state:** "Nenhuma task cadastrada no Backlog." ou "Sprint atual não possui tasks."
-- **loading_state:** Skeletons no formato de cartões Kanban.
-- **error_state:** Falha ao mover task ou recuperar histórico. Exibe notificação de erro.
-- **success_state:** Visão em colunas (Kanban) atualizada com as tasks em seus respectivos estados.
-- **permissions:** Administradores podem criar/editar/aprovar. Agentes/Técnicos podem mover suas próprias tasks de 'ready' até 'review' e adicionar evidências.
-- **audit_events:** `task.created`, `task.status_changed`, `task.blocked`
-- **evidence_required:** Exigido anexo ou link na transição para 'done'.
-- **frontend_risks:** Garantir que transições inválidas (ex: ir de in-progress para done sem passar por review e sem evidência) sejam bloqueadas já na UI, refletindo a regra de negócio.
-- **e2e_test_expectation:** O Agente move a task para 'done' sem anexar evidência; a UI bloqueia a ação. O Agente anexa o link da evidência e a transição é aceita.
-- **implementation_status:** `documented`
+- **purpose:** Atuar como a superfície de coordenação do desenvolvimento do System Builder. Serve para gerenciar tarefas, prioridades, dependências e status do progresso do time de agentes na construção da plataforma. Não é um task manager genérico de cliente.
+- **persona:** Builder Platform Architect, Builder Dev, Jules Agent
+- **route_candidate:** /builder/tasker
+- **scope:** Visualização, filtragem e transição de status de tarefas (features, docs, reviews). Visualização de evidências e bloqueios. Exibição de backlog e sprint atual. Fora de escopo: Edição real do markdown em runtime, workflows reais, automações n8n, banco de dados real.
+- **workspace_or_global:** global (Platform/Builder level)
+- **related_capabilities:** work_orders, communication
+- **data_inputs:** N/A (leitura mockada/stática a partir de contratos/backlog)
+- **data_outputs:** N/A (não há persistência real de dados; simulação em client-side state)
+- **commands:** Atualizar status (mock), Filtrar por grupo, Filtrar por status
+- **empty_state:** "Nenhuma tarefa encontrada para os filtros selecionados."
+- **loading_state:** Skeleton loaders para o Kanban board ou lista de tasks.
+- **error_state:** "Falha ao carregar as tarefas do board."
+- **success_state:** Feedback visual após transição de status simulada.
+- **permissions:** Acesso exclusivo ao time de construção (Builder Platform Admins).
+- **audit_events:** (Simulados) task_status_changed, task_evidence_added
+- **evidence_required:** Arquivos Markdown e relatórios de execução
+- **frontend_risks:** Risco de confusão com o modelo de Work Orders do cliente real. Manter a linguagem e abstração puramente voltadas para a construção do System Builder.
+- **e2e_test_expectation:** O Platform Admin abre o board, visualiza as tasks agrupadas, abre detalhes de uma task "ready", move para "in_progress" e verifica as dependências bloqueadas no Grupo D.
+- **implementation_status:** documented

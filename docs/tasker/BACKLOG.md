@@ -14,7 +14,8 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-TASKER-BOARD-001 | tasker | Auditar prontidão para desenvolvimento do Tasker Board | architecture | high | done |
 | DEV-TASKER-BOARD-001 | ui | Desenvolver interface do Tasker Board (com mock data e limites) | implementation | high | done |
 | DEV-REVIEW-TASKER-BOARD-001 | tasker | Revisar implementação do Tasker Board | architecture | high | done |
-| CAPABILITY-EXPLORER-001 | ui | Preparar Capability Explorer para desenvolvimento | architecture | high | ready |
+| CAPABILITY-EXPLORER-001 | ui | Preparar Capability Explorer para desenvolvimento | architecture | high | done |
+| DEV-READINESS-CAPABILITY-EXPLORER-001 | tasker | Auditar prontidão para desenvolvimento do Capability Explorer | architecture | high | ready |
 | REGISTRY-VIEW-001 | ui | Preparar Registry read-only | architecture | medium | backlog |
 | DOCS-VIEWER-001 | ui | Preparar visualizador de docs/workboards | architecture | medium | backlog |
 | PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | backlog |

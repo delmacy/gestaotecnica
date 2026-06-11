@@ -30,8 +30,8 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-PM-INTAKE-001 | tasker | Readiness Audit PM Intake | architecture | high | done |
 | DEV-PM-INTAKE-001 | ui | Dev PM Intake | implementation | high | done |
 | DEV-REVIEW-PM-INTAKE-001 | ui | Review PM Intake | architecture | high | done |
-| SOURCE-INTAKE-001 | ui | Preparar Source Inventory / Evidence Intake | architecture | medium | ready |
-| GAP-TRACKER-001 | ui | Preparar Gap Tracker | architecture | medium | backlog |
+| SOURCE-INTAKE-001 | ui | Preparar Source Inventory / Evidence Intake | architecture | medium | done |
+| GAP-TRACKER-001 | ui | Preparar Gap Tracker | architecture | medium | ready |
 | AS-IS-MIRROR-001 | ui | Preparar As-Is Mirror Board | architecture | medium | backlog |
 | UI-CONTRACTS-VIEWER-001 | ui | Preparar visualizador de contratos de UI | architecture | medium | backlog |
 

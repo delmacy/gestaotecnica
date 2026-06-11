@@ -31,7 +31,7 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 14.1 | DEV-READINESS-PM-INTAKE-001 | done | Contrato auditado e autorizado para dev |
 | 14.2 | DEV-PM-INTAKE-001 | done | Interface implementada |
 | 14.3 | DEV-REVIEW-PM-INTAKE-001 | done | Revisão final aprovada |
-| 15 | SOURCE-INTAKE-001 | ready | Contrato e planejamento do Source Intake aprovados |
+| 15 | SOURCE-INTAKE-001 | done | Contrato e planejamento do Source Intake aprovados |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

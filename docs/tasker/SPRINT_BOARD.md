@@ -27,8 +27,11 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 13.1 | DEV-READINESS-DOCS-VIEWER-001 | done | Contrato auditado e autorizado para dev |
 | 13.2 | DEV-DOCS-VIEWER-001 | done | UI read-only desenvolvida |
 | 13.3 | DEV-REVIEW-DOCS-VIEWER-001 | done | Relatório de revisão do Docs Viewer aprovado |
-| 14 | PM-INTAKE-001 | ready | Contrato e planejamento do PM Intake aprovados |
-| 15 | SOURCE-INTAKE-001 | backlog | Contrato e planejamento do Source Intake aprovados |
+| 14 | PM-INTAKE-001 | review | Contrato e planejamento do PM Intake aprovados |
+| 14.1 | DEV-READINESS-PM-INTAKE-001 | done | Contrato auditado e autorizado para dev |
+| 14.2 | DEV-PM-INTAKE-001 | done | Interface implementada |
+| 14.3 | DEV-REVIEW-PM-INTAKE-001 | done | Revisão final aprovada |
+| 15 | SOURCE-INTAKE-001 | ready | Contrato e planejamento do Source Intake aprovados |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

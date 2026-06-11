@@ -26,8 +26,11 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-DOCS-VIEWER-001 | tasker | Auditar prontidão para desenvolvimento do Docs Viewer | architecture | medium | done |
 | DEV-DOCS-VIEWER-001 | ui | Implementar Docs Viewer read-only com mock data | implementation | medium | done |
 | DEV-REVIEW-DOCS-VIEWER-001 | ui | Revisar implementação do Docs Viewer | architecture | medium | done |
-| PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | ready |
-| SOURCE-INTAKE-001 | ui | Preparar Source Inventory / Evidence Intake | architecture | medium | backlog |
+| PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | review |
+| DEV-READINESS-PM-INTAKE-001 | tasker | Readiness Audit PM Intake | architecture | high | done |
+| DEV-PM-INTAKE-001 | ui | Dev PM Intake | implementation | high | done |
+| DEV-REVIEW-PM-INTAKE-001 | ui | Review PM Intake | architecture | high | done |
+| SOURCE-INTAKE-001 | ui | Preparar Source Inventory / Evidence Intake | architecture | medium | ready |
 | GAP-TRACKER-001 | ui | Preparar Gap Tracker | architecture | medium | backlog |
 | AS-IS-MIRROR-001 | ui | Preparar As-Is Mirror Board | architecture | medium | backlog |
 | UI-CONTRACTS-VIEWER-001 | ui | Preparar visualizador de contratos de UI | architecture | medium | backlog |

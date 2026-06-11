@@ -31,8 +31,11 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-PM-INTAKE-001 | ui | Dev PM Intake | implementation | high | done |
 | DEV-REVIEW-PM-INTAKE-001 | ui | Review PM Intake | architecture | high | done |
 | SOURCE-INTAKE-001 | ui | Preparar Source Inventory / Evidence Intake | architecture | medium | done |
-| GAP-TRACKER-001 | ui | Preparar Gap Tracker | architecture | medium | ready |
-| AS-IS-MIRROR-001 | ui | Preparar As-Is Mirror Board | architecture | medium | backlog |
+| GAP-TRACKER-001 | ui | Preparar Gap Tracker | architecture | medium | done |
+| DEV-READINESS-GAP-TRACKER-001 | tasker | Auditar prontidão para dev do Gap Tracker | architecture | medium | done |
+| DEV-GAP-TRACKER-001 | ui | Implementar Gap Tracker com mock data | implementation | medium | done |
+| DEV-REVIEW-GAP-TRACKER-001 | ui | Revisar implementação do Gap Tracker | architecture | medium | done |
+| AS-IS-MIRROR-001 | ui | Preparar As-Is Mirror Board | architecture | medium | ready |
 | UI-CONTRACTS-VIEWER-001 | ui | Preparar visualizador de contratos de UI | architecture | medium | backlog |
 
 ## Grupo B — Plataforma Builder com design/contrato antes de código

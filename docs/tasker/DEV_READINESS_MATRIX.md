@@ -18,5 +18,6 @@ Esta matriz avalia individualmente a prontidão dos módulos para desenvolviment
 | DEV-READINESS-WORKFLOW-BUILDER-001 | UI_CONTRACT_WORKFLOW | true | false | true | false | NOT_READY | Contrato pendente | Planejar Workflow Builder |
 | DEV-READINESS-RUNTIME-001 | RUNTIME_CONTRACT | false | false | true | true | NOT_READY | Contrato base do runtime pendente | Definir contrato de runtime |
 | DEV-READINESS-GESTAO-TECNICA-001 | PM_PILOT_REAL_SOURCES | false | true | true | true | BLOCKED | Fontes reais e plataforma base indisponíveis | Aguardar REAL-SRC-002 e conclusão do Builder Shell |
-
 | SOURCE-INTAKE-001 | N/A | true | false | false | false | DONE | Implementado sinteticamente. | Avançar para GAP-TRACKER-001 |
+| DEV-READINESS-GAP-TRACKER-001 | GAP-TRACKER-001 | true | false | false | false | DONE | Contrato do Gap Tracker auditado e autorizado com limites. | Desenvolver Gap Tracker com mock data |
+| DEV-REVIEW-GAP-TRACKER-001 | DEV-GAP-TRACKER-001 | true | false | false | false | DONE | Implementação auditada e aprovada com sucesso. | Seguir para AS-IS-MIRROR. |

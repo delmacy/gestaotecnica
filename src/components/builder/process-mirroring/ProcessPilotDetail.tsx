@@ -96,7 +96,12 @@ export function ProcessPilotDetail({ pilot }: { pilot: ProcessPilot }) {
 
           {activeTab === 'gaps' && (
             <div>
-            <h3 className="font-semibold mb-3">Collection Gaps</h3>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-semibold">Collection Gaps</h3>
+              <a href="/builder/process-mirroring/gaps" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                Open Full Gap Tracker &rarr;
+              </a>
+            </div>
              {pilot.collection_gaps.length === 0 ? <p className="text-sm text-slate-500">No gaps identified.</p> : (
               <ul className="space-y-2">
                 {pilot.collection_gaps.map(g => (

@@ -1,0 +1,33 @@
+# Registry View Contract
+
+- **surface_id:** UI-SURF-REGISTRY-VIEW
+- **surface_name:** Registry View
+- **purpose:** Visão técnica, documental e read-only do catálogo formal do System Builder. Serve para desenvolvedores e arquitetos consultarem contratos, modelos e dependências das capabilities.
+- **persona:** System Builder Dev / Architect
+- **route_candidate:** /builder/registry
+- **scope:**
+  - Exibe índice de capabilities (Capability Index).
+  - Exibe Capability Model.
+  - Exibe Dependency Rules.
+  - Exibe contratos e metadados técnicos.
+  - Relação entre capabilities.
+  - Status documental.
+  - Links para documentos.
+  - Riscos de dependência.
+  - Fronteiras entre o Explorer e o Registry.
+  - **Não** edita registry, não versiona, não instala, não altera workspace, não gera runtime.
+- **workspace_or_global:** global (embora opere dentro do Builder Shell)
+- **related_capabilities:** capability_registry
+- **data_inputs:** Filtros por tipo de item, Filtros por status, Busca textual.
+- **data_outputs:** Nenhum (Read-only).
+- **commands:** N/A (Apenas navegação read-only: buscar, filtrar, visualizar detalhes).
+- **empty_state:** Mensagem indicando que não há itens no registry para os filtros selecionados.
+- **loading_state:** Skeletons da lista/cards e do painel lateral.
+- **error_state:** Mensagem de erro em caso de falha ao carregar o registry.
+- **success_state:** Exibição da lista de itens com painel de detalhes funcionais.
+- **permissions:** Acesso restrito a usuários com perfis técnicos do Builder (Admin/Dev/Architect).
+- **audit_events:** Acesso à página do Registry View.
+- **evidence_required:** N/A.
+- **frontend_risks:** Garantir performance na renderização de grafos/dependências se a lista crescer. Manter clareza entre o que é "Mock State" durante a construção.
+- **e2e_test_expectation:** O Architect abre a rota `/builder/registry`, visualiza os cards/tabela, clica em um item, vê os detalhes e dependências sem opções de edição.
+- **implementation_status:** documented

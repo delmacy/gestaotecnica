@@ -1,0 +1,407 @@
+# View Contract
+
+Este documento atua como o contrato operacional mestre para o desenvolvimento de UI (superfícies front-end). Não é apenas uma lista de superfícies, mas um conjunto rigoroso de requisitos que cada superfície deve declarar e aprovar antes de qualquer desenvolvimento técnico ser iniciado.
+
+## Superfícies Prioritárias (Grupo A)
+
+As seguintes superfícies são consideradas prioritárias para a estruturação do System Builder:
+
+- **Builder Shell (`BUILDER_SHELL.md`):** Superfície raiz e principal da plataforma. Atua como o container de navegação para todos os demais módulos.
+- **Tasker Board (`TASKER_BOARD.md`):** Superfície de coordenação do desenvolvimento do System Builder. Rota candidata: `/builder/tasker`.
+- **Capability Explorer (`CAPABILITY_EXPLORER.md`):** Visualização de capabilities. Rota candidata: `/builder/capabilities`.
+- **Registry View (`REGISTRY_VIEW.md`):** Visão técnica documental e read-only do catálogo de capabilities e suas dependências. Rota candidata: `/builder/registry`.
+- **Docs Viewer (`DOCS_VIEWER.md`):** Visão navegável e organizada dos documentos centrais em modo read-only. Rota candidata: `/builder/docs`.
+- **Process Mirroring Intake (`PROCESS_MIRRORING_INTAKE.md`):** O Process Mirroring Intake deve ser o primeiro módulo prático para estruturar a coleta e organização de informações sobre processos observados. Rota candidata: `/builder/process-mirroring`.
+- **Process Mirror Board (`PROCESS_MIRROR_BOARD.md`):** Visualização do espelho de processos.
+
+*(As demais superfícies encontram-se documentadas no diretório `docs/ui/surfaces/` e seguem o fluxo de priorização definido no backlog).*
+
+## Padrão Obrigatório de Contrato por Superfície
+
+Cada superfície documentada (e.g., nos arquivos `.md` sob `docs/ui/surfaces/`) deve declarar explicitamente os seguintes campos:
+
+- **surface_id:** Identificador único (ex: `UI-SURF-001`).
+- **surface_name:** Nome claro e descritivo da superfície.
+- **purpose:** Propósito de negócio ou técnico da superfície.
+- **persona:** A pessoa ou ator que opera esta superfície (ex: Admin, Requester, Technician).
+- **route_candidate:** A proposta de URL ou local onde essa superfície será acessada (ex: `/admin/capabilities`).
+- **scope:** Limite operacional (o que esta superfície cobre e o que deixa de fora).
+- **workspace_or_global:** Declara se a UI opera num contexto de `workspace` ou se é `global`.
+- **related_capabilities:** Capabilities associadas a esta superfície (ex: `organization`, `requests`).
+- **data_inputs:** Dados requeridos de fora (ex: Formulários, Filtros).
+- **data_outputs:** Como os dados são salvos ou enviados adiante.
+- **commands:** Comandos principais que a interface dispara (ex: Aprovar, Rejeitar, Avançar passo).
+- **empty_state:** O que a UI mostra quando não há dados.
+- **loading_state:** Como a UI se comporta no aguardo dos dados.
+- **error_state:** Tratamento e visualização de erros.
+- **success_state:** Exibição do sucesso na operação.
+- **permissions:** Roles e permissões do usuário requeridas.
+- **audit_events:** Eventos gerados que impactam a trilha de auditoria.
+- **evidence_required:** Necessidades de evidências associadas, como fotos ou notas.
+- **frontend_risks:** Possíveis riscos de UX, performance ou complexidade.
+- **e2e_test_expectation:** Expectativa do teste de ponta-a-ponta (ex: 'O Technician abre a tela, preenche o log e vê a success screen').
+- **implementation_status:** O status real da implementação da UI. Deve ser preenchido usando os status permitidos.
+
+## Status Permitidos para implementation_status
+
+Cada superfície DEVE ser categorizada usando um destes status estritos:
+
+- **documented:** Contrato conceitual desenhado; não avaliado nem validado.
+- **needs_validation:** Depende de dados operacionais reais ou de validação humana antes do design ou dev.
+- **blocked:** Bloqueado por alguma outra dependência técnica ou de negócio.
+- **ready_for_design:** Contrato provado; pronto para design de UI ou arquitetura.
+- **ready_for_dev_after_gate:** Pronto para codificação de UI; mas *somente* depois de gates específicos abertos. (Nota: Nenhuma superfície receberá este status nas fases documentais iniciais, como UI-CON-001).
+
+## Regras
+- Frontend desconectado de task, contrato ou workspace é estritamente proibido.
+- Se uma UI usar dados sintéticos na documentação, ela não pode ser considerada confirmada (deve ser `needs_validation`).
+- Qualquer alteração a essas superfícies ou suas regras requer uma reavaliação dos contratos de capability e do processo.
+# View Contract: Process Mirroring Intake
+
+- surface_id: UI-SURF-PROCESS-MIRRORING-INTAKE
+- surface_name: Process Mirroring Intake
+- route_candidate: /builder/process-mirroring
+- implementation_status: documented
+
+## Purpose
+The Process Mirroring Intake is the first practical module to structure the collection and organization of information about observed processes.
+
+## Persona
+System Builder Platform Admin / Process Analyst
+
+## Scope
+Provides a synthetic/mock interface to manage process pilots, view synthetic sources, observations, evidence, gaps, As-Is drafts, validation decisions, and capability candidates.
+
+## workspace_or_global
+Global (Platform level)
+
+## related_capabilities
+- process_mirroring
+
+## data_inputs
+- Process Pilots
+- Source Inventory
+- Observations
+- Evidence
+- Gaps
+- As-Is Drafts
+- Validation Decisions
+- Capability Candidates
+
+## data_outputs
+- Read-only views of the mock data
+- Simulated state transitions
+
+## commands
+- Select Pilot
+- Filter Pilots
+- View details
+
+## empty_state
+- No pilots found
+
+## loading_state
+- Skeleton loader for pilots and details
+
+## error_state
+- Error loading pilot data
+
+## success_state
+- Pilot loaded successfully
+
+## permissions
+- Read-only for mock data
+
+## audit_events
+- None in this phase
+
+## evidence_required
+- UI must render without errors
+- Mock data must be visible
+
+## frontend_risks
+- Coupling with real backend
+
+## e2e_test_expectation
+- Should render the list of pilots and details for a selected pilot
+# Source Intake Surface
+
+## Overview
+The Source Intake surface provides a way for users to review and manage sources, evidences, limitations, and gaps during the process mirroring phase. It relies entirely on mock data for the MVP and does not persist any data.
+
+## Navigation
+Route: `/builder/process-mirroring/sources`
+
+## Sub-views
+- SOURCE_INTAKE_VISUAL_MODEL
+- SOURCE_INTAKE_MOCK_DATA_CONTRACT
+- SOURCE_INTAKE_BOUNDARIES
+- SOURCE_INTAKE_INTERACTION_RULES
+# Builder Shell Contract
+
+- **surface_id:** UI-SURF-BUILDER-SHELL
+- **surface_name:** Builder Shell
+- **purpose:** Atuar como a superfície principal e raiz do System Builder, fornecendo a estrutura primária de navegação, contexto de workspace e o container para acesso a todos os módulos operacionais da plataforma.
+- **persona:** Platform Admin, Builder Architect, Process Analyst, Capability Architect, UX Architect, Reviewer, Client Viewer
+- **route_candidate:** `/builder`
+- **scope:** Gerencia o layout global da plataforma builder (topbar, sidebar, indicadores de contexto) e injeta os submódulos correspondentes baseados em roteamento. Não gerencia o conteúdo interno de cada módulo em si, apenas a transição e apresentação de estado global (auth, contexto, alertas de sistema).
+- **workspace_or_global:** Global (mas reflete o contexto de workspace ativo selecionado na Topbar).
+- **related_capabilities:** `organization` (para seleção de workspace/contexto), global shell.
+- **data_inputs:** N/A (Apenas dados de sessão do usuário e metadados de configuração do workspace).
+- **data_outputs:** Mudança de rotas e alteração do workspace ativo no estado global da aplicação.
+- **commands:**
+  - `SelectWorkspace`: Alterar o workspace em contexto.
+  - `NavigateToModule`: Ir para um submódulo (ex: Tasker, Capabilities).
+  - `ToggleSidebar`: Expandir ou retrair o menu lateral.
+  - `OpenGlobalHelp`: Abrir painel de ajuda e documentação central.
+- **empty_state:** N/A para o Shell (se nenhum módulo selecionado, exibe tela de "Welcome/Dashboard").
+- **loading_state:** Skeleton de navegação na sidebar e indicador global de carregamento na barra superior ou na área principal.
+- **error_state:** Fallback de erro global para rotas não encontradas ou falha crítica (ex: "Application Error").
+- **success_state:** Exibição suave de transição entre rotas e notificação global do tipo Toast/Snack.
+- **permissions:** Acesso restrito a usuários autenticados no domínio System Builder. Não focado em RBAC granular interno do cliente, mas sim no modelo de persona de builder.
+- **audit_events:**
+  - `USER_LOGIN`
+  - `WORKSPACE_CHANGED`
+- **evidence_required:** N/A (Não aplica ações de execução processual).
+- **frontend_risks:**
+  - Alto impacto no First Contentful Paint.
+  - Complexidade de gerenciar estados globais (workspace atual) ao longo de re-renderizações das rotas filhas.
+- **e2e_test_expectation:** "O Builder Architect faz login, visualiza o menu principal com os módulos do Grupo A habilitados e navega para `/builder/tasker` com sucesso, observando o contexto de dados do ambiente atual."
+- **implementation_status:** documented
+
+## Estrutura Visual Mínima
+
+O Shell deve implementar estruturalmente as seguintes regiões:
+
+1. **Top Bar:** Barra superior contendo:
+   - Logo/Marca System Builder.
+   - Global Search (placeholder inicial).
+   - Menu do usuário (Perfil/Sair).
+2. **Workspace Context Indicator:** Seletor de contexto (Workspace/Tenant atual). Normalmente na Topbar ou topo da Sidebar.
+3. **Environment/Status Indicator:** Badge claro indicando o modo de execução (ex: "Sintético", "Desenvolvimento", "Demo", "Produção - Piloto").
+4. **Sidebar / Module Navigation:** Barra lateral principal com acesso aos módulos da plataforma.
+5. **Main Content Area:** Container principal que renderiza a rota filha (`children` no Next.js).
+6. **Breadcrumb:** Caminho de navegação logo acima da área de conteúdo (ex: `Builder / Tasker / Task-123`).
+7. **Module Status Badge:** Badges visuais indicando o status do módulo (ex: `Beta`, `Mock`, `Preview`).
+8. **Quick Actions Area:** Acesso rápido para ações comuns independentes de rota (ex: 'Criar Tarefa', 'Notificações').
+9. **Documentation/Help Access:** Ícone/Painel para chamar guias rápidos integrados.
+
+### Módulos do Menu Inicial (Grupo A)
+Os seguintes módulos estarão visíveis e ativos inicialmente:
+- Dashboard / Home
+- Tasker
+- Capabilities
+- Registry
+- Process Mirroring
+- Docs
+- UI Contracts
+- Settings / Workspace
+
+### Módulos Futuros (Disabled / Placeholder)
+Os seguintes módulos constam no roadmap, mas devem aparecer desabilitados (estado `coming soon` ou `blocked`):
+- Workflow Builder
+- Form Builder
+- View Builder
+- Runtime
+- Integrations
+- Enterprise Architecture
+- Governance
+- Enablement
+
+## Rotas Candidatas
+
+O Shell estrutura a fundação para as seguintes rotas base:
+- `/builder` (Raiz / Dashboard)
+- `/builder/tasker`
+- `/builder/capabilities`
+- `/builder/registry`
+- `/builder/process-mirroring`
+- `/builder/docs`
+- `/builder/ui-contracts`
+- `/builder/settings`
+
+## Personas e Contextos
+
+O Shell reconhece as seguintes personas, ainda que um controle RBAC técnico avançado não seja implementado nesta fase inicial:
+
+- **Platform Admin:** Vê e aciona tudo. Pode gerenciar workspaces globais. Risco de permissão: alterar configurações sensíveis do core.
+- **Builder Architect:** Focado no design estrutural. Acesso total a Capabilities, UI Contracts e Workflow Builder (futuro).
+- **Process Analyst:** Focado em processos. Acesso a Process Mirroring, Docs e Tasker.
+- **Capability Architect:** Foco estreito em desenhar e visualizar Capabilities e Registry.
+- **UX Architect:** Focado no módulo de UI Contracts e View Builder (futuro).
+- **Reviewer:** Acesso de leitura e aprovação no Tasker e Docs. Acesso limitado de escrita.
+- **Client Viewer:** Acesso estritamente read-only, com foco na visualização de outputs de Process Mirroring e Docs em "modo demo/sintético".
+
+## Estados do Shell
+
+A UI do Builder Shell deve gerenciar os seguintes estados que impactam a visualização dos módulos:
+
+- `empty_state`: Não aplicável como um todo, mas as áreas internas lidam com conteúdo vazio.
+- `loading_state`: Indicadores globais durante transição ou load de dados do backend.
+- `error_state`: Boundary de erro da aplicação (Erro 500 global ou falha de rede).
+- `success_state`: Confirmações transientes globais.
+- `no_workspace_selected`: Módulos dependentes de workspace são bloqueados e o usuário é forçado a selecionar um contexto.
+- `workspace_selected`: Funcionamento normal, menus contextuais disponíveis.
+- `module_disabled`: Menu item em estado desabilitado (ex: Runtime).
+- `module_blocked`: Acesso negado por permissão ou status documental da capability.
+- `module_ready`: Módulo acessível.
+- `synthetic_data_mode`: Um alerta fixo no shell indicando que o Builder está operando sob "Dados Sintéticos/Simulados". O indicador deve ser visualmente inconfundível.
+- `real_data_required`: Um estado ativado (geralmente nos módulos do Grupo D) onde o Shell informa que a visualização não pode renderizar devido à falta de fontes reais.
+
+## Integração com Módulos do Grupo A
+
+O Builder Shell atua como o integrador principal das seguintes superfícies, cada qual possuirá/possui seu respectivo contrato:
+
+- **Tasker Board:** `docs/ui/surfaces/TASKER_BOARD.md`
+- **Capability Explorer:** `docs/ui/surfaces/CAPABILITY_EXPLORER.md`
+- **Registry View:** a definir (contrato futuro)
+- **Docs Viewer:** a definir (contrato futuro)
+- **Process Mirror Board:** `docs/ui/surfaces/PROCESS_MIRROR_BOARD.md`
+- **Source Intake:** a definir (contrato futuro)
+- **Gap Tracker:** a definir (contrato futuro)
+- **As-Is Mirror Board:** a definir (contrato futuro)
+- **UI Contracts Viewer:** a definir (contrato futuro)
+# Backlog Operacional
+
+O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do System Builder como plataforma, utilizando dados sintéticos e adiando as validações de cliente real (Gestão Técnica) para um momento em que a plataforma esteja funcional.
+
+## Grupo A — Plataforma Builder liberável agora
+
+| ID | Módulo | Título | Tipo | Prioridade | Status |
+|---|---|---|---|---|---|
+| BUILDER-SHELL-001 | ui | Planejar shell principal do System Builder | architecture | high | done |
+| DEV-READINESS-BUILDER-SHELL-001 | tasker | Auditar prontidão para desenvolvimento do Builder Shell | architecture | high | done |
+| DEV-BUILDER-SHELL-001 | ui | Desenvolver interface do Builder Shell (com mock data) | implementation | high | done |
+| DEV-REVIEW-BUILDER-SHELL-001 | ui | Revisar implementação do Builder Shell | architecture | high | done |
+| TASKER-BOARD-001 | ui | Preparar Tasker Board para desenvolvimento | architecture | high | done |
+| DEV-READINESS-TASKER-BOARD-001 | tasker | Auditar prontidão para desenvolvimento do Tasker Board | architecture | high | done |
+| DEV-TASKER-BOARD-001 | ui | Desenvolver interface do Tasker Board (com mock data e limites) | implementation | high | done |
+| DEV-REVIEW-TASKER-BOARD-001 | tasker | Revisar implementação do Tasker Board | architecture | high | done |
+| CAPABILITY-EXPLORER-001 | ui | Preparar Capability Explorer para desenvolvimento | architecture | high | done |
+| DEV-READINESS-CAPABILITY-EXPLORER-001 | tasker | Auditar prontidão para desenvolvimento do Capability Explorer | architecture | high | done |
+| DEV-CAPABILITY-EXPLORER-001 | ui | Desenvolver interface do Capability Explorer (com mock data e limites) | implementation | high | done |
+| DEV-REVIEW-CAPABILITY-EXPLORER-001 | ui | Revisar implementação do Capability Explorer | architecture | high | done |
+| REGISTRY-VIEW-001 | ui | Preparar Registry read-only | architecture | medium | done |
+| DEV-READINESS-REGISTRY-VIEW-001 | tasker | Auditar prontidão para desenvolvimento do Registry View | architecture | medium | done |
+| DEV-REGISTRY-VIEW-001 | ui | Implementar Registry View read-only com mock data | implementation | medium | done |
+| DEV-REVIEW-REGISTRY-VIEW-001 | ui | Revisar implementação do Registry View | architecture | medium | done |
+| DOCS-VIEWER-001 | ui | Preparar visualizador de docs/workboards | architecture | medium | done |
+| DEV-READINESS-DOCS-VIEWER-001 | tasker | Auditar prontidão para desenvolvimento do Docs Viewer | architecture | medium | done |
+| DEV-DOCS-VIEWER-001 | ui | Implementar Docs Viewer read-only com mock data | implementation | medium | done |
+| DEV-REVIEW-DOCS-VIEWER-001 | ui | Revisar implementação do Docs Viewer | architecture | medium | done |
+| PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | done |
+| DEV-READINESS-PM-INTAKE-001 | tasker | Readiness Audit PM Intake | architecture | high | done |
+| DEV-PM-INTAKE-001 | ui | Dev PM Intake | implementation | high | done |
+| DEV-REVIEW-PM-INTAKE-001 | ui | Review PM Intake | architecture | high | done |
+| SOURCE-INTAKE-001 | ui | Preparar Source Inventory / Evidence Intake | architecture | medium | done |
+| GAP-TRACKER-001 | ui | Preparar Gap Tracker | architecture | medium | ready |
+| AS-IS-MIRROR-001 | ui | Preparar As-Is Mirror Board | architecture | medium | backlog |
+| UI-CONTRACTS-VIEWER-001 | ui | Preparar visualizador de contratos de UI | architecture | medium | backlog |
+
+## Grupo B — Plataforma Builder com design/contrato antes de código
+
+| ID | Módulo | Título | Tipo | Prioridade | Status |
+|---|---|---|---|---|---|
+| FORM-BUILDER-001 | ui | Planejar Form Builder | contract | high | backlog |
+| VIEW-BUILDER-001 | ui | Planejar View Builder | contract | high | backlog |
+| WORKFLOW-BUILDER-001 | ui | Planejar Workflow Builder | contract | high | backlog |
+| GOVERNANCE-MATRIX-001 | ui | Planejar Role/Permission Matrix | contract | medium | backlog |
+| OPERATOR-GUIDE-001 | ui | Planejar Operator Guide | contract | medium | backlog |
+| ENTERPRISE-MAP-001 | ui | Planejar Enterprise Map | contract | medium | backlog |
+
+## Grupo C — Runtime e integrações futuras
+
+| ID | Módulo | Título | Tipo | Prioridade | Status |
+|---|---|---|---|---|---|
+| RUNTIME-CONTRACT-001 | runtime | Refinar contrato de runtime | contract | medium | backlog |
+| EVENT-RECEIPT-001 | runtime | Refinar modelo de eventos/recibos | contract | medium | backlog |
+| INTEGRATION-CONTRACT-001 | integrations | Refinar contrato de webhooks/n8n | contract | medium | backlog |
+| API-GATEWAY-FUTURE-001 | integrations | Registrar API Gateway como futuro, não imediato | contract | medium | backlog |
+
+## Grupo D — Cliente Gestão Técnica / fontes reais / piloto real
+
+| ID | Módulo | Título | Tipo | Prioridade | Status |
+|---|---|---|---|---|---|
+| REAL-SRC-002 | process_mirroring | Receber fontes reais anonimizadas | documentation | high | blocked |
+| CAP-VAL-002 | capabilities | Validar capabilities no piloto real | contract | high | blocked |
+| GT-PILOT-001 | process_mirroring | Planejar Gestão Técnica como primeiro cliente | architecture | medium | blocked |
+| GT-RUNTIME-001 | runtime | Desenvolver processo real da Gestão Técnica | implementation | medium | blocked |
+
+---
+## Histórico (Concluídas/Antigas)
+*(Tasks antigas preservadas para rastreabilidade)*
+| ID | Módulo | Título | Status |
+|---|---|---|---|
+| DOC-002 | doc | Revisar segunda rodada documental | done |
+| TASKER-001 | tasker | Validar fluxo de transição de tasks | done |
+| PM-PILOT-001 | process_mirroring | Selecionar processo piloto | done |
+| PM-PILOT-002 | process_mirroring | Capturar fontes e observações piloto | review |
+| PM-PILOT-003 | process_mirroring | Validar espelho e gaps piloto | done |
+| CAP-VAL-001 | capabilities | Revisar fronteiras das 24 capabilities | done |
+| UI-CON-001 | ui | Refinar contratos de superfícies prioritárias | review |
+| REAL-SRC-001 | process_mirroring | Preparar pacote de coleta de fontes reais | done |
+| EA-PILOT-001 | enterprise_architecture | Criar mapas do piloto | backlog |
+| GOV-PILOT-001 | governance | Validar papéis e SoD do piloto | backlog |
+| ENA-PILOT-001 | enablement | Criar guia e checklist piloto | backlog |
+| DEV-READINESS-001 | tasker | Auditar prontidão para execução futura | blocked |
+# Sprint Board — System Builder Platform First
+
+## Objetivo
+Priorizar a construção estrutural do System Builder utilizando dados sintéticos (quando necessário), permitindo o avanço do desenvolvimento enquanto os dados reais do piloto Gestão Técnica (Grupo D) permanecem em bloqueio.
+
+## Tasks Prioritárias (Grupo A - Plataforma Builder liberável agora)
+
+| Ordem | Task | Status | Evidência de saída |
+|---:|---|---|---|
+| 1 | BUILDER-SHELL-001 | done | Contrato e planejamento do Shell aprovados |
+| 2 | DEV-READINESS-BUILDER-SHELL-001 | done | Contrato auditado e autorizado para dev |
+| 3 | DEV-BUILDER-SHELL-001 | done | Pull Request com layout base do Builder Shell aprovado |
+| 4 | DEV-REVIEW-BUILDER-SHELL-001 | done | Relatório de revisão do Builder Shell aprovado |
+| 5 | TASKER-BOARD-001 | done | Contrato e planejamento do Board aprovados |
+| 6 | DEV-READINESS-TASKER-BOARD-001 | done | Contrato auditado e autorizado para dev |
+| 7 | DEV-TASKER-BOARD-001 | done | Interface desenvolvida em client-side |
+| 8 | DEV-REVIEW-TASKER-BOARD-001 | done | Relatório de revisão do Tasker Board aprovado |
+| 9 | CAPABILITY-EXPLORER-001 | done | Contrato e planejamento do Explorer aprovados |
+| 10 | DEV-READINESS-CAPABILITY-EXPLORER-001 | done | Contrato auditado e autorizado para dev |
+| 11 | DEV-CAPABILITY-EXPLORER-001 | done | Interface pronta para desenvolvimento |
+| 11.1 | DEV-REVIEW-CAPABILITY-EXPLORER-001 | done | Revisar implementação do Capability Explorer aprovada |
+| 12 | REGISTRY-VIEW-001 | done | Contrato e planejamento do Registry View aprovados |
+| 12.1 | DEV-READINESS-REGISTRY-VIEW-001 | done | Contrato auditado e autorizado para dev |
+| 12.2 | DEV-REGISTRY-VIEW-001 | done | Interface implementada |
+| 12.3 | DEV-REVIEW-REGISTRY-VIEW-001 | done | Revisão final aprovada |
+| 13 | DOCS-VIEWER-001 | done | Contrato e planejamento do Docs Viewer aprovados |
+| 13.1 | DEV-READINESS-DOCS-VIEWER-001 | done | Contrato auditado e autorizado para dev |
+| 13.2 | DEV-DOCS-VIEWER-001 | done | UI read-only desenvolvida |
+| 13.3 | DEV-REVIEW-DOCS-VIEWER-001 | done | Relatório de revisão do Docs Viewer aprovado |
+| 14 | PM-INTAKE-001 | done | Contrato e planejamento do PM Intake aprovados |
+| 14.1 | DEV-READINESS-PM-INTAKE-001 | done | Contrato auditado e autorizado para dev |
+| 14.2 | DEV-PM-INTAKE-001 | done | Interface implementada |
+| 14.3 | DEV-REVIEW-PM-INTAKE-001 | done | Revisão final aprovada |
+| 15 | SOURCE-INTAKE-001 | done | Contrato e planejamento do Source Intake aprovados |
+
+*(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
+
+## Gate de encerramento
+O sprint atual será concluído quando as tarefas do Grupo A estiverem em estado 'ready' e passarem por seus respectivos Gates de Readiness (DEV_READINESS_MATRIX), autorizando o avanço para o desenvolvimento de código sem depender da Gestão Técnica.
+# Development Readiness Matrix
+
+Esta matriz avalia individualmente a prontidão dos módulos para desenvolvimento de código, separando a plataforma agnóstica dos casos de uso reais de clientes (conforme DEC-SB-001).
+
+| module | depends_on | can_use_synthetic_data | requires_real_sources | requires_database | requires_runtime | status | reason | next_action |
+|---|---|---|---|---|---|---|---|---|
+| DEV-READINESS-BUILDER-SHELL-001 | UI_CONTRACT_SHELL | true | false | false | false | DONE | Shell pode ser implementado como layout/plataforma visual com dados sintéticos, sem autenticação real, sem RBAC real, sem banco, sem runtime e sem fontes reais. | Implementação e revisão concluídas |
+| DEV-REVIEW-BUILDER-SHELL-001 | DEV-BUILDER-SHELL-001 | true | false | false | false | DONE | Revisão do código do Builder Shell concluída com sucesso. | Passar para o próximo módulo. |
+| DEV-READINESS-TASKER-BOARD-001 | UI_CONTRACT_TASKER | true | false | false | false | DONE | Tasker Board implementado como UI de coordenação usando mock data local. | Implementação e revisão do Tasker Board concluídas |
+| DEV-REVIEW-TASKER-BOARD-001 | DEV-TASKER-BOARD-001 | true | false | false | false | DONE | Revisão do código do Tasker Board concluída com sucesso. | Passar para o próximo módulo. |
+| DEV-READINESS-CAPABILITY-EXPLORER-001 | UI_CONTRACT_CAPABILITY | true | false | false | false | READY_FOR_DEV_WITH_LIMITS | Capability Explorer pode ser implementado como UI de exploração do catálogo universal de capabilities com mock data local, sem banco, sem persistência real, sem edição real de Markdown, sem runtime, sem auth/RBAC real, sem instalação real de capability, sem alteração real de workspace e sem fontes reais. | Implementar UI com dados sintéticos |
+| DEV-READINESS-REGISTRY-VIEW-001 | UI_CONTRACT_REGISTRY | true | false | false | false | DONE | Contratos e matrizes de paridade do Registry View foram criados e auditados. UI baseada em mock data desenvolvida. | Revisão da UI |
+| DEV-REVIEW-REGISTRY-VIEW-001 | DEV-REGISTRY-VIEW-001 | true | false | false | false | DONE | Código do Registry View foi revisado estrutural e arquitetonicamente, testes aprovados. | Seguir para a próxima feature da plataforma (DOCS-VIEWER) |
+| DEV-READINESS-PM-INTAKE-001 | UI_CONTRACT_PM | true | false | true | false | DONE | Contrato revisado e aprovado | Implementação concluída |
+| DEV-REVIEW-PM-INTAKE-001 | DEV-PM-INTAKE-001 | true | false | false | false | DONE | Revisão do PM Intake concluída com sucesso. | Seguir para a próxima task (SOURCE-INTAKE-001). |
+| DEV-READINESS-DOCS-VIEWER-001 | UI_CONTRACT_DOCS | true | false | false | false | DONE | Contratos e matrizes de paridade do Docs Viewer foram criados e auditados. UI baseada em mock data desenvolvida. | Revisão da UI |
+| DEV-REVIEW-DOCS-VIEWER-001 | DEV-DOCS-VIEWER-001 | true | false | false | false | DONE | Revisão do código do Docs Viewer concluída com sucesso. | Seguir para a próxima task (PM-INTAKE-001). |
+| DEV-READINESS-WORKFLOW-BUILDER-001 | UI_CONTRACT_WORKFLOW | true | false | true | false | NOT_READY | Contrato pendente | Planejar Workflow Builder |
+| DEV-READINESS-RUNTIME-001 | RUNTIME_CONTRACT | false | false | true | true | NOT_READY | Contrato base do runtime pendente | Definir contrato de runtime |
+| DEV-READINESS-GESTAO-TECNICA-001 | PM_PILOT_REAL_SOURCES | false | true | true | true | BLOCKED | Fontes reais e plataforma base indisponíveis | Aguardar REAL-SRC-002 e conclusão do Builder Shell |
+
+| SOURCE-INTAKE-001 | N/A | true | false | false | false | DONE | Implementado sinteticamente. | Avançar para GAP-TRACKER-001 |

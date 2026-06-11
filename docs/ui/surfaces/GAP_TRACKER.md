@@ -1,0 +1,23 @@
+# Gap Tracker
+
+- **surface_id:** UI-SURF-GAP-TRACKER
+- **surface_name:** Gap Tracker
+- **purpose:** Organizar lacunas de coleta, análise e validação que impedem o espelhamento de processos.
+- **persona:** Builder / Admin
+- **route_candidate:** /builder/process-mirroring/gaps
+- **scope:** Lista e organiza gaps operacionais. Não resolve gaps reais. Apenas mock mode na fase atual.
+- **workspace_or_global:** workspace
+- **related_capabilities:** process_mirroring
+- **data_inputs:** Filtros e simulações client-side.
+- **data_outputs:** Nenhuma persistência real. Apenas client-side state simulando alterações (mock).
+- **commands:** Visualizar Detalhe, Simular Review, Filtrar.
+- **empty_state:** Exibe mensagem "No gaps found" caso não existam gaps ou após filtros estritos.
+- **loading_state:** Skeletons de lista e detalhes.
+- **error_state:** Exibição de banner de erro.
+- **success_state:** Feedback efêmero toast simulando sucesso (mock).
+- **permissions:** System Builder / Admin
+- **audit_events:** Apenas simulados em console.
+- **evidence_required:** Exibe as evidências faltantes, mas não requer envio de evidência na superfície de tracker.
+- **frontend_risks:** Gerenciar estados complexos simulados no cliente pode dificultar a migração para server-state depois.
+- **e2e_test_expectation:** O usuário acessa a rota, vê a lista de gaps e um aviso de "Synthetic/Mock Mode". Filtra os gaps por tipo, visualiza os detalhes do gap e simula a mudança de review decision.
+- **implementation_status:** documented

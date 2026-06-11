@@ -26,7 +26,7 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-DOCS-VIEWER-001 | tasker | Auditar prontidão para desenvolvimento do Docs Viewer | architecture | medium | done |
 | DEV-DOCS-VIEWER-001 | ui | Implementar Docs Viewer read-only com mock data | implementation | medium | done |
 | DEV-REVIEW-DOCS-VIEWER-001 | ui | Revisar implementação do Docs Viewer | architecture | medium | done |
-| PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | review |
+| PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | done |
 | DEV-READINESS-PM-INTAKE-001 | tasker | Readiness Audit PM Intake | architecture | high | done |
 | DEV-PM-INTAKE-001 | ui | Dev PM Intake | implementation | high | done |
 | DEV-REVIEW-PM-INTAKE-001 | ui | Review PM Intake | architecture | high | done |

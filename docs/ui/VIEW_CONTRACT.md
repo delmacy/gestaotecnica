@@ -11,6 +11,7 @@ As seguintes superfícies são consideradas prioritárias para a estruturação 
 - **Capability Explorer (`CAPABILITY_EXPLORER.md`):** Visualização de capabilities. Rota candidata: `/builder/capabilities`.
 - **Registry View (`REGISTRY_VIEW.md`):** Visão técnica documental e read-only do catálogo de capabilities e suas dependências. Rota candidata: `/builder/registry`.
 - **Docs Viewer (`DOCS_VIEWER.md`):** Visão navegável e organizada dos documentos centrais em modo read-only. Rota candidata: `/builder/docs`.
+- **Process Mirroring Intake (`PROCESS_MIRRORING_INTAKE.md`):** O Process Mirroring Intake deve ser o primeiro módulo prático para estruturar a coleta e organização de informações sobre processos observados. Rota candidata: `/builder/process-mirroring`.
 - **Process Mirror Board (`PROCESS_MIRROR_BOARD.md`):** Visualização do espelho de processos.
 
 *(As demais superfícies encontram-se documentadas no diretório `docs/ui/surfaces/` e seguem o fluxo de priorização definido no backlog).*

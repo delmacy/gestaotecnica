@@ -18,8 +18,11 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-CAPABILITY-EXPLORER-001 | tasker | Auditar prontidão para desenvolvimento do Capability Explorer | architecture | high | done |
 | DEV-CAPABILITY-EXPLORER-001 | ui | Desenvolver interface do Capability Explorer (com mock data e limites) | implementation | high | done |
 | DEV-REVIEW-CAPABILITY-EXPLORER-001 | ui | Revisar implementação do Capability Explorer | architecture | high | done |
-| REGISTRY-VIEW-001 | ui | Preparar Registry read-only | architecture | medium | ready |
-| DOCS-VIEWER-001 | ui | Preparar visualizador de docs/workboards | architecture | medium | backlog |
+| REGISTRY-VIEW-001 | ui | Preparar Registry read-only | architecture | medium | done |
+| DEV-READINESS-REGISTRY-VIEW-001 | tasker | Auditar prontidão para desenvolvimento do Registry View | architecture | medium | done |
+| DEV-REGISTRY-VIEW-001 | ui | Implementar Registry View read-only com mock data | implementation | medium | done |
+| DEV-REVIEW-REGISTRY-VIEW-001 | ui | Revisar implementação do Registry View | architecture | medium | done |
+| DOCS-VIEWER-001 | ui | Preparar visualizador de docs/workboards | architecture | medium | ready |
 | PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | backlog |
 | SOURCE-INTAKE-001 | ui | Preparar Source Inventory / Evidence Intake | architecture | medium | backlog |
 | GAP-TRACKER-001 | ui | Preparar Gap Tracker | architecture | medium | backlog |

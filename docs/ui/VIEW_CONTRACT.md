@@ -14,6 +14,7 @@ As seguintes superfícies são consideradas prioritárias para a estruturação 
 - **Process Mirroring Intake (`PROCESS_MIRRORING_INTAKE.md`):** O Process Mirroring Intake deve ser o primeiro módulo prático para estruturar a coleta e organização de informações sobre processos observados. Rota candidata: `/builder/process-mirroring`.
 - **Gap Tracker (`GAP_TRACKER.md`):** Superfície para organizar lacunas de coleta, análise e validação que impedem o espelhamento de processos. Rota candidata: `/builder/process-mirroring/gaps`.
 - **Process Mirror Board (`PROCESS_MIRROR_BOARD.md`):** Visualização do espelho de processos.
+- **As-Is Mirror Board (`AS_IS_MIRROR.md`):** Visualização do processo espelhado em estado atual (As-Is). Rota candidata: `/builder/process-mirroring/as-is`.
 
 *(As demais superfícies encontram-se documentadas no diretório `docs/ui/surfaces/` e seguem o fluxo de priorização definido no backlog).*
 

@@ -1,9 +1,21 @@
 import React from 'react';
 import { ProcessPilot } from './process-mirroring-types';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from 'react';
 
 export function ProcessPilotDetail({ pilot }: { pilot: ProcessPilot }) {
+  const [activeTab, setActiveTab] = useState('sources');
+
+  const tabs = [
+    { id: 'sources', label: 'Sources' },
+    { id: 'observations', label: 'Observations' },
+    { id: 'evidence', label: 'Evidence' },
+    { id: 'gaps', label: 'Gaps' },
+    { id: 'asis', label: 'As-Is Draft' },
+    { id: 'validation', label: 'Validation' },
+    { id: 'capabilities', label: 'Capabilities' }
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -19,19 +31,26 @@ export function ProcessPilotDetail({ pilot }: { pilot: ProcessPilot }) {
         <p className="text-sm text-red-600 font-medium mt-2">Real sources pending.</p>
       </div>
 
-      <Tabs defaultValue="sources" className="w-full">
-        <TabsList className="flex flex-wrap gap-2 w-full justify-start h-auto p-1 bg-slate-100">
-          <TabsTrigger value="sources">Sources</TabsTrigger>
-          <TabsTrigger value="observations">Observations</TabsTrigger>
-          <TabsTrigger value="evidence">Evidence</TabsTrigger>
-          <TabsTrigger value="gaps">Gaps</TabsTrigger>
-          <TabsTrigger value="asis">As-Is Draft</TabsTrigger>
-          <TabsTrigger value="validation">Validation</TabsTrigger>
-          <TabsTrigger value="capabilities">Capabilities</TabsTrigger>
-        </TabsList>
+      <div className="w-full">
+        <div className="flex flex-wrap gap-2 w-full justify-start h-auto p-1 bg-slate-100 rounded-md">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
         <div className="mt-4 border rounded-md p-4 bg-slate-50">
-          <TabsContent value="sources">
+          {activeTab === 'sources' && (
+            <div>
             <h3 className="font-semibold mb-3">Source Inventory</h3>
             {pilot.source_inventory.length === 0 ? <p className="text-sm text-slate-500">No sources.</p> : (
               <ul className="space-y-2">
@@ -42,9 +61,11 @@ export function ProcessPilotDetail({ pilot }: { pilot: ProcessPilot }) {
                 ))}
               </ul>
             )}
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="observations">
+          {activeTab === 'observations' && (
+            <div>
             <h3 className="font-semibold mb-3">Observation Log</h3>
              {pilot.observations.length === 0 ? <p className="text-sm text-slate-500">No observations.</p> : (
               <ul className="space-y-2">
@@ -55,9 +76,11 @@ export function ProcessPilotDetail({ pilot }: { pilot: ProcessPilot }) {
                 ))}
               </ul>
             )}
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="evidence">
+          {activeTab === 'evidence' && (
+            <div>
              <h3 className="font-semibold mb-3">Evidence Matrix</h3>
              {pilot.evidence_items.length === 0 ? <p className="text-sm text-slate-500">No evidence.</p> : (
               <ul className="space-y-2">
@@ -68,9 +91,11 @@ export function ProcessPilotDetail({ pilot }: { pilot: ProcessPilot }) {
                 ))}
               </ul>
             )}
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="gaps">
+          {activeTab === 'gaps' && (
+            <div>
             <h3 className="font-semibold mb-3">Collection Gaps</h3>
              {pilot.collection_gaps.length === 0 ? <p className="text-sm text-slate-500">No gaps identified.</p> : (
               <ul className="space-y-2">
@@ -82,9 +107,11 @@ export function ProcessPilotDetail({ pilot }: { pilot: ProcessPilot }) {
                 ))}
               </ul>
             )}
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="asis">
+          {activeTab === 'asis' && (
+            <div>
              <h3 className="font-semibold mb-3">As-Is Summary</h3>
              <p className="text-sm text-slate-700 mb-4">{pilot.as_is_summary.summary}</p>
              <h4 className="font-medium text-sm mb-2">Key Steps:</h4>
@@ -95,17 +122,21 @@ export function ProcessPilotDetail({ pilot }: { pilot: ProcessPilot }) {
                  ))}
                </ol>
              )}
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="validation">
+          {activeTab === 'validation' && (
+            <div>
              <h3 className="font-semibold mb-3">Validation Decision</h3>
              <div className="p-4 bg-white border rounded">
                 <Badge variant="outline" className="mb-2 text-sm">{pilot.validation_decision.status}</Badge>
                 <p className="text-sm mt-2">{pilot.validation_decision.notes || 'No notes.'}</p>
              </div>
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="capabilities">
+          {activeTab === 'capabilities' && (
+            <div>
              <h3 className="font-semibold mb-3">Capability Candidates</h3>
              {pilot.capability_candidates.length === 0 ? <p className="text-sm text-slate-500">No capabilities proposed.</p> : (
               <ul className="space-y-2">
@@ -116,9 +147,10 @@ export function ProcessPilotDetail({ pilot }: { pilot: ProcessPilot }) {
                 ))}
               </ul>
             )}
-          </TabsContent>
+            </div>
+          )}
         </div>
-      </Tabs>
+      </div>
     </div>
   );
 }

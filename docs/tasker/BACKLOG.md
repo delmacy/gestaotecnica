@@ -22,8 +22,11 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-REGISTRY-VIEW-001 | tasker | Auditar prontidão para desenvolvimento do Registry View | architecture | medium | done |
 | DEV-REGISTRY-VIEW-001 | ui | Implementar Registry View read-only com mock data | implementation | medium | done |
 | DEV-REVIEW-REGISTRY-VIEW-001 | ui | Revisar implementação do Registry View | architecture | medium | done |
-| DOCS-VIEWER-001 | ui | Preparar visualizador de docs/workboards | architecture | medium | ready |
-| PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | backlog |
+| DOCS-VIEWER-001 | ui | Preparar visualizador de docs/workboards | architecture | medium | done |
+| DEV-READINESS-DOCS-VIEWER-001 | tasker | Auditar prontidão para desenvolvimento do Docs Viewer | architecture | medium | done |
+| DEV-DOCS-VIEWER-001 | ui | Implementar Docs Viewer read-only com mock data | implementation | medium | done |
+| DEV-REVIEW-DOCS-VIEWER-001 | ui | Revisar implementação do Docs Viewer | architecture | medium | done |
+| PM-INTAKE-001 | ui | Preparar Process Mirroring Intake | architecture | high | ready |
 | SOURCE-INTAKE-001 | ui | Preparar Source Inventory / Evidence Intake | architecture | medium | backlog |
 | GAP-TRACKER-001 | ui | Preparar Gap Tracker | architecture | medium | backlog |
 | AS-IS-MIRROR-001 | ui | Preparar As-Is Mirror Board | architecture | medium | backlog |

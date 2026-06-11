@@ -27,7 +27,7 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 13.1 | DEV-READINESS-DOCS-VIEWER-001 | done | Contrato auditado e autorizado para dev |
 | 13.2 | DEV-DOCS-VIEWER-001 | done | UI read-only desenvolvida |
 | 13.3 | DEV-REVIEW-DOCS-VIEWER-001 | done | Relatório de revisão do Docs Viewer aprovado |
-| 14 | PM-INTAKE-001 | review | Contrato e planejamento do PM Intake aprovados |
+| 14 | PM-INTAKE-001 | done | Contrato e planejamento do PM Intake aprovados |
 | 14.1 | DEV-READINESS-PM-INTAKE-001 | done | Contrato auditado e autorizado para dev |
 | 14.2 | DEV-PM-INTAKE-001 | done | Interface implementada |
 | 14.3 | DEV-REVIEW-PM-INTAKE-001 | done | Revisão final aprovada |

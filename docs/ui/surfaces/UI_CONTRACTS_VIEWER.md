@@ -1,0 +1,23 @@
+# UI Contracts Viewer
+
+- **surface_id:** UI-SURF-UI-CONTRACTS-VIEWER
+- **surface_name:** UI Contracts Viewer
+- **purpose:** Visualizar contratos de UI da plataforma de forma navegável e estruturada. Apoiar a governança visual e gestão do System Builder sem permitir a edição real de arquivos Markdown.
+- **persona:** Builder Platform Architect, Builder Dev, UX Architect
+- **route_candidate:** /builder/ui-contracts
+- **scope:** Visualização de contratos de UI em modo read-only e mock/static index. Exibição de metadados, inputs/outputs, riscos e status de implementação. Relacionamento com tarefas e avaliações.
+- **workspace_or_global:** global (Platform/Builder level)
+- **related_capabilities:** docs_viewer, builder_shell
+- **data_inputs:** N/A (leitura mockada/estática)
+- **data_outputs:** N/A (não há persistência real, não altera runtime, read-only)
+- **commands:** Filtrar por grupo, Filtrar por status de implementação, Buscar por nome/rota/surface_id.
+- **empty_state:** "Nenhum contrato de interface encontrado para os filtros selecionados."
+- **loading_state:** Skeletons exibidos na lista lateral e painel principal.
+- **error_state:** "Falha ao carregar contratos simulados."
+- **success_state:** Transições suaves após interação local (client-side filters).
+- **permissions:** Acesso a membros da construção da plataforma (Builder Platform Admins e Architects).
+- **audit_events:** (Simulados) ui_contract_viewed, ui_contract_search_performed
+- **evidence_required:** Markdown contracts e relatórios de validação no docs
+- **frontend_risks:** Risco de ser confundido com um "View Builder" ou de criar a expectativa de edição em runtime, o que não é o escopo. Risco de complexidade em tratar contratos não estruturados caso não estivesse usando mock.
+- **e2e_test_expectation:** O Platform Admin abre `/builder/ui-contracts`, visualiza os contratos estáticos da plataforma listados, clica no "Builder Shell", vê o detalhe do contrato (persona, inputs, purpose) no modo leitura, filtra pelo grupo B (bloqueados) e comprova que os dados não alteram banco.
+- **implementation_status:** documented

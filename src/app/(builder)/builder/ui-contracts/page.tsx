@@ -1,8 +1,11 @@
-export default function UIContractsPage() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-      <h1 className="text-2xl font-bold mb-2">UI Contracts</h1>
-      <p className="text-muted-foreground">Este módulo está sendo construído (Mock State).</p>
-    </div>
-  );
+import React from "react";
+import { UiContractsViewer } from "@/components/builder/ui-contracts/UiContractsViewer";
+
+export const metadata = {
+  title: "UI Contracts Viewer | System Builder",
+  description: "Visualização e gestão estática de contratos de UI da plataforma System Builder",
+};
+
+export default function UiContractsPage() {
+  return <UiContractsViewer />;
 }

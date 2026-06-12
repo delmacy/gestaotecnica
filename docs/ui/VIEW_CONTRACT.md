@@ -15,6 +15,7 @@ As seguintes superfícies são consideradas prioritárias para a estruturação 
 - **Gap Tracker (`GAP_TRACKER.md`):** Superfície para organizar lacunas de coleta, análise e validação que impedem o espelhamento de processos. Rota candidata: `/builder/process-mirroring/gaps`.
 - **Process Mirror Board (`PROCESS_MIRROR_BOARD.md`):** Visualização do espelho de processos.
 - **As-Is Mirror Board (`AS_IS_MIRROR.md`):** Visualização do processo espelhado em estado atual (As-Is). Rota candidata: `/builder/process-mirroring/as-is`.
+- **UI Contracts Viewer (`UI_CONTRACTS_VIEWER.md`):** Visualização de contratos de UI da plataforma de forma navegável e estruturada. Rota candidata: `/builder/ui-contracts`.
 
 *(As demais superfícies encontram-se documentadas no diretório `docs/ui/surfaces/` e seguem o fluxo de priorização definido no backlog).*
 

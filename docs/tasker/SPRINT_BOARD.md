@@ -40,6 +40,11 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 17.1 | DEV-READINESS-AS-IS-MIRROR-001 | done | Auditar prontidão para dev do As-Is Mirror Board |
 | 17.2 | DEV-AS-IS-MIRROR-001 | done | Implementar UI com mock data |
 | 17.3 | DEV-REVIEW-AS-IS-MIRROR-001 | done | Revisar implementação e compliance |
+| 18 | UI-CONTRACTS-VIEWER-001 | done | Planejar e documentar UI Contracts Viewer |
+| 18.1 | DEV-READINESS-UI-CONTRACTS-VIEWER-001 | done | Auditar prontidão para dev do UI Contracts Viewer |
+| 18.2 | DEV-UI-CONTRACTS-VIEWER-001 | done | Implementar UI com mock data |
+| 18.3 | DEV-REVIEW-UI-CONTRACTS-VIEWER-001 | done | Revisar UI Contracts Viewer |
+| 19 | FORM-BUILDER-001 | ready | Planejar Form Builder |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

@@ -27,3 +27,6 @@ Esta matriz avalia individualmente a prontidão dos módulos para desenvolviment
 | DEV-READINESS-UI-CONTRACTS-VIEWER-001 | UI-CONTRACTS-VIEWER-001 | true | false | false | false | DONE | Contrato do UI Contracts Viewer auditado e autorizado com limites. | Desenvolver UI Contracts Viewer com mock data |
 | DEV-UI-CONTRACTS-VIEWER-001 | DEV-READINESS-UI-CONTRACTS-VIEWER-001 | true | false | false | false | DONE | UI mockada implementada. | Revisar UI Contracts Viewer. |
 | DEV-REVIEW-UI-CONTRACTS-VIEWER-001 | DEV-UI-CONTRACTS-VIEWER-001 | true | false | false | false | DONE | Código revisado, testes e auditoria aplicados com sucesso. | Partir para a próxima task. |
+| DEV-READINESS-FORM-BUILDER-001 | FORM-BUILDER-001 | true | false | false | false | DONE | O contrato do Form Builder foi auditado com limites restritos (design-only). | Desenvolver Form Builder. |
+| DEV-FORM-BUILDER-001 | DEV-READINESS-FORM-BUILDER-001 | true | false | false | false | DONE | UI implementada com static mock schema local. | Revisar implementação. |
+| DEV-REVIEW-FORM-BUILDER-001 | DEV-FORM-BUILDER-001 | true | false | false | false | DONE | Revisão do Form Builder concluída, código validado sem erros. | Liberar próxima task de View Builder. |

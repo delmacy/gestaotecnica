@@ -48,8 +48,11 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 
 | ID | Módulo | Título | Tipo | Prioridade | Status |
 |---|---|---|---|---|---|
-| FORM-BUILDER-001 | ui | Planejar Form Builder | contract | high | ready |
-| VIEW-BUILDER-001 | ui | Planejar View Builder | contract | high | backlog |
+| FORM-BUILDER-001 | ui | Planejar Form Builder | contract | high | done |
+| DEV-READINESS-FORM-BUILDER-001 | tasker | Auditar prontidão para desenvolvimento do Form Builder | architecture | high | done |
+| DEV-FORM-BUILDER-001 | ui | Implementar Form Builder mock/studio com static data | implementation | high | done |
+| DEV-REVIEW-FORM-BUILDER-001 | ui | Revisar implementação do Form Builder | architecture | high | done |
+| VIEW-BUILDER-001 | ui | Planejar View Builder | contract | high | ready |
 | WORKFLOW-BUILDER-001 | ui | Planejar Workflow Builder | contract | high | backlog |
 | GOVERNANCE-MATRIX-001 | ui | Planejar Role/Permission Matrix | contract | medium | backlog |
 | OPERATOR-GUIDE-001 | ui | Planejar Operator Guide | contract | medium | backlog |

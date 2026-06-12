@@ -1,0 +1,23 @@
+# Form Builder
+
+- **surface_id:** UI-SURF-FORM-BUILDER
+- **surface_name:** Form Builder
+- **purpose:** Atuar como a superfície visual de design e estruturação de schemas de formulários do System Builder, servindo como base conceitual para o futuro runtime e geração de artefatos reais.
+- **persona:** UX Architect, Process Analyst, Builder Platform Architect
+- **route_candidate:** /builder/form-builder
+- **scope:** Visualização, navegação e manipulação local (client-side) de componentes e blueprints de formulários, com foco no design (layout, campos, validações, bindings). Fora de escopo: persistência real no banco de dados, geração real de rotas/migrations ou execução runtime.
+- **workspace_or_global:** workspace
+- **related_capabilities:** form_definition, capabilities_registry
+- **data_inputs:** N/A (leitura de schema mockado localmente)
+- **data_outputs:** N/A (não há gravação real, operações mantidas no estado local da aplicação React)
+- **commands:** Selecionar Form Blueprint, Filtrar Campos (local), Simular Preview, Toggle Visual Properties (Required/Optional).
+- **empty_state:** "Nenhum Form Blueprint selecionado. Por favor, escolha um projeto do catálogo para continuar o design."
+- **loading_state:** Skeletons exibidos na lista lateral (Blueprints) e no painel central (Canvas).
+- **error_state:** "Falha ao carregar schema do formulário."
+- **success_state:** Transições suaves após interação local.
+- **permissions:** Acesso a membros da construção da plataforma (UX Architects e Process Analysts mockados).
+- **audit_events:** (Simulados) form_blueprint_viewed, mock_field_toggled
+- **evidence_required:** Schemas de dados documentados no diretório mock e contratos validados
+- **frontend_risks:** Risco de gerar a expectativa de que o formulário está sendo salvo no banco ou que é imediatamente utilizável em um fluxo de cliente final, o que viola o gate do Grupo B (Plataforma Builder com design/contrato antes de código).
+- **e2e_test_expectation:** O UX Architect abre `/builder/form-builder`, visualiza a lista de blueprints (como o 'Technical Service Intake Form — Synthetic'), clica para ver o Canvas com os campos arranjáveis, alterna para o Preview mode e valida o layout sem chamadas de rede ou Drizzle migrations.
+- **implementation_status:** documented

@@ -1,0 +1,23 @@
+# As-Is Mirror Board Contract
+
+- **surface_id:** UI-SURF-AS-IS-MIRROR
+- **surface_name:** As-Is Mirror Board
+- **purpose:** Visualizar o processo espelhado em estado atual (As-Is), permitindo a visualização de etapas do processo, handoffs, inputs, outputs, sistemas/documentos usados, evidências vinculadas, gaps sobrepostos ao fluxo, riscos e incertezas.
+- **persona:** Process Analyst, Platform Admin, Validator (Cliente)
+- **route_candidate:** `/builder/process-mirroring/as-is`
+- **scope:** Restrito à visualização do processo As-Is espelhado em modo mock/synthetic. Não permite execução de workflow runtime, não cria OS real, não valida processo real nesta fase. O objetivo é visualizar o espelho do processo atual e suas incertezas e preparar estrutura para modelagem To-Be futura, sem validar processo real agora.
+- **workspace_or_global:** O espelhamento ocorre num contexto de workspace (analisando um processo de negócio real).
+- **related_capabilities:** `documents`, `audit`, `approvals`
+- **data_inputs:** Dados do Process Mirror (sintéticos nesta fase).
+- **data_outputs:** Nenhuma saída real nesta fase (apenas leitura/visualização local).
+- **commands:** Visualizar detalhes da etapa, filtrar por validação/confiança/origem de dados, simular destaque de gap overlay.
+- **empty_state:** "Nenhum processo As-Is espelhado encontrado."
+- **loading_state:** Indicador de progresso enquanto os dados do espelho carregam.
+- **error_state:** Alerta claro se os dados do mirror não puderem ser carregados.
+- **success_state:** Exibição da lista de processos e o mapa de etapas com detalhes selecionados.
+- **permissions:** Acesso restrito a Analistas e Validadores designados (simulado).
+- **audit_events:** (Nenhum evento real emitido na fase mock) `mirror.viewed`, `mirror.filter_applied`
+- **evidence_required:** Visualização clara das evidências vinculadas às etapas.
+- **frontend_risks:** Alto risco de aprovações errôneas se a UI não deixar absolutamente claro que os dados atuais são sintéticos e insuficientes para validação final. Necessidade de separar bem os estados "synthetic", "real_pending", "real_blocked".
+- **e2e_test_expectation:** O usuário acessa a rota, vê a lista de processos sintéticos, seleciona um processo, visualiza as etapas, handoffs, evidências, clica em uma etapa para ver detalhes, aplica filtros, e o aviso "Synthetic Mode / Not Runtime" permanece visível.
+- **implementation_status:** documented

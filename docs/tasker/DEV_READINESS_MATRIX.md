@@ -21,3 +21,6 @@ Esta matriz avalia individualmente a prontidão dos módulos para desenvolviment
 | SOURCE-INTAKE-001 | N/A | true | false | false | false | DONE | Implementado sinteticamente. | Avançar para GAP-TRACKER-001 |
 | DEV-READINESS-GAP-TRACKER-001 | GAP-TRACKER-001 | true | false | false | false | DONE | Contrato do Gap Tracker auditado e autorizado com limites. | Desenvolver Gap Tracker com mock data |
 | DEV-REVIEW-GAP-TRACKER-001 | DEV-GAP-TRACKER-001 | true | false | false | false | DONE | Implementação auditada e aprovada com sucesso. | Seguir para AS-IS-MIRROR. |
+| DEV-READINESS-AS-IS-MIRROR-001 | AS-IS-MIRROR-001 | true | false | false | false | DONE | Contrato do As-Is Mirror auditado e autorizado com limites. | Desenvolver As-Is Mirror com mock data |
+| DEV-AS-IS-MIRROR-001 | DEV-READINESS-AS-IS-MIRROR-001 | true | false | false | false | DONE | Interface mockada implementada. | Revisar As-Is Mirror |
+| DEV-REVIEW-AS-IS-MIRROR-001 | DEV-AS-IS-MIRROR-001 | true | false | false | false | DONE | Pronto para revisão. | Revisar código. |

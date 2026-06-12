@@ -36,7 +36,10 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 16.1 | DEV-READINESS-GAP-TRACKER-001 | done | Contrato auditado e autorizado para dev |
 | 16.2 | DEV-GAP-TRACKER-001 | done | Interface pronta para implementação mockada |
 | 16.3 | DEV-REVIEW-GAP-TRACKER-001 | done | Revisar código e compliance da feature |
-| 17 | AS-IS-MIRROR-001 | ready | Planejar e documentar As-Is Mirror Board |
+| 17 | AS-IS-MIRROR-001 | done | Planejar e documentar As-Is Mirror Board |
+| 17.1 | DEV-READINESS-AS-IS-MIRROR-001 | done | Auditar prontidão para dev do As-Is Mirror Board |
+| 17.2 | DEV-AS-IS-MIRROR-001 | done | Implementar UI com mock data |
+| 17.3 | DEV-REVIEW-AS-IS-MIRROR-001 | done | Revisar implementação e compliance |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

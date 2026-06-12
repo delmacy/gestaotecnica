@@ -17,6 +17,7 @@ As seguintes superfícies são consideradas prioritárias para a estruturação 
 - **As-Is Mirror Board (`AS_IS_MIRROR.md`):** Visualização do processo espelhado em estado atual (As-Is). Rota candidata: `/builder/process-mirroring/as-is`.
 - **UI Contracts Viewer (`UI_CONTRACTS_VIEWER.md`):** Visualização de contratos de UI da plataforma de forma navegável e estruturada. Rota candidata: `/builder/ui-contracts`.
 - **Form Builder (`FORM_BUILDER.md`):** Superfície visual de design e estruturação de schemas de formulários do System Builder. Rota candidata: `/builder/form-builder`.
+- **View Builder (`VIEW_BUILDER.md`):** Superfície mockada de design-only para montar views mockadas a partir de static schemas locais. Rota candidata: `/builder/view-builder`.
 
 *(As demais superfícies encontram-se documentadas no diretório `docs/ui/surfaces/` e seguem o fluxo de priorização definido no backlog).*
 

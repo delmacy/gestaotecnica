@@ -48,7 +48,11 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 19.1 | DEV-READINESS-FORM-BUILDER-001 | done | Auditar prontidão para dev do Form Builder |
 | 19.2 | DEV-FORM-BUILDER-001 | done | Implementar Form Builder mock/studio com static data |
 | 19.3 | DEV-REVIEW-FORM-BUILDER-001 | done | Revisar implementação do Form Builder |
-| 20 | VIEW-BUILDER-001 | ready | Planejar View Builder |
+| 20 | VIEW-BUILDER-001 | done | Planejar View Builder |
+| 20.1 | DEV-READINESS-VIEW-BUILDER-001 | done | Auditar prontidão para dev do View Builder |
+| 20.2 | DEV-VIEW-BUILDER-001 | done | Implementar View Builder mock/studio com static data |
+| 20.3 | DEV-REVIEW-VIEW-BUILDER-001 | done | Revisar implementação do View Builder |
+| 21 | WORKFLOW-BUILDER-001 | ready | Planejar Workflow Builder |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

@@ -24,3 +24,6 @@ Esta matriz avalia individualmente a prontidão dos módulos para desenvolviment
 | DEV-READINESS-AS-IS-MIRROR-001 | AS-IS-MIRROR-001 | true | false | false | false | DONE | Contrato do As-Is Mirror auditado e autorizado com limites. | Desenvolver As-Is Mirror com mock data |
 | DEV-AS-IS-MIRROR-001 | DEV-READINESS-AS-IS-MIRROR-001 | true | false | false | false | DONE | Interface mockada implementada. | Revisar As-Is Mirror |
 | DEV-REVIEW-AS-IS-MIRROR-001 | DEV-AS-IS-MIRROR-001 | true | false | false | false | DONE | Pronto para revisão. | Revisar código. |
+| DEV-READINESS-UI-CONTRACTS-VIEWER-001 | UI-CONTRACTS-VIEWER-001 | true | false | false | false | DONE | Contrato do UI Contracts Viewer auditado e autorizado com limites. | Desenvolver UI Contracts Viewer com mock data |
+| DEV-UI-CONTRACTS-VIEWER-001 | DEV-READINESS-UI-CONTRACTS-VIEWER-001 | true | false | false | false | DONE | UI mockada implementada. | Revisar UI Contracts Viewer. |
+| DEV-REVIEW-UI-CONTRACTS-VIEWER-001 | DEV-UI-CONTRACTS-VIEWER-001 | true | false | false | false | DONE | Código revisado, testes e auditoria aplicados com sucesso. | Partir para a próxima task. |

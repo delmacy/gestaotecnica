@@ -39,13 +39,16 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-AS-IS-MIRROR-001 | tasker | Auditar prontidão para desenvolvimento do As-Is Mirror Board | architecture | medium | done |
 | DEV-AS-IS-MIRROR-001 | ui | Desenvolver interface do As-Is Mirror Board (com mock data e limites) | implementation | medium | done |
 | DEV-REVIEW-AS-IS-MIRROR-001 | ui | Revisar implementação do As-Is Mirror Board | architecture | medium | done |
-| UI-CONTRACTS-VIEWER-001 | ui | Preparar visualizador de contratos de UI | architecture | medium | ready |
+| UI-CONTRACTS-VIEWER-001 | ui | Preparar visualizador de contratos de UI | architecture | medium | done |
+| DEV-READINESS-UI-CONTRACTS-VIEWER-001 | tasker | Auditar prontidão para desenvolvimento do UI Contracts Viewer | architecture | medium | done |
+| DEV-UI-CONTRACTS-VIEWER-001 | ui | Desenvolver interface do UI Contracts Viewer (com mock data e limites) | implementation | medium | done |
+| DEV-REVIEW-UI-CONTRACTS-VIEWER-001 | ui | Revisar implementação do UI Contracts Viewer | architecture | medium | done |
 
 ## Grupo B — Plataforma Builder com design/contrato antes de código
 
 | ID | Módulo | Título | Tipo | Prioridade | Status |
 |---|---|---|---|---|---|
-| FORM-BUILDER-001 | ui | Planejar Form Builder | contract | high | backlog |
+| FORM-BUILDER-001 | ui | Planejar Form Builder | contract | high | ready |
 | VIEW-BUILDER-001 | ui | Planejar View Builder | contract | high | backlog |
 | WORKFLOW-BUILDER-001 | ui | Planejar Workflow Builder | contract | high | backlog |
 | GOVERNANCE-MATRIX-001 | ui | Planejar Role/Permission Matrix | contract | medium | backlog |

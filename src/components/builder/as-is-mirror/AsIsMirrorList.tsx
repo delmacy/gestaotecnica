@@ -41,13 +41,13 @@ export function AsIsMirrorList({ mirrors, selectedMirrorId, onSelectMirror }: Pr
                 </span>
 
                 {mirror.validation_status === 'synthetic_only' && (
-                  <CircleDashed className="w-3.5 h-3.5 text-slate-400" title="Synthetic" />
+                  <div title="Synthetic"><CircleDashed className="w-3.5 h-3.5 text-slate-400" /></div>
                 )}
                 {mirror.validation_status === 'needs_real_validation' && (
-                  <HelpCircle className="w-3.5 h-3.5 text-amber-500" title="Needs real validation" />
+                  <div title="Needs real validation"><HelpCircle className="w-3.5 h-3.5 text-amber-500" /></div>
                 )}
                 {mirror.validation_status === 'not_reviewed' && (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-slate-300" title="Not reviewed" />
+                  <div title="Not reviewed"><CheckCircle2 className="w-3.5 h-3.5 text-slate-300" /></div>
                 )}
               </div>
             </button>

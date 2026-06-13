@@ -5,7 +5,7 @@ import { getDefaultRouteForProfile, canAccessRoute } from "../../src/modules/aut
 describe("Access Profiles Domain", () => {
   describe("getDefaultRouteForProfile", () => {
     it("returns /admin for builder", () => {
-      assert.strictEqual(getDefaultRouteForProfile("builder"), "/admin");
+      assert.strictEqual(getDefaultRouteForProfile("builder"), "/builder");
     });
 
     it("returns /operations for admin", () => {

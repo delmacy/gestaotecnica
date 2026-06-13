@@ -61,8 +61,11 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-WORKFLOW-BUILDER-001 | tasker | Auditar prontidão para dev do Workflow Builder | architecture | high | done |
 | DEV-WORKFLOW-BUILDER-001 | ui | Implementar UI Mockada do Workflow Builder | implementation | high | done |
 | DEV-REVIEW-WORKFLOW-BUILDER-001 | ui | Revisar código e compliance do Workflow Builder | architecture | high | done |
-| GOVERNANCE-MATRIX-001 | ui | Planejar Role/Permission Matrix | contract | medium | ready |
-| OPERATOR-GUIDE-001 | ui | Planejar Operator Guide | contract | medium | backlog |
+| GOVERNANCE-MATRIX-001 | ui | Planejar Role/Permission Matrix | contract | medium | done |
+| DEV-READINESS-GOVERNANCE-MATRIX-001 | tasker | Auditar prontidão da Governance Matrix | architecture | high | done |
+| DEV-GOVERNANCE-MATRIX-001 | ui | Implementar Governance Matrix mock/static | implementation | high | done |
+| DEV-REVIEW-GOVERNANCE-MATRIX-001 | ui | Revisar implementação Governance Matrix | architecture | high | done |
+| OPERATOR-GUIDE-001 | ui | Planejar Operator Guide | contract | medium | ready |
 | ENTERPRISE-MAP-001 | ui | Planejar Enterprise Map | contract | medium | backlog |
 
 ## Grupo C — Runtime e integrações futuras

@@ -24,7 +24,7 @@ describe("Setup Server Action", () => {
           insert: () => ({
             values: () => ({ returning: () => [{ id: "user-123" }] }),
           }),
-          transaction: async (cb: unknown) => { transactionCalled = true; return cb({ insert: () => ({ values: () => ({ returning: () => [{ id: "user-123" }] }) }) }); }
+          transaction: async (cb: any) => { transactionCalled = true; return cb({ insert: () => ({ values: () => ({ returning: () => [{ id: "user-123" }] }) }) }); }
         }),
       },
     });
@@ -139,7 +139,7 @@ describe("Setup Server Action", () => {
           insert: (table: unknown) => ({
             values: () => ({ returning: () => [{ id: "user-123" }] })
           }),
-          transaction: async (cb: unknown) => {
+          transaction: async (cb: any) => {
             const tx = {
               insert: (table: unknown) => {
 
@@ -163,7 +163,7 @@ describe("Setup Server Action", () => {
     try {
       await setupFirstAdmin(defaultState, formData);
       assert.fail("Should have redirected");
-    } catch (e: unknown) {
+    } catch (e: any) {
       if (e.message !== "NEXT_REDIRECT") {
         throw e;
       }

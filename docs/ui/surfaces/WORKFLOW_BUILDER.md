@@ -1,0 +1,23 @@
+# Workflow Builder
+
+- **surface_id:** UI-SURF-WORKFLOW-BUILDER
+- **surface_name:** Workflow Builder Studio
+- **purpose:** Design e estruturação visual mockada de fluxos e blueprints.
+- **persona:** Builder
+- **route_candidate:** /builder/workflow-builder
+- **scope:** Mock mode apenas (sem runtime, sem persistência, sem schema alterations).
+- **workspace_or_global:** Global (Builder)
+- **related_capabilities:** work_orders, automations
+- **data_inputs:** Blueprints sintéticos via estado local.
+- **data_outputs:** Nenhum (design-only mode).
+- **commands:** Selecionar blueprint, selecionar node, alternar painéis.
+- **empty_state:** Canvas vazio com aviso de Design-only.
+- **loading_state:** Instantâneo.
+- **error_state:** Mensagem padrão de erro de estado no canvas.
+- **success_state:** Renderização dos mock blueprints.
+- **permissions:** platform_admin, builder.
+- **audit_events:** Nenhum gerado neste mock.
+- **evidence_required:** Não.
+- **frontend_risks:** Baixo.
+- **e2e_test_expectation:** O builder seleciona o Blueprint, clica num node e visualiza os detalhes no painel sem erro.
+- **implementation_status:** ready_for_dev_after_gate

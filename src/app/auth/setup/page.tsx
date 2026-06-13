@@ -11,6 +11,17 @@ export default function SetupPage() {
           <CardTitle>Primeiro administrador</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 space-y-2 text-sm text-muted-foreground">
+            <p>
+              Esta rota serve <strong>apenas</strong> para a criação do primeiro administrador da plataforma. O usuário criado terá perfil <strong>Builder</strong>.
+            </p>
+            <p>
+              Se o setup já estiver concluído, utilize o script de administração (<code>ensure-platform-admin.ts</code>). Não existe reset público de senha.
+            </p>
+            <p className="font-semibold text-destructive">
+              Não revele ou compartilhe suas credenciais.
+            </p>
+          </div>
           <form action={setupFirstAdmin} className="space-y-4">
             <label className="block">
               <span className="text-sm font-medium">Nome</span>

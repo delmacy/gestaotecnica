@@ -2,8 +2,9 @@ import { getAgentWorkDb } from "../db";
 import { agentWorkPackages, agentActiveClaims, agentPathClaims, agentWorkers, agentPackageDependencies, agentContractVersions } from "../schema";
 import { eq, and, sql } from "drizzle-orm";
 import { validateOwnership } from "./collision-engine";
+import { createHash, randomBytes } from "crypto";
 
-export async function claimPackageTransactional(workerKey: string, packageKey: string): Promise<{ success: boolean; error?: string }> {
+export async function claimPackageTransactional(workerKey: string, packageKey: string): Promise<{ success: boolean; error?: string; token?: string }> {
   try {
     const db = getAgentWorkDb();
     return await db.transaction(async (tx) => {
@@ -61,7 +62,8 @@ export async function claimPackageTransactional(workerKey: string, packageKey: s
       }
 
       // 8. Create claim
-      const claimTokenHash = crypto.randomUUID(); // hash ideally
+      const token = randomBytes(32).toString("hex");
+      const claimTokenHash = createHash("sha256").update(token).digest("hex");
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 1); // 1 hour lease
 
@@ -105,7 +107,7 @@ export async function claimPackageTransactional(workerKey: string, packageKey: s
         );
       }
 
-      return { success: true };
+      return { success: true, token };
     });
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };

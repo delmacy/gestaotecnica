@@ -133,6 +133,7 @@ ALTER TABLE "agent_work"."agent_workers" ADD COLUMN "max_active_claims" integer 
 ALTER TABLE "agent_work"."agent_workers" ADD COLUMN "metadata" jsonb;--> statement-breakpoint
 ALTER TABLE "agent_work"."agent_workers" ADD COLUMN "created_at" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
 ALTER TABLE "agent_work"."agent_workers" ADD COLUMN "updated_at" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
+ALTER TABLE "agent_work"."agent_review_packages" ADD CONSTRAINT "agent_review_packages_key_unique" UNIQUE("key");--> statement-breakpoint
 ALTER TABLE "agent_work"."agent_review_claims" ADD CONSTRAINT "agent_review_claims_review_package_key_agent_review_packages_key_fk" FOREIGN KEY ("review_package_key") REFERENCES "agent_work"."agent_review_packages"("key") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "agent_work"."agent_review_claims" ADD CONSTRAINT "agent_review_claims_reviewer_key_agent_workers_key_fk" FOREIGN KEY ("reviewer_key") REFERENCES "agent_work"."agent_workers"("key") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "agent_work"."agent_review_packages" ADD CONSTRAINT "agent_review_packages_work_package_key_agent_work_packages_key_fk" FOREIGN KEY ("work_package_key") REFERENCES "agent_work"."agent_work_packages"("key") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

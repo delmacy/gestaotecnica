@@ -93,7 +93,7 @@ test("Integration: Clean migration, seed and double claim flow", async () => {
      assert.strictEqual(claim2.success, false);
      assert.strictEqual(claim2.error, "Package is not ready");
 
-  } catch(e) {
+  } catch(e: any) {
       if(false) {
          console.log("DB not running, skipping real integration test.")
          assert.ok(true);
@@ -142,7 +142,7 @@ test("should reject invalid base SHA in seeds", async () => {
             console.log("No DB, but we can catch the synchronous validation error.");
        }
        await seedWave01("latest");
-   } catch(e) {
+   } catch(e: any) {
        if (e.message.includes("Agent Work DB is not initialized")) {
            failed = true; // acceptable in unit mock env where DB is missing but we're trying to reach seed.
        } else if (e.message.includes("prohibited")) {
@@ -168,7 +168,7 @@ test("should generate Doc and Integration Kits with required fields", async () =
        assert.ok(docKit.wave);
        const intKit = await generateIntegrationKit("WAVE-01-FOUNDATION");
        assert.ok(intKit.wave);
-   } catch(e) {
+   } catch(e: any) {
        // Graceful catch for disconnected test mode
        if (!e.message.includes("Failed query") && !e.message.includes("initialized")) {
            throw e;

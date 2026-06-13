@@ -1,4 +1,4 @@
-CREATE SCHEMA "agent_work";
+CREATE SCHEMA IF NOT EXISTS "agent_work";
 --> statement-breakpoint
 CREATE TABLE "agent_work"."agent_active_claims" (
 	"id" text PRIMARY KEY NOT NULL,

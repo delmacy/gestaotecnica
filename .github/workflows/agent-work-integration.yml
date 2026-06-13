@@ -1,15 +1,23 @@
-name: Agent Work Integration
+name: Agent Work Operational Proof
 on:
+  pull_request:
+    paths:
+      - "src/agent-work/**"
+      - "drizzle-agent-work/**"
+      - "tests/unit/agent-work-*.test.ts"
+      - "tests/integration/agent-work-*.test.ts"
+      - ".github/workflows/agent-work-integration.yml"
+      - "docs/agent-work/**"
   push:
     branches:
-      - 'integration/**'
+      - "integration/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  integration-tests:
+  operational-proof:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -17,44 +25,46 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: tec_db
+          POSTGRES_DB: agent_work_test
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres -d agent_work_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
           - 5432:5432
+    env:
+      NODE_ENV: test
+      AGENT_WORK_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/agent_work_test
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version: '20'
-
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
       - name: Install
         run: npm ci
-
-      - name: Build and Test
-        run: npm test
-
-      - name: Migrate Database
-        run: npx drizzle-kit push --config drizzle.agent-work.config.ts
-        env:
-          AGENT_WORK_TEST_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tec_db"
-          AGENT_WORK_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tec_db"
-
-      - name: Run Agent Work Integration Tests
-        run: npm run test:agent-work
-        env:
-          AGENT_WORK_TEST_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tec_db"
-
-      - name: Verify Core Completeness Evidence
-        run: npm run agent-work -- core:verify --wave WAVE-01-FOUNDATION
-        env:
-          AGENT_WORK_TEST_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tec_db"
-          AGENT_WORK_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tec_db"
-      - name: Validate Integration Gate
-        run: echo "Validating wave constraints and integration receipt"
+      - name: Migrate Agent Work
+        run: npm run agent-work -- db:migrate
+      - name: Seed Wave 01 with real main SHA
+        run: npm run agent-work -- seed:wave-01 --base-sha "$(git rev-parse origin/main)"
+      - name: Check Agent Work database
+        run: npm run agent-work -- db:check
+      - name: Unit tests
+        run: npm run test:agent-work:unit
+      - name: Record unit tests
+        run: npm run agent-work -- proof:record --wave WAVE-01-FOUNDATION --type unit_tests --status verified
+      - name: Integration tests
+        run: npm run test:agent-work:integration
+      - name: Record integration tests
+        run: npm run agent-work -- proof:record --wave WAVE-01-FOUNDATION --type integration_tests --status verified
+      - name: Parallel dry-run and reviewer simulation
+        run: npm run agent-work -- dry-run
+      - name: Build
+        run: npm run build
+      - name: Record build
+        run: npm run agent-work -- proof:record --wave WAVE-01-FOUNDATION --type build --status verified
+      - name: Verify readiness and generate evidence
+        run: npm run agent-work -- readiness:verify --wave WAVE-01-FOUNDATION

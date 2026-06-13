@@ -9,6 +9,8 @@ export const metadata = {
   title: "Setup - System Builder",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function SetupPage() {
   const db = getDb();
   const existingAccounts = await db.select({ id: authAccounts.id }).from(authAccounts).limit(1);

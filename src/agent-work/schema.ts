@@ -1,4 +1,5 @@
-import { pgSchema, text, integer, timestamp, jsonb, boolean, unique } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { pgSchema, text, integer, timestamp, jsonb, boolean, unique, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const agentWorkSchema = pgSchema("agent_work");
 
@@ -278,7 +279,7 @@ export const agentIntegrationReceipts = agentWorkSchema.table("agent_integration
 
 export const agentReviewPackages = agentWorkSchema.table("agent_review_packages", {
   id: text("id").primaryKey(),
-  key: text("key").notNull(),
+  key: text("key").notNull().unique(),
   workPackageKey: text("work_package_key").notNull().references(() => agentWorkPackages.key),
   moduleKey: text("module_key").notNull(),
   laneKey: text("lane_key").notNull(),
@@ -331,4 +332,42 @@ export const agentReviewClaims = agentWorkSchema.table("agent_review_claims", {
   expiresAt: timestamp("expires_at").notNull(),
   releasedAt: timestamp("released_at"),
   releaseReason: text("release_reason"),
+}, (t) => [uniqueIndex("agent_review_claims_active_type_unique").on(t.reviewPackageKey, t.reviewType).where(sql`${t.status} = 'active'`)]);
+
+export const agentReviewClaimHistory = agentWorkSchema.table("agent_review_claim_history", {
+  id: text("id").primaryKey(),
+  reviewPackageKey: text("review_package_key").notNull(),
+  reviewerKey: text("reviewer_key").notNull(),
+  reviewType: text("review_type").notNull(),
+  action: text("action").notNull(),
+  details: jsonb("details").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const agentReviewKits = agentWorkSchema.table("agent_review_kits", {
+  id: text("id").primaryKey(),
+  reviewPackageKey: text("review_package_key").notNull().references(() => agentReviewPackages.key),
+  reviewType: text("review_type").notNull(),
+  content: jsonb("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [unique().on(t.reviewPackageKey, t.reviewType)]);
+
+export const agentReviewReceipts = agentWorkSchema.table("agent_review_receipts", {
+  id: text("id").primaryKey(),
+  reviewPackageKey: text("review_package_key").notNull().references(() => agentReviewPackages.key),
+  reviewType: text("review_type").notNull(),
+  reviewerKey: text("reviewer_key").notNull(),
+  decision: text("decision").notNull(),
+  content: jsonb("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [unique().on(t.reviewPackageKey, t.reviewType)]);
+
+export const agentOperationalArtifacts = agentWorkSchema.table("agent_operational_artifacts", {
+  id: text("id").primaryKey(),
+  waveKey: text("wave_key").notNull(),
+  artifactType: text("artifact_type").notNull(),
+  artifactKey: text("artifact_key").notNull(),
+  status: text("status").notNull(),
+  content: jsonb("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [unique().on(t.waveKey, t.artifactType, t.artifactKey)]);

@@ -32,12 +32,16 @@ let platformDbInstance: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let runtimeDbInstance: any = null;
 
+function getIsolatedTestDatabaseUrl() {
+  return process.env.AGENT_WORK_TEST_DATABASE_URL;
+}
+
 export function getPlatformDb() {
   if (!platformDbInstance) {
-    const databaseUrl = process.env.PLATFORM_DATABASE_URL || process.env.DATABASE_URL;
+    const databaseUrl = process.env.PLATFORM_DATABASE_URL || process.env.DATABASE_URL || getIsolatedTestDatabaseUrl();
 
     if (!databaseUrl) {
-      throw new Error("PLATFORM_DATABASE_URL or DATABASE_URL is required.");
+      throw new Error("PLATFORM_DATABASE_URL, DATABASE_URL, or isolated test database URL is required.");
     }
 
     platformClient = postgres(databaseUrl, {
@@ -53,10 +57,10 @@ export function getPlatformDb() {
 
 export function getRuntimeDb() {
   if (!runtimeDbInstance) {
-    const databaseUrl = process.env.RUNTIME_DATABASE_URL || process.env.DATABASE_URL;
+    const databaseUrl = process.env.RUNTIME_DATABASE_URL || process.env.DATABASE_URL || getIsolatedTestDatabaseUrl();
 
     if (!databaseUrl) {
-      throw new Error("RUNTIME_DATABASE_URL or DATABASE_URL is required.");
+      throw new Error("RUNTIME_DATABASE_URL, DATABASE_URL, or isolated test database URL is required.");
     }
 
     runtimeClient = postgres(databaseUrl, {

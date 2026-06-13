@@ -3,7 +3,7 @@ export type AccessProfile = "builder" | "admin" | "operador";
 export function getDefaultRouteForProfile(profile: AccessProfile): string {
   switch (profile) {
     case "builder":
-      return "/admin";
+      return "/builder";
     case "admin":
     case "operador":
       return "/operations";

@@ -56,8 +56,12 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-VIEW-BUILDER-001 | tasker | Auditar prontidão para dev do View Builder | architecture | high | done |
 | DEV-VIEW-BUILDER-001 | ui | Implementar View Builder mock/studio com static data | implementation | high | done |
 | DEV-REVIEW-VIEW-BUILDER-001 | ui | Revisar implementação do View Builder | architecture | high | done |
-| WORKFLOW-BUILDER-001 | ui | Planejar Workflow Builder | contract | high | ready |
-| GOVERNANCE-MATRIX-001 | ui | Planejar Role/Permission Matrix | contract | medium | backlog |
+| PLATFORM-ADMIN-ACCESS-001 | platform | Acesso superusuário para a plataforma | implementation | high | done |
+| WORKFLOW-BUILDER-001 | ui | Planejar Workflow Builder | contract | high | done |
+| DEV-READINESS-WORKFLOW-BUILDER-001 | tasker | Auditar prontidão para dev do Workflow Builder | architecture | high | done |
+| DEV-WORKFLOW-BUILDER-001 | ui | Implementar UI Mockada do Workflow Builder | implementation | high | done |
+| DEV-REVIEW-WORKFLOW-BUILDER-001 | ui | Revisar código e compliance do Workflow Builder | architecture | high | done |
+| GOVERNANCE-MATRIX-001 | ui | Planejar Role/Permission Matrix | contract | medium | ready |
 | OPERATOR-GUIDE-001 | ui | Planejar Operator Guide | contract | medium | backlog |
 | ENTERPRISE-MAP-001 | ui | Planejar Enterprise Map | contract | medium | backlog |
 

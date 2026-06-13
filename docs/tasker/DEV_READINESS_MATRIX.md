@@ -15,7 +15,8 @@ Esta matriz avalia individualmente a prontidão dos módulos para desenvolviment
 | DEV-REVIEW-PM-INTAKE-001 | DEV-PM-INTAKE-001 | true | false | false | false | DONE | Revisão do PM Intake concluída com sucesso. | Seguir para a próxima task (SOURCE-INTAKE-001). |
 | DEV-READINESS-DOCS-VIEWER-001 | UI_CONTRACT_DOCS | true | false | false | false | DONE | Contratos e matrizes de paridade do Docs Viewer foram criados e auditados. UI baseada em mock data desenvolvida. | Revisão da UI |
 | DEV-REVIEW-DOCS-VIEWER-001 | DEV-DOCS-VIEWER-001 | true | false | false | false | DONE | Revisão do código do Docs Viewer concluída com sucesso. | Seguir para a próxima task (PM-INTAKE-001). |
-| DEV-READINESS-WORKFLOW-BUILDER-001 | UI_CONTRACT_WORKFLOW | true | false | true | false | NOT_READY | Contrato pendente | Planejar Workflow Builder |
+| DEV-READINESS-WORKFLOW-BUILDER-001 | UI_CONTRACT_WORKFLOW | true | false | false | false | DONE | Contrato do Workflow Builder auditado e autorizado com limites. | Implementar UI Mockada |
+| DEV-REVIEW-WORKFLOW-BUILDER-001 | DEV-WORKFLOW-BUILDER-001 | true | false | false | false | DONE | Revisão concluída, workflow builder mock mode aprovado | Avançar Phase |
 | DEV-READINESS-RUNTIME-001 | RUNTIME_CONTRACT | false | false | true | true | NOT_READY | Contrato base do runtime pendente | Definir contrato de runtime |
 | DEV-READINESS-GESTAO-TECNICA-001 | PM_PILOT_REAL_SOURCES | false | true | true | true | BLOCKED | Fontes reais e plataforma base indisponíveis | Aguardar REAL-SRC-002 e conclusão do Builder Shell |
 | SOURCE-INTAKE-001 | N/A | true | false | false | false | DONE | Implementado sinteticamente. | Avançar para GAP-TRACKER-001 |

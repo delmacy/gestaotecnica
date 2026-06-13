@@ -1,0 +1,45 @@
+# Platform Admin Access
+
+Este documento descreve como garantir e gerenciar o acesso administrativo de alto nível ("builder") à plataforma System Builder.
+
+## 1. Primeiro Acesso
+O primeiro administrador da plataforma deve ser criado por meio da rota inicial de configuração:
+- Rota: `/auth/setup`
+- Preencha o nome, e-mail e senha.
+- Após o cadastro, o usuário terá o perfil de **Builder** associado.
+
+## 2. Acesso Posterior
+Uma vez criado o usuário administrador:
+- Os acessos subsequentes devem ser feitos via `/auth/login`.
+- A rota `/auth/setup` ficará bloqueada (retorna erro "Setup inicial ja foi concluido") se já existir uma conta na tabela `auth_accounts`.
+
+## 3. Criação/Normalização via Script
+Se o setup inicial já estiver bloqueado ou for necessário recriar o acesso do administrador da plataforma, deve-se usar o script dedicado.
+
+**Comando de Execução:**
+```bash
+npx tsx src/scripts/ensure-platform-admin.ts
+```
+
+## 4. Variáveis de Ambiente
+O script consome as seguintes variáveis (se não fornecidas, valores padrão ou gerados são usados em desenvolvimento):
+- `PLATFORM_ADMIN_NAME`
+- `PLATFORM_ADMIN_EMAIL`
+- `PLATFORM_ADMIN_PASSWORD`
+
+## 5. Regras de Segurança
+- Não existe rota pública para reset de senha administrativa.
+- Nenhuma senha é registrada em logs ou arquivos físicos.
+- O Git não deve rastrear o armazenamento de senhas.
+- O script atualiza a senha de forma segura com hash.
+
+## 6. Comportamento em Produção
+Se o sistema for executado em ambiente de produção (`NODE_ENV=production`) e a variável `PLATFORM_ADMIN_PASSWORD` não for fornecida, o script irá **falhar intencionalmente**. Isso impede a geração de senhas aleatórias imprevisíveis e força o controle seguro das credenciais via ambiente.
+
+## 7. Acesso Esperado a /builder
+Com a conta de Builder configurada com sucesso, a plataforma redirecionará o usuário ou permitirá o acesso direto a todas as rotas restritas em `/builder` e `/builder/**`.
+
+## 8. Procedimento Quando Já Existe Conta Desconhecida
+Se já existir um registro na tabela que não se sabe a senha:
+1. Execute o script `ensure-platform-admin.ts` informando a variável de ambiente `PLATFORM_ADMIN_PASSWORD`.
+2. O script encontrará o usuário pelo email e atualizará a conta associada na tabela `authAccounts` com a nova senha com hash, reativando o acesso sem precisar deletar o usuário ou o banco.

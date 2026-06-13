@@ -52,7 +52,12 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 20.1 | DEV-READINESS-VIEW-BUILDER-001 | done | Auditar prontidão para dev do View Builder |
 | 20.2 | DEV-VIEW-BUILDER-001 | done | Implementar View Builder mock/studio com static data |
 | 20.3 | DEV-REVIEW-VIEW-BUILDER-001 | done | Revisar implementação do View Builder |
-| 21 | WORKFLOW-BUILDER-001 | ready | Planejar Workflow Builder |
+| 20.4 | PLATFORM-ADMIN-ACCESS-001 | done | Acesso superusuário para a plataforma |
+| 21 | WORKFLOW-BUILDER-001 | done | Planejar Workflow Builder |
+| 21.1 | DEV-READINESS-WORKFLOW-BUILDER-001 | done | Auditar prontidão para dev do Workflow Builder |
+| 21.2 | DEV-WORKFLOW-BUILDER-001 | done | Implementar UI Mockada do Workflow Builder |
+| 21.3 | DEV-REVIEW-WORKFLOW-BUILDER-001 | done | Revisar código e compliance do Workflow Builder |
+| 22 | GOVERNANCE-MATRIX-001 | ready | Planejar Role/Permission Matrix |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

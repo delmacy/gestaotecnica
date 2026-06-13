@@ -69,6 +69,12 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 27.1 | DEV-READINESS-ENTERPRISE-MAP-001 | done | Auditar prontidão Enterprise Map |
 | 27.2 | DEV-ENTERPRISE-MAP-001 | done | Implementar Enterprise Map mock/static |
 | 27.3 | DEV-REVIEW-ENTERPRISE-MAP-001 | done | Revisão concluída e código aprovado |
+| 28 | TASKER-GROUP-C-SYNC-001 | done | Sincronizar Board C |
+| 28.1 | RUNTIME-CONTRACT-001 | done | Contrato de Runtime |
+| 28.2 | RUNTIME-CONTRACT-REVIEW-001 | done | Revisão do Contrato Runtime |
+| 29 | EVENT-RECEIPT-001 | done | Refinar modelo de eventos/recibos |
+| 29.1 | EVENT-RECEIPT-REVIEW-001 | done | Revisar modelo de eventos/recibos |
+| 30 | INTEGRATION-CONTRACT-001 | ready | Refinar contrato de webhooks/n8n |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

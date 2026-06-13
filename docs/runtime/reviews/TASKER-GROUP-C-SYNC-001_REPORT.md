@@ -4,9 +4,9 @@
 O relatório do Enterprise Map apontava a task `RUNTIME-CONTRACT-001` como próxima, mas o board registrava que o Sprint atual ainda não havia sido finalizado, ou seja, RUNTIME-CONTRACT-001 estava no backlog e DEV-READINESS-RUNTIME-001 como NOT_READY.
 
 ## Ação
-Foi atualizado o `docs/tasker/BACKLOG.md` (via edições locais que faremos) e a compreensão de que o Grupo C inicia para tratar a reconciliação do contrato de runtime preexistente.
+Foi atualizado o `docs/tasker/BACKLOG.md` e a compreensão de que o Grupo C inicia para tratar a reconciliação do contrato de runtime preexistente.
 
-## Arquivos que serão atualizados
+## Arquivos atualizados
 - `docs/tasker/BACKLOG.md`
 - `docs/tasker/SPRINT_BOARD.md`
 - `docs/tasker/DEV_READINESS_MATRIX.md`

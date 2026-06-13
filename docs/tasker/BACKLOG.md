@@ -69,7 +69,10 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-OPERATOR-GUIDE-001 | tasker | Auditar prontidão Operator Guide | architecture | medium | done |
 | DEV-OPERATOR-GUIDE-001 | ui | Implementar Operator Guide mock/static | implementation | medium | done |
 | DEV-REVIEW-OPERATOR-GUIDE-001 | ui | Revisar implementação do Operator Guide | architecture | medium | done |
-| ENTERPRISE-MAP-001 | ui | Planejar Enterprise Map | contract | medium | ready |
+| ENTERPRISE-MAP-001 | ui | Planejar Enterprise Map | contract | medium | done |
+| DEV-READINESS-ENTERPRISE-MAP-001 | tasker | Auditar prontidão Enterprise Map | architecture | medium | done |
+| DEV-ENTERPRISE-MAP-001 | ui | Implementar Enterprise Map mock/static | implementation | medium | done |
+| DEV-REVIEW-ENTERPRISE-MAP-001 | ui | Revisar implementação do Enterprise Map | architecture | medium | done |
 
 ## Grupo C — Runtime e integrações futuras
 

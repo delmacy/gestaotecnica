@@ -21,7 +21,10 @@ As seguintes superfícies são consideradas prioritárias para a estruturação 
 - **Workflow Builder (`WORKFLOW_BUILDER.md`):** Superfície mockada de design-only para montar blueprints e fluxos. Rota candidata: `/builder/workflow-builder`.
 
 ## Superfícies Secundárias (Grupo B)
+- **Governance Matrix (`GOVERNANCE_MATRIX.md`):** Superfície mockada de design-only para montar a matriz de governança. Rota candidata: `/builder/governance-matrix`.
 - **Operator Guide (`OPERATOR_GUIDE.md`):** Superfície mockada read-only/static de design-only para montar o guia de usuário. Rota candidata: `/builder/operator-guide`.
+- **Enterprise Map (`ENTERPRISE_MAP.md`):** Superfície mockada de design-only para visualização sintética da interconexão entre capacidades operacionais, processos, sistemas e papéis. Rota candidata: `/builder/enterprise-map`.
+
 
 *(As demais superfícies encontram-se documentadas no diretório `docs/ui/surfaces/` e seguem o fluxo de priorização definido no backlog).*
 

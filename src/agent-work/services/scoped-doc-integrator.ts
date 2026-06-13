@@ -27,6 +27,12 @@ export async function generateDocumentationKit(waveKey: string) {
     packagesMerged: packageKeys,
     impacts: impacts,
     docsTargets: impacts.map(i => i.docPath),
+    activityReceipts: [], // Mocked integration of receipts
+    reviewReceipts: [],
+    documentationImpacts: impacts,
+    publicContractChanges: [],
+    taskerImpacts: [],
+    packagesApproved: packageKeys,
     filesIntentionallyOutsideScope: ["src/**", "tests/**", "drizzle/**"],
     completionCommands: [
       `npm run agent-work -- package:complete --package PKG-DOC-HARMONIZE`
@@ -49,9 +55,16 @@ export async function generateIntegrationKit(waveKey: string) {
   return {
     wave: waveKey,
     baseSha: pkgsRes[0]?.baseSha,
-    approvedPackages: orderedPackages.map(p => p.key),
+    packagesApproved: orderedPackages.map(p => p.key),
+    reviewReceipts: [], // Mocked paths to receipts
+    collisionMatrix: {},
+    yellowCollisions: [],
     mergeOrder: orderedPackages.map(p => p.key),
-    publicContractIntersections: [], // Simplification
+    contractIntersections: [],
+    schemaImpacts: [],
+    aggregatorRequests: [],
+    globalTests: ["npm run test:unit", "npm run test:integration"],
+    rollbackOrder: orderedPackages.map(p => p.key).reverse(),
     completionCommands: [
       `npm run agent-work -- receipt:integration --wave ${waveKey}`
     ]

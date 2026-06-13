@@ -3,19 +3,22 @@ import { agentWorkers, agentExecutionWaves, agentWorkPackages, agentPackageTasks
 
 export async function seedWave01(baseSha: string) {
   const db = getAgentWorkDb();
-  if (!baseSha || baseSha.length < 40) {
-     throw new Error("A valid real base SHA must be provided");
+  const invalidShas = ["latest", "HEAD", "TBD", "1234567890123456789012345678901234567890"];
+  if (!baseSha || baseSha.length !== 40 || invalidShas.includes(baseSha)) {
+     throw new Error("A valid real base SHA must be provided. latest/HEAD/TBD/mock are strictly prohibited.");
   }
 
   await db.insert(agentWorkers).values([
-    { key: "jules-coordinator-01", name: "Coordinator", role: "coordinator", status: "active" },
-    { key: "jules-reviewer-module-01", name: "Reviewer Module", role: "reviewer", status: "active" },
-    { key: "jules-integrator-01", name: "Integrator", role: "integrator", status: "active" },
-    { key: "jules-documentator-01", name: "Documentator", role: "documentator", status: "active" },
-    { key: "jules-dev-shared-contracts-01", name: "Dev Shared Contracts", role: "module_worker", status: "active" },
-    { key: "jules-dev-runtime-types-01", name: "Dev Runtime Types", role: "module_worker", status: "active" },
-    { key: "jules-dev-runtime-tenancy-01", name: "Dev Runtime Tenancy", role: "module_worker", status: "active" },
-    { key: "jules-dev-events-01", name: "Dev Events", role: "module_worker", status: "active" }
+    { key: "jules-dev-shared-contracts-01", name: "Dev Shared Contracts", role: "module_worker", status: "active", maxActiveClaims: 1 },
+    { key: "jules-dev-runtime-types-01", name: "Dev Runtime Types", role: "module_worker", status: "active", maxActiveClaims: 1 },
+    { key: "jules-dev-events-01", name: "Dev Events", role: "module_worker", status: "active", maxActiveClaims: 1 },
+    { key: "jules-documentator-01", name: "Documentator", role: "documentator", status: "active", maxActiveClaims: 1 },
+    { key: "jules-reviewer-module-01", name: "Reviewer Module", role: "reviewer", status: "active", maxActiveClaims: 1 },
+    { key: "jules-reviewer-contract-01", name: "Reviewer Contract", role: "reviewer", status: "active", maxActiveClaims: 1 },
+    { key: "jules-reviewer-security-01", name: "Reviewer Security", role: "reviewer", status: "active", maxActiveClaims: 1 },
+    { key: "jules-reviewer-tenancy-01", name: "Reviewer Tenancy", role: "reviewer", status: "active", maxActiveClaims: 1 },
+    { key: "jules-integrator-01", name: "Integrator", role: "integrator", status: "active", maxActiveClaims: 1 },
+    { key: "jules-coordinator-01", name: "Coordinator", role: "coordinator", status: "active", maxActiveClaims: 1 }
   ]).onConflictDoNothing();
 
   await db.insert(agentExecutionWaves).values([
@@ -194,9 +197,10 @@ export async function seedWave01(baseSha: string) {
       await db.insert(agentWorkPackages).values(pkg as any).onConflictDoNothing();
 
       const tasks = [
-          { id: crypto.randomUUID(), key: crypto.randomUUID(), packageKey: pkg.key, title: "Task A Setup", description: "Setup the foundation", order: 1, status: "pending", taskType: "implementation", acceptanceCriteria: [], expectedArtifacts: [] },
-          { id: crypto.randomUUID(), key: crypto.randomUUID(), packageKey: pkg.key, title: "Task B Core", description: "Implement core logic", order: 2, status: "pending", taskType: "implementation", acceptanceCriteria: [], expectedArtifacts: [] },
-          { id: crypto.randomUUID(), key: crypto.randomUUID(), packageKey: pkg.key, title: "Task C Tests", description: "Write tests", order: 3, status: "pending", taskType: "test", acceptanceCriteria: [], expectedArtifacts: [] },
+          { id: crypto.randomUUID(), key: crypto.randomUUID(), packageKey: pkg.key, title: "Setup Foundation", description: "Setup the foundation environment and paths", order: 1, status: "pending", taskType: "implementation", acceptanceCriteria: ["Paths exist", "Basic config added"], expectedArtifacts: [] },
+          { id: crypto.randomUUID(), key: crypto.randomUUID(), packageKey: pkg.key, title: "Implement Core", description: "Implement core logic based on requirements", order: 2, status: "pending", taskType: "implementation", acceptanceCriteria: ["Functions implemented", "Types match contracts"], expectedArtifacts: [] },
+          { id: crypto.randomUUID(), key: crypto.randomUUID(), packageKey: pkg.key, title: "Add Tests", description: "Write unit and integration tests", order: 3, status: "pending", taskType: "test", acceptanceCriteria: ["Unit tests added", "Integration tests passing"], expectedArtifacts: [] },
+          { id: crypto.randomUUID(), key: crypto.randomUUID(), packageKey: pkg.key, title: "Add Docs", description: "Update documentation reflecting changes", order: 4, status: "pending", taskType: "documentation", acceptanceCriteria: ["Docs updated", "Impacts recorded"], expectedArtifacts: [] }
       ];
       await db.insert(agentPackageTasks).values(tasks).onConflictDoNothing();
   }

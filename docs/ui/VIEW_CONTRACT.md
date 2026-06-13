@@ -20,6 +20,9 @@ As seguintes superfícies são consideradas prioritárias para a estruturação 
 - **View Builder (`VIEW_BUILDER.md`):** Superfície mockada de design-only para montar views mockadas a partir de static schemas locais. Rota candidata: `/builder/view-builder`.
 - **Workflow Builder (`WORKFLOW_BUILDER.md`):** Superfície mockada de design-only para montar blueprints e fluxos. Rota candidata: `/builder/workflow-builder`.
 
+## Superfícies Secundárias (Grupo B)
+- **Operator Guide (`OPERATOR_GUIDE.md`):** Superfície mockada read-only/static de design-only para montar o guia de usuário. Rota candidata: `/builder/operator-guide`.
+
 *(As demais superfícies encontram-se documentadas no diretório `docs/ui/surfaces/` e seguem o fluxo de priorização definido no backlog).*
 
 ## Padrão Obrigatório de Contrato por Superfície

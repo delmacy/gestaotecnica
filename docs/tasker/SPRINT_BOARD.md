@@ -61,6 +61,10 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 25.1 | DEV-READINESS-GOVERNANCE-MATRIX-001 | done | Contrato auditado e autorizado para dev |
 | 25.2 | DEV-GOVERNANCE-MATRIX-001 | done | UI da matriz implementada |
 | 25.3 | DEV-REVIEW-GOVERNANCE-MATRIX-001 | done | Revisão concluída e código aprovado |
+| 26 | OPERATOR-GUIDE-001 | done | Planejar Operator Guide |
+| 26.1 | DEV-READINESS-OPERATOR-GUIDE-001 | done | Auditar prontidão Operator Guide |
+| 26.2 | DEV-OPERATOR-GUIDE-001 | done | Implementar Operator Guide mock/static |
+| 26.3 | DEV-REVIEW-OPERATOR-GUIDE-001 | done | Revisão concluída e código aprovado |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

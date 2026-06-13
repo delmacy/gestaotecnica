@@ -65,8 +65,11 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 | DEV-READINESS-GOVERNANCE-MATRIX-001 | tasker | Auditar prontidão da Governance Matrix | architecture | high | done |
 | DEV-GOVERNANCE-MATRIX-001 | ui | Implementar Governance Matrix mock/static | implementation | high | done |
 | DEV-REVIEW-GOVERNANCE-MATRIX-001 | ui | Revisar implementação Governance Matrix | architecture | high | done |
-| OPERATOR-GUIDE-001 | ui | Planejar Operator Guide | contract | medium | ready |
-| ENTERPRISE-MAP-001 | ui | Planejar Enterprise Map | contract | medium | backlog |
+| OPERATOR-GUIDE-001 | ui | Planejar Operator Guide | contract | medium | done |
+| DEV-READINESS-OPERATOR-GUIDE-001 | tasker | Auditar prontidão Operator Guide | architecture | medium | done |
+| DEV-OPERATOR-GUIDE-001 | ui | Implementar Operator Guide mock/static | implementation | medium | done |
+| DEV-REVIEW-OPERATOR-GUIDE-001 | ui | Revisar implementação do Operator Guide | architecture | medium | done |
+| ENTERPRISE-MAP-001 | ui | Planejar Enterprise Map | contract | medium | ready |
 
 ## Grupo C — Runtime e integrações futuras
 

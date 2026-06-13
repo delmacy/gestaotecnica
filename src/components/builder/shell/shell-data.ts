@@ -39,6 +39,7 @@ export const ACTIVE_MODULES = [
   { href: "/builder/docs", label: "Docs", icon: FileText, status: "active" },
   { href: "/builder/ui-contracts", label: "UI Contracts", icon: FileCode2, status: "active" },
   { href: "/builder/governance-matrix", label: "Governance Matrix", icon: ShieldAlert, status: "mock" },
+  { href: "/builder/operator-guide", label: "Operator Guide", icon: GraduationCap, status: "mock" },
   { href: "/builder/settings", label: "Settings / Workspace", icon: Settings, status: "active" },
 ];
 
@@ -50,5 +51,4 @@ export const FUTURE_MODULES = [
   { href: "#", label: "Integrations", icon: Plug, status: "coming_soon" },
   { href: "#", label: "Enterprise Architecture", icon: Network, status: "coming_soon" },
   { href: "#", label: "Governance", icon: ShieldAlert, status: "coming_soon" },
-  { href: "#", label: "Enablement", icon: GraduationCap, status: "coming_soon" },
 ];

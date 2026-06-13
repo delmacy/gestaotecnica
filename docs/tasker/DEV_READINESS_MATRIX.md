@@ -35,5 +35,7 @@ Esta matriz avalia individualmente a prontidão dos módulos para desenvolviment
 | DEV-VIEW-BUILDER-001 | DEV-READINESS-VIEW-BUILDER-001 | true | false | false | false | DONE | UI implementada com static mock schema local em client-side state. | Revisar implementação do View Builder. |
 | DEV-READINESS-GOVERNANCE-MATRIX-001 | UI_CONTRACT_GOVERNANCE_MATRIX | true | false | false | false | DONE | Contratos e limites estabelecidos para modo design-only mockado. | Auditar e avançar para DEV |
 | DEV-GOVERNANCE-MATRIX-001 | DEV-READINESS-GOVERNANCE-MATRIX-001 | true | false | false | false | DONE | UI mockada implementada. | Revisar Governance Matrix |
-
 | DEV-REVIEW-GOVERNANCE-MATRIX-001 | DEV-GOVERNANCE-MATRIX-001 | true | false | false | false | DONE | UI mockada implementada e revisada com testes locais. | Concluir Fase |
+| DEV-READINESS-OPERATOR-GUIDE-001 | OPERATOR-GUIDE-001 | true | false | false | false | DONE | Operator Guide MVP auditado | Iniciar desenvolvimento |
+| DEV-OPERATOR-GUIDE-001 | DEV-READINESS-OPERATOR-GUIDE-001 | true | false | false | false | DONE | UI mockada implementada. | Revisar Operator Guide |
+| DEV-REVIEW-OPERATOR-GUIDE-001 | DEV-OPERATOR-GUIDE-001 | true | false | false | false | DONE | Revisão do código concluída com sucesso. | Partir para a próxima task. |

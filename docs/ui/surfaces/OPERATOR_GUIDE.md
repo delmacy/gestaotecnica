@@ -1,23 +1,23 @@
 # Operator Guide Contract
 
-- **surface_id:** `UI-SURF-OPERATOR-GUIDE`
+- **surface_id:** UI-SURF-OPERATOR-GUIDE
 - **surface_name:** Operator Guide
-- **purpose:** Fornecer suporte em tempo de execução para os operadores, exibindo instruções por papel, checklists obrigatórios, procedimentos de execução, evidência esperada, advertências contra atalhos proibidos, instruções para exceções e base para futuro microtreinamento.
-- **persona:** Technician, Dispatcher, Qualquer operador operacional
-- **route_candidate:** Pode ser um drawer interativo associado ao contexto atual, e.g., `/[workspace_id]/work-orders/[id]?view=guide`
-- **scope:** Orientação passo-a-passo baseada na tarefa em andamento. Não substitui o fluxo de sistema; atua como um assistente ou enablement overlay.
-- **workspace_or_global:** Workspace
-- **related_capabilities:** `knowledge`, `documents`, `work_orders`
-- **data_inputs:** Nenhuma direta do usuário (eventualmente marcação de checkboxes de acompanhamento pessoal não-persistido como log oficial, a não ser que integre no checklist da OS).
-- **data_outputs:** Logs de leitura ou aceitação de procedimentos (quando exigido compliance rigoroso).
-- **commands:** Visualizar Procedimento, Marcar como Lido/Revisado, Fechar Guia.
-- **empty_state:** "Nenhum guia associado ao contexto atual."
-- **loading_state:** Spinner ou Skeleton do texto.
+- **purpose:** Fornecer suporte em tempo de execução para os operadores, exibindo instruções por papel, checklists obrigatórios, procedimentos de execução, evidência esperada, advertências contra atalhos proibidos, instruções para exceções e base para futuro microtreinamento. Ensina usuários Builder, Admin e Operator a navegar e utilizar as superfícies já implementadas.
+- **persona:** Platform Admin, Builder Architect, Process Analyst, Capability Architect, UX Architect, Reviewer, Client Viewer, Operator
+- **route_candidate:** /builder/operator-guide
+- **scope:** Orientação passo-a-passo baseada na plataforma e em tarefas operacionais. Não substitui o fluxo de sistema; atua como um assistente ou enablement overlay.
+- **workspace_or_global:** Global (mas pode refletir guias de workspace no futuro)
+- **related_capabilities:** `knowledge`, `documents`, `work_orders`, `enablement`
+- **data_inputs:** Nenhuma direta do usuário a não ser filtros e seleção de guias (marcação de checkboxes local apenas).
+- **data_outputs:** Nenhuma (progressos não persistidos nesta fase).
+- **commands:** Buscar, Filtrar, Selecionar Guia, Copiar Rota, Copiar Comando, Alternar Passo (Local).
+- **empty_state:** "Nenhum guia associado ao contexto atual." ou "Nenhum guia encontrado com os filtros aplicados."
+- **loading_state:** Skeleton do texto e lista.
 - **error_state:** Falha ao carregar a documentação com opção de reload.
-- **success_state:** Renderização legível das instruções com destaques visuais para riscos e evidências necessárias.
-- **permissions:** Disponível para quem tem acesso à tela de origem.
-- **audit_events:** `guide.viewed`, `guide.acknowledged` (se aplicável).
-- **evidence_required:** Em alguns contextos de alto risco, pode-se exigir confirmação explícita de leitura.
-- **frontend_risks:** Conteúdo longo pode empurrar conteúdo principal para fora da tela; requer bom uso de espaço (Drawer/Sidebar).
-- **e2e_test_expectation:** O Técnico abre uma OS complexa, clica no botão de "Ajuda do Processo", lê o checklist obrigatório e é avisado que uma foto é evidência obrigatória antes de avançar.
-- **implementation_status:** `documented`
+- **success_state:** Renderização legível das instruções com destaques visuais para riscos, procedimentos, pré-requisitos e rotas relacionadas.
+- **permissions:** Disponível para usuários autenticados no domínio Builder/Platform.
+- **audit_events:** (Nenhum nesta fase - read-only/static)
+- **evidence_required:** (Nenhuma nesta fase)
+- **frontend_risks:** Conteúdo longo pode empurrar conteúdo principal para fora da tela; requer bom uso de espaço.
+- **e2e_test_expectation:** O usuário acessa a rota, vê o aviso "Read-only / Static Guide", busca um guia, interage com as categorias e lê os procedimentos de um guia selecionado.
+- **implementation_status:** documented

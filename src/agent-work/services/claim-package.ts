@@ -1,42 +1,67 @@
-import { agentWorkDb } from "../db";
-import { agentWorkPackages, agentActiveClaims, agentPathClaims, agentWorkers } from "../schema";
-import { eq, and, getTableColumns, inArray } from "drizzle-orm";
-import { WorkPackage } from "../domain/types";
+import { getAgentWorkDb } from "../db";
+import { agentWorkPackages, agentActiveClaims, agentPathClaims, agentWorkers, agentPackageDependencies, agentContractVersions } from "../schema";
+import { eq, and, sql } from "drizzle-orm";
 import { validateOwnership } from "./collision-engine";
 
 export async function claimPackageTransactional(workerKey: string, packageKey: string): Promise<{ success: boolean; error?: string }> {
   try {
-    return await agentWorkDb.transaction(async (tx) => {
+    const db = getAgentWorkDb();
+    return await db.transaction(async (tx) => {
       // 1. Verifies the worker exists
-      const worker = await tx.select().from(agentWorkers).where(eq(agentWorkers.key, workerKey));
-      if (worker.length === 0) {
+      const workerRes = await tx.select().from(agentWorkers).where(eq(agentWorkers.key, workerKey));
+      if (workerRes.length === 0) {
         return { success: false, error: "Worker not found" };
       }
+      const worker = workerRes[0];
+      if (worker.status !== "active") {
+         return { success: false, error: "Worker not active" };
+      }
 
-      // 2. Checks if package exists and is planned
-      const pkg = await tx.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, packageKey));
-      if (pkg.length === 0) {
+      // 2. Checks if package exists and is ready
+      const pkgRes = await tx.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, packageKey)).for("update");
+      if (pkgRes.length === 0) {
         return { success: false, error: "Package not found" };
       }
-      if (pkg[0].status !== "planned") {
-        return { success: false, error: "Package is not planned" };
+      const pkg = pkgRes[0];
+      if (pkg.status !== "ready") {
+        return { success: false, error: "Package is not ready" };
       }
 
-      // 3. Prevent double claim
+      // 3. Worker compatibility
+      if (pkg.workerRole !== worker.role) {
+         return { success: false, error: "Worker role incompatible" };
+      }
+      if (worker.moduleKey && pkg.moduleKey !== worker.moduleKey) {
+         return { success: false, error: "Worker module incompatible" };
+      }
+
+      // 4. Max active claims
+      const activeWorkerClaims = await tx.select().from(agentActiveClaims).where(eq(agentActiveClaims.workerKey, workerKey));
+      if (activeWorkerClaims.length >= worker.maxActiveClaims) {
+         return { success: false, error: "Max active claims reached for worker" };
+      }
+
+      // 5. Prevent double claim
       const active = await tx.select().from(agentActiveClaims).where(eq(agentActiveClaims.packageKey, packageKey));
       if (active.length > 0) {
         return { success: false, error: "Package already claimed" };
       }
 
-      const parsedPkg = pkg[0] as unknown as WorkPackage;
+      // 6. Dependencies
+      const deps = await tx.select().from(agentPackageDependencies).where(eq(agentPackageDependencies.dependentPackageKey, packageKey));
+      const unfulfilledDeps = deps.filter(d => d.status !== "completed");
+      if (unfulfilledDeps.length > 0) {
+         return { success: false, error: "Dependencies not completed" };
+      }
 
-      // 4. Validate collision
-      const isCollisionSafe = validateOwnership(parsedPkg);
+      // 7. Validate collision
+      const isCollisionSafe = validateOwnership(pkg as any);
       if (!isCollisionSafe) {
          return { success: false, error: "Collision detected on exclusive paths" };
       }
 
-      // 5. Create claim
+      // 8. Create claim
+      const claimTokenHash = crypto.randomUUID(); // hash ideally
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 1); // 1 hour lease
 
@@ -44,23 +69,38 @@ export async function claimPackageTransactional(workerKey: string, packageKey: s
         id: crypto.randomUUID(),
         packageKey,
         workerKey,
+        claimTokenHash,
+        status: "active",
+        baseSha: pkg.baseSha,
         expiresAt,
       }).returning();
 
-      // 6. Update package status
+      // 9. Update package status
       await tx.update(agentWorkPackages)
         .set({ status: "in_progress", assignedWorkerKey: workerKey, startedAt: new Date() })
         .where(eq(agentWorkPackages.key, packageKey));
 
-      // 7. Register paths
-      const pathsToClaim = [...parsedPkg.ownedPaths, ...parsedPkg.readOnlyPaths];
-      if (pathsToClaim.length > 0) {
+      // 10. Register paths
+      const ownedPaths = (pkg.ownedPaths as string[]) || [];
+      const readOnlyPaths = (pkg.readOnlyPaths as string[]) || [];
+      const allPaths = [
+        ...ownedPaths.map(p => ({ p, mode: "owned" })),
+        ...readOnlyPaths.map(p => ({ p, mode: "readOnly" }))
+      ];
+
+      if (allPaths.length > 0) {
         await tx.insert(agentPathClaims).values(
-          pathsToClaim.map(path => ({
+          allPaths.map(item => ({
             id: crypto.randomUUID(),
-            path,
+            path: item.p,
             packageKey,
-            claimId: claim.id
+            claimId: claim.id,
+            waveKey: pkg.waveKey,
+            workerKey,
+            pathPattern: item.p,
+            ownershipMode: item.mode,
+            expiresAt,
+            status: "active",
           }))
         );
       }

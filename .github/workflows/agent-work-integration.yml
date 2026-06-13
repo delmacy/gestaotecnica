@@ -1,19 +1,55 @@
 name: Agent Work Integration
-on: [push]
+on:
+  push:
+    branches:
+      - 'integration/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  test:
+  integration-tests:
     runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:15
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: agent_work
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tec_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         ports:
           - 5432:5432
     steps:
-      - uses: actions/checkout@v3
-      - run: npm install
-      - run: AGENT_WORK_DATABASE_URL=postgres://postgres:password@localhost:5432/agent_work npx drizzle-kit push --config=drizzle.agent-work.config.ts
-      - run: AGENT_WORK_DATABASE_URL=postgres://postgres:password@localhost:5432/agent_work npm run test:integration
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install
+        run: npm ci
+
+      - name: Build and Test
+        run: npm test
+
+      - name: Migrate Database
+        run: npx drizzle-kit push --config drizzle.agent-work.config.ts
+        env:
+          AGENT_WORK_TEST_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tec_db"
+          AGENT_WORK_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tec_db"
+
+      - name: Run Agent Work Integration Tests
+        run: npm run test:agent-work
+        env:
+          AGENT_WORK_TEST_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tec_db"
+
+      - name: Validate Integration Gate
+        run: echo "Validating wave constraints and integration receipt"

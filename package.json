@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "agent-work:db:check": "echo OK",
-    "agent-work:dry-run": "npx tsx scripts/agent-work-dry-run.ts",
+    "agent-work:db:check": "npx tsx src/agent-work/cli/index.ts db:check",
+    "agent-work:dry-run": "npx tsx src/agent-work/cli/index.ts dry-run",
     "agent-work": "npx tsx src/agent-work/cli/index.ts",
     "dev": "next dev",
     "build": "next build",
@@ -13,6 +13,7 @@
     "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "test:unit": "npx tsx --test tests/unit/*.test.ts",
     "test:integration": "npx tsx --test tests/integration/*.test.ts",
+    "test:agent-work": "NODE_ENV=test npx tsx --test tests/integration/agent-work-*.test.ts",
     "test:e2e": "playwright test",
     "db:bootstrap": "npx tsx src/scripts/bootstrap-schemas.ts",
     "db:setup:unified-test": "npx tsx src/scripts/setup-unified-test-database.ts",

@@ -41,6 +41,7 @@ export const ACTIVE_MODULES = [
   { href: "/builder/governance-matrix", label: "Governance Matrix", icon: ShieldAlert, status: "mock" },
   { href: "/builder/operator-guide", label: "Operator Guide", icon: GraduationCap, status: "mock" },
   { href: "/builder/settings", label: "Settings / Workspace", icon: Settings, status: "active" },
+  { href: "/builder/enterprise-map", label: "Enterprise Map", icon: Network, status: "mock" },
 ];
 
 export const FUTURE_MODULES = [
@@ -49,6 +50,5 @@ export const FUTURE_MODULES = [
   { href: "#", label: "View Builder", icon: MonitorPlay, status: "coming_soon" },
   { href: "#", label: "Runtime", icon: Zap, status: "blocked" },
   { href: "#", label: "Integrations", icon: Plug, status: "coming_soon" },
-  { href: "#", label: "Enterprise Architecture", icon: Network, status: "coming_soon" },
   { href: "#", label: "Governance", icon: ShieldAlert, status: "coming_soon" },
 ];

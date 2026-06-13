@@ -65,6 +65,10 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 26.1 | DEV-READINESS-OPERATOR-GUIDE-001 | done | Auditar prontidão Operator Guide |
 | 26.2 | DEV-OPERATOR-GUIDE-001 | done | Implementar Operator Guide mock/static |
 | 26.3 | DEV-REVIEW-OPERATOR-GUIDE-001 | done | Revisão concluída e código aprovado |
+| 27 | ENTERPRISE-MAP-001 | done | Planejar Enterprise Map |
+| 27.1 | DEV-READINESS-ENTERPRISE-MAP-001 | done | Auditar prontidão Enterprise Map |
+| 27.2 | DEV-ENTERPRISE-MAP-001 | done | Implementar Enterprise Map mock/static |
+| 27.3 | DEV-REVIEW-ENTERPRISE-MAP-001 | done | Revisão concluída e código aprovado |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

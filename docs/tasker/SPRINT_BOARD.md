@@ -57,7 +57,10 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 21.1 | DEV-READINESS-WORKFLOW-BUILDER-001 | done | Auditar prontidão para dev do Workflow Builder |
 | 21.2 | DEV-WORKFLOW-BUILDER-001 | done | Implementar UI Mockada do Workflow Builder |
 | 21.3 | DEV-REVIEW-WORKFLOW-BUILDER-001 | done | Revisar código e compliance do Workflow Builder |
-| 22 | GOVERNANCE-MATRIX-001 | ready | Planejar Role/Permission Matrix |
+| 25 | GOVERNANCE-MATRIX-001 | done | Contrato e planejamento da Governance Matrix aprovados |
+| 25.1 | DEV-READINESS-GOVERNANCE-MATRIX-001 | done | Contrato auditado e autorizado para dev |
+| 25.2 | DEV-GOVERNANCE-MATRIX-001 | done | UI da matriz implementada |
+| 25.3 | DEV-REVIEW-GOVERNANCE-MATRIX-001 | done | Revisão concluída e código aprovado |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

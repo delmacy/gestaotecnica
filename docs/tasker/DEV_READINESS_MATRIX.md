@@ -33,4 +33,7 @@ Esta matriz avalia individualmente a prontidão dos módulos para desenvolviment
 | DEV-REVIEW-FORM-BUILDER-001 | DEV-FORM-BUILDER-001 | true | false | false | false | DONE | Revisão do Form Builder concluída, código validado sem erros. | Liberar próxima task de View Builder. |
 | DEV-READINESS-VIEW-BUILDER-001 | VIEW-BUILDER-001 | true | false | false | false | DONE | O contrato do View Builder foi auditado e o escopo de dev definido. | Iniciar desenvolvimento. |
 | DEV-VIEW-BUILDER-001 | DEV-READINESS-VIEW-BUILDER-001 | true | false | false | false | DONE | UI implementada com static mock schema local em client-side state. | Revisar implementação do View Builder. |
-| DEV-REVIEW-VIEW-BUILDER-001 | DEV-VIEW-BUILDER-001 | true | false | false | false | DONE | Implementação auditada tecnicamente e aprovada sem ressalvas. | Concluir Fase e avançar Workflow Builder. |
+| DEV-READINESS-GOVERNANCE-MATRIX-001 | UI_CONTRACT_GOVERNANCE_MATRIX | true | false | false | false | DONE | Contratos e limites estabelecidos para modo design-only mockado. | Auditar e avançar para DEV |
+| DEV-GOVERNANCE-MATRIX-001 | DEV-READINESS-GOVERNANCE-MATRIX-001 | true | false | false | false | DONE | UI mockada implementada. | Revisar Governance Matrix |
+
+| DEV-REVIEW-GOVERNANCE-MATRIX-001 | DEV-GOVERNANCE-MATRIX-001 | true | false | false | false | DONE | UI mockada implementada e revisada com testes locais. | Concluir Fase |

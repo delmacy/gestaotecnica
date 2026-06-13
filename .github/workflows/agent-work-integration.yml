@@ -1,0 +1,19 @@
+name: Agent Work Integration
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: agent_work
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install
+      - run: AGENT_WORK_DATABASE_URL=postgres://postgres:password@localhost:5432/agent_work npx drizzle-kit push --config=drizzle.agent-work.config.ts
+      - run: AGENT_WORK_DATABASE_URL=postgres://postgres:password@localhost:5432/agent_work npm run test:integration

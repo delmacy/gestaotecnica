@@ -74,7 +74,7 @@ Priorizar a construção estrutural do System Builder utilizando dados sintétic
 | 28.2 | RUNTIME-CONTRACT-REVIEW-001 | done | Revisão do Contrato Runtime |
 | 29 | EVENT-RECEIPT-001 | done | Refinar modelo de eventos/recibos |
 | 29.1 | EVENT-RECEIPT-REVIEW-001 | done | Revisar modelo de eventos/recibos |
-| 30 | INTEGRATION-CONTRACT-001 | ready | Refinar contrato de webhooks/n8n |
+| 30 | INTEGRATION-CONTRACT-001 | done | Refinar contrato de webhooks/n8n |
 
 *(Observação: as tasks dependentes de fontes reais como REAL-SRC-002 e CAP-VAL-002 encontram-se bloqueadas no Grupo D e não impedem a execução deste Sprint)*
 

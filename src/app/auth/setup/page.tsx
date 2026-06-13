@@ -1,46 +1,42 @@
-import { setupFirstAdmin } from "@/modules/auth/actions";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { getDb } from "@/db";
+import { authAccounts } from "@/db/legacy/schema";
+import { SetupForm } from "./SetupForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-export default function SetupPage() {
+export const metadata = {
+  title: "Setup - System Builder",
+};
+
+export default async function SetupPage() {
+  const db = getDb();
+  const existingAccounts = await db.select({ id: authAccounts.id }).from(authAccounts).limit(1);
+
+  const hasAccount = existingAccounts.length > 0;
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Primeiro administrador</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 space-y-2 text-sm text-muted-foreground">
-            <p>
-              Esta rota serve <strong>apenas</strong> para a criação do primeiro administrador da plataforma. O usuário criado terá perfil <strong>Builder</strong>.
+      {hasAccount ? (
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Configuração já concluída</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              O administrador da plataforma já foi configurado. Por motivos de segurança, este formulário de configuração inicial não está mais disponível.
             </p>
-            <p>
-              Se o setup já estiver concluído, utilize o script de administração (<code>ensure-platform-admin.ts</code>). Não existe reset público de senha.
+            <p className="text-sm text-muted-foreground">
+              Caso precise recuperar o acesso, consulte o procedimento administrativo de recuperação seguro documentado em <code>docs/auth/PLATFORM_ADMIN_ACCESS.md</code>.
             </p>
-            <p className="font-semibold text-destructive">
-              Não revele ou compartilhe suas credenciais.
-            </p>
-          </div>
-          <form action={setupFirstAdmin} className="space-y-4">
-            <label className="block">
-              <span className="text-sm font-medium">Nome</span>
-              <Input className="mt-1" name="name" required />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium">E-mail</span>
-              <Input className="mt-1" name="email" required type="email" />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium">Senha</span>
-              <Input className="mt-1" name="password" required type="password" />
-            </label>
-            <Button className="w-full" type="submit">
-              Criar administrador
+            <Button asChild className="w-full">
+              <Link href="/auth/login">Entrar</Link>
             </Button>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <SetupForm />
+      )}
     </main>
   );
 }

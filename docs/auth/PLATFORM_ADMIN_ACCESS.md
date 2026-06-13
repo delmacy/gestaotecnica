@@ -5,6 +5,12 @@ Este documento descreve como garantir e gerenciar o acesso administrativo de alt
 ## 1. Primeiro Acesso
 O primeiro administrador da plataforma deve ser criado por meio da rota inicial de configuração:
 - Rota: `/auth/setup`
+- Preencha o formulário (nome, e-mail, senha e confirmação).
+- Após o cadastro, o usuário terá obrigatoriamente o perfil de **builder** associado (o formulário de setup só pode criar este perfil).
+- O sistema criará a conta (`auth_accounts`), o usuário (`users`) e, em seguida, registrará automaticamente a sessão antes de redirecionar para `/builder`.
+- **Atenção:** Nenhuma senha padrão existe ou deve ser incluída no Git. O script é apenas para recuperação administrativa, "/auth/setup" é o fluxo principal.
+O primeiro administrador da plataforma deve ser criado por meio da rota inicial de configuração:
+- Rota: `/auth/setup`
 - Preencha o nome, e-mail e senha.
 - Após o cadastro, o usuário terá o perfil de **Builder** associado.
 

@@ -78,9 +78,12 @@ O backlog foi replanejado (DEC-SB-001) para priorizar o desenvolvimento do Syste
 
 | ID | Módulo | Título | Tipo | Prioridade | Status |
 |---|---|---|---|---|---|
-| RUNTIME-CONTRACT-001 | runtime | Refinar contrato de runtime | contract | medium | backlog |
-| EVENT-RECEIPT-001 | runtime | Refinar modelo de eventos/recibos | contract | medium | backlog |
-| INTEGRATION-CONTRACT-001 | integrations | Refinar contrato de webhooks/n8n | contract | medium | backlog |
+| TASKER-RUNTIME-CONTRACT-SYNC-REPAIR-001 | tasker | Corrigir a sincronização incompleta | architecture | high | done |
+| RUNTIME-CONTRACT-001 | runtime | Refinar contrato de runtime | contract | medium | done |
+| RUNTIME-CONTRACT-REVIEW-001 | runtime | Revisar contrato de runtime | contract | medium | done |
+| EVENT-RECEIPT-001 | runtime | Refinar modelo de eventos/recibos | contract | medium | done |
+| EVENT-RECEIPT-REVIEW-001 | runtime | Revisar modelo de eventos/recibos | contract | medium | done |
+| INTEGRATION-CONTRACT-001 | integrations | Refinar contrato de webhooks/n8n | contract | medium | ready |
 | API-GATEWAY-FUTURE-001 | integrations | Registrar API Gateway como futuro, não imediato | contract | medium | backlog |
 
 ## Grupo D — Cliente Gestão Técnica / fontes reais / piloto real

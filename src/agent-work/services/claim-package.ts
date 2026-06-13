@@ -111,3 +111,39 @@ export async function claimPackageTransactional(workerKey: string, packageKey: s
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
+
+export async function heartbeatClaim(workerKey: string, packageKey: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const db = getAgentWorkDb();
+        const active = await db.select().from(agentActiveClaims).where(and(eq(agentActiveClaims.workerKey, workerKey), eq(agentActiveClaims.packageKey, packageKey)));
+        if (active.length === 0) return { success: false, error: "No active claim" };
+
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 1);
+
+        await db.update(agentActiveClaims).set({ expiresAt }).where(eq(agentActiveClaims.id, active[0].id));
+        await db.update(agentPathClaims).set({ expiresAt }).where(eq(agentPathClaims.claimId, active[0].id));
+
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: "Unknown error" };
+    }
+}
+
+export async function reapStaleClaims(): Promise<{ reaped: number }> {
+    const db = getAgentWorkDb();
+    const now = new Date();
+
+    return await db.transaction(async (tx) => {
+        const stales = await tx.select().from(agentActiveClaims).where(sql`${agentActiveClaims.expiresAt} < ${now}`).for("update");
+        if (stales.length === 0) return { reaped: 0 };
+
+        for (const stale of stales) {
+            await tx.update(agentWorkPackages).set({ status: "ready", assignedWorkerKey: null }).where(eq(agentWorkPackages.key, stale.packageKey));
+            await tx.delete(agentPathClaims).where(eq(agentPathClaims.claimId, stale.id));
+            await tx.delete(agentActiveClaims).where(eq(agentActiveClaims.id, stale.id));
+        }
+
+        return { reaped: stales.length };
+    });
+}

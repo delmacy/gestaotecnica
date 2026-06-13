@@ -1,9 +1,10 @@
-import { agentWorkDb } from "../db";
+import { getAgentWorkDb } from "../db";
 import { agentWorkers } from "../schema";
 
 export async function registerWorker(key: string, role: string) {
-  await agentWorkDb.insert(agentWorkers).values({
+  await getAgentWorkDb().insert(agentWorkers).values({
     key,
+    name: key,
     role,
     status: "active"
   }).onConflictDoNothing();

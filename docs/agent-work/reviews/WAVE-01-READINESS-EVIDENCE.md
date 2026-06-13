@@ -1,0 +1,37 @@
+# Wave 01 Readiness Evidence
+Status: **PARALLEL_WORK_NOT_READY**
+
+```json
+{
+  "timestamp": "2026-06-13T19:56:40.913Z",
+  "git_sha": "1683253130fe529b703cf385ea775a38838a5a31",
+  "core_status": "AGENT_FACTORY_CORE_READY",
+  "database": "connected",
+  "migrations": 0,
+  "modules": 8,
+  "workers": 0,
+  "packages": 0,
+  "tasks": 0,
+  "claims": 0,
+  "leases": 0,
+  "collisions": 0,
+  "Task Kits": "missing",
+  "Review Packages": "missing",
+  "Review Claims": "missing",
+  "Review Kits": "missing",
+  "Review Receipts": "missing",
+  "Documentation Kit": "generated",
+  "Integration Kit": "generated",
+  "unit_tests": "executed",
+  "integration_tests": "executed",
+  "build": "verified",
+  "ci": "blocking",
+  "final_status": "PARALLEL_WORK_NOT_READY",
+  "blocking_reasons": [
+    "No tables in agent_work schema",
+    "Database query failed during readiness",
+    "Not enough workers for parallel launch",
+    "Not enough packages for parallel launch"
+  ]
+}
+```

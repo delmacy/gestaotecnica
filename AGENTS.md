@@ -85,3 +85,12 @@ Regras:
 ## 7. Sincronização de Ambiente
 
 - Como Jules Documental e Jules Dev atuam em instâncias e sessões diferentes, **é obrigatório** que Jules Dev atualize seu ambiente local (`git pull` ou fetch/rebase da branch principal/atual) antes de iniciar a implementação. Isso garante que o agente desenvolvedor tenha acesso aos últimos documentos de planejamento, contexto e regras recém-atualizados pelo agente documental.
+
+## Agent Work Execution Rules
+* Todo agente inicia por bootstrap
+* Dev usa somente Task Kit
+* Reviewer usa somente Review Kit
+* Documentator usa somente Documentation Kit
+* Integrator usa somente Integration Kit
+* Nenhum agente amplia escopo
+* Auditoria global exige package próprio

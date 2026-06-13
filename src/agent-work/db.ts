@@ -40,3 +40,12 @@ export async function closeAgentWorkDb() {
   }
   agentWorkDbInstance = null;
 }
+
+export async function withAgentWorkDb<T>(fn: () => Promise<T>): Promise<T> {
+  const db = createAgentWorkDb();
+  try {
+    return await fn();
+  } finally {
+    await closeAgentWorkDb();
+  }
+}

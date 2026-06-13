@@ -1,27 +1,27 @@
-import { agentWorkDb } from "../db";
+import { getAgentWorkDb } from "../db";
 import { agentWorkers, agentExecutionWaves, agentWorkPackages } from "../schema";
 
 export async function seedInitialData() {
-  await agentWorkDb.insert(agentWorkers).values([
-    { key: "jules-coordinator-01", role: "coordinator", status: "active" },
-    { key: "jules-reviewer-01", role: "reviewer", status: "active" },
-    { key: "jules-integrator-01", role: "integrator", status: "active" },
-    { key: "jules-documentator-01", role: "documentator", status: "active" },
-    { key: "jules-dev-shared-contracts-01", role: "module_worker", status: "active" },
-    { key: "jules-dev-runtime-01", role: "module_worker", status: "active" },
-    { key: "jules-dev-runtime-02", role: "module_worker", status: "active" },
-    { key: "jules-dev-events-01", role: "module_worker", status: "active" },
-    { key: "jules-dev-integrations-01", role: "module_worker", status: "active" },
-    { key: "jules-dev-operations-docs-01", role: "documentator", status: "active" },
+  await getAgentWorkDb().insert(agentWorkers).values([
+    { key: "jules-coordinator-01", role: "coordinator", status: "active", name: "Coordinator" },
+    { key: "jules-reviewer-01", role: "reviewer", status: "active", name: "Reviewer" },
+    { key: "jules-integrator-01", role: "integrator", status: "active", name: "Integrator" },
+    { key: "jules-documentator-01", role: "documentator", status: "active", name: "Documentator" },
+    { key: "jules-dev-shared-contracts-01", role: "module_worker", status: "active", name: "Dev Shared Contracts" },
+    { key: "jules-dev-runtime-01", role: "module_worker", status: "active", name: "Dev Runtime 01" },
+    { key: "jules-dev-runtime-02", role: "module_worker", status: "active", name: "Dev Runtime 02" },
+    { key: "jules-dev-events-01", role: "module_worker", status: "active", name: "Dev Events 01" },
+    { key: "jules-dev-integrations-01", role: "module_worker", status: "active", name: "Dev Integrations 01" },
+    { key: "jules-dev-operations-docs-01", role: "documentator", status: "active", name: "Dev Ops Docs 01" },
   ]).onConflictDoNothing();
 
-  await agentWorkDb.insert(agentExecutionWaves).values([
-    { key: "WAVE-01-FOUNDATION", title: "Foundation Wave", status: "planned" },
-    { key: "WAVE-02-CONSISTENCY", title: "Consistency Wave", status: "planned" },
-    { key: "WAVE-03-CONTROLLED-EXECUTION", title: "Execution Wave", status: "planned" },
+  await getAgentWorkDb().insert(agentExecutionWaves).values([
+    { key: "WAVE-01-FOUNDATION", title: "Foundation Wave", status: "planned", objective: "Foundation", baseBranch: "main", baseSha: "latest", integrationBranch: "integration/wave-01" },
+    { key: "WAVE-02-CONSISTENCY", title: "Consistency Wave", status: "planned", objective: "Consistency", baseBranch: "main", baseSha: "latest", integrationBranch: "integration/wave-02" },
+    { key: "WAVE-03-CONTROLLED-EXECUTION", title: "Execution Wave", status: "planned", objective: "Execution", baseBranch: "main", baseSha: "latest", integrationBranch: "integration/wave-03" },
   ]).onConflictDoNothing();
 
-  await agentWorkDb.insert(agentWorkPackages).values([
+  await getAgentWorkDb().insert(agentWorkPackages).values([
     {
       key: "PKG-SHARED-CONTRACTS-001",
       title: "Shared Contracts",
@@ -47,7 +47,15 @@ export async function seedInitialData() {
       documentationImpacts: [],
       integrationRisk: "low",
       mergeOrder: 1,
+      contractsConsumed: [],
+      contractsProduced: [],
+      publicContractsChanged: [],
+      knownConsumers: [],
+      schemaImpacts: [],
+      reviewBudget: {},
+      createdBy: "seed"
     },
+
     {
       key: "PKG-RUNTIME-TYPES-MAPPERS-001",
       title: "Runtime Types",
@@ -73,6 +81,13 @@ export async function seedInitialData() {
       documentationImpacts: [],
       integrationRisk: "medium",
       mergeOrder: 2,
+      contractsConsumed: [],
+      contractsProduced: [],
+      publicContractsChanged: [],
+      knownConsumers: [],
+      schemaImpacts: [],
+      reviewBudget: {},
+      createdBy: "seed"
     }
   ]).onConflictDoNothing();
 }

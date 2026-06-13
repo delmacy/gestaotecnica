@@ -29,6 +29,17 @@ export interface WorkPackage {
   mergeOrder: number;
   rollbackNotes?: string | null;
   assignedWorkerKey?: string | null;
+  blockedReason?: string | null;
+  securityGate?: string | null;
+  tenancyGate?: string | null;
+  migrationGate?: string | null;
+  contractsConsumed: string[];
+  contractsProduced: string[];
+  publicContractsChanged: string[];
+  knownConsumers: string[];
+  schemaImpacts: string[];
+  reviewBudget: Record<string, any>;
+  createdBy: string;
   revision: number;
   createdAt: Date;
   updatedAt: Date;

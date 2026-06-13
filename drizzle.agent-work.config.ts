@@ -7,7 +7,7 @@ export default defineConfig({
   out: "./drizzle-agent-work",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.AGENT_WORK_DATABASE_URL || "postgres://postgres:postgres@localhost:5432/tec_db",
+    url: process.env.AGENT_WORK_DATABASE_URL!,
   },
   verbose: true,
   strict: true,

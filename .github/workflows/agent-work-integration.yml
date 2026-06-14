@@ -19,6 +19,7 @@ concurrency:
 jobs:
   operational-proof:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:15
@@ -64,11 +65,11 @@ jobs:
         run: npm run test:agent-work:integration
       - name: Record integration tests
         run: npm run agent-work -- proof:record --wave WAVE-01-FOUNDATION --type integration_tests --status verified
-      - name: Parallel dry-run and reviewer simulation
-        run: npm run agent-work -- dry-run
       - name: Build
         run: npm run build
       - name: Record build
         run: npm run agent-work -- proof:record --wave WAVE-01-FOUNDATION --type build --status verified
+      - name: Parallel dry-run and reviewer simulation
+        run: npm run agent-work -- dry-run
       - name: Verify readiness and generate evidence
         run: npm run agent-work -- readiness:verify --wave WAVE-01-FOUNDATION

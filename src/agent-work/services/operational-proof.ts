@@ -60,7 +60,7 @@ export async function runOperationalProof(headSha: string) {
   const taskKits = await Promise.all(workers.map((worker, index) => generateTaskKit(worker, packages[index])));
   for (const kit of taskKits) {
     if (!kit) throw new Error("Task Kit generation failed");
-    await artifact("task_kit", kit.packageKey, kit);
+    await artifact("task_kit", (kit as any).packageKey, kit);
   }
   const activeClaims = await db.select().from(agentActiveClaims).where(inArray(agentActiveClaims.packageKey, packages));
   const baseShas = new Set(activeClaims.map((claim) => claim.baseSha));
@@ -97,7 +97,7 @@ export async function runOperationalProof(headSha: string) {
       id: `ACTIVITY-${pkg.key}`, packageKey: pkg.key, content: "Synthetic completion for operational proof only",
       path: `docs/agent-work/reviews/activity/${pkg.key}.md`, baseSha: pkg.baseSha, headSha, status: "verified",
     });
-    const reviewKey = await createReviewPackage(pkg.key, changedFiles, headSha);
+    const reviewKey = (await createReviewPackage({ packageKey: pkg.key, headSha })) as unknown as string;
     const reviewType = "module";
     const claim = await claimReview("jules-reviewer-module-01", reviewKey, reviewType);
     if (!claim.success || !claim.token) throw new Error(`Review claim failed for ${reviewKey}`);

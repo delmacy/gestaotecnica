@@ -3,7 +3,7 @@ import { parseArgs } from "util";
 import { generateTaskKit } from "../services/task-kit";
 import { claimPackageTransactional } from "../services/claim-package";
 import { createAgentWorkDb, getAgentWorkDb } from "../db";
-import { agentActiveClaims, agentCollisionResults, agentExecutionWaves, agentPathClaims, agentWorkers, agentWorkPackages } from "../schema";
+import { agentActiveClaims, agentCollisionResults, agentExecutionWaves, agentPathClaims, agentReviewPackages, agentWorkers, agentWorkPackages } from "../schema";
 import { eq } from "drizzle-orm";
 
 async function main() {
@@ -19,18 +19,23 @@ async function main() {
       format: { type: "string" },
       "dry-run": { type: "boolean" },
       "base-sha": { type: "string" },
+      "head-sha": { type: "string" },
       type: { type: "string" },
       token: { type: "string" },
       status: { type: "string" },
       reason: { type: "string" },
       pr: { type: "string" },
+      "pull-request": { type: "string" },
       branch: { type: "string" },
       files: { type: "string" },
       tests: { type: "string" },
       handoff: { type: "string" },
       input: { type: "string" },
-      review: { type: "string" },
-      type: { type: "string" },
+      findings: { type: "string" },
+      "required-changes": { type: "string" },
+      "residual-risks": { type: "string" },
+      "integration-notes": { type: "string" },
+      "documentation-notes": { type: "string" },
     },
     allowPositionals: true,
   });
@@ -81,7 +86,7 @@ async function main() {
         baseSha: values["base-sha"],
         headSha: values["head-sha"],
         branch: values.branch,
-        pullRequest: values.pr,
+        pullRequest: values.pr || values["pull-request"],
         changedFiles: values.files ? values.files.split(",") : [],
         testsExecuted: values.tests ? values.tests.split(",") : [],
         testResults: {}, // default
@@ -92,9 +97,14 @@ async function main() {
       };
     }
 
-    const res = await createActivityReceipt(inputData);
-    console.log(JSON.stringify(res, null, 2));
-    process.exit(0);
+    try {
+      const res = await createActivityReceipt(inputData);
+      console.log(JSON.stringify(res, null, 2));
+      process.exit(res.success === false ? 1 : 0);
+    } catch (e: any) {
+      console.error(e.message);
+      process.exit(1);
+    }
   }
 
   if (command === "bootstrap") {
@@ -787,26 +797,32 @@ ${JSON.stringify(evidence, null, 2)}
   const reviewCommands = ["review:create", "review:show", "review:scope-check", "review:claim", "review:heartbeat", "review:renew", "review:release", "review:request-changes", "review:approve", "review:complete", "review:reap-stale", "review-kit"];
   if (reviewCommands.includes(command)) {
       const { createReviewPackage, generateReviewKit, claimReview, heartbeatReview, renewReview, releaseReview, requestReviewChanges, approveReview, completeReview, reapStaleReviews } = require("../services/scoped-review");
+
+      let inputData: any = null;
+      if (values.input) {
+        inputData = JSON.parse(require("fs").readFileSync(values.input, "utf8"));
+      }
+
       if (command === "review:create") {
           const res = await createReviewPackage({
-              packageKey: values.package,
-              pr: values.pr,
+              packageKey: values.package || "",
+              pr: values.pr || values["pull-request"],
               baseSha: values["base-sha"],
               headSha: values["head-sha"]
           });
-          console.log(JSON.stringify({ reviewKey: res }, null, 2));
-          process.exit(0);
+          console.log(JSON.stringify(res, null, 2));
+          process.exit(res.success === false ? 1 : 0);
       } else if (command === "review:show") {
           const db = getAgentWorkDb();
-          const [review] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, values.review));
+          const [review] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, values.review || ""));
           console.log(JSON.stringify(review, null, 2));
-          process.exit(0);
+          process.exit(review ? 0 : 1);
       } else if (command === "review:scope-check") {
           const db = getAgentWorkDb();
-          const [review] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, values.review));
-          if (review.scopeCheckResult !== "within_scope") {
-              console.error(`Scope Check Failed: ${review.scopeCheckResult}`);
-              console.error(JSON.stringify(review.scopeExceededReasons, null, 2));
+          const [review] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, values.review || ""));
+          if (!review || review.scopeCheckResult !== "within_scope") {
+              console.error(`Scope Check Failed: ${review?.scopeCheckResult}`);
+              console.error(JSON.stringify(review?.scopeExceededReasons, null, 2));
               process.exit(1);
           }
           console.log("Scope Check Passed");
@@ -823,31 +839,31 @@ ${JSON.stringify(evidence, null, 2)}
       } else if (command === "review:claim") {
           const res = await claimReview(values.worker, values.review, values.type || "module");
           console.log(JSON.stringify(res, null, 2));
-          process.exit(0);
+          process.exit(res.success ? 0 : 1);
       } else if (command === "review:heartbeat") {
           const res = await heartbeatReview(values.review, values.type || "module", values.token || "");
           console.log(JSON.stringify(res, null, 2));
-          process.exit(0);
+          process.exit(res.success ? 0 : 1);
       } else if (command === "review:renew") {
           const res = await renewReview(values.review, values.type || "module", values.token || "");
           console.log(JSON.stringify(res, null, 2));
-          process.exit(0);
+          process.exit(res.success ? 0 : 1);
       } else if (command === "review:release") {
           const res = await releaseReview(values.review, values.type || "module", values.token || "", values.reason);
           console.log(JSON.stringify(res, null, 2));
-          process.exit(0);
+          process.exit(res.success ? 0 : 1);
       } else if (command === "review:request-changes") {
-          const res = await requestReviewChanges(values.review, values.type || "module", values.token || "");
+          const res = await requestReviewChanges(values.review, values.type || "module", values.token || "", inputData);
           console.log(JSON.stringify(res, null, 2));
-          process.exit(0);
+          process.exit(res.success ? 0 : 1);
       } else if (command === "review:approve") {
-          const res = await approveReview(values.review, values.type || "module", values.token || "");
+          const res = await approveReview(values.review, values.type || "module", values.token || "", inputData);
           console.log(JSON.stringify(res, null, 2));
-          process.exit(0);
+          process.exit(res.success ? 0 : 1);
       } else if (command === "review:complete") {
-          const res = await completeReview(values.review, values.type || "module", values.token || "");
+          const res = await completeReview(values.review, values.type || "module", values.token || "", inputData);
           console.log(JSON.stringify(res, null, 2));
-          process.exit(0);
+          process.exit(res.success ? 0 : 1);
       } else {
           console.error(`Review command ${command} does not map properly or is not supported.`);
           process.exit(1);

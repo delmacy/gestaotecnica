@@ -1,5 +1,6 @@
 import { createHash, randomBytes, timingSafeEqual } from "crypto";
-import { and, eq, lt } from "drizzle-orm";
+import * as crypto from "crypto";
+import { and, eq, lt, inArray } from "drizzle-orm";
 import { getAgentWorkDb } from "../db";
 import {
   agentActivityReceipts,
@@ -11,7 +12,9 @@ import {
   agentWorkers,
   agentWorkPackages,
 } from "../schema";
+import { evaluatePathOwnership } from "./ownership-service";
 
+const SHA_REGEX = /^[0-9a-f]{40}$/i;
 const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 const tokenMatches = (token: string, hash: string) => timingSafeEqual(Buffer.from(hashToken(token)), Buffer.from(hash));
 const leaseExpiry = () => new Date(Date.now() + 60 * 60 * 1000);
@@ -35,12 +38,16 @@ export function calculateReviewBudget(diffStats: Record<string, number>) {
 export async function collectReviewDiff(input: { baseSha: string, headSha: string, pullRequest?: string }) {
   const { execSync } = require("child_process");
 
+  if (input.baseSha === input.headSha) {
+    return { files: [], addedLines: 0, deletedLines: 0, fileStats: {} };
+  }
+
   // In a real environment with GitHub CLI, we could use gh pr diff
   // For now, we use local git diff as primary source.
   const numstat = execSync(`git diff --numstat ${input.baseSha}..${input.headSha}`).toString();
   const namestatus = execSync(`git diff --name-status ${input.baseSha}..${input.headSha}`).toString();
 
-  const files = namestatus.split("\n").filter(Boolean).map(line => {
+  const files = namestatus.split("\n").filter(Boolean).map((line: string) => {
     const [status, path] = line.split(/\s+/);
     return { path, status };
   });
@@ -49,7 +56,7 @@ export async function collectReviewDiff(input: { baseSha: string, headSha: strin
   let deletedLines = 0;
   const fileStats: Record<string, { added: number, deleted: number }> = {};
 
-  numstat.split("\n").filter(Boolean).forEach(line => {
+  numstat.split("\n").filter(Boolean).forEach((line: string) => {
     const [added, deleted, path] = line.split(/\s+/);
     const a = parseInt(added) || 0;
     const d = parseInt(deleted) || 0;
@@ -80,45 +87,40 @@ export function routeSpecializedReviews(pkg: any) {
 export async function createReviewPackage(input: { packageKey: string, pr?: string, baseSha?: string, headSha?: string }) {
   const db = getAgentWorkDb();
   const [pkg] = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, input.packageKey));
-  if (!pkg) throw new Error("Work package not found");
+  if (!pkg) return { success: false, error: "Work package not found" };
 
   const receipts = await db.select().from(agentActivityReceipts).where(eq(agentActivityReceipts.packageKey, input.packageKey));
-  if (receipts.length === 0) throw new Error("Activity Receipt missing");
+  if (receipts.length === 0) return { success: false, error: "Activity Receipt missing" };
 
   const baseSha = input.baseSha || pkg.baseSha;
   const headSha = input.headSha || receipts[0].headSha;
 
+  if (!SHA_REGEX.test(baseSha) || !SHA_REGEX.test(headSha)) {
+    return { success: false, error: "Invalid SHA format" };
+  }
+
   const diff = await collectReviewDiff({ baseSha, headSha, pullRequest: input.pr });
-  const changedFiles = diff.files.map(f => f.path);
+  const changedFiles = diff.files.map((f: any) => f.path);
+
+  if (changedFiles.length === 0 && baseSha !== headSha) {
+    return { success: false, error: "Empty diff" };
+  }
 
   // Categorization
-  const productionFiles = changedFiles.filter(f => f.startsWith("src/"));
-  const testFiles = changedFiles.filter(f => f.startsWith("tests/"));
-  const documentationFiles = changedFiles.filter(f => f.startsWith("docs/"));
-  const migrationFiles = changedFiles.filter(f => f.includes("drizzle") || f.includes("migrations"));
+  const productionFiles = changedFiles.filter((f: string) => f.startsWith("src/"));
+  const testFiles = changedFiles.filter((f: string) => f.startsWith("tests/"));
+  const documentationFiles = changedFiles.filter((f: string) => f.startsWith("docs/"));
+  const migrationFiles = changedFiles.filter((f: string) => (f.includes("drizzle") || f.includes("migrations")));
   const generatedFiles: string[] = []; // detect generated if needed
-  const lockfiles = changedFiles.filter(f => f.endsWith("lock.json") || f.endsWith("lock.yaml"));
+  const lockfiles = changedFiles.filter((f: string) => (f.endsWith("lock.json") || f.endsWith("lock.yaml")));
 
   const changedLinesExcludingGenerated = diff.addedLines + diff.deletedLines; // simplistic for now
 
   // Ownership validation
-  const ownedPaths = (pkg.ownedPaths as string[]) || [];
-  const forbiddenPaths = (pkg.forbiddenPaths as string[]) || [];
   let ownershipResult = "ownership_valid";
-
-  for (const file of changedFiles) {
-    const isOwned = ownedPaths.some(p => {
-       const pattern = p.endsWith("/**") ? p.slice(0, -3) : p;
-       return file.startsWith(pattern);
-    });
-    const isForbidden = forbiddenPaths.some(p => {
-       const pattern = p.endsWith("/**") ? p.slice(0, -3) : p;
-       return file.startsWith(pattern);
-    });
-    if (isForbidden || (!isOwned && !file.startsWith("docs/modules/"))) {
-       ownershipResult = "ownership_violation";
-       break;
-    }
+  const ownership = evaluatePathOwnership(pkg, changedFiles);
+  if (!ownership.valid) {
+    ownershipResult = "ownership_violation";
   }
 
   const stats = {
@@ -132,9 +134,11 @@ export async function createReviewPackage(input: { packageKey: string, pr?: stri
   const budget = calculateReviewBudget(stats);
   const key = `REVIEW-${input.packageKey}`;
 
+  const reviewPackageStatus = (ownershipResult === "ownership_valid" && !budget.exceeded) ? "ready" : "blocked";
+
   await db.insert(agentReviewPackages).values({
     id: key, key, workPackageKey: input.packageKey, moduleKey: pkg.moduleKey, laneKey: pkg.laneKey, waveKey: pkg.waveKey,
-    pullRequest: input.pr, baseSha, headSha, status: "ready", objective: pkg.objective, integrationRisk: pkg.integrationRisk,
+    pullRequest: input.pr, baseSha, headSha, status: reviewPackageStatus, objective: pkg.objective, integrationRisk: pkg.integrationRisk,
     changedFiles, productionFiles, testFiles, documentationFiles, migrationFiles, generatedFiles, lockfiles,
     changedLinesExcludingGenerated,
     contractsConsumed: pkg.contractsConsumed, contractsProduced: pkg.contractsProduced,
@@ -146,7 +150,7 @@ export async function createReviewPackage(input: { packageKey: string, pr?: stri
   }).onConflictDoUpdate({
     target: [agentReviewPackages.key],
     set: {
-      status: "ready",
+      status: reviewPackageStatus,
       headSha,
       changedFiles,
       productionFiles,
@@ -162,7 +166,7 @@ export async function createReviewPackage(input: { packageKey: string, pr?: stri
     }
   });
 
-  return key;
+  return { success: true, reviewKey: key, status: reviewPackageStatus };
 }
 
 export async function generateReviewKit(reviewPackageKey: string, reviewType = "module") {
@@ -282,12 +286,26 @@ export async function releaseReview(reviewPackageKey: string, reviewType: string
   return { success: true };
 }
 
-async function decideReview(reviewPackageKey: string, reviewType: string, token: string, decision: "approved" | "changes_requested") {
+async function decideReview(reviewPackageKey: string, reviewType: string, token: string, decision: "approved" | "changes_requested", input?: any) {
   const claim = await validateClaim(reviewPackageKey, reviewType, token);
-  if (!claim) return { success: false, error: "Invalid or expired review claim" };
+  if (!claim) return { success: false, error: "REVIEW_APPROVAL_BLOCKED: Invalid or expired review claim" };
 
   const db = getAgentWorkDb();
   const [reviewPkg] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, reviewPackageKey));
+  if (!reviewPkg) return { success: false, error: "Review package not found" };
+
+  if ((reviewPkg.scopeCheckResult as string) !== "within_scope") {
+     return { success: false, error: `REVIEW_APPROVAL_BLOCKED: ${reviewPkg.scopeCheckResult}` };
+  }
+
+  const receipts = await db.select().from(agentActivityReceipts).where(eq(agentActivityReceipts.packageKey, reviewPkg.workPackageKey));
+  if (receipts.length === 0) return { success: false, error: "REVIEW_APPROVAL_BLOCKED: Activity Receipt missing" };
+
+  const activityInput = JSON.parse(receipts[0].content);
+  if (activityInput.testResults?.success === false) {
+     return { success: false, error: "REVIEW_APPROVAL_BLOCKED: Activity Receipt tests not approved" };
+  }
+
   const [workPkg] = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, reviewPkg.workPackageKey));
 
   const content = {
@@ -299,13 +317,19 @@ async function decideReview(reviewPackageKey: string, reviewType: string, token:
     pullRequest: reviewPkg.pullRequest,
     baseSha: reviewPkg.baseSha,
     headSha: reviewPkg.headSha,
-    filesReviewed: reviewPkg.changedFiles,
-    filesIntentionallyNotReviewed: [...(reviewPkg.generatedFiles as string[]), ...(reviewPkg.lockfiles as string[])],
-    contractsReviewed: reviewPkg.contractsProduced,
-    dependenciesReviewed: reviewPkg.directDependencies,
+    filesReviewed: input?.filesReviewed || reviewPkg.changedFiles,
+    filesIntentionallyNotReviewed: input?.filesIntentionallyNotReviewed || [...(reviewPkg.generatedFiles as string[]), ...(reviewPkg.lockfiles as string[])],
+    contractsReviewed: input?.contractsReviewed || reviewPkg.contractsProduced,
+    dependenciesReviewed: input?.dependenciesReviewed || reviewPkg.directDependencies,
+    testsVerified: input?.testsVerified || [],
     ownershipVerified: reviewPkg.scopeCheckResult !== "ownership_violation",
     budgetVerified: reviewPkg.scopeCheckResult === "within_scope",
     decision,
+    findings: input?.findings,
+    requiredChanges: input?.requiredChanges,
+    residualRisks: input?.residualRisks,
+    integrationNotes: input?.integrationNotes,
+    documentationNotes: input?.documentationNotes,
     timestamp: new Date().toISOString()
   };
 
@@ -326,11 +350,27 @@ async function decideReview(reviewPackageKey: string, reviewType: string, token:
   await recordHistory(reviewPackageKey, claim.reviewerKey, reviewType, decision, { receiptPath });
   await db.update(agentReviewPackages).set({ status: decision }).where(eq(agentReviewPackages.key, reviewPackageKey));
 
+  // Check if all required reviews are approved
+  if (decision === "approved") {
+    const allReceipts = await db.select().from(agentReviewReceipts).where(eq(agentReviewReceipts.reviewPackageKey, reviewPackageKey));
+    const approvedTypes = allReceipts.filter(r => r.decision === "approved").map(r => r.reviewType);
+    const requiredTypes = reviewPkg.reviewTypesRequired as string[];
+
+    const allApproved = requiredTypes.every(t => approvedTypes.includes(t));
+    if (allApproved) {
+       await db.update(agentReviewPackages).set({ status: "approved" }).where(eq(agentReviewPackages.key, reviewPackageKey));
+       await db.update(agentWorkPackages).set({ status: "review_complete" }).where(eq(agentWorkPackages.key, reviewPkg.workPackageKey));
+    }
+  } else if (decision === "changes_requested") {
+    await db.update(agentReviewPackages).set({ status: "changes_requested" }).where(eq(agentReviewPackages.key, reviewPackageKey));
+    await db.update(agentWorkPackages).set({ status: "changes_requested" }).where(eq(agentWorkPackages.key, reviewPkg.workPackageKey));
+  }
+
   return { success: true, receiptPath };
 }
 
-export const approveReview = (reviewPackageKey: string, reviewType: string, token: string) => decideReview(reviewPackageKey, reviewType, token, "approved");
-export const requestReviewChanges = (reviewPackageKey: string, reviewType: string, token: string) => decideReview(reviewPackageKey, reviewType, token, "changes_requested");
+export const approveReview = (reviewPackageKey: string, reviewType: string, token: string, input?: any) => decideReview(reviewPackageKey, reviewType, token, "approved", input);
+export const requestReviewChanges = (reviewPackageKey: string, reviewType: string, token: string, input?: any) => decideReview(reviewPackageKey, reviewType, token, "changes_requested", input);
 export const completeReview = approveReview;
 
 export function generateReviewReceipt(reviewPkg: any, content: any) {

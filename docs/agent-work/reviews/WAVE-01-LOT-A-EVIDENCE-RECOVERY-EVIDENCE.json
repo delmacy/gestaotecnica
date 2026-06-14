@@ -1,0 +1,74 @@
+{
+  "task": "WAVE-01-LOT-A-EVIDENCE-RECOVERY-001",
+  "timestamp": "2026-06-14T18:15:00Z",
+  "mainSha": "3c8e537b72c033bd3ed6b34d3104fc0e8ec4bf58",
+  "packages": [
+    "PKG-SHARED-CONTRACTS-001",
+    "PKG-OPERATION-DOCS-FOUNDATION-001"
+  ],
+  "originalWorkers": [
+    "jules-dev-shared-contracts-01",
+    "jules-documentator-01"
+  ],
+  "pullRequests": [
+    "169",
+    "170"
+  ],
+  "baseShas": [
+    "81ab46caee3c7296dfb48b4b19133f0fd287fe86",
+    "6695e5a84cfb77acf39fc73f43bd898df1265a95"
+  ],
+  "headShas": [
+    "cca86210e5c1d5c1a34662f754f59fc07a1efeea",
+    "a56020e0ab191140f9973c92684f2bc47e750b48"
+  ],
+  "mergeCommits": [
+    "6695e5a84cfb77acf39fc73f43bd898df1265a95",
+    "f2c5d0c110e6148bb15ac40cd3398ff59833700d"
+  ],
+  "historicalCommitsVerified": true,
+  "diffsVerified": true,
+  "ownershipVerified": true,
+  "requiredTests": "verified",
+  "verificationCommands": [
+    [
+      "npm ci",
+      "npx tsc --noEmit",
+      "npx tsx --test tests/unit/shared-contracts.test.ts",
+      "npm run build"
+    ],
+    [
+      "npm ci",
+      "npm run build",
+      "npm run agent-work -- help"
+    ]
+  ],
+  "verificationResults": "success",
+  "recoveredReceiptIds": [
+    "ACT-RECOVERY-PKG-OPERATION-DOCS-FOUNDATION-001-1781476977960",
+    "ACT-RECOVERY-PKG-SHARED-CONTRACTS-001-1781476861118"
+  ],
+  "recoveredReceiptPaths": [
+    "docs/modules/documentation-governance/activity/2026/PKG-OPERATION-DOCS-FOUNDATION-001__PR-170__RECOVERED.md",
+    "docs/modules/shared-contracts/activity/2026/PKG-SHARED-CONTRACTS-001__PR-169__RECOVERED.md"
+  ],
+  "reviewPackageKeys": [
+    "REVIEW-PKG-SHARED-CONTRACTS-001",
+    "REVIEW-PKG-OPERATION-DOCS-FOUNDATION-001"
+  ],
+  "scopeResults": [
+    "within_scope",
+    "within_scope"
+  ],
+  "runtimeStatus": "blocked",
+  "eventsStatus": "blocked",
+  "tenancyStatus": "blocked",
+  "limitations": [
+    "No contemporaneous claim could be recovered.",
+    "No contemporaneous lease could be recovered.",
+    "The code and documentation were verified from immutable Git commits.",
+    "Tests were re-executed after merge in detached worktrees."
+  ],
+  "finalStatus": "LOT_A_EVIDENCE_RECOVERY_PENDING_CI",
+  "blockingReasons": []
+}

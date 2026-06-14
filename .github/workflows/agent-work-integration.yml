@@ -52,10 +52,14 @@ jobs:
         run: npm run agent-work -- seed:wave-01 --base-sha "$(git rev-parse origin/main)"
       - name: Check Agent Work database
         run: npm run agent-work -- db:check
+      - name: Launch patch unit tests
+        run: npm run test:unit -- tests/unit/agent-work-launch.test.ts
       - name: Unit tests
         run: npm run test:agent-work:unit
       - name: Record unit tests
         run: npm run agent-work -- proof:record --wave WAVE-01-FOUNDATION --type unit_tests --status verified
+      - name: Launch patch integration tests
+        run: npm run test:integration -- tests/integration/agent-work-launch.test.ts
       - name: Integration tests
         run: npm run test:agent-work:integration
       - name: Record integration tests

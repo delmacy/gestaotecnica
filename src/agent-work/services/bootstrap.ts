@@ -1,4 +1,4 @@
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, inArray } from "drizzle-orm";
 import { getAgentWorkDb } from "../db";
 import {
   agentWorkers,
@@ -65,7 +65,7 @@ async function selectReviewForWorker(worker: any, waveKey?: string) {
 
   const reviews = await db.select().from(agentReviewPackages)
     .where(and(
-      eq(agentReviewPackages.status, "ready"),
+      inArray(agentReviewPackages.status, ["ready", "in_review"]),
       waveKey ? eq(agentReviewPackages.waveKey, waveKey) : undefined
     ))
     .orderBy(asc(agentReviewPackages.key));

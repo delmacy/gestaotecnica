@@ -21,6 +21,8 @@ npm run agent-work -- review:create \
   --head-sha <SHA>
 ```
 
+O comando exige um Activity Receipt existente para o mesmo package e exatamente os mesmos `base-sha` e `head-sha`. Não crie receipts retrospectivos para contornar essa validação.
+
 ### 2. Scope Check e Ownership
 Antes de ser disponibilizado para os Reviewers, o sistema valida:
 - **Ownership**: Garante que o worker não alterou arquivos fora de seus `Owned Paths`.
@@ -41,11 +43,15 @@ npm run agent-work -- review:claim \
 ```
 *Assim como os Work Packages, os Reviews possuem leases que expiram e exigem heartbeat.*
 
+O primeiro claim move o Review Package de `ready` para `in_review`. Os demais tipos obrigatórios continuam elegíveis para claims independentes enquanto o package estiver `in_review`. Um tipo já decidido ou com claim ativo não pode receber um segundo claim.
+
 ### 4. Review Kit
 O Reviewer consome o **Review Kit**, que contém metadados sobre a mudança, lista de arquivos afetados e o status do `scope-check`.
 
 ### 5. Tomada de Decisão (Review Receipt)
 Após a análise, o Reviewer registra sua decisão usando o comando `review:approve` ou `review:request-changes`, fornecendo um JSON estruturado de entrada (`decision input`).
+
+O decision input é obrigatório. Todos os arquivos alterados devem constar em `filesReviewed` ou `filesIntentionallyNotReviewed`. Aprovações exigem `testsVerified` não vazio e `requiredChanges` vazio; solicitações de alteração exigem ao menos um item em `requiredChanges`.
 
 #### Estrutura do Decision Input
 ```json

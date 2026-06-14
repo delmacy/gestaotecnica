@@ -5,11 +5,11 @@ import { createAgentWorkDb, getAgentWorkDb, closeAgentWorkDb } from '../../src/a
 import { seedWave01 } from '../../src/agent-work/seeds/wave-01.js';
 import { bootstrapWorker } from '../../src/agent-work/services/bootstrap.js';
 import { createActivityReceipt } from '../../src/agent-work/services/activity-receipt.js';
-import { createReviewPackage, claimReview, approveReview } from '../../src/agent-work/services/scoped-review.js';
-import { agentReviewReceipts, agentWorkPackages, agentPackageDependencies } from '../../src/agent-work/schema.js';
+import { createReviewPackage, approveReview } from '../../src/agent-work/services/scoped-review.js';
+import { agentReviewPackages, agentReviewReceipts, agentWorkPackages, agentPackageDependencies } from '../../src/agent-work/schema.js';
 import { eq, and } from 'drizzle-orm';
 
-describe('Agent Work Launch Integration', { timeout: 60000 }, () => {
+describe('Agent Work Launch Integration', { timeout: 240000 }, () => {
   const currentSha = execSync('git rev-parse HEAD').toString().trim();
   const baseSha = currentSha;
 
@@ -67,18 +67,81 @@ describe('Agent Work Launch Integration', { timeout: 60000 }, () => {
         const reviewKey = reviewRes.reviewKey as string;
         assert.strictEqual(reviewKey, 'REVIEW-PKG-SHARED-CONTRACTS-001');
 
+        const mismatchedReview = await createReviewPackage({
+          packageKey: 'PKG-SHARED-CONTRACTS-001',
+          pr: '1',
+          baseSha: '0000000000000000000000000000000000000000',
+          headSha: currentSha
+        });
+        assert.strictEqual(mismatchedReview.success, false);
+        assert.strictEqual(mismatchedReview.error, 'Activity Receipt does not match requested base/head SHA');
+
         const reviewerKey = 'jules-reviewer-module-01';
         const bootRev = await bootstrapWorker(reviewerKey, 'WAVE-01-FOUNDATION');
         assert.strictEqual(bootRev.status, 'SUCCESS');
         assert.strictEqual(bootRev.selectedResource, reviewKey);
         assert.strictEqual(bootRev.reviewType, 'module');
 
-        const approve = await approveReview(reviewKey, 'module', bootRev.claimToken as string);
+        const contractBoot = await bootstrapWorker('jules-reviewer-contract-01', 'WAVE-01-FOUNDATION');
+        assert.strictEqual(contractBoot.status, 'SUCCESS');
+        assert.strictEqual(contractBoot.selectedResource, reviewKey);
+        assert.strictEqual(contractBoot.reviewType, 'contract');
+
+        const approve = await approveReview(reviewKey, 'module', bootRev.claimToken as string, {
+          filesReviewed: [],
+          filesIntentionallyNotReviewed: [],
+          contractsReviewed: ['platform-shared-contracts'],
+          dependenciesReviewed: [],
+          testsVerified: ['unit'],
+          findings: [],
+          requiredChanges: [],
+          residualRisks: [],
+          integrationNotes: '',
+          documentationNotes: ''
+        });
         assert.strictEqual(approve.success, true);
 
         const results = await db.select().from(agentReviewReceipts).where(eq(agentReviewReceipts.reviewPackageKey, reviewKey));
         assert.strictEqual(results.length, 1);
         assert.strictEqual(results[0].decision, 'approved');
+        const reviewAfterFirstApproval = (await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, reviewKey)))[0];
+        assert.strictEqual(reviewAfterFirstApproval.status, 'in_review');
+
+        const contractApprove = await approveReview(reviewKey, 'contract', contractBoot.claimToken as string, {
+          filesReviewed: [],
+          filesIntentionallyNotReviewed: [],
+          contractsReviewed: ['platform-shared-contracts'],
+          dependenciesReviewed: [],
+          testsVerified: ['unit'],
+          findings: [],
+          requiredChanges: [],
+          residualRisks: [],
+          integrationNotes: '',
+          documentationNotes: ''
+        });
+        assert.strictEqual(contractApprove.success, true);
+
+        const documentationBoot = await bootstrapWorker('jules-reviewer-documentation-01', 'WAVE-01-FOUNDATION');
+        assert.strictEqual(documentationBoot.status, 'SUCCESS');
+        assert.strictEqual(documentationBoot.selectedResource, reviewKey);
+        assert.strictEqual(documentationBoot.reviewType, 'documentation');
+
+        const documentationApprove = await approveReview(reviewKey, 'documentation', documentationBoot.claimToken as string, {
+          filesReviewed: [],
+          filesIntentionallyNotReviewed: [],
+          contractsReviewed: ['platform-shared-contracts'],
+          dependenciesReviewed: [],
+          testsVerified: ['unit'],
+          findings: [],
+          requiredChanges: [],
+          residualRisks: [],
+          integrationNotes: '',
+          documentationNotes: ''
+        });
+        assert.strictEqual(documentationApprove.success, true);
+
+        const reviewAfterAllApprovals = (await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, reviewKey)))[0];
+        assert.strictEqual(reviewAfterAllApprovals.status, 'approved');
 
         // 2. Check dependency unlocking
         await db.update(agentPackageDependencies).set({ status: 'completed' }).where(eq(agentPackageDependencies.requiredPackageKey, 'PKG-SHARED-CONTRACTS-001'));

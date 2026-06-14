@@ -89,14 +89,30 @@ export async function createReviewPackage(input: { packageKey: string, pr?: stri
   const [pkg] = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, input.packageKey));
   if (!pkg) return { success: false, error: "Work package not found" };
 
+  const baseSha = input.baseSha || pkg.baseSha;
   const receipts = await db.select().from(agentActivityReceipts).where(eq(agentActivityReceipts.packageKey, input.packageKey));
   if (receipts.length === 0) return { success: false, error: "Activity Receipt missing" };
-
-  const baseSha = input.baseSha || pkg.baseSha;
   const headSha = input.headSha || receipts[0].headSha;
 
   if (!SHA_REGEX.test(baseSha) || !SHA_REGEX.test(headSha)) {
     return { success: false, error: "Invalid SHA format" };
+  }
+  const matchingReceipt = receipts.find((receipt) => receipt.baseSha === baseSha && receipt.headSha === headSha);
+  if (!matchingReceipt) {
+    return { success: false, error: "Activity Receipt does not match requested base/head SHA" };
+  }
+
+  const key = `REVIEW-${input.packageKey}`;
+  const [existingReview] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, key));
+  if (existingReview) {
+    if (existingReview.baseSha === baseSha && existingReview.headSha === headSha && existingReview.pullRequest === input.pr) {
+      return { success: true, reviewKey: key, status: existingReview.status, idempotent: true };
+    }
+    const existingClaims = await db.select().from(agentReviewClaims).where(eq(agentReviewClaims.reviewPackageKey, key));
+    const existingReceipts = await db.select().from(agentReviewReceipts).where(eq(agentReviewReceipts.reviewPackageKey, key));
+    if (existingClaims.length > 0 || existingReceipts.length > 0) {
+      return { success: false, error: "Review Package already has claims or decisions" };
+    }
   }
 
   const diff = await collectReviewDiff({ baseSha, headSha, pullRequest: input.pr });
@@ -132,8 +148,6 @@ export async function createReviewPackage(input: { packageKey: string, pr?: stri
   };
 
   const budget = calculateReviewBudget(stats);
-  const key = `REVIEW-${input.packageKey}`;
-
   const reviewPackageStatus = (ownershipResult === "ownership_valid" && !budget.exceeded) ? "ready" : "blocked";
 
   await db.insert(agentReviewPackages).values({
@@ -174,13 +188,16 @@ export async function generateReviewKit(reviewPackageKey: string, reviewType = "
   const [reviewPkg] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, reviewPackageKey));
   if (!reviewPkg) throw new Error("Review package not found");
   const [workPkg] = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, reviewPkg.workPackageKey));
-  const receipts = await db.select().from(agentActivityReceipts).where(eq(agentActivityReceipts.packageKey, workPkg.key));
+  const receipts = (await db.select().from(agentActivityReceipts).where(eq(agentActivityReceipts.packageKey, workPkg.key)))
+    .filter((receipt) => receipt.baseSha === reviewPkg.baseSha && receipt.headSha === reviewPkg.headSha);
+  if (receipts.length === 0) throw new Error("Matching Activity Receipt required");
 
   const [claim] = await db.select().from(agentReviewClaims).where(and(
     eq(agentReviewClaims.reviewPackageKey, reviewPackageKey),
     eq(agentReviewClaims.reviewType, reviewType),
     eq(agentReviewClaims.status, "active")
   ));
+  if (!claim) throw new Error(`Active ${reviewType} review claim required`);
 
   const content = {
     reviewPackage: reviewPkg.key,
@@ -235,6 +252,17 @@ export async function claimReview(reviewerKey: string, reviewPackageKey: string,
   }
   const [reviewPkg] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, reviewPackageKey));
   if (!reviewPkg || !(reviewPkg.reviewTypesRequired as string[]).includes(reviewType)) return { success: false, error: "Review type not required" };
+  if (!["ready", "in_review"].includes(reviewPkg.status)) return { success: false, error: `Review Package is not claimable: ${reviewPkg.status}` };
+  const decided = await db.select().from(agentReviewReceipts).where(and(
+    eq(agentReviewReceipts.reviewPackageKey, reviewPackageKey),
+    eq(agentReviewReceipts.reviewType, reviewType)
+  ));
+  if (decided.length > 0) return { success: false, error: "Review type already decided" };
+  const workerClaims = await db.select().from(agentReviewClaims).where(and(
+    eq(agentReviewClaims.reviewerKey, reviewerKey),
+    eq(agentReviewClaims.status, "active")
+  ));
+  if (workerClaims.length >= worker.maxActiveClaims) return { success: false, error: "Reviewer max active claims reached" };
   const token = randomBytes(32).toString("hex");
   try {
     await db.insert(agentReviewClaims).values({
@@ -242,6 +270,7 @@ export async function claimReview(reviewerKey: string, reviewPackageKey: string,
       claimTokenHash: hashToken(token), expiresAt: leaseExpiry(),
     });
     await recordHistory(reviewPackageKey, reviewerKey, reviewType, "claimed", {});
+    await db.update(agentReviewPackages).set({ status: "in_review", startedAt: reviewPkg.startedAt || new Date() }).where(eq(agentReviewPackages.key, reviewPackageKey));
     return { success: true, token };
   } catch {
     return { success: false, error: "Review type already claimed" };
@@ -249,7 +278,11 @@ export async function claimReview(reviewerKey: string, reviewPackageKey: string,
 }
 
 async function findActive(reviewPackageKey: string, reviewType: string) {
-  return (await getAgentWorkDb().select().from(agentReviewClaims).where(and(eq(agentReviewClaims.reviewPackageKey, reviewPackageKey), eq(agentReviewClaims.reviewType, reviewType))))[0];
+  return (await getAgentWorkDb().select().from(agentReviewClaims).where(and(
+    eq(agentReviewClaims.reviewPackageKey, reviewPackageKey),
+    eq(agentReviewClaims.reviewType, reviewType),
+    eq(agentReviewClaims.status, "active")
+  )))[0];
 }
 
 async function recordHistory(reviewPackageKey: string, reviewerKey: string, reviewType: string, action: string, details: object) {
@@ -298,8 +331,9 @@ async function decideReview(reviewPackageKey: string, reviewType: string, token:
      return { success: false, error: `REVIEW_APPROVAL_BLOCKED: ${reviewPkg.scopeCheckResult}` };
   }
 
-  const receipts = await db.select().from(agentActivityReceipts).where(eq(agentActivityReceipts.packageKey, reviewPkg.workPackageKey));
-  if (receipts.length === 0) return { success: false, error: "REVIEW_APPROVAL_BLOCKED: Activity Receipt missing" };
+  const receipts = (await db.select().from(agentActivityReceipts).where(eq(agentActivityReceipts.packageKey, reviewPkg.workPackageKey)))
+    .filter((receipt) => receipt.baseSha === reviewPkg.baseSha && receipt.headSha === reviewPkg.headSha);
+  if (receipts.length === 0) return { success: false, error: "REVIEW_APPROVAL_BLOCKED: Matching Activity Receipt missing" };
 
   const activityInput = JSON.parse(receipts[0].content);
   if (activityInput.testResults?.success === false) {
@@ -307,6 +341,8 @@ async function decideReview(reviewPackageKey: string, reviewType: string, token:
   }
 
   const [workPkg] = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, reviewPkg.workPackageKey));
+  const validationError = validateDecisionInput(reviewPkg, decision, input);
+  if (validationError) return { success: false, error: `REVIEW_APPROVAL_BLOCKED: ${validationError}` };
 
   const content = {
     reviewId: `${reviewPackageKey}-${reviewType}`,
@@ -348,18 +384,22 @@ async function decideReview(reviewPackageKey: string, reviewType: string, token:
   const receiptPath = generateReviewReceipt(reviewPkg, content);
 
   await recordHistory(reviewPackageKey, claim.reviewerKey, reviewType, decision, { receiptPath });
-  await db.update(agentReviewPackages).set({ status: decision }).where(eq(agentReviewPackages.key, reviewPackageKey));
-
   // Check if all required reviews are approved
   if (decision === "approved") {
     const allReceipts = await db.select().from(agentReviewReceipts).where(eq(agentReviewReceipts.reviewPackageKey, reviewPackageKey));
     const approvedTypes = allReceipts.filter(r => r.decision === "approved").map(r => r.reviewType);
     const requiredTypes = reviewPkg.reviewTypesRequired as string[];
+    const changesRequested = allReceipts.some(r => r.decision === "changes_requested");
 
     const allApproved = requiredTypes.every(t => approvedTypes.includes(t));
-    if (allApproved) {
-       await db.update(agentReviewPackages).set({ status: "approved" }).where(eq(agentReviewPackages.key, reviewPackageKey));
+    if (changesRequested) {
+       await db.update(agentReviewPackages).set({ status: "changes_requested" }).where(eq(agentReviewPackages.key, reviewPackageKey));
+       await db.update(agentWorkPackages).set({ status: "changes_requested" }).where(eq(agentWorkPackages.key, reviewPkg.workPackageKey));
+    } else if (allApproved) {
+       await db.update(agentReviewPackages).set({ status: "approved", completedAt: new Date() }).where(eq(agentReviewPackages.key, reviewPackageKey));
        await db.update(agentWorkPackages).set({ status: "review_complete" }).where(eq(agentWorkPackages.key, reviewPkg.workPackageKey));
+    } else {
+       await db.update(agentReviewPackages).set({ status: "in_review" }).where(eq(agentReviewPackages.key, reviewPackageKey));
     }
   } else if (decision === "changes_requested") {
     await db.update(agentReviewPackages).set({ status: "changes_requested" }).where(eq(agentReviewPackages.key, reviewPackageKey));
@@ -367,6 +407,24 @@ async function decideReview(reviewPackageKey: string, reviewType: string, token:
   }
 
   return { success: true, receiptPath };
+}
+
+export function validateDecisionInput(reviewPkg: any, decision: "approved" | "changes_requested", input?: any) {
+  if (!input || typeof input !== "object") return "decision input JSON is required";
+  const arrayFields = [
+    "filesReviewed", "filesIntentionallyNotReviewed", "contractsReviewed", "dependenciesReviewed",
+    "testsVerified", "findings", "requiredChanges", "residualRisks",
+  ];
+  for (const field of arrayFields) {
+    if (!Array.isArray(input[field])) return `${field} must be an array`;
+  }
+  const accountedFiles = new Set([...input.filesReviewed, ...input.filesIntentionallyNotReviewed]);
+  const missingFiles = (reviewPkg.changedFiles as string[]).filter((file) => !accountedFiles.has(file));
+  if (missingFiles.length > 0) return `changed files not accounted for: ${missingFiles.join(", ")}`;
+  if (decision === "approved" && input.testsVerified.length === 0) return "approval requires testsVerified";
+  if (decision === "approved" && input.requiredChanges.length > 0) return "approval cannot contain requiredChanges";
+  if (decision === "changes_requested" && input.requiredChanges.length === 0) return "changes_requested requires requiredChanges";
+  return null;
 }
 
 export const approveReview = (reviewPackageKey: string, reviewType: string, token: string, input?: any) => decideReview(reviewPackageKey, reviewType, token, "approved", input);
@@ -406,13 +464,13 @@ ${(content.dependenciesReviewed || []).map((d: string) => `- ${d}`).join("\n")}
 - Tests: ✅ Verified
 
 ## Findings
-${content.findings || "No critical findings."}
+${(content.findings || []).map((finding: string) => `- ${finding}`).join("\n") || "No critical findings."}
 
 ## Required Changes
-${content.requiredChanges || "None."}
+${(content.requiredChanges || []).map((change: string) => `- ${change}`).join("\n") || "None."}
 
 ## Residual Risks
-${content.residualRisks || "None identified."}
+${(content.residualRisks || []).map((risk: string) => `- ${risk}`).join("\n") || "None identified."}
 
 ## Integration & Documentation
 - Integration Notes: ${content.integrationNotes || "Standard merge."}

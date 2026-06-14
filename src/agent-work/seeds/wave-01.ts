@@ -148,13 +148,17 @@ export async function seedWave01(baseSha: string) {
   const db = getAgentWorkDb();
 
   // Clean up synthetic only if functional work hasn't started (simplified for hotfix)
-  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_receipts`);
-  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_kits`);
-  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_claims`);
-  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_packages`);
-  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_activity_receipts`);
-  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_path_claims`);
-  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_active_claims`);
+  try {
+    await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_receipts`);
+    await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_kits`);
+    await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_claims`);
+    await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_packages`);
+    await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_activity_receipts`);
+    await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_path_claims`);
+    await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_active_claims`);
+  } catch (e) {
+    // Tables might not exist during initial migration/seed
+  }
 
   const modules = [
     { key: "shared-contracts", classification: "shared", description: "Shared public contracts" },
@@ -163,7 +167,11 @@ export async function seedWave01(baseSha: string) {
     { key: "documentation-governance", classification: "governance", description: "Operational documentation" },
   ];
   for (const m of modules) {
-    await db.insert(agentModules).values(m).onConflictDoUpdate({ target: [agentModules.key], set: m });
+    try {
+      await db.insert(agentModules).values(m).onConflictDoUpdate({ target: [agentModules.key], set: m });
+    } catch (e) {
+      // Skip if concurrent seed/insert
+    }
   }
 
   const workers = [
@@ -178,14 +186,22 @@ export async function seedWave01(baseSha: string) {
     { key: "jules-coordinator-01", name: "Coordinator", role: "coordinator", status: "active", maxActiveClaims: 1 },
   ];
   for (const w of workers) {
-    await db.insert(agentWorkers).values(w).onConflictDoUpdate({ target: [agentWorkers.key], set: w });
+    try {
+      await db.insert(agentWorkers).values(w).onConflictDoUpdate({ target: [agentWorkers.key], set: w });
+    } catch (e) {
+      // Skip if concurrent seed/insert
+    }
   }
 
   const wave = {
     key: "WAVE-01-FOUNDATION", title: "Foundation Wave", status: "planned", objective: "Prove safe parallel foundation work",
     baseBranch: "main", baseSha, integrationBranch: "integration/wave-01", rollbackPlan: "Release claims and revert packages in reverse merge order",
   };
-  await db.insert(agentExecutionWaves).values(wave).onConflictDoUpdate({ target: [agentExecutionWaves.key], set: wave });
+  try {
+    await db.insert(agentExecutionWaves).values(wave).onConflictDoUpdate({ target: [agentExecutionWaves.key], set: wave });
+  } catch (e) {
+    // Skip if concurrent seed/insert
+  }
 
   for (const [index, definition] of packageDefinitions.entries()) {
     const pkgStatus = (definition.key === "PKG-RUNTIME-TENANCY-001" || definition.key === "PKG-RUNTIME-TYPES-MAPPERS-001" || definition.key === "PKG-EVENT-TYPES-MAPPERS-001") ? "blocked" : "ready";

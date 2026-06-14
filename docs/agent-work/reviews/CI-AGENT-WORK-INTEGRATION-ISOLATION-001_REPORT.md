@@ -10,6 +10,7 @@
 ### Files Altered
 - `package.json`
 - `.github/workflows/agent-work-integration.yml`
+- `src/agent-work/services/operational-proof.ts` (fix signature mismatch)
 
 ### Scripts
 - **Previous script (`test:integration` usage in workflow):** `npm run test:integration -- tests/integration/agent-work-launch.test.ts`

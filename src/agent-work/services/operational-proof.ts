@@ -97,7 +97,7 @@ export async function runOperationalProof(headSha: string) {
       id: `ACTIVITY-${pkg.key}`, packageKey: pkg.key, content: "Synthetic completion for operational proof only",
       path: `docs/agent-work/reviews/activity/${pkg.key}.md`, baseSha: pkg.baseSha, headSha, status: "verified",
     });
-    const reviewKey = await createReviewPackage(pkg.key, changedFiles, headSha);
+    const reviewKey = await createReviewPackage({ packageKey: pkg.key, baseSha: pkg.baseSha, headSha });
     const reviewType = "module";
     const claim = await claimReview("jules-reviewer-module-01", reviewKey, reviewType);
     if (!claim.success || !claim.token) throw new Error(`Review claim failed for ${reviewKey}`);

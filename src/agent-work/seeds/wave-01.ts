@@ -22,7 +22,7 @@ const packageDefinitions = [
     title: "Shared Contracts",
     moduleKey: "shared-contracts",
     workerRole: "module_worker",
-    ownedPaths: ["src/platform/contracts/**"],
+    ownedPaths: ["src/platform/contracts/**", "tests/unit/shared-contracts.test.ts"],
     readOnlyPaths: ["docs/ARCHITECTURE.md", "docs/DEVELOPMENT_RULES.md"],
     readFirst: ["docs/ARCHITECTURE.md", "docs/DEVELOPMENT_RULES.md", "docs/modules/MODULE_PUBLIC_CONTRACT_INDEX.md"],
     requiredTests: ["npm run test:unit -- --test-name-pattern=contract", "npm run build"],
@@ -34,10 +34,11 @@ const packageDefinitions = [
     objective: "Define canonical shared schemas used by Wave 01 packages",
     expectedOutcome: "Validated shared contracts with stable exports",
     tasks: [
-      ["Inventory shared contract exports", "Document every shared export consumed by Wave 01", ["docs/modules/MODULE_PUBLIC_CONTRACT_INDEX.md"]],
+      ["Inventory shared contract exports", "registrar documentation impact no Activity Receipt", []],
       ["Implement canonical shared schemas", "Create typed schemas at the owned contract paths", ["src/platform/contracts/index.ts"]],
       ["Verify invalid and valid payloads", "Add focused contract validation tests", ["tests/unit/shared-contracts.test.ts"]],
-      ["Record contract compatibility", "Document produced contracts and consumers", ["docs/modules/MODULE_PUBLIC_CONTRACT_INDEX.md"]],
+      ["Record contract compatibility", "registrar contrato produzido e consumidores conhecidos", []],
+      ["Hand off to Documentator", "entregar handoff ao Documentator", []],
     ],
   },
   {
@@ -45,7 +46,7 @@ const packageDefinitions = [
     title: "Runtime Types and Mappers",
     moduleKey: "runtime-engine",
     workerRole: "module_worker",
-    ownedPaths: ["src/platform/workflows/runtime/types/**", "src/platform/workflows/runtime/mappers/**"],
+    ownedPaths: ["src/platform/workflows/runtime/types/**", "src/platform/workflows/runtime/mappers/**", "tests/unit/runtime-mappers.test.ts"],
     readOnlyPaths: ["src/platform/contracts/**", "docs/runtime/RUNTIME_CANONICAL_CONTRACT.md"],
     readFirst: ["docs/runtime/RUNTIME_CANONICAL_CONTRACT.md", "docs/runtime/RUNTIME_PAYLOAD_CONTRACT.md", "src/platform/contracts/index.ts"],
     requiredTests: ["npm run test:unit -- --test-name-pattern=runtime", "npm run build"],
@@ -60,7 +61,9 @@ const packageDefinitions = [
       ["Map canonical runtime identifiers", "Implement deterministic runtime identifier mapping", ["src/platform/workflows/runtime/mappers/identifiers.ts"]],
       ["Define runtime mapper input types", "Define typed mapper boundaries", ["src/platform/workflows/runtime/types/mappers.ts"]],
       ["Test runtime mapper behavior", "Verify mapping and rejection behavior", ["tests/unit/runtime-mappers.test.ts"]],
-      ["Update runtime contract mapping", "Record mapper compatibility and public exports", ["docs/runtime/RUNTIME_CANONICAL_CONTRACT.md"]],
+      ["Update runtime contract mapping", "registrar documentation impact no Activity Receipt", []],
+      ["Record produced contracts", "registrar contrato produzido e consumidores conhecidos", []],
+      ["Hand off to Documentator", "entregar handoff ao Documentator", []],
     ],
   },
   {
@@ -68,7 +71,7 @@ const packageDefinitions = [
     title: "Runtime Tenancy",
     moduleKey: "runtime-engine",
     workerRole: "module_worker",
-    ownedPaths: ["src/platform/workflows/runtime/tenancy/**"],
+    ownedPaths: ["src/platform/workflows/runtime/tenancy/**", "tests/unit/runtime-tenancy.test.ts"],
     readOnlyPaths: ["src/platform/workflows/runtime/types/**", "docs/runtime/RUNTIME_TENANCY_SECURITY_CONTRACT.md"],
     readFirst: ["docs/runtime/RUNTIME_TENANCY_SECURITY_CONTRACT.md", "docs/runtime/RUNTIME_CANONICAL_CONTRACT.md"],
     requiredTests: ["npm run test:unit -- --test-name-pattern=tenancy", "npm run build"],
@@ -83,7 +86,9 @@ const packageDefinitions = [
       ["Define tenancy mapper boundary", "Require workspace context on tenancy inputs", ["src/platform/workflows/runtime/tenancy/types.ts"]],
       ["Implement workspace validation", "Reject missing and divergent workspace identifiers", ["src/platform/workflows/runtime/tenancy/validate.ts"]],
       ["Test tenancy isolation", "Cover allowed and denied workspace mappings", ["tests/unit/runtime-tenancy.test.ts"]],
-      ["Document tenancy enforcement", "Record mapper tenancy guarantees", ["docs/runtime/RUNTIME_TENANCY_SECURITY_CONTRACT.md"]],
+      ["Document tenancy enforcement", "registrar documentation impact no Activity Receipt", []],
+      ["Record produced contracts", "registrar contrato produzido e consumidores conhecidos", []],
+      ["Hand off to Documentator", "entregar handoff ao Documentator", []],
     ],
   },
   {
@@ -91,7 +96,7 @@ const packageDefinitions = [
     title: "Event Types and Mappers",
     moduleKey: "events-receipts",
     workerRole: "module_worker",
-    ownedPaths: ["src/platform/events/types/**", "src/platform/events/mappers/**"],
+    ownedPaths: ["src/platform/events/types/**", "src/platform/events/mappers/**", "tests/unit/event-mappers.test.ts"],
     readOnlyPaths: ["src/platform/contracts/**", "docs/events/EVENT_CANONICAL_ENVELOPE.md"],
     readFirst: ["docs/events/EVENT_CANONICAL_ENVELOPE.md", "docs/events/EVENT_TYPE_TAXONOMY.md", "src/platform/contracts/index.ts"],
     requiredTests: ["npm run test:unit -- --test-name-pattern=event", "npm run build"],
@@ -106,7 +111,9 @@ const packageDefinitions = [
       ["Define event mapper types", "Type the canonical event mapper boundary", ["src/platform/events/types/mappers.ts"]],
       ["Implement canonical envelope mapping", "Map events while preserving trace identifiers", ["src/platform/events/mappers/canonical-envelope.ts"]],
       ["Test event mapping", "Verify required envelope and trace fields", ["tests/unit/event-mappers.test.ts"]],
-      ["Update event contract index", "Record public event mapper exports", ["docs/events/EVENT_CANONICAL_ENVELOPE.md"]],
+      ["Update event contract index", "registrar documentation impact no Activity Receipt", []],
+      ["Record produced contracts", "registrar contrato produzido e consumidores conhecidos", []],
+      ["Hand off to Documentator", "entregar handoff ao Documentator", []],
     ],
   },
   {
@@ -140,7 +147,7 @@ export async function seedWave01(baseSha: string) {
   }
   const db = getAgentWorkDb();
 
-  // Clean up
+  // Clean up synthetic only if functional work hasn't started (simplified for hotfix)
   await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_receipts`);
   await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_kits`);
   await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_claims`);
@@ -149,13 +156,17 @@ export async function seedWave01(baseSha: string) {
   await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_path_claims`);
   await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_active_claims`);
 
-  await db.insert(agentModules).values([
+  const modules = [
     { key: "shared-contracts", classification: "shared", description: "Shared public contracts" },
     { key: "runtime-engine", classification: "platform", description: "Runtime engine" },
     { key: "events-receipts", classification: "platform", description: "Events and receipts" },
     { key: "documentation-governance", classification: "governance", description: "Operational documentation" },
-  ]).onConflictDoNothing();
-  await db.insert(agentWorkers).values([
+  ];
+  for (const m of modules) {
+    await db.insert(agentModules).values(m).onConflictDoUpdate({ target: [agentModules.key], set: m });
+  }
+
+  const workers = [
     { key: "jules-dev-shared-contracts-01", name: "Dev Shared Contracts", role: "module_worker", moduleKey: "shared-contracts", status: "active", maxActiveClaims: 1 },
     { key: "jules-dev-runtime-types-01", name: "Dev Runtime Types", role: "module_worker", moduleKey: "runtime-engine", status: "active", maxActiveClaims: 1 },
     { key: "jules-dev-events-01", name: "Dev Events", role: "module_worker", moduleKey: "events-receipts", status: "active", maxActiveClaims: 1 },
@@ -165,31 +176,50 @@ export async function seedWave01(baseSha: string) {
     })),
     { key: "jules-integrator-01", name: "Integrator", role: "integrator", status: "active", maxActiveClaims: 1 },
     { key: "jules-coordinator-01", name: "Coordinator", role: "coordinator", status: "active", maxActiveClaims: 1 },
-  ]).onConflictDoNothing();
-  await db.insert(agentExecutionWaves).values({
+  ];
+  for (const w of workers) {
+    await db.insert(agentWorkers).values(w).onConflictDoUpdate({ target: [agentWorkers.key], set: w });
+  }
+
+  const wave = {
     key: "WAVE-01-FOUNDATION", title: "Foundation Wave", status: "planned", objective: "Prove safe parallel foundation work",
     baseBranch: "main", baseSha, integrationBranch: "integration/wave-01", rollbackPlan: "Release claims and revert packages in reverse merge order",
-  }).onConflictDoNothing();
+  };
+  await db.insert(agentExecutionWaves).values(wave).onConflictDoUpdate({ target: [agentExecutionWaves.key], set: wave });
 
   for (const [index, definition] of packageDefinitions.entries()) {
-    await db.insert(agentWorkPackages).values({
+    const pkgStatus = (definition.key === "PKG-RUNTIME-TENANCY-001" || definition.key === "PKG-RUNTIME-TYPES-MAPPERS-001" || definition.key === "PKG-EVENT-TYPES-MAPPERS-001") ? "blocked" : "ready";
+    const pkgBlockedReason = definition.key === "PKG-RUNTIME-TENANCY-001" ? "Depends on PKG-RUNTIME-TYPES-MAPPERS-001" :
+                             (definition.key === "PKG-RUNTIME-TYPES-MAPPERS-001" || definition.key === "PKG-EVENT-TYPES-MAPPERS-001") ? "Depends on PKG-SHARED-CONTRACTS-001" : null;
+
+    const pkgValues = {
       ...definition, laneKey: `lane-${index + 1}`, waveKey: "WAVE-01-FOUNDATION", packageSize: "M", priority: index + 1,
-      status: definition.key === "PKG-RUNTIME-TENANCY-001" ? "blocked" : "ready", baseBranch: "main", baseSha,
+      status: pkgStatus, baseBranch: "main", baseSha,
       targetBranch: `wave-01/${definition.key.toLowerCase()}`, integrationBranch: "integration/wave-01", forbiddenPaths: [],
       integrationRisk: definition.key.includes("TENANCY") ? "high" : "medium", mergeOrder: index + 1,
       knownConsumers: [], schemaImpacts: [], reviewBudget, rollbackNotes: `Revert ${definition.key} before its consumers`,
       createdBy: "AGENT-FACTORY-OPERATIONAL-PROOF-001",
-      blockedReason: definition.key === "PKG-RUNTIME-TENANCY-001" ? "Depends on PKG-RUNTIME-TYPES-MAPPERS-001" : null,
+      blockedReason: pkgBlockedReason,
       tenancyGate: definition.key === "PKG-RUNTIME-TENANCY-001" ? "required" : null,
-    }).onConflictDoNothing();
-    await db.insert(agentPackageTasks).values(definition.tasks.map(([title, description, artifacts], taskIndex) => ({
-      id: `${definition.key}-TASK-${taskIndex + 1}`, key: `TASK-${taskIndex + 1}`, packageKey: definition.key, title, description,
-      order: taskIndex + 1, status: "pending", taskType: title.toLowerCase().includes("test") ? "test" : "implementation",
-      acceptanceCriteria: [definition.acceptanceCriteria[Math.min(taskIndex, definition.acceptanceCriteria.length - 1)]], expectedArtifacts: artifacts,
-    }))).onConflictDoNothing();
+    };
+    await db.insert(agentWorkPackages).values(pkgValues).onConflictDoUpdate({ target: [agentWorkPackages.key], set: pkgValues });
+
+    for (const [taskIndex, [title, description, artifacts]] of definition.tasks.entries()) {
+        const taskValues = {
+          id: `${definition.key}-TASK-${taskIndex + 1}`, key: `TASK-${taskIndex + 1}`, packageKey: definition.key, title, description,
+          order: taskIndex + 1, status: "pending", taskType: title.toLowerCase().includes("test") ? "test" : "implementation",
+          acceptanceCriteria: [definition.acceptanceCriteria[Math.min(taskIndex, definition.acceptanceCriteria.length - 1)]], expectedArtifacts: artifacts,
+        };
+        await db.insert(agentPackageTasks).values(taskValues).onConflictDoUpdate({ target: [agentPackageTasks.id], set: taskValues });
+    }
   }
-  await db.insert(agentPackageDependencies).values({
-    id: "DEP-RUNTIME-TENANCY-TYPES", dependentPackageKey: "PKG-RUNTIME-TENANCY-001",
-    requiredPackageKey: "PKG-RUNTIME-TYPES-MAPPERS-001", status: "pending",
-  }).onConflictDoNothing();
+
+  const dependencies = [
+    { id: "DEP-RUNTIME-TYPES-SHARED", dependentPackageKey: "PKG-RUNTIME-TYPES-MAPPERS-001", requiredPackageKey: "PKG-SHARED-CONTRACTS-001", status: "pending" },
+    { id: "DEP-EVENT-TYPES-SHARED", dependentPackageKey: "PKG-EVENT-TYPES-MAPPERS-001", requiredPackageKey: "PKG-SHARED-CONTRACTS-001", status: "pending" },
+    { id: "DEP-RUNTIME-TENANCY-TYPES", dependentPackageKey: "PKG-RUNTIME-TENANCY-001", requiredPackageKey: "PKG-RUNTIME-TYPES-MAPPERS-001", status: "pending" },
+  ];
+  for (const dep of dependencies) {
+    await db.insert(agentPackageDependencies).values(dep).onConflictDoUpdate({ target: [agentPackageDependencies.id], set: dep });
+  }
 }

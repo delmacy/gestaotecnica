@@ -60,7 +60,7 @@ export async function runOperationalProof(headSha: string) {
   const taskKits = await Promise.all(workers.map((worker, index) => generateTaskKit(worker, packages[index])));
   for (const kit of taskKits) {
     if (!kit) throw new Error("Task Kit generation failed");
-    await artifact("task_kit", kit.packageKey, kit);
+    await artifact("task_kit", (kit as any).packageKey, kit);
   }
   const activeClaims = await db.select().from(agentActiveClaims).where(inArray(agentActiveClaims.packageKey, packages));
   const baseShas = new Set(activeClaims.map((claim) => claim.baseSha));

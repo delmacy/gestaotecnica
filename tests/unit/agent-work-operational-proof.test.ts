@@ -39,6 +39,9 @@ test("Operational Proof Logic Unit Test", async () => {
     assert.ok(dryRunArtifact, "Dry run artifact should be recorded");
     assert.strictEqual((dryRunArtifact.content as any).final_status, "PARALLEL_WORK_READY");
 
+    const negativeTests = await db.select().from(agentOperationalArtifacts).where(eq(agentOperationalArtifacts.artifactType, "negative_tests"));
+    assert.ok(negativeTests.length >= 2, `Expected at least 2 negative tests artifacts, got ${negativeTests.length}`);
+
     // 5. Verify tenancy remains blocked
     const tenancyPkg = (await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, "PKG-RUNTIME-TENANCY-001")))[0];
     assert.strictEqual(tenancyPkg.status, "blocked", "Tenancy should remain blocked");

@@ -125,8 +125,8 @@ export async function bootstrapWorker(workerKey: string, waveKey?: string) {
     return { status: "NO_COMPATIBLE_WORK_AVAILABLE" };
   }
 
-  if (resource.type === "package") {
-    const pkg = resource.package;
+  if (resource.type === "package" && "package" in resource) {
+    const pkg = (resource as any).package;
     const claimRes = await claimPackageTransactional(workerKey, pkg.key);
     if (!claimRes.success) {
       return { status: "BOOTSTRAP_BLOCKED", error: claimRes.error };
@@ -146,8 +146,8 @@ export async function bootstrapWorker(workerKey: string, waveKey?: string) {
     };
   }
 
-  if (resource.type === "review") {
-    const { review, reviewType } = resource;
+  if (resource.type === "review" && "review" in resource) {
+    const { review, reviewType } = resource as any;
     const claimRes = await claimReview(workerKey, review.key, reviewType);
     if (!claimRes.success) {
        return { status: "BOOTSTRAP_BLOCKED", error: claimRes.error };
@@ -168,7 +168,7 @@ export async function bootstrapWorker(workerKey: string, waveKey?: string) {
     };
   }
 
-  if (resource.type === "vision") {
+  if (resource.type === "vision" && "vision" in resource) {
     return {
       status: "SUCCESS",
       worker: workerKey,

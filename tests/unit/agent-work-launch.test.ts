@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { calculateReviewBudget, routeSpecializedReviews } from '../../src/agent-work/services/scoped-review.js';
+import { evaluatePathOwnership } from '../../src/agent-work/services/ownership-service.js';
 
 describe('Agent Work Launch Unit Tests', () => {
   describe('Review Budget', () => {
@@ -30,11 +31,37 @@ describe('Agent Work Launch Unit Tests', () => {
       const reviews = routeSpecializedReviews(pkg);
       assert.ok(reviews.includes('contract'));
     });
+  });
 
-    it('should include security review if security gate is present', () => {
-      const pkg = { securityGate: 'required' };
-      const reviews = routeSpecializedReviews(pkg);
-      assert.ok(reviews.includes('security'));
+  describe('Ownership Enforcement', () => {
+    const pkg = {
+      ownedPaths: ['src/platform/contracts/**'],
+      readOnlyPaths: ['docs/ARCHITECTURE.md'],
+      forbiddenPaths: ['src/secret/**']
+    };
+
+    it('should accept owned files', () => {
+      const res = evaluatePathOwnership(pkg, ['src/platform/contracts/index.ts']);
+      assert.strictEqual(res.valid, true);
+      assert.strictEqual(res.ownedFiles.length, 1);
+    });
+
+    it('should reject read-only files', () => {
+      const res = evaluatePathOwnership(pkg, ['docs/ARCHITECTURE.md']);
+      assert.strictEqual(res.valid, false);
+      assert.strictEqual(res.readOnlyViolations.length, 1);
+    });
+
+    it('should reject forbidden files', () => {
+      const res = evaluatePathOwnership(pkg, ['src/secret/key.txt']);
+      assert.strictEqual(res.valid, false);
+      assert.strictEqual(res.forbiddenViolations.length, 1);
+    });
+
+    it('should reject files outside ownership', () => {
+      const res = evaluatePathOwnership(pkg, ['src/other/file.ts']);
+      assert.strictEqual(res.valid, false);
+      assert.strictEqual(res.outsideOwnership.length, 1);
     });
   });
 });

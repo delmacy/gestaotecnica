@@ -139,6 +139,16 @@ export async function seedWave01(baseSha: string) {
     throw new Error("A valid real base SHA must be provided.");
   }
   const db = getAgentWorkDb();
+
+  // Clean up
+  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_receipts`);
+  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_kits`);
+  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_claims`);
+  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_packages`);
+  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_activity_receipts`);
+  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_path_claims`);
+  await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_active_claims`);
+
   await db.insert(agentModules).values([
     { key: "shared-contracts", classification: "shared", description: "Shared public contracts" },
     { key: "runtime-engine", classification: "platform", description: "Runtime engine" },

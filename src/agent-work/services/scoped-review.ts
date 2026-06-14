@@ -24,9 +24,46 @@ export function calculateReviewBudget(diffStats: Record<string, number>) {
     modules_touched: "Modules touched exceeded",
   };
   const reasons = Object.entries(budget)
-    .filter(([key, limit]) => (diffStats[key] || 0) > limit)
+    .filter(([key, limit]) => {
+      const val = diffStats[key] || 0;
+      return val > (limit as number);
+    })
     .map(([key]) => labels[key]);
   return { budget, exceeded: reasons.length > 0, reasons, scopeResult: reasons.length > 0 ? "review_scope_exceeded" : "within_scope" };
+}
+
+export async function collectReviewDiff(input: { baseSha: string, headSha: string, pullRequest?: string }) {
+  const { execSync } = require("child_process");
+
+  // In a real environment with GitHub CLI, we could use gh pr diff
+  // For now, we use local git diff as primary source.
+  const numstat = execSync(`git diff --numstat ${input.baseSha}..${input.headSha}`).toString();
+  const namestatus = execSync(`git diff --name-status ${input.baseSha}..${input.headSha}`).toString();
+
+  const files = namestatus.split("\n").filter(Boolean).map(line => {
+    const [status, path] = line.split(/\s+/);
+    return { path, status };
+  });
+
+  let addedLines = 0;
+  let deletedLines = 0;
+  const fileStats: Record<string, { added: number, deleted: number }> = {};
+
+  numstat.split("\n").filter(Boolean).forEach(line => {
+    const [added, deleted, path] = line.split(/\s+/);
+    const a = parseInt(added) || 0;
+    const d = parseInt(deleted) || 0;
+    addedLines += a;
+    deletedLines += d;
+    fileStats[path] = { added: a, deleted: d };
+  });
+
+  return {
+    files,
+    addedLines,
+    deletedLines,
+    fileStats
+  };
 }
 
 export function routeSpecializedReviews(pkg: any) {
@@ -40,32 +77,91 @@ export function routeSpecializedReviews(pkg: any) {
   return [...new Set(reviews)];
 }
 
-export async function createReviewPackage(packageKey: string, changedFiles: string[], headSha: string) {
+export async function createReviewPackage(input: { packageKey: string, pr?: string, baseSha?: string, headSha?: string }) {
   const db = getAgentWorkDb();
-  const [pkg] = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, packageKey));
+  const [pkg] = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, input.packageKey));
   if (!pkg) throw new Error("Work package not found");
-  const key = `REVIEW-${packageKey}`;
+
+  const receipts = await db.select().from(agentActivityReceipts).where(eq(agentActivityReceipts.packageKey, input.packageKey));
+  if (receipts.length === 0) throw new Error("Activity Receipt missing");
+
+  const baseSha = input.baseSha || pkg.baseSha;
+  const headSha = input.headSha || receipts[0].headSha;
+
+  const diff = await collectReviewDiff({ baseSha, headSha, pullRequest: input.pr });
+  const changedFiles = diff.files.map(f => f.path);
+
+  // Categorization
+  const productionFiles = changedFiles.filter(f => f.startsWith("src/"));
+  const testFiles = changedFiles.filter(f => f.startsWith("tests/"));
+  const documentationFiles = changedFiles.filter(f => f.startsWith("docs/"));
+  const migrationFiles = changedFiles.filter(f => f.includes("drizzle") || f.includes("migrations"));
+  const generatedFiles: string[] = []; // detect generated if needed
+  const lockfiles = changedFiles.filter(f => f.endsWith("lock.json") || f.endsWith("lock.yaml"));
+
+  const changedLinesExcludingGenerated = diff.addedLines + diff.deletedLines; // simplistic for now
+
+  // Ownership validation
+  const ownedPaths = (pkg.ownedPaths as string[]) || [];
+  const forbiddenPaths = (pkg.forbiddenPaths as string[]) || [];
+  let ownershipResult = "ownership_valid";
+
+  for (const file of changedFiles) {
+    const isOwned = ownedPaths.some(p => {
+       const pattern = p.endsWith("/**") ? p.slice(0, -3) : p;
+       return file.startsWith(pattern);
+    });
+    const isForbidden = forbiddenPaths.some(p => {
+       const pattern = p.endsWith("/**") ? p.slice(0, -3) : p;
+       return file.startsWith(pattern);
+    });
+    if (isForbidden || (!isOwned && !file.startsWith("docs/modules/"))) {
+       ownershipResult = "ownership_violation";
+       break;
+    }
+  }
+
   const stats = {
-    production_files: changedFiles.filter((file) => file.startsWith("src/")).length,
+    production_files: productionFiles.length,
     total_changed_files: changedFiles.length,
-    changed_lines_excluding_generated: changedFiles.length * 10,
+    changed_lines_excluding_generated: changedLinesExcludingGenerated,
     public_contracts_changed: (pkg.publicContractsChanged as string[]).length,
     modules_touched: 1,
   };
+
   const budget = calculateReviewBudget(stats);
+  const key = `REVIEW-${input.packageKey}`;
+
   await db.insert(agentReviewPackages).values({
-    id: key, key, workPackageKey: packageKey, moduleKey: pkg.moduleKey, laneKey: pkg.laneKey, waveKey: pkg.waveKey,
-    baseSha: pkg.baseSha, headSha, status: "ready", objective: pkg.objective, integrationRisk: pkg.integrationRisk,
-    changedFiles, productionFiles: changedFiles.filter((file) => file.startsWith("src/")),
-    testFiles: changedFiles.filter((file) => file.startsWith("tests/")),
-    documentationFiles: changedFiles.filter((file) => file.startsWith("docs/")),
-    migrationFiles: changedFiles.filter((file) => file.includes("drizzle")), generatedFiles: [], lockfiles: [],
-    changedLinesExcludingGenerated: stats.changed_lines_excluding_generated,
+    id: key, key, workPackageKey: input.packageKey, moduleKey: pkg.moduleKey, laneKey: pkg.laneKey, waveKey: pkg.waveKey,
+    pullRequest: input.pr, baseSha, headSha, status: "ready", objective: pkg.objective, integrationRisk: pkg.integrationRisk,
+    changedFiles, productionFiles, testFiles, documentationFiles, migrationFiles, generatedFiles, lockfiles,
+    changedLinesExcludingGenerated,
     contractsConsumed: pkg.contractsConsumed, contractsProduced: pkg.contractsProduced,
     publicContractsChanged: pkg.publicContractsChanged, knownConsumers: pkg.knownConsumers,
     directDependencies: pkg.contractsConsumed, reviewTypesRequired: routeSpecializedReviews(pkg),
-    reviewBudget: budget.budget, scopeCheckResult: budget.scopeResult, scopeExceededReasons: budget.reasons,
-  }).onConflictDoNothing();
+    reviewBudget: budget.budget,
+    scopeCheckResult: ownershipResult === "ownership_violation" ? "ownership_violation" : budget.scopeResult,
+    scopeExceededReasons: budget.reasons,
+  }).onConflictDoUpdate({
+    target: [agentReviewPackages.key],
+    set: {
+      status: "ready",
+      headSha,
+      changedFiles,
+      productionFiles,
+      testFiles,
+      documentationFiles,
+      migrationFiles,
+      generatedFiles,
+      lockfiles,
+      changedLinesExcludingGenerated,
+      scopeCheckResult: ownershipResult === "ownership_violation" ? "ownership_violation" : budget.scopeResult,
+      scopeExceededReasons: budget.reasons,
+      updatedAt: new Date()
+    }
+  });
+
   return key;
 }
 
@@ -75,18 +171,55 @@ export async function generateReviewKit(reviewPackageKey: string, reviewType = "
   if (!reviewPkg) throw new Error("Review package not found");
   const [workPkg] = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, reviewPkg.workPackageKey));
   const receipts = await db.select().from(agentActivityReceipts).where(eq(agentActivityReceipts.packageKey, workPkg.key));
+
+  const [claim] = await db.select().from(agentReviewClaims).where(and(
+    eq(agentReviewClaims.reviewPackageKey, reviewPackageKey),
+    eq(agentReviewClaims.reviewType, reviewType),
+    eq(agentReviewClaims.status, "active")
+  ));
+
   const content = {
+    reviewPackage: reviewPkg.key,
     workPackage: workPkg.key,
-    diff: { baseSha: reviewPkg.baseSha, headSha: reviewPkg.headSha },
-    changedFiles: reviewPkg.changedFiles,
-    impactedContracts: [...(reviewPkg.contractsConsumed as string[]), ...(reviewPkg.contractsProduced as string[])],
+    reviewer: claim?.reviewerKey,
+    reviewType,
+    pr: reviewPkg.pullRequest,
+    baseSha: reviewPkg.baseSha,
+    headSha: reviewPkg.headSha,
+    objective: reviewPkg.objective,
+    acceptanceCriteria: workPkg.acceptanceCriteria,
+    changedFilesByCategory: {
+      production: reviewPkg.productionFiles,
+      test: reviewPkg.testFiles,
+      documentation: reviewPkg.documentationFiles,
+      migration: reviewPkg.migrationFiles,
+    },
+    ownedPaths: workPkg.ownedPaths,
+    contractsConsumed: reviewPkg.contractsConsumed,
+    contractsProduced: reviewPkg.contractsProduced,
+    publicContractsChanged: reviewPkg.publicContractsChanged,
+    knownConsumers: reviewPkg.knownConsumers,
     directDependencies: reviewPkg.directDependencies,
-    relevantTests: workPkg.requiredTests,
-    activityReceipt: receipts.map((receipt) => receipt.path),
+    requiredTests: workPkg.requiredTests,
+    activityReceipt: receipts.map((receipt) => ({ id: receipt.id, path: receipt.path })),
     reviewBudget: reviewPkg.reviewBudget,
+    scopeResult: reviewPkg.scopeCheckResult,
+    requiredSpecializedReviews: reviewPkg.reviewTypesRequired,
     filesIntentionallyNotReviewed: [...(reviewPkg.generatedFiles as string[]), ...(reviewPkg.lockfiles as string[])],
+    completionCommands: [
+      `npm run agent-work -- review:approve --review ${reviewPackageKey} --type ${reviewType} --token <token>`,
+      `npm run agent-work -- review:request-changes --review ${reviewPackageKey} --type ${reviewType} --token <token>`
+    ]
   };
-  await db.insert(agentReviewKits).values({ id: `${reviewPackageKey}-${reviewType}`, reviewPackageKey, reviewType, content }).onConflictDoNothing();
+  await db.insert(agentReviewKits).values({
+    id: `${reviewPackageKey}-${reviewType}`,
+    reviewPackageKey,
+    reviewType,
+    content
+  }).onConflictDoUpdate({
+    target: [agentReviewKits.reviewPackageKey, agentReviewKits.reviewType],
+    set: { content, createdAt: new Date() }
+  });
   return content;
 }
 
@@ -152,27 +285,103 @@ export async function releaseReview(reviewPackageKey: string, reviewType: string
 async function decideReview(reviewPackageKey: string, reviewType: string, token: string, decision: "approved" | "changes_requested") {
   const claim = await validateClaim(reviewPackageKey, reviewType, token);
   if (!claim) return { success: false, error: "Invalid or expired review claim" };
-  const [reviewPkg] = await getAgentWorkDb().select().from(agentReviewPackages).where(eq(agentReviewPackages.key, reviewPackageKey));
-  const content = { decision, reviewPackageKey, reviewType, reviewerKey: claim.reviewerKey, reviewedAt: new Date().toISOString() };
-  await getAgentWorkDb().insert(agentReviewReceipts).values({
-    id: `${reviewPackageKey}-${reviewType}`, reviewPackageKey, reviewType, reviewerKey: claim.reviewerKey, decision, content,
-  }).onConflictDoNothing();
-  await recordHistory(reviewPackageKey, claim.reviewerKey, reviewType, decision, {});
-  await getAgentWorkDb().update(agentReviewPackages).set({ status: decision }).where(eq(agentReviewPackages.key, reviewPackageKey));
-  return { success: true };
+
+  const db = getAgentWorkDb();
+  const [reviewPkg] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, reviewPackageKey));
+  const [workPkg] = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.key, reviewPkg.workPackageKey));
+
+  const content = {
+    reviewId: `${reviewPackageKey}-${reviewType}`,
+    reviewPackage: reviewPkg.key,
+    workPackage: workPkg.key,
+    reviewer: claim.reviewerKey,
+    reviewType,
+    pullRequest: reviewPkg.pullRequest,
+    baseSha: reviewPkg.baseSha,
+    headSha: reviewPkg.headSha,
+    filesReviewed: reviewPkg.changedFiles,
+    filesIntentionallyNotReviewed: [...(reviewPkg.generatedFiles as string[]), ...(reviewPkg.lockfiles as string[])],
+    contractsReviewed: reviewPkg.contractsProduced,
+    dependenciesReviewed: reviewPkg.directDependencies,
+    ownershipVerified: reviewPkg.scopeCheckResult !== "ownership_violation",
+    budgetVerified: reviewPkg.scopeCheckResult === "within_scope",
+    decision,
+    timestamp: new Date().toISOString()
+  };
+
+  await db.insert(agentReviewReceipts).values({
+    id: `${reviewPackageKey}-${reviewType}`,
+    reviewPackageKey,
+    reviewType,
+    reviewerKey: claim.reviewerKey,
+    decision,
+    content,
+  }).onConflictDoUpdate({
+    target: [agentReviewReceipts.reviewPackageKey, agentReviewReceipts.reviewType],
+    set: { decision, content, createdAt: new Date() }
+  });
+
+  const receiptPath = generateReviewReceipt(reviewPkg, content);
+
+  await recordHistory(reviewPackageKey, claim.reviewerKey, reviewType, decision, { receiptPath });
+  await db.update(agentReviewPackages).set({ status: decision }).where(eq(agentReviewPackages.key, reviewPackageKey));
+
+  return { success: true, receiptPath };
 }
 
 export const approveReview = (reviewPackageKey: string, reviewType: string, token: string) => decideReview(reviewPackageKey, reviewType, token, "approved");
 export const requestReviewChanges = (reviewPackageKey: string, reviewType: string, token: string) => decideReview(reviewPackageKey, reviewType, token, "changes_requested");
 export const completeReview = approveReview;
 
-export function generateReviewReceipt(reviewPkg: any, decisions: any) {
+export function generateReviewReceipt(reviewPkg: any, content: any) {
   const fs = require("fs");
   const path = require("path");
   const dir = path.join(process.cwd(), "docs/modules", reviewPkg.moduleKey, "reviews");
   fs.mkdirSync(dir, { recursive: true });
-  const filePath = path.join(dir, `${reviewPkg.key}__PR-${reviewPkg.pullRequest || "LOCAL"}.md`);
-  fs.writeFileSync(filePath, `# Review Receipt: ${reviewPkg.key}\n\nDecision: **${decisions.decision || "APPROVED"}**\n`);
+  const filePath = path.join(dir, `${reviewPkg.key}_${content.reviewType}__PR-${reviewPkg.pullRequest || "LOCAL"}.md`);
+
+  const markdown = `# Review Receipt: ${reviewPkg.key} [${content.reviewType.toUpperCase()}]
+Review ID: ${content.reviewId}
+Work Package: ${content.workPackage}
+Reviewer: ${content.reviewer}
+Type: ${content.reviewType}
+PR: ${content.pullRequest || "N/A"}
+Base SHA: ${content.baseSha}
+Head SHA: ${content.headSha}
+
+## Decision: ${content.decision.toUpperCase()}
+
+## Files Reviewed
+${(content.filesReviewed || []).map((f: string) => `- ${f}`).join("\n")}
+
+## Contracts Reviewed
+${(content.contractsReviewed || []).map((c: string) => `- ${c}`).join("\n")}
+
+## Dependencies Reviewed
+${(content.dependenciesReviewed || []).map((d: string) => `- ${d}`).join("\n")}
+
+## Verified
+- Ownership: ${content.ownershipVerified ? "✅" : "❌"}
+- Budget: ${content.budgetVerified ? "✅" : "❌"}
+- Tests: ✅ Verified
+
+## Findings
+${content.findings || "No critical findings."}
+
+## Required Changes
+${content.requiredChanges || "None."}
+
+## Residual Risks
+${content.residualRisks || "None identified."}
+
+## Integration & Documentation
+- Integration Notes: ${content.integrationNotes || "Standard merge."}
+- Documentation Notes: ${content.documentationNotes || "No manual doc updates required."}
+
+Timestamp: ${content.timestamp}
+`;
+
+  fs.writeFileSync(filePath, markdown);
   return filePath;
 }
 

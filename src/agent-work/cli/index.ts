@@ -23,6 +23,14 @@ async function main() {
       token: { type: "string" },
       status: { type: "string" },
       reason: { type: "string" },
+      pr: { type: "string" },
+      branch: { type: "string" },
+      files: { type: "string" },
+      tests: { type: "string" },
+      handoff: { type: "string" },
+      input: { type: "string" },
+      review: { type: "string" },
+      type: { type: "string" },
     },
     allowPositionals: true,
   });
@@ -59,6 +67,36 @@ async function main() {
     process.exit(0);
   }
 
+  if (command === "receipt:activity") {
+    const { createActivityReceipt } = require("../services/activity-receipt");
+    let inputData: any = {};
+
+    if (values.input) {
+      inputData = JSON.parse(require("fs").readFileSync(values.input, "utf8"));
+    } else {
+      inputData = {
+        packageKey: values.package,
+        workerKey: values.worker || process.env.JULES_WORKER_KEY,
+        wave: values.wave,
+        baseSha: values["base-sha"],
+        headSha: values["head-sha"],
+        branch: values.branch,
+        pullRequest: values.pr,
+        changedFiles: values.files ? values.files.split(",") : [],
+        testsExecuted: values.tests ? values.tests.split(",") : [],
+        testResults: {}, // default
+        contractsConsumed: [],
+        contractsProduced: [],
+        documentationImpacts: [],
+        handoff: values.handoff,
+      };
+    }
+
+    const res = await createActivityReceipt(inputData);
+    console.log(JSON.stringify(res, null, 2));
+    process.exit(0);
+  }
+
   if (command === "bootstrap") {
     const workerKey = values.worker || process.env.JULES_WORKER_KEY;
     if (!workerKey) {
@@ -66,31 +104,20 @@ async function main() {
       process.exit(1);
     }
 
-    console.log(`Bootstrapping for worker: ${workerKey}`);
-    const db = getAgentWorkDb();
-    const pkgs = await db.select().from(agentWorkPackages).where(eq(agentWorkPackages.status, "ready"));
+    const { bootstrapWorker } = require("../services/bootstrap");
+    const result = await bootstrapWorker(workerKey, values.wave);
 
-    if (pkgs.length === 0) {
-       console.log("No ready packages available.");
-       process.exit(0);
+    if (result.status === "NO_COMPATIBLE_WORK_AVAILABLE") {
+      console.log("NO_COMPATIBLE_WORK_AVAILABLE");
+      process.exit(0);
     }
 
-    const targetPkg = pkgs[0];
-    console.log(`Attempting to claim package: ${targetPkg.key}`);
-
-    const claimRes = await claimPackageTransactional(workerKey, targetPkg.key);
-    if (!claimRes.success) {
-       console.error(`Failed to claim package ${targetPkg.key}: ${claimRes.error}`);
-       process.exit(1);
+    if (result.status === "BOOTSTRAP_BLOCKED") {
+      console.error("BOOTSTRAP_BLOCKED", result.error);
+      process.exit(1);
     }
 
-    console.log("Claim successful. Generating Task Kit...");
-
-    const kit = await generateTaskKit(workerKey, targetPkg.key);
-    console.log("\n=== TASK KIT ===\n");
-    console.log(JSON.stringify(kit, null, 2));
-
-    console.log("\nJULES_BOOTSTRAP complete. Please follow the instructions in the Task Kit.");
+    console.log(JSON.stringify(result, null, 2));
     process.exit(0);
   }
 
@@ -757,12 +784,40 @@ ${JSON.stringify(evidence, null, 2)}
       process.exit(reasons.length > 0 ? 1 : 0);
   }
 
-  const reviewCommands = ["review:create", "review:show", "review:scope-check", "review:claim", "review:heartbeat", "review:renew", "review:release", "review:request-changes", "review:approve", "review:complete", "review-kit"];
+  const reviewCommands = ["review:create", "review:show", "review:scope-check", "review:claim", "review:heartbeat", "review:renew", "review:release", "review:request-changes", "review:approve", "review:complete", "review:reap-stale", "review-kit"];
   if (reviewCommands.includes(command)) {
-      const { generateReviewKit, claimReview, heartbeatReview, renewReview, releaseReview, requestReviewChanges, approveReview, completeReview } = require("../services/scoped-review");
-      if (command === "review-kit") {
+      const { createReviewPackage, generateReviewKit, claimReview, heartbeatReview, renewReview, releaseReview, requestReviewChanges, approveReview, completeReview, reapStaleReviews } = require("../services/scoped-review");
+      if (command === "review:create") {
+          const res = await createReviewPackage({
+              packageKey: values.package,
+              pr: values.pr,
+              baseSha: values["base-sha"],
+              headSha: values["head-sha"]
+          });
+          console.log(JSON.stringify({ reviewKey: res }, null, 2));
+          process.exit(0);
+      } else if (command === "review:show") {
+          const db = getAgentWorkDb();
+          const [review] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, values.review));
+          console.log(JSON.stringify(review, null, 2));
+          process.exit(0);
+      } else if (command === "review:scope-check") {
+          const db = getAgentWorkDb();
+          const [review] = await db.select().from(agentReviewPackages).where(eq(agentReviewPackages.key, values.review));
+          if (review.scopeCheckResult !== "within_scope") {
+              console.error(`Scope Check Failed: ${review.scopeCheckResult}`);
+              console.error(JSON.stringify(review.scopeExceededReasons, null, 2));
+              process.exit(1);
+          }
+          console.log("Scope Check Passed");
+          process.exit(0);
+      } else if (command === "review:reap-stale") {
+          const res = await reapStaleReviews();
+          console.log(JSON.stringify(res, null, 2));
+          process.exit(0);
+      } else if (command === "review-kit") {
           if (!values.review) { console.error("Missing --review"); process.exit(1); }
-          const res = await generateReviewKit(values.review);
+          const res = await generateReviewKit(values.review, values.type || "module");
           console.log(JSON.stringify(res, null, 2));
           process.exit(0);
       } else if (command === "review:claim") {

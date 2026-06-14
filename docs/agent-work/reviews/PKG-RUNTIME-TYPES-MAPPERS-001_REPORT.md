@@ -4,7 +4,7 @@
 - **Package ID:** PKG-RUNTIME-TYPES-MAPPERS-001
 - **Wave:** WAVE-01-FOUNDATION
 - **Base SHA:** ceb1ed98f7c0183d978a98072b0fb5680eb090a7
-- **Head SHA:** 1dafa3dc52d1b7f30f8015c9f31a996983acae7d
+- **Head SHA:** c6f22571c0e2ffb4481a0094cc04e2b1b6f4f2b4
 - **Branch de Trabalho:** wave-01/pkg-runtime-types-mappers-001
 
 ## Alterações Realizadas

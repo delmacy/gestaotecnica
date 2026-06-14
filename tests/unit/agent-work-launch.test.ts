@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { calculateReviewBudget, routeSpecializedReviews } from '../../src/agent-work/services/scoped-review.js';
+import { calculateReviewBudget, routeSpecializedReviews, validateDecisionInput } from '../../src/agent-work/services/scoped-review.js';
 import { evaluatePathOwnership } from '../../src/agent-work/services/ownership-service.js';
 
 describe('Agent Work Launch Unit Tests', () => {
@@ -30,6 +30,36 @@ describe('Agent Work Launch Unit Tests', () => {
       const pkg = { contractsProduced: ['c1'] };
       const reviews = routeSpecializedReviews(pkg);
       assert.ok(reviews.includes('contract'));
+    });
+  });
+
+  describe('Review Decision Input', () => {
+    const reviewPkg = { changedFiles: ['src/a.ts', 'tests/a.test.ts'] };
+    const completeInput = {
+      filesReviewed: ['src/a.ts', 'tests/a.test.ts'],
+      filesIntentionallyNotReviewed: [],
+      contractsReviewed: [],
+      dependenciesReviewed: [],
+      testsVerified: ['npm run test:unit'],
+      findings: [],
+      requiredChanges: [],
+      residualRisks: [],
+    };
+
+    it('accepts a complete approval input', () => {
+      assert.strictEqual(validateDecisionInput(reviewPkg, 'approved', completeInput), null);
+    });
+
+    it('rejects approval without verified tests', () => {
+      assert.match(validateDecisionInput(reviewPkg, 'approved', { ...completeInput, testsVerified: [] }) || '', /testsVerified/);
+    });
+
+    it('rejects approval with required changes', () => {
+      assert.match(validateDecisionInput(reviewPkg, 'approved', { ...completeInput, requiredChanges: ['fix'] }) || '', /requiredChanges/);
+    });
+
+    it('rejects decisions that omit changed files', () => {
+      assert.match(validateDecisionInput(reviewPkg, 'approved', { ...completeInput, filesReviewed: ['src/a.ts'] }) || '', /not accounted/);
     });
   });
 

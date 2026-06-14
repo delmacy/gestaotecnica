@@ -68,7 +68,7 @@ async function main() {
 
   if (!command || command === "help") {
     console.log("Agent Work CLI");
-    console.log("Commands: bootstrap, task-kit, claim:reap-stale, dry-run, help, db:check");
+    console.log("Commands: bootstrap, task-kit, receipt:activity, review:create, review:show, review:scope-check, review:claim, review-kit, review:heartbeat, review:renew, review:release, review:approve, review:request-changes, review:reap-stale, dry-run, db:check");
     process.exit(0);
   }
 

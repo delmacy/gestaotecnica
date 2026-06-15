@@ -11,7 +11,7 @@ Esta matriz define as regras de acoplamento e dependência entre os módulos do 
 | **Runtime (Types/Mappers)** | Shared Contracts, Event Types | Event Services, UI, Banco, Next.js | Bloqueio de execução por dependência de infraestrutura. |
 | **Form Builder Contracts** | Shared Contracts | Runtime, Events, Banco, Next.js | Rigidez na definição de formulários. |
 | **Form Builder Adapters** | Form Builder Contracts, Schema, View-Model | Persistência concreta, Runtime, Banco, React, Next.js | Dependência de tecnologia de storage específica ou vazamento de UI. |
-| **Form Builder Persistence** | Form Builder Contracts | UI Components, Runtime, Código concreto de banco no pacote | Quebra de isolamento da camada de dados. |
+| **Form Builder Persistence** | Form Builder Contracts, Schema, View-Model | UI Components, Runtime, Código concreto de banco no pacote | Quebra de isolamento da camada de dados. |
 | **Registry Capabilities** | Schemas/Utils autorizados | UI, Runtime, Banco | Fragmentação do catálogo. |
 | **Tests** | APIs públicas dos módulos | Imports internos profundos (quando index público existe) | Fragilidade dos testes a refatorações internas. |
 

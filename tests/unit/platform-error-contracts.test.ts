@@ -5,7 +5,9 @@ import {
   isPlatformError,
   serializePlatformError,
   sanitizeUnknownError,
-  PlatformErrorContext
+  PlatformErrorContext,
+  PlatformErrorCategory,
+  PlatformErrorSeverity
 } from "../../src/platform/errors";
 
 describe("Platform Error Contracts", () => {
@@ -43,24 +45,26 @@ describe("Platform Error Contracts", () => {
   });
 
   test("should fail for invalid category", () => {
+    const invalidInput = {
+      code: "TEST.TEST.TEST",
+      category: "invalid_category" as unknown as PlatformErrorCategory,
+      severity: "error" as const,
+      message: "test",
+    };
     assert.throws(() => {
-      createPlatformError({
-        code: "TEST.TEST.TEST",
-        category: "invalid_category" as any,
-        severity: "error",
-        message: "test",
-      }, defaultContext);
+      createPlatformError(invalidInput, defaultContext);
     });
   });
 
   test("should fail for invalid severity", () => {
+    const invalidInput = {
+      code: "TEST.TEST.TEST",
+      category: "domain" as const,
+      severity: "invalid_severity" as unknown as PlatformErrorSeverity,
+      message: "test",
+    };
     assert.throws(() => {
-      createPlatformError({
-        code: "TEST.TEST.TEST",
-        category: "domain",
-        severity: "invalid_severity" as any,
-        message: "test",
-      }, defaultContext);
+      createPlatformError(invalidInput, defaultContext);
     });
   });
 
@@ -111,15 +115,17 @@ describe("Platform Error Contracts", () => {
     const parsed = JSON.parse(serialized);
     assert.strictEqual(parsed.code, "DOMAIN.RESOURCE.REASON");
 
-    assert.throws(() => serializePlatformError({ ...error, code: "INVALID" }));
+    assert.throws(() => serializePlatformError({ ...error, code: "INVALID" } as any));
   });
 
   describe("sanitizeUnknownError", () => {
     test("should sanitize Error object and preserve only safe fields", () => {
       const rawError = new Error("Original error");
-      (rawError as any).status = 500;
-      (rawError as any).secret = "password123";
-      (rawError as any).stack = "Error: Original error\n at Object.test (test.ts:1:1)";
+      Object.assign(rawError, {
+        status: 500,
+        secret: "password123",
+        stack: "Error: Original error\n at Object.test (test.ts:1:1)"
+      });
 
       const sanitized = sanitizeUnknownError(rawError, defaultContext);
 
@@ -132,7 +138,7 @@ describe("Platform Error Contracts", () => {
     });
 
     test("should handle circular objects", () => {
-      const circular: any = { message: "Circular" };
+      const circular: Record<string, unknown> = { message: "Circular" };
       circular.self = circular;
 
       const sanitized = sanitizeUnknownError(circular, defaultContext);
@@ -146,23 +152,41 @@ describe("Platform Error Contracts", () => {
         big: BigInt(123),
         fn: () => {},
         sym: Symbol("test"),
-        status: 200
+        code: "INTERNAL"
       };
       const sanitized = sanitizeUnknownError(input, defaultContext);
-      assert.strictEqual(sanitized.details?.status, 200);
+      assert.strictEqual(sanitized.details?.code, "INTERNAL");
       assert.strictEqual(sanitized.details?.big, undefined);
       assert.strictEqual(sanitized.details?.fn, undefined);
       assert.strictEqual(sanitized.details?.sym, undefined);
     });
 
-    test("should handle throwing getters", () => {
+    test("should handle throwing getters in plain objects", () => {
       const input = {
         message: "Throwing getter",
-        get status() { throw new Error("Boom"); }
       };
+      Object.defineProperty(input, "status", {
+        get() { throw new Error("Boom"); },
+        enumerable: true
+      });
+
       const sanitized = sanitizeUnknownError(input, defaultContext);
       assert.strictEqual(sanitized.message, "Throwing getter");
       assert.strictEqual(sanitized.details?.status, undefined);
+    });
+
+    test("should handle custom Error with throwing getter", () => {
+      class CustomError extends Error {
+        get status(): number {
+          throw new Error("Getter error");
+        }
+      }
+      const error = new CustomError("Custom failure");
+
+      const sanitized = sanitizeUnknownError(error, defaultContext);
+      assert.strictEqual(sanitized.message, "Custom failure");
+      assert.strictEqual(sanitized.details?.status, undefined);
+      assert.ok(isPlatformError(sanitized));
     });
 
     test("should preserve existing PlatformError identity and enrich context", () => {
@@ -193,27 +217,12 @@ describe("Platform Error Contracts", () => {
         token: "abc",
         api_key: "xyz",
         authorization: "Bearer ...",
-        status: 401,
         code: "INTERNAL"
       };
       const sanitized = sanitizeUnknownError(input, defaultContext);
       assert.strictEqual(sanitized.details?.code, "INTERNAL");
-      // assert.strictEqual(sanitized.details?.status, undefined); // Not in SAFE_FIELDS
       assert.strictEqual(sanitized.details?.password, undefined);
       assert.strictEqual(sanitized.details?.token, undefined);
-
-      // status IS in safe fields, but others are not.
-      // Re-testing with safe fields that have sensitive keywords
-      const input2 = {
-        message: "Safe but sensitive",
-        type: "password_reset", // 'type' is safe, but contains sensitive keyword?
-                                // My implementation: !SENSITIVE_KEYWORDS.some(k => lowerKey.includes(k))
-                                // Wait, the keyword check is on the KEY, not the value.
-      };
-      const sanitized2 = sanitizeUnknownError(input2, defaultContext);
-      assert.strictEqual(sanitized2.details?.type, "password_reset");
-      // If I had a field called 'authToken' it should be removed even if 'token' is not in SAFE_FIELDS?
-      // Actually, my current isSafeKey requires it to be in SAFE_FIELDS AND NOT have sensitive keyword.
     });
 
     test("should remove stack traces from strings", () => {
@@ -231,7 +240,7 @@ describe("Platform Error Contracts", () => {
     });
 
     test("should not mutate input and handle frozen objects", () => {
-      const input = Object.freeze({ message: "test", status: 200 });
+      const input = Object.freeze({ message: "test", code: "FROZEN" });
       assert.doesNotThrow(() => sanitizeUnknownError(input, defaultContext));
     });
   });

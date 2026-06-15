@@ -18,6 +18,20 @@ export interface PlatformErrorContext {
 }
 
 /**
+ * safelyReadProperty - safely reads a property from an object using Reflect.
+ */
+function safelyReadProperty(
+  value: object,
+  key: PropertyKey
+): unknown {
+  try {
+    return Reflect.get(value, key);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * createPlatformError - creates a validated PlatformErrorEnvelope from partial input.
  * All identifiers and timestamps must be provided explicitly.
  */
@@ -85,36 +99,41 @@ export function sanitizeUnknownError(
     return SAFE_FIELDS.includes(key) && !SENSITIVE_KEYWORDS.some(k => lowerKey.includes(k));
   };
 
+  const isSerializableScalar = (val: unknown): val is string | number | boolean | null => {
+    const type = typeof val;
+    return type === "string" || type === "number" || type === "boolean" || val === null;
+  };
+
   if (error instanceof Error) {
     message = error.message;
     // Pick safe fields from Error
     for (const key of SAFE_FIELDS) {
-      const val = (error as any)[key];
-      if (val !== undefined && typeof val !== "function" && typeof val !== "symbol" && typeof val !== "bigint") {
+      const val = safelyReadProperty(error, key);
+      if (isSerializableScalar(val)) {
         details[key] = val;
       }
     }
   } else if (typeof error === "string") {
     message = error;
   } else if (typeof error === "object" && error !== null) {
-    try {
-      const maybeError = error as Record<string, unknown>;
-      if (typeof maybeError.message === "string") {
-        message = maybeError.message;
-      }
+    const maybeError = error as object;
+    const msg = safelyReadProperty(maybeError, "message");
+    if (typeof msg === "string") {
+      message = msg;
+    }
 
+    try {
       // Allowlist-based shallow copy of safe fields
       for (const key of Object.keys(maybeError)) {
         if (isSafeKey(key)) {
-          const val = maybeError[key];
-          const type = typeof val;
-          if (type !== "function" && type !== "symbol" && type !== "bigint" && type !== "undefined") {
+          const val = safelyReadProperty(maybeError, key);
+          if (isSerializableScalar(val)) {
             details[key] = val;
           }
         }
       }
     } catch {
-      // Handle cases where Object.keys might throw (e.g. throwing getters)
+      // Handle cases where Object.keys might throw (though rare for objects)
     }
   }
 
@@ -123,8 +142,9 @@ export function sanitizeUnknownError(
 
   const finalMessage = sanitizeString(message);
   for (const key of Object.keys(details)) {
-    if (typeof details[key] === "string") {
-      details[key] = sanitizeString(details[key] as string);
+    const val = details[key];
+    if (typeof val === "string") {
+      details[key] = sanitizeString(val);
     }
   }
 

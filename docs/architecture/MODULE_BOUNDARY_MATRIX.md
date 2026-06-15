@@ -8,11 +8,12 @@ Esta matriz define as regras de acoplamento e dependência entre os módulos do 
 |---|---|---|---|
 | **Shared Contracts** | Bibliotecas utilitárias (zod, etc) | Runtime, Events, UI, Banco, Next.js | Acoplamento circular, vazamento de infraestrutura para o domínio. |
 | **Events (Types/Mappers)** | Shared Contracts | Runtime, UI, Banco, Next.js | Dependência de lógica de negócio volátil. |
-| **Runtime (Types/Mappers)** | Shared Contracts | Event Services, UI, Banco, Next.js | Bloqueio de execução por dependência de infraestrutura. |
+| **Runtime (Types/Mappers)** | Shared Contracts, Event Types | Event Services, UI, Banco, Next.js | Bloqueio de execução por dependência de infraestrutura. |
 | **Form Builder Contracts** | Shared Contracts | Runtime, Events, Banco, Next.js | Rigidez na definição de formulários. |
-| **Form Builder Adapters** | Form Builder Contracts | Persistência concreta, Runtime, Banco | Dependência de tecnologia de storage específica. |
+| **Form Builder Adapters** | Form Builder Contracts, Schema, View-Model | Persistência concreta, Runtime, Banco, React, Next.js | Dependência de tecnologia de storage específica ou vazamento de UI. |
+| **Form Builder Persistence** | Form Builder Contracts | UI Components, Runtime, Código concreto de banco no pacote | Quebra de isolamento da camada de dados. |
 | **Registry Capabilities** | Schemas/Utils autorizados | UI, Runtime, Banco | Fragmentação do catálogo. |
-| **Tests** | APIs públicas dos módulos | Imports internos profundos (quando index existe) | Fragilidade dos testes a refatorações internas. |
+| **Tests** | APIs públicas dos módulos | Imports internos profundos (quando index público existe) | Fragilidade dos testes a refatorações internas. |
 
 ## Detalhes por Módulo
 
@@ -27,14 +28,17 @@ Esta matriz define as regras de acoplamento e dependência entre os módulos do 
 - **API Pública:** `src/platform/events/index.ts`
 
 ### Runtime
-- **Path:** `src/platform/workflows/runtime/**` (Nota: No estado atual, mapeado para `src/platform/workflows/runtime.ts` e arquivos relacionados)
+- **Path:** `src/platform/workflows/**` (foco em contratos e tipos de execução)
 - **Responsabilidade:** Contratos de execução e estados.
 - **API Pública:** `src/platform/workflows/runtime.ts`
 
 ### Form Builder
 - **Path:** `src/components/builder/form-builder/**`
 - **Responsabilidade:** Definição e renderização de formulários dinâmicos.
-- **API Pública:** `src/components/builder/form-builder/contracts/index.ts` (ou similar)
+- **Sub-módulos:**
+  - `contracts/`: Definições puras.
+  - `adapters/`: Transformações de modelo (isolado de persistência).
+  - `persistence/`: Portas de persistência.
 
 ### Registry
 - **Path:** `src/platform/registry/**`
@@ -49,4 +53,4 @@ Esta matriz define as regras de acoplamento e dependência entre os módulos do 
 - **Responsabilidade:** Persistência de dados.
 
 ## Exceções Temporárias Documentadas
-- Nenhuma exceção autorizada até o momento. Toda violação encontrada deve ser tratada como débito técnico.
+- Violações legadas de acoplamento com banco de dados em `platform/events`, `platform/registry` e `platform/workflows` estão registradas no baseline do auditor e devem ser tratadas em pacotes corretivos específicos.

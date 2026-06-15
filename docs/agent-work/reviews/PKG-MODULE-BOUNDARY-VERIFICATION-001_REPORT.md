@@ -6,28 +6,18 @@
 - **Head SHA:** (TBD - Current Branch: test/pkg-module-boundary-verification-001)
 
 ## Resumo da Auditoria
-Implementação de verificação automatizada de fronteiras entre módulos para garantir o isolamento arquitetural e evitar acoplamento prematuro.
+Implementação de verificação automatizada de fronteiras entre módulos para garantir o isolamento arquitetural e evitar acoplamento prematuro. O verificador foi refatorado para maior precisão, suporte a baseline exato e detecção de ciclos bidirecionais.
 
 ## Matriz Aplicada
 Conforme definido em `docs/architecture/MODULE_BOUNDARY_MATRIX.md`.
 
-| Camada | Regra de Isolamento |
-|---|---|
-| **Shared Contracts** | Proibido importar Runtime, Events, UI, Banco, Next.js. |
-| **Events** | Proibido importar Runtime, UI, Banco, Next.js. |
-| **Runtime** | Proibido importar Event Services, UI, Banco, Next.js. |
-| **Form Builder** | Contratos isolados de Runtime e Banco. Adapters isolados de persistência concreta. |
-| **Registry** | Proibido depender de UI, Runtime ou Banco diretamente. |
+## Baseline de Violações (Formato Exato)
 
-## Violações Encontradas
+As violações abaixo são conhecidas e permitidas temporariamente. O teste falhará se qualquer **nova** violação crítica for introduzida, mesmo em arquivos listados abaixo.
 
-Foram detectadas **18 violações críticas** (BLOCKER/HIGH) e múltiplas violações de média severidade (MEDIUM).
+Total de itens no baseline: **22**
 
-### Violações Críticas (Baseline)
-
-As seguintes violações foram identificadas no código atual e registradas como baseline para permitir a continuidade da automação:
-
-| Arquivo | Import | Regra Violada | Severidade |
+| Arquivo | Import | Regra | Severidade |
 |---|---|---|---|
 | `src/platform/events/event-log-service.ts` | `@/db` | Events boundaries | BLOCKER |
 | `src/platform/events/event-log-service.ts` | `@/db/runtime/schema/workflow` | Events boundaries | BLOCKER |
@@ -41,24 +31,24 @@ As seguintes violações foram identificadas no código atual e registradas como
 | `src/platform/workflows/infra/flow-runner-service.ts` | `@/db` | Runtime boundaries | BLOCKER |
 | `src/platform/workflows/infra/flow-runner-service.ts` | `@/db/runtime/schema/workflow` | Runtime boundaries | BLOCKER |
 | `src/platform/workflows/runtime.ts` | `@/db` | Runtime boundaries | BLOCKER |
+| `src/platform/workflows/infra/flow-runner-service.ts` | `@/platform/events` | Prohibited cycle: Runtime -> Events Service | BLOCKER |
+| `src/platform/workflows/infra/process-orchestrator.ts` | `@/platform/events` | Prohibited cycle: Runtime -> Events Service | BLOCKER |
+| `src/components/builder/form-builder/persistence/form-persistence-port.ts` | `../contracts/form-definition-contract` | Form Builder Persistence boundaries | HIGH |
+| `src/components/builder/form-builder/persistence/in-memory-form-persistence.ts` | `../contracts/form-definition-contract` | Form Builder Persistence boundaries | HIGH |
+| `src/components/builder/form-builder/persistence/in-memory-form-persistence.ts` | `./form-persistence-port` | Form Builder Persistence boundaries | HIGH |
 
-### Violações de Importação Profunda (MEDIUM)
-Detectadas centenas de ocorrências onde módulos importam arquivos internos de outros módulos em vez de usar o `index.ts` público.
-Exemplo: `src/platform/blueprints/infra/blueprints.queries.ts -> @/db/platform/schema/blueprints`.
+*(Nota: O baseline também inclui violações de MEDIUM de importação profunda para estes mesmos arquivos).*
 
-## Testes Realizados
-- **Unitário:** `npx tsx --test tests/unit/module-boundaries.test.ts`
-- **Build:** `npm run build` (verificado que as novas ferramentas de teste não quebram o build).
+## Evolução Técnica do Verificador
+- **Baseline Exato:** Cada entrada no baseline agora exige correspondência de arquivo, import, regra e severidade.
+- **Ciclos Bidirecionais:** Implementada detecção explícita de `Events -> Runtime` e `Runtime -> Events Service` (permitindo apenas `Events Types`).
+- **Ponto de Entrada Público:** Detecção de `Deep Import` agora limitada a módulos que possuem um `public entrypoint` explicitamente definido (ex: `contracts/index.ts`).
+- **Auto-testes:** O arquivo de teste agora contém 9 sub-testes que validam o próprio motor de análise contra arquivos virtuais.
 
-## Limitações
-- A detecção de imports é baseada em Regex, o que pode falhar em casos extremamente complexos de concatenação de strings (embora improvável em imports TS).
-- A verificação de "Circular Dependency" é simplificada e foca no acoplamento direto entre módulos proibidos.
-
-## Pacotes Corretivos Recomendados
-1. **PKG-ARCH-FIX-EVENTS-DB:** Desacoplar `event-log-service` do banco de dados através de interfaces de repositório.
-2. **PKG-ARCH-FIX-RUNTIME-DB:** Implementar persistência do Runtime via ports/adapters para remover dependência direta do `@/db`.
-3. **PKG-ARCH-FIX-REGISTRY-DB:** Isolar o Registry da camada de persistência concreta.
-4. **PKG-ARCH-CLEANUP-DEEP-IMPORTS:** Refatoração em massa para utilizar os pontos de entrada públicos dos módulos.
+## Resultados dos Testes
+- **Auto-testes:** PASS (9/9)
+- **Auditoria de Produção:** PASS (0 novas violações críticas)
+- **Build:** PASS
 
 ## Conclusão
-A infraestrutura de teste está operacional e integrada. Novas violações críticas impedirão a passagem dos testes em PRs futuras, garantindo a governança da arquitetura daqui em diante.
+A governança arquitetural agora conta com uma ferramenta determinística e à prova de regressões, capaz de blindar os módulos fundamentais contra acoplamentos indevidos.

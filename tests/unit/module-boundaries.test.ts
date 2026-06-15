@@ -228,6 +228,9 @@ const boundaryRules: BoundaryRule[] = [
 ];
 
 const baseline: BaselineEntry[] = [
+  { file: 'src/components/builder/form-builder/persistence/form-persistence-port.ts', importPath: '../contracts/form-definition-contract', ruleName: 'Form Builder Persistence boundaries', severity: 'HIGH' },
+  { file: 'src/components/builder/form-builder/persistence/in-memory-form-persistence.ts', importPath: '../contracts/form-definition-contract', ruleName: 'Form Builder Persistence boundaries', severity: 'HIGH' },
+  { file: 'src/components/builder/form-builder/persistence/in-memory-form-persistence.ts', importPath: './form-persistence-port', ruleName: 'Form Builder Persistence boundaries', severity: 'HIGH' },
   { file: 'src/platform/events/event-log-service.ts', importPath: '@/db', ruleName: 'Events boundaries', severity: 'BLOCKER' },
   { file: 'src/platform/events/event-log-service.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Events boundaries', severity: 'BLOCKER' },
   { file: 'src/platform/events/event-log-service.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Deep import from src/db. Use public index instead.', severity: 'MEDIUM' },
@@ -241,16 +244,16 @@ const baseline: BaselineEntry[] = [
   { file: 'src/platform/registry/infra/registry.queries.ts', importPath: '@/db/platform/schema/registry', ruleName: 'Registry boundaries', severity: 'HIGH' },
   { file: 'src/platform/registry/infra/registry.queries.ts', importPath: '@/db/platform/schema/registry', ruleName: 'Deep import from src/db. Use public index instead.', severity: 'MEDIUM' },
   { file: 'src/platform/workflows/application/kernel-actions.ts', importPath: '@/db', ruleName: 'Runtime boundaries', severity: 'BLOCKER' },
+  { file: 'src/platform/workflows/application/kernel-actions.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Runtime boundaries', severity: 'BLOCKER' },
+  { file: 'src/platform/workflows/application/kernel-actions.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Deep import from src/db. Use public index instead.', severity: 'MEDIUM' },
   { file: 'src/platform/workflows/infra/flow-runner-service.ts', importPath: '@/db', ruleName: 'Runtime boundaries', severity: 'BLOCKER' },
   { file: 'src/platform/workflows/infra/flow-runner-service.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Runtime boundaries', severity: 'BLOCKER' },
   { file: 'src/platform/workflows/infra/flow-runner-service.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Deep import from src/db. Use public index instead.', severity: 'MEDIUM' },
-  { file: 'src/platform/workflows/runtime.ts', importPath: '@/db', ruleName: 'Runtime boundaries', severity: 'BLOCKER' },
-  // Newly identified from more strict rules:
   { file: 'src/platform/workflows/infra/flow-runner-service.ts', importPath: '@/platform/events', ruleName: 'Prohibited cycle: Runtime -> Events Service', severity: 'BLOCKER' },
   { file: 'src/platform/workflows/infra/process-orchestrator.ts', importPath: '@/platform/events', ruleName: 'Prohibited cycle: Runtime -> Events Service', severity: 'BLOCKER' },
-  { file: 'src/components/builder/form-builder/persistence/form-persistence-port.ts', importPath: '../contracts/form-definition-contract', ruleName: 'Form Builder Persistence boundaries', severity: 'HIGH' },
-  { file: 'src/components/builder/form-builder/persistence/in-memory-form-persistence.ts', importPath: '../contracts/form-definition-contract', ruleName: 'Form Builder Persistence boundaries', severity: 'HIGH' },
-  { file: 'src/components/builder/form-builder/persistence/in-memory-form-persistence.ts', importPath: './form-persistence-port', ruleName: 'Form Builder Persistence boundaries', severity: 'HIGH' }
+  { file: 'src/platform/workflows/runtime.ts', importPath: '@/db', ruleName: 'Runtime boundaries', severity: 'BLOCKER' },
+  { file: 'src/platform/workflows/runtime.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Runtime boundaries', severity: 'BLOCKER' },
+  { file: 'src/platform/workflows/runtime.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Deep import from src/db. Use public index instead.', severity: 'MEDIUM' }
 ];
 
 const publicIndices = [

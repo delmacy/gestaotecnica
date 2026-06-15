@@ -23,25 +23,21 @@
 - `RetryInstruction`: Instruções para retentativa.
 
 ## Decisões
-- **Zod para Validação**: Utilização de Zod para garantir que os envelopes de erro sejam válidos e serializáveis.
-- **Sanitização de Unknown**: Implementação de `sanitizeUnknownError` para converter qualquer erro inesperado em um `PlatformErrorEnvelope` seguro, removendo stack traces.
-- **Padrão de Código de Erro**: Adotado o padrão `CATEGORY.RESOURCE.REASON` validado por Regex.
-- **Independência de Framework**: O módulo não possui dependências de Next.js, React ou frameworks HTTP, sendo puramente TypeScript/Zod.
+- **Purity e Determinismo**: Fábricas (`createPlatformError`) e sanitizadores (`sanitizeUnknownError`) agora exigem `id` e `timestamp` explícitos, garantindo determinismo total.
+- **Sanitização por Allowlist**: Implementada sanitização restrita para objetos desconhecidos, preservando apenas campos seguros (`name`, `message`, `code`, `status`, `statusCode`, `type`) e removendo segredos (passwords, tokens, etc.).
+- **Resiliência**: O sanitizador lida com objetos circulares, BigInt, Symbol e getters que lançam exceções, garantindo que sempre retorne um envelope válido.
+- **Prevenção de Stack Leakage**: Regex aplicado para remover padrões de stack trace de mensagens e detalhes.
+- **Revalidação**: Envelopes enriquecidos são revalidados via Zod antes do retorno.
 
 ## Testes
-- Cobertura de criação de erros (mínimo e completo).
-- Validação de schemas (falhas para categorias, severidades e timestamps inválidos).
-- Verificação de serialização JSON.
-- Testes exaustivos de sanitização (Error objects, strings, objetos puros, null/undefined).
-- Garantia de não vazamento de stack trace.
-- Preservação de contexto (`workspaceId`, `correlationId`).
+- Cobertura de criação determinística de erros.
+- Validação de schemas e codes.
+- Sanitização de diversos tipos de entrada (Error, circular, BigInt, etc.).
+- Testes de remoção de segredos e stack traces.
+- Preservação de identidade canônica em erros pré-existentes.
 
 ## Build
 - `npm run build` executado com sucesso.
 
 ## Riscos Residuais
-- A adoção do novo contrato pelos módulos existentes será gradual e exigirá refatoração nos owned paths de outros pacotes.
-
-## Próximos Passos
-- Implementar middlewares globais e adaptadores para Next.js (em pacotes futuros).
-- Integrar com o sistema de logs e observabilidade.
+- A obrigatoriedade de passar ID e timestamp manualmente aumenta a verbosidade para os consumidores, mas garante a integridade arquitetural exigida.

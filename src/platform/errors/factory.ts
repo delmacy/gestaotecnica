@@ -4,33 +4,36 @@ import {
   PlatformErrorCategory,
   PlatformErrorSeverity
 } from "./schema";
-import { WorkspaceId, CorrelationId, CausationId } from "../contracts";
+import { WorkspaceId, CorrelationId, CausationId, EntityId, ISODateTime } from "../contracts";
+
+/**
+ * PlatformErrorContext - context required for creating or sanitizing errors.
+ */
+export interface PlatformErrorContext {
+  id: EntityId;
+  timestamp: ISODateTime;
+  workspaceId?: WorkspaceId;
+  correlationId?: CorrelationId;
+  causationId?: CausationId;
+}
 
 /**
  * createPlatformError - creates a validated PlatformErrorEnvelope from partial input.
+ * All identifiers and timestamps must be provided explicitly.
  */
-export function createPlatformError(input: Partial<PlatformErrorEnvelope> & {
-  code: string;
-  category: PlatformErrorCategory;
-  severity: PlatformErrorSeverity;
-  message: string;
-}): PlatformErrorEnvelope {
+export function createPlatformError(
+  input: Omit<PlatformErrorEnvelope, "id" | "timestamp" | "workspaceId" | "correlationId" | "causationId"> & {
+    userMessage?: string;
+  },
+  context: PlatformErrorContext
+): PlatformErrorEnvelope {
   const envelope: PlatformErrorEnvelope = {
-    id: input.id ?? crypto.randomUUID(),
-    code: input.code,
-    category: input.category,
-    severity: input.severity,
-    message: input.message,
-    userMessage: input.userMessage,
-    timestamp: input.timestamp ?? new Date().toISOString(),
-    workspaceId: input.workspaceId,
-    correlationId: input.correlationId,
-    causationId: input.causationId,
-    source: input.source,
-    details: input.details,
-    validationIssues: input.validationIssues,
-    retry: input.retry,
-    metadata: input.metadata,
+    ...input,
+    id: context.id,
+    timestamp: context.timestamp,
+    workspaceId: context.workspaceId,
+    correlationId: context.correlationId,
+    causationId: context.causationId,
   };
 
   return PlatformErrorEnvelopeSchema.parse(envelope);
@@ -45,59 +48,92 @@ export function isPlatformError(value: unknown): value is PlatformErrorEnvelope 
 
 /**
  * serializePlatformError - ensures the error is serializable (plain object).
+ * Validates the envelope before serialization.
  */
 export function serializePlatformError(error: PlatformErrorEnvelope): string {
+  PlatformErrorEnvelopeSchema.parse(error);
   return JSON.stringify(error);
 }
 
 /**
  * sanitizeUnknownError - converts an unknown error into a safe PlatformErrorEnvelope.
+ * Uses an allowlist for details to avoid leaking sensitive data or failing on non-serializable values.
  */
 export function sanitizeUnknownError(
   error: unknown,
-  context?: {
-    workspaceId?: WorkspaceId;
-    correlationId?: CorrelationId;
-    causationId?: CausationId;
-  }
+  context: PlatformErrorContext
 ): PlatformErrorEnvelope {
   if (isPlatformError(error)) {
-    return {
+    // Preserve existing identity and fill missing context
+    const enriched: PlatformErrorEnvelope = {
       ...error,
-      workspaceId: error.workspaceId ?? context?.workspaceId,
-      correlationId: error.correlationId ?? context?.correlationId,
-      causationId: error.causationId ?? context?.causationId,
+      workspaceId: error.workspaceId ?? context.workspaceId,
+      correlationId: error.correlationId ?? context.correlationId,
+      causationId: error.causationId ?? context.causationId,
     };
+    return PlatformErrorEnvelopeSchema.parse(enriched);
   }
 
   let message = "An unexpected error occurred";
-  let details: Record<string, unknown> | undefined = undefined;
+  const details: Record<string, unknown> = {};
+
+  const SAFE_FIELDS = ["name", "message", "code", "status", "statusCode", "type"];
+  const SENSITIVE_KEYWORDS = ["password", "token", "auth", "key", "secret", "cookie"];
+
+  const isSafeKey = (key: string) => {
+    const lowerKey = key.toLowerCase();
+    return SAFE_FIELDS.includes(key) && !SENSITIVE_KEYWORDS.some(k => lowerKey.includes(k));
+  };
 
   if (error instanceof Error) {
     message = error.message;
-    // We intentionally do not expose the stack trace
+    // Pick safe fields from Error
+    for (const key of SAFE_FIELDS) {
+      const val = (error as any)[key];
+      if (val !== undefined && typeof val !== "function" && typeof val !== "symbol" && typeof val !== "bigint") {
+        details[key] = val;
+      }
+    }
   } else if (typeof error === "string") {
     message = error;
   } else if (typeof error === "object" && error !== null) {
-    // If it's a plain object but not a PlatformError, we can pick up message if it exists
-    const maybeError = error as Record<string, unknown>;
-    if (typeof maybeError.message === "string") {
-      message = maybeError.message;
+    try {
+      const maybeError = error as Record<string, unknown>;
+      if (typeof maybeError.message === "string") {
+        message = maybeError.message;
+      }
+
+      // Allowlist-based shallow copy of safe fields
+      for (const key of Object.keys(maybeError)) {
+        if (isSafeKey(key)) {
+          const val = maybeError[key];
+          const type = typeof val;
+          if (type !== "function" && type !== "symbol" && type !== "bigint" && type !== "undefined") {
+            details[key] = val;
+          }
+        }
+      }
+    } catch {
+      // Handle cases where Object.keys might throw (e.g. throwing getters)
     }
-    // We could potentially include other safe fields in details,
-    // but the requirement is to produce a safe envelope.
-    details = { raw: JSON.parse(JSON.stringify(error)) };
+  }
+
+  // Ensure no stack leakage in message or details
+  const sanitizeString = (s: string) => s.replace(/at\s+.*\s+\(.*\)/g, "[STACK_REMOVED]");
+
+  const finalMessage = sanitizeString(message);
+  for (const key of Object.keys(details)) {
+    if (typeof details[key] === "string") {
+      details[key] = sanitizeString(details[key] as string);
+    }
   }
 
   return createPlatformError({
     code: "UNEXPECTED.SYSTEM.UNKNOWN_ERROR",
     category: "unexpected",
     severity: "error",
-    message,
+    message: finalMessage,
     userMessage: "Ocorreu um erro inesperado. Por favor, tente novamente ou entre em contato com o suporte.",
-    workspaceId: context?.workspaceId,
-    correlationId: context?.correlationId,
-    causationId: context?.causationId,
-    details,
-  });
+    details: Object.keys(details).length > 0 ? details : undefined,
+  }, context);
 }

@@ -75,11 +75,16 @@ Os códigos devem seguir o padrão `CATEGORIA.RECURSO.RAZAO` em letras maiúscul
 - `AUTHORIZATION.WORKSPACE.ACCESS_DENIED`
 - `INTEGRATION.STRIPE.PAYMENT_FAILED`
 
-## Segurança
+## Purity e Determinismo
 
-1. **Stack Traces**: Nunca devem ser incluídos no envelope canônico enviado para o cliente ou persistido em logs de nível de aplicação.
-2. **Mensagens**: A `message` pode conter detalhes técnicos, enquanto a `userMessage` deve ser sanitizada.
-3. **Dados Sensíveis**: Não inclua senhas, tokens ou PII (Personally Identifiable Information) sem necessidade técnica e proteção adequada.
+As funções de criação e sanitização de erro são puras e determinísticas. Identificadores (`id`) e marcas temporais (`timestamp`) devem ser fornecidos explicitamente através do contexto. O sistema não gera valores aleatórios ou datas internamente nas fábricas canônicas.
+
+## Segurança e Sanitização
+
+1. **Stack Traces**: São removidos de mensagens e detalhes.
+2. **Segredos**: Campos e valores que contenham palavras-chave sensíveis (password, token, key, secret, auth, cookie) são removidos durante a sanitização de objetos desconhecidos.
+3. **Allowlist**: Apenas campos explicitamente seguros (name, message, code, status, statusCode, type) são preservados de objetos de erro desconhecidos.
+4. **Circularidade**: O sanitizador é resiliente a objetos circulares e tipos não serializáveis (BigInt, Symbol, Function).
 
 ## Retry
 

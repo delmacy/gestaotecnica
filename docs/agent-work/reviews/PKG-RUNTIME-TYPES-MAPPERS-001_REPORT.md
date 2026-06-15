@@ -7,8 +7,8 @@
 
 ## Cadeia de Evidência
 - **Original implementation head**: 6a0160b974105f26d09f3f866e404c0b63fa13e6
-- **Previous corrective head**: d4a524e0c3658f7d51cf7ca4ae183d2201cfa288
-- **Final reviewed PR #185 head**: 80d9c4ba8d2a6d5d1cc043bce2a0d2bffc8c03be
+- **Previous corrective head**: e824d8bc4c693c9135a377e3783610a2dca2d5b4
+- **Final reviewed PR #185 head**: dcc46fe1e0072b2b46f891ac3cff883ac061d53c
 
 ## Objetivos Alcançados
 1. Implementação de Schemas Zod canônicos para:
@@ -32,4 +32,4 @@
 - Build: `npm run build` (PASSED)
 
 ## Conclusão
-Este PR #185 substitui integralmente os PRs #176, #180 e #181.
+PR #185 supersedes PR #176 and PR #180.

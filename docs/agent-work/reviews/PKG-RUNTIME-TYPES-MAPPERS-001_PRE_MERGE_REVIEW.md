@@ -7,8 +7,8 @@
 
 ## Cadeia de Evidência
 - **Original implementation head**: 6a0160b974105f26d09f3f866e404c0b63fa13e6
-- **Previous corrective head**: d4a524e0c3658f7d51cf7ca4ae183d2201cfa288
-- **Final reviewed PR #185 head**: 80d9c4ba8d2a6d5d1cc043bce2a0d2bffc8c03be
+- **Previous corrective head**: e824d8bc4c693c9135a377e3783610a2dca2d5b4
+- **Final reviewed PR #185 head**: dcc46fe1e0072b2b46f891ac3cff883ac061d53c
 
 ## Resumo da Revisão
 O PR #185 consolida as correções para o pacote de Runtime Types and Mappers, garantindo tipagem estrita, limpeza de branch e alinhamento arquitetural com a Opção B.
@@ -23,7 +23,7 @@ O PR #185 consolida as correções para o pacote de Runtime Types and Mappers, g
 | Testes passando | ✅ | `runtime-mappers.test.ts` 100% OK. |
 | Build passando | ✅ | `npm run build` bem sucedido. |
 | Tenancy preservada | ✅ | `workspaceId` mandatório. |
-| PR #185 declarado substituto | ✅ | Substitui #176, #180 e #181. |
+| PR #185 declarado substituto | ✅ | PR #185 supersedes PR #176 and PR #180. |
 
 ## Decisão Final
 **APPROVE**

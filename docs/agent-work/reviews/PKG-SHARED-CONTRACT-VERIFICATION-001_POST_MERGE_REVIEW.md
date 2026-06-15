@@ -1,7 +1,7 @@
 # Post-Merge Review: PKG-SHARED-CONTRACT-VERIFICATION-001
 
 ## Identificação
-- **PR Original**: #173 (mesclado diretamente na main)
+- **PR Original**: #173
 - **Original Head SHA**: 8b03521911aee6fa7f1eacb4d8a1f1c67ab041bb
 - **Merge Commit SHA**: 9639259dba71c5bc61dbf769df7cc02f09609ae0
 - **PR de Cleanup/Revisão**: #185
@@ -33,6 +33,7 @@
 The initial review branch contained unrelated Form Builder test changes.
 Those changes were removed in PR #185.
 The Shared Contracts portion of PR #185 is restricted to its authorized post-merge review documentation.
+PR #185 supersedes PR #181 for this package.
 
 ## Decisão Final
 **APPROVE_POST_MERGE_WITH_NOTES**

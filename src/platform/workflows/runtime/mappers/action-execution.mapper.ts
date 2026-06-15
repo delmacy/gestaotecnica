@@ -12,7 +12,7 @@ export function mapToActionExecution(raw: unknown): ActionExecution {
     workspaceId: data.workspaceId ?? data.workspace_id,
     instanceId: data.instanceId ?? data.instance_id,
     actionKey: data.actionKey ?? data.action_key ?? data.node_id,
-    actorId: data.hasOwnProperty('actorId') ? data.actorId : (data.hasOwnProperty('actor_id') ? data.actor_id : null),
+    actorId: Object.prototype.hasOwnProperty.call(data, 'actorId') ? data.actorId : (Object.prototype.hasOwnProperty.call(data, 'actor_id') ? data.actor_id : null),
     inputPayload: data.inputPayload ?? data.input_payload,
     outputPayload: data.outputPayload ?? data.output_payload,
     status: data.status,

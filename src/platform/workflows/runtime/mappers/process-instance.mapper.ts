@@ -17,7 +17,7 @@ export function mapToProcessInstance(
     processVersionId: data.processVersionId ?? data.process_version_id,
     currentStateId: data.currentStateId ?? data.current_state_id,
     status: data.status,
-    createdById: data.hasOwnProperty('createdById') ? data.createdById : (data.hasOwnProperty('created_by_id') ? data.created_by_id : null),
+    createdById: Object.prototype.hasOwnProperty.call(data, 'createdById') ? data.createdById : (Object.prototype.hasOwnProperty.call(data, 'created_by_id') ? data.created_by_id : null),
     createdAt: data.createdAt ?? data.created_at,
     updatedAt: data.updatedAt ?? data.updated_at,
     metadata: data.metadata,
@@ -29,7 +29,7 @@ export function mapToProcessInstance(
     return {
       ...parsed,
       metadata: {
-        ...(parsed.metadata as Record<string, unknown>),
+        ...(parsed.metadata as Record<string, unknown> || {}),
         ...context.metadata,
       },
     };

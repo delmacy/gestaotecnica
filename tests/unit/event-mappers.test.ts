@@ -42,28 +42,43 @@ describe("Event Mappers", () => {
   });
 
   it("should throw error if eventId is not a valid UUID", () => {
-    const invalidInput = { ...validBaseInput, eventId: "not-a-uuid" } as any;
-    assert.throws(() => mapToCanonicalEvent(invalidInput), EventMappingError);
+    const invalidInput: unknown = { ...validBaseInput, eventId: "not-a-uuid" };
+    assert.throws(() => mapToCanonicalEvent(invalidInput as EventMapperInput), (err: unknown) => {
+      assert(err instanceof EventMappingError);
+      return true;
+    });
   });
 
   it("should throw error if eventType is missing", () => {
-    const invalidInput = { ...validBaseInput, eventType: "" } as any;
-    assert.throws(() => mapToCanonicalEvent(invalidInput), EventMappingError);
+    const invalidInput: unknown = { ...validBaseInput, eventType: "" };
+    assert.throws(() => mapToCanonicalEvent(invalidInput as EventMapperInput), (err: unknown) => {
+      assert(err instanceof EventMappingError);
+      return true;
+    });
   });
 
   it("should throw error if eventVersion is invalid", () => {
-    const invalidInput = { ...validBaseInput, eventVersion: "1.0" } as any;
-    assert.throws(() => mapToCanonicalEvent(invalidInput), EventMappingError);
+    const invalidInput: unknown = { ...validBaseInput, eventVersion: "1.0" };
+    assert.throws(() => mapToCanonicalEvent(invalidInput as EventMapperInput), (err: unknown) => {
+      assert(err instanceof EventMappingError);
+      return true;
+    });
   });
 
   it("should throw error if timestamp is invalid", () => {
-    const invalidInput = { ...validBaseInput, occurredAt: "invalid-date" } as any;
-    assert.throws(() => mapToCanonicalEvent(invalidInput), EventMappingError);
+    const invalidInput: unknown = { ...validBaseInput, occurredAt: "invalid-date" };
+    assert.throws(() => mapToCanonicalEvent(invalidInput as EventMapperInput), (err: unknown) => {
+      assert(err instanceof EventMappingError);
+      return true;
+    });
   });
 
   it("should throw error if workspaceId is missing", () => {
-    const invalidInput = { ...validBaseInput, workspaceId: undefined } as any;
-    assert.throws(() => mapToCanonicalEvent(invalidInput), EventMappingError);
+    const invalidInput: unknown = { ...validBaseInput, workspaceId: undefined };
+    assert.throws(() => mapToCanonicalEvent(invalidInput as EventMapperInput), (err: unknown) => {
+      assert(err instanceof EventMappingError);
+      return true;
+    });
   });
 
   it("should preserve correlationId and causationId", () => {
@@ -80,12 +95,21 @@ describe("Event Mappers", () => {
     assert.deepStrictEqual(result.payload, payload);
   });
 
-  it("should not mutate the input payload", () => {
-    const payload = { key: "value" };
+  it("should ensure non-mutation of input via shallow copy (known limitation: nested references remain shared)", () => {
+    const payload = { key: "value", nested: { a: 1 } };
     const input = { ...validBaseInput, payload };
     const result = mapToCanonicalEvent(input);
+
+    // Verify non-mutation of input
     result.payload.key = "changed";
-    assert.strictEqual(payload.key, "value");
+    assert.strictEqual(payload.key, "value", "Input payload should not be mutated");
+
+    // Verify first-level is a new reference
+    assert.notStrictEqual(result.payload, payload, "Output payload should be a new reference");
+
+    // Verify nested objects are shared (shallow copy limitation)
+    const resultPayload = result.payload as Record<string, unknown>;
+    assert.strictEqual(resultPayload.nested, payload.nested, "Nested objects remain shared (shallow copy)");
   });
 
   it("should be deterministic", () => {

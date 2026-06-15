@@ -7,8 +7,10 @@
 
 ## Cadeia de Evidência
 - **Original implementation head**: 6a0160b974105f26d09f3f866e404c0b63fa13e6
-- **Previous corrective head**: e824d8bc4c693c9135a377e3783610a2dca2d5b4
-- **Final reviewed PR #185 head**: dcc46fe1e0072b2b46f891ac3cff883ac061d53c
+- **Reviewed implementation head**: dcc46fe1e0072b2b46f891ac3cff883ac061d53c
+
+Documentation finalization:
+See PR #185 commit history and final merge commit.
 
 ## Objetivos Alcançados
 1. Implementação de Schemas Zod canônicos para:
@@ -32,4 +34,5 @@
 - Build: `npm run build` (PASSED)
 
 ## Conclusão
+PKG-RUNTIME-TYPES-MAPPERS-001:
 PR #185 supersedes PR #176 and PR #180.

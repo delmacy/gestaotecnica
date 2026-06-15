@@ -70,6 +70,7 @@ Para garantir que o hash de um recibo seja determinístico, o payload deve ser c
 2. **Recursão em Arrays:** Elementos de arrays são processados recursivamente.
 3. **Tipos Suportados:** `null`, `boolean`, `number`, `string` (Unicode).
 4. **Undefined:** Propriedades `undefined` em objetos são omitidas; em arrays são convertidas para `null`.
+5. **Segurança:** Rejeita referências circulares e tipos não-JSON (`bigint`, `function`, `symbol`).
 
 ## Payload Assinável (Signable Payload)
 
@@ -82,12 +83,13 @@ Para evitar circularidade (um hash não pode conter a si mesmo), o hash do recib
 ## Verificação
 
 A verificação é determinística e requer contexto explícito:
-- **Entradas:** `receipt`, `algorithm`, `expectedHash`, `verifiedAt` (timestamp).
+- **Entradas:** `receipt`, `algorithm`, `expectedHash`, `verifiedAt` (timestamp ISO).
 - **Processo:**
   1. Gera o payload assinalável do recibo.
   2. Calcula o hash usando o algoritmo especificado.
   3. Compara com o `expectedHash`.
-  4. Retorna `TraceReceiptVerificationResult` com o timestamp fornecido.
+  4. Valida o resultado final contra o esquema canônico de verificação.
+  5. Retorna `TraceReceiptVerificationResult` com o timestamp fornecido.
 
 ## Cadeia de Recibos
 

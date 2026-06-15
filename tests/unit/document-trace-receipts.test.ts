@@ -49,12 +49,12 @@ describe("Document Trace Receipts Contracts & Logic", () => {
   });
 
   test("should fail if unknown fields are present in receipt", () => {
-    const invalidInput = { ...validReceiptInput, unknownField: "bad" } as any;
+    const invalidInput = { ...validReceiptInput, unknownField: "bad" } as unknown;
     assert.throws(() => createTraceReceipt(invalidInput));
   });
 
   test("should fail if unknown fields are present in actor", () => {
-    const invalidInput = { ...validReceiptInput, actor: { ...validReceiptInput.actor, extra: 1 } } as any;
+    const invalidInput = { ...validReceiptInput, actor: { ...validReceiptInput.actor, extra: 1 } } as unknown;
     assert.throws(() => createTraceReceipt(invalidInput));
   });
 
@@ -194,10 +194,22 @@ describe("Document Trace Receipts Contracts & Logic", () => {
     const signable = createSignableReceiptPayload(receipt);
     const h256 = calculateReceiptHash(signable, "sha256");
 
-    const v1 = verifyReceiptHash(receipt, { algorithm: "sha256", expectedHash: h256, verifiedAt: "T1" });
-    const v2 = verifyReceiptHash(receipt, { algorithm: "sha256", expectedHash: h256, verifiedAt: "T1" });
+    const v1 = verifyReceiptHash(receipt, { algorithm: "sha256", expectedHash: h256, verifiedAt: "2023-10-27T11:00:00Z" });
+    const v2 = verifyReceiptHash(receipt, { algorithm: "sha256", expectedHash: h256, verifiedAt: "2023-10-27T11:00:00Z" });
 
     assert.deepStrictEqual(v1, v2);
+  });
+
+  test("reject invalid verification timestamp", () => {
+    const receipt = createTraceReceipt(validReceiptInput);
+    const signable = createSignableReceiptPayload(receipt);
+    const h256 = calculateReceiptHash(signable, "sha256");
+
+    assert.throws(() => verifyReceiptHash(receipt, {
+      algorithm: "sha256",
+      expectedHash: h256,
+      verifiedAt: "not-a-date"
+    }));
   });
 
   test("linked receipt validation", () => {
@@ -221,6 +233,21 @@ describe("Document Trace Receipts Contracts & Logic", () => {
     for (const { input, expected } of cases) {
       assert.strictEqual(canonicalizeReceiptPayload(input), expected);
     }
+  });
+
+  test("canonicalization should reject circular references", () => {
+    const obj: any = { a: 1 };
+    obj.self = obj;
+    assert.throws(() => canonicalizeReceiptPayload(obj), /NON_CANONICAL_CIRCULAR_REFERENCE/);
+  });
+
+  test("canonicalization should reject unsupported types", () => {
+    assert.throws(() => canonicalizeReceiptPayload(10n), /NON_CANONICAL_BIGINT/);
+    assert.throws(() => canonicalizeReceiptPayload(() => {}), /NON_CANONICAL_FUNCTION/);
+    assert.throws(() => canonicalizeReceiptPayload(Symbol("test")), /NON_CANONICAL_SYMBOL/);
+
+    assert.throws(() => canonicalizeReceiptPayload({ a: 10n }), /NON_CANONICAL_BIGINT/);
+    assert.throws(() => canonicalizeReceiptPayload([() => {}]), /NON_CANONICAL_FUNCTION/);
   });
 
   test("should not mutate input object and support frozen input", () => {

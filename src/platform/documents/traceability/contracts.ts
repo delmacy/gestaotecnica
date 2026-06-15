@@ -110,7 +110,7 @@ export type TraceReceiptHash = z.infer<typeof TraceReceiptHashSchema>;
 
 /**
  * TraceReceiptArtifact - Produced artifact reference.
- * Policy: supports absolute URLs and explicit schemes (https, s3, minio, urn, file).
+ * Policy: supports absolute URLs and explicit schemes (https, s3, minio, file, urn).
  */
 export const TraceReceiptArtifactSchema = z
   .object({

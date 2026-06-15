@@ -4,6 +4,7 @@ import {
   TraceReceiptSchema,
   TraceReceiptHashAlgorithm,
   TraceReceiptVerificationResult,
+  TraceReceiptVerificationResultSchema,
 } from "./contracts";
 
 /**
@@ -17,14 +18,34 @@ import {
  * - Unicode strings: preserved
  * - undefined object properties: omitted from JSON.stringify
  * - undefined array entries: preserved as null in JSON.stringify
+ *
+ * Rejects:
+ * - circular references: NON_CANONICAL_CIRCULAR_REFERENCE
+ * - bigint: NON_CANONICAL_BIGINT
+ * - function: NON_CANONICAL_FUNCTION
+ * - symbol: NON_CANONICAL_SYMBOL
  */
-function getCanonicalValue(payload: unknown): unknown {
-  if (payload === null || typeof payload !== "object") {
+function getCanonicalValue(payload: unknown, seen = new WeakSet<object>()): unknown {
+  if (payload === null) return null;
+
+  const type = typeof payload;
+
+  if (type === "bigint") throw new Error("NON_CANONICAL_BIGINT");
+  if (type === "function") throw new Error("NON_CANONICAL_FUNCTION");
+  if (type === "symbol") throw new Error("NON_CANONICAL_SYMBOL");
+
+  if (type !== "object") {
     return payload;
   }
 
+  // At this point it's an object or array (and not null)
+  if (seen.has(payload as object)) {
+    throw new Error("NON_CANONICAL_CIRCULAR_REFERENCE");
+  }
+  seen.add(payload as object);
+
   if (Array.isArray(payload)) {
-    return payload.map(getCanonicalValue);
+    return payload.map((item) => getCanonicalValue(item, seen));
   }
 
   const sortedKeys = Object.keys(payload as object).sort();
@@ -33,7 +54,7 @@ function getCanonicalValue(payload: unknown): unknown {
   for (const key of sortedKeys) {
     const value = (payload as Record<string, unknown>)[key];
     if (value !== undefined) {
-      sortedObject[key] = getCanonicalValue(value);
+      sortedObject[key] = getCanonicalValue(value, seen);
     }
   }
 
@@ -51,7 +72,6 @@ export function canonicalizeReceiptPayload(payload: unknown): string {
  * Creates a signable payload for a receipt.
  * Excludes fields that would make the hash self-referential:
  * - hashes with scope "receipt"
- * - any metadata that should not be signed (none currently identified as mandatory, but field is preserved)
  */
 export function createSignableReceiptPayload(receipt: TraceReceipt): string {
   const { hashes, ...rest } = receipt;
@@ -87,6 +107,7 @@ export function createTraceReceipt(input: unknown): TraceReceipt {
 /**
  * Verifies if the receipt's hash matches the expected value.
  * Verification is deterministic: requires explicit algorithm, expectedHash, and verifiedAt.
+ * Validates output using TraceReceiptVerificationResultSchema.
  */
 export function verifyReceiptHash(
   receipt: TraceReceipt,
@@ -101,11 +122,13 @@ export function verifyReceiptHash(
 
   const isValid = actualHash === context.expectedHash;
 
-  return {
+  const resultCandidate = {
     valid: isValid,
     timestamp: context.verifiedAt,
     details: isValid ? undefined : `Hash mismatch. Expected ${context.expectedHash}, got ${actualHash}`,
   };
+
+  return TraceReceiptVerificationResultSchema.parse(resultCandidate);
 }
 
 /**

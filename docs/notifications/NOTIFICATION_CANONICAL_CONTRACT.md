@@ -42,10 +42,23 @@ Tipos de destinatários suportados:
 - **pending**: Aguardando processamento inicial.
 - **queued**: Na fila do provedor ou do sistema.
 - **processing**: Em tentativa de envio.
-- **delivered**: Confirmado pelo provedor como entregue.
-- **failed**: Falha definitiva ou após exaustão de tentativas.
-- **cancelled**: Cancelado antes da entrega.
+- **delivered**: Confirmado pelo provedor como entregue. (Terminal)
+- **failed**: Falha após tentativa. Pode transitar para `processing` em caso de re-tentativa.
+- **cancelled**: Cancelado antes da entrega. (Terminal)
 - **suppressed**: Silenciado por preferências ou regras de quiet hours.
+
+### Matriz de Transição de Estados
+As transições de estado são rigorosamente validadas para garantir a integridade do ciclo de vida:
+
+| De \ Para | queued | processing | delivered | failed | cancelled | pending |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **pending** | Sim | Não | Não | Não | Sim | Sim |
+| **queued** | Sim | Sim | Não | Não | Sim | Não |
+| **processing** | Não | Sim | Sim | Sim | Sim | Não |
+| **failed** | Não | Sim | Não | Sim | Sim | Não |
+| **delivered** | Não | Não | Sim | Não | Não | Não |
+| **cancelled** | Não | Não | Não | Não | Sim | Não |
+| **suppressed** | Não | Não | Não | Não | Sim | Sim |
 
 ### Prioridades
 - **low**: Entrega sem pressa, pode ser agrupada.
@@ -65,13 +78,20 @@ Modelagem de preferências de usuário:
 
 ### NotificationDelivery
 Objeto que rastreia o ciclo de vida de entrega de uma `NotificationIntent`.
-- Mantém `intentId` e `workspaceId`.
-- Lista de `attempts`.
+- Mantém `intentId` e `workspaceId` imutáveis.
+- Lista de `attempts` sequenciais.
 - Status consolidado.
+- Metadados preservados.
+
+### Estratégia de Numeração de Tentativas
+As tentativas seguem uma numeração canônica sequencial:
+- A primeira tentativa de uma entrega é sempre `1`.
+- Tentativas subsequentes são sempre `n + 1`, onde `n` é o número da última tentativa.
+- Tentativas duplicadas, puladas ou fora de ordem são rejeitadas.
 
 ### NotificationAttempt
 Registro de cada tentativa individual de envio.
-- Número da tentativa.
+- Número da tentativa (sequencial).
 - Timestamp.
 - Status daquela tentativa.
 - Referência externa do provedor (`providerReference`).
@@ -79,7 +99,12 @@ Registro de cada tentativa individual de envio.
 
 ### NotificationFailure
 - **code**: Código de erro sanitizado.
-- **reason**: Descrição humana do erro (sem segredos técnicos).
+- **reason**: Descrição humana do erro.
+- **Sanitização**: Proibido o uso de palavras-chave sensíveis (secrets, tokens, passwords, keys) no motivo da falha.
+
+## Comportamento em Falhas e Entregas
+- **Falha sem Tentativa**: Operações de marcação de falha (`markNotificationFailed`) exigem que exista pelo menos uma tentativa prévia. Não é permitido falhar uma entrega que nunca foi tentada.
+- **Entrega Direta**: Operações de entrega (`markNotificationDelivered`) exigem que a última tentativa esteja no estado `processing`.
 
 ## Exemplos JSON
 
@@ -102,34 +127,8 @@ Registro de cada tentativa individual de envio.
 }
 ```
 
-### Webhook NotificationIntent
-```json
-{
-  "id": "intent-002",
-  "workspaceId": "550e8400-e29b-41d4-a716-446655440000",
-  "recipient": {
-    "type": "webhook_endpoint",
-    "url": "https://api.partner.com/events"
-  },
-  "channel": "webhook",
-  "priority": "high",
-  "payload": {
-    "event": "order.completed",
-    "orderId": "ord_555"
-  },
-  "correlationId": "corr_555",
-  "metadata": {
-    "source": "order-service"
-  }
-}
-```
-
 ## Regras e Limites desta Fase
-- Não há implementação de provedores reais (AWS SES, Twilio, etc).
+- Não há implementação de provedores reais.
 - Não há persistência em banco de dados.
-- Funções de domínio são puras e determinísticas.
-- Validação de destinatário vs Canal é aplicada na criação da intenção.
-- IDs e Timestamps devem ser fornecidos externamente às funções puras.
-
-## Idempotência Futura
-A `correlationId` é obrigatória e servirá como base para garantir que a mesma intenção não gere múltiplas entregas duplicadas em fases futuras de implementação da engine.
+- Funções de domínio são puras e validam a saída contra o schema `NotificationDeliverySchema`.
+- Imutabilidade rigorosa dos inputs.

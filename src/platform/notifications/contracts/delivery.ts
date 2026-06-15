@@ -11,6 +11,22 @@ export const NotificationFailureSchema = z.strictObject({
   code: z.string().min(1),
   reason: z.string().min(1),
   // Failure must not expose provider secrets, so we only allow a safe message and code.
+}).superRefine((data, ctx) => {
+  const forbiddenKeywords = [
+    "token", "apiKey", "password", "authorization",
+    "providerSecret", "rawResponse", "secret", "key"
+  ];
+
+  const content = JSON.stringify(data).toLowerCase();
+  for (const keyword of forbiddenKeywords) {
+    if (content.includes(keyword.toLowerCase())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Failure reason contains forbidden keyword: ${keyword}`,
+        path: ["reason"]
+      });
+    }
+  }
 });
 
 export type NotificationFailure = z.infer<typeof NotificationFailureSchema>;

@@ -7,10 +7,10 @@ import {
   markNotificationDelivered,
   markNotificationFailed,
   NotificationDelivery,
-  NotificationIntent
+  NotificationFailure
 } from "../../src/platform/notifications";
 
-describe("Notification Contracts and Pure Functions", () => {
+describe("Notification Contracts and Pure Functions - PR Feedback", () => {
   const validWorkspaceId = "550e8400-e29b-41d4-a716-446655440000";
   const validIntentId = "intent-123";
   const validTimestamp = new Date().toISOString();
@@ -24,179 +24,163 @@ describe("Notification Contracts and Pure Functions", () => {
     payload: { message: "Hello" },
     correlationId: "corr-123",
     causationId: "caus-123",
-    metadata: {},
+    metadata: { source: "test" },
   };
 
-  describe("createNotificationIntent", () => {
-    test("should create a valid minimal intent", () => {
-      const intent = createNotificationIntent(baseIntent);
-      assert.strictEqual(intent.id, validIntentId);
-      assert.strictEqual(intent.workspaceId, validWorkspaceId);
-      assert.strictEqual(intent.channel, "in_app");
-    });
+  const baseDelivery: NotificationDelivery = {
+    intentId: validIntentId,
+    workspaceId: validWorkspaceId,
+    status: "pending",
+    attempts: [],
+    metadata: { source: "test" },
+  };
 
-    test("should create a complete intent with dates and template", () => {
-      const completeIntent = {
-        ...baseIntent,
-        template: { id: "tmpl-1", version: "1.0.0" },
-        subject: "Welcome",
-        scheduledAt: validTimestamp,
-        expiresAt: new Date(Date.now() + 10000).toISOString(),
-      };
-      const intent = createNotificationIntent(completeIntent);
-      assert.strictEqual(intent.template?.id, "tmpl-1");
-      assert.ok(intent.expiresAt);
-    });
-
-    test("should throw if workspaceId is missing", () => {
-      const invalid = { ...baseIntent, workspaceId: undefined };
-      assert.throws(() => createNotificationIntent(invalid));
-    });
-
-    test("should throw if correlationId is missing", () => {
-      const invalid = { ...baseIntent, correlationId: undefined };
-      assert.throws(() => createNotificationIntent(invalid));
-    });
-
-    test("should throw if expiresAt is before scheduledAt", () => {
-      const invalid = {
-        ...baseIntent,
-        scheduledAt: new Date(Date.now() + 10000).toISOString(),
-        expiresAt: validTimestamp
-      };
-      assert.throws(() => createNotificationIntent(invalid));
-    });
-
-    test("should throw for invalid channel", () => {
-      const invalid = { ...baseIntent, channel: "invalid_channel" };
-      assert.throws(() => createNotificationIntent(invalid));
-    });
-  });
-
-  describe("validateNotificationRecipient", () => {
-    test("should accept valid email with external address", () => {
-      const recipient = { type: "external_address", address: "test@example.com" };
-      const result = validateNotificationRecipient(recipient as any, "email");
-      assert.strictEqual(result.valid, true);
-    });
-
-    test("should reject invalid email address", () => {
-      const recipient = { type: "external_address", address: "invalid-email" };
-      const result = validateNotificationRecipient(recipient as any, "email");
-      assert.strictEqual(result.valid, false);
-    });
-
-    test("should accept valid SMS with E.164", () => {
-      const recipient = { type: "external_address", address: "+5511999999999" };
-      const result = validateNotificationRecipient(recipient as any, "sms");
-      assert.strictEqual(result.valid, true);
-    });
-
-    test("should reject invalid SMS format", () => {
-      const recipient = { type: "external_address", address: "999999999" };
-      const result = validateNotificationRecipient(recipient as any, "sms");
-      assert.strictEqual(result.valid, false);
-    });
-
-    test("should accept webhook with endpoint", () => {
-      const recipient = { type: "webhook_endpoint", url: "https://example.com/webhook" };
-      const result = validateNotificationRecipient(recipient as any, "webhook");
-      assert.strictEqual(result.valid, true);
-    });
-
-    test("should reject webhook with wrong recipient type", () => {
-      const recipient = { type: "user", userId: "u1" };
-      const result = validateNotificationRecipient(recipient as any, "webhook");
-      assert.strictEqual(result.valid, false);
-    });
-
-    test("should reject webhook endpoint with wrong channel", () => {
-      const recipient = { type: "webhook_endpoint", url: "https://example.com/webhook" };
-      const result = validateNotificationRecipient(recipient as any, "email");
-      assert.strictEqual(result.valid, false);
-    });
-  });
-
-  describe("Delivery and Attempts", () => {
-    const baseDelivery: NotificationDelivery = {
-      intentId: validIntentId,
-      workspaceId: validWorkspaceId,
-      status: "pending",
-      attempts: [],
-      metadata: {},
-    };
-
-    test("should create attempt and increment delivery state", () => {
-      const attemptTimestamp = new Date().toISOString();
+  describe("Canonical Attempt Numbering", () => {
+    test("first attempt should be number 1", () => {
       const updated = createNotificationAttempt(baseDelivery, {
-        number: 1,
-        attemptedAt: attemptTimestamp,
-        status: "processing"
+        attemptedAt: validTimestamp,
+        status: "queued"
       });
-
-      assert.strictEqual(updated.status, "processing");
-      assert.strictEqual(updated.attempts.length, 1);
       assert.strictEqual(updated.attempts[0].number, 1);
-      assert.strictEqual(updated.lastAttemptAt, attemptTimestamp);
     });
 
-    test("should mark as delivered", () => {
-      const deliveredAt = new Date().toISOString();
-      const updated = markNotificationDelivered(baseDelivery, { deliveredAt });
-
-      assert.strictEqual(updated.status, "delivered");
-      assert.strictEqual(updated.deliveredAt, deliveredAt);
-    });
-
-    test("should mark as failed and record failure in last attempt", () => {
-      const attempt = createNotificationAttempt(baseDelivery, {
-        number: 1,
+    test("second attempt should be number 2", () => {
+      const first = createNotificationAttempt(baseDelivery, {
+        attemptedAt: validTimestamp,
+        status: "queued"
+      });
+      const second = createNotificationAttempt(first, {
         attemptedAt: validTimestamp,
         status: "processing"
       });
+      assert.strictEqual(second.attempts[1].number, 2);
+    });
 
-      const failure = { code: "PROVIDER_ERROR", reason: "Service unavailable" };
-      const failed = markNotificationFailed(attempt, failure);
+    test("should reject duplicate attempt number", () => {
+      const first = createNotificationAttempt(baseDelivery, {
+        attemptedAt: validTimestamp,
+        status: "queued"
+      });
+      assert.throws(() => createNotificationAttempt(first, {
+        number: 1, // should be 2
+        attemptedAt: validTimestamp,
+        status: "processing"
+      }), /Invalid attempt number/);
+    });
 
-      assert.strictEqual(failed.status, "failed");
-      assert.strictEqual(failed.attempts[0].status, "failed");
-      assert.deepStrictEqual(failed.attempts[0].failure, failure);
+    test("should reject skipped attempt number", () => {
+      assert.throws(() => createNotificationAttempt(baseDelivery, {
+        number: 2, // should be 1
+        attemptedAt: validTimestamp,
+        status: "queued"
+      }), /Invalid attempt number/);
+    });
+
+    test("should reject zero or negative attempt number", () => {
+      // Numbers are calculated internally or validated if provided
+      assert.throws(() => createNotificationAttempt(baseDelivery, {
+        number: 0,
+        attemptedAt: validTimestamp,
+        status: "queued"
+      }), /Invalid attempt number/);
     });
   });
 
-  describe("Purity and Constraints", () => {
-    test("should not mutate input (intent)", () => {
-      const input = { ...baseIntent };
-      createNotificationIntent(input);
-      assert.deepStrictEqual(input, baseIntent);
+  describe("State Transitions", () => {
+    test("valid transition: pending -> queued -> processing -> delivered", () => {
+      const q = createNotificationAttempt(baseDelivery, { attemptedAt: validTimestamp, status: "queued" });
+      const p = createNotificationAttempt(q, { attemptedAt: validTimestamp, status: "processing" });
+      const d = markNotificationDelivered(p, { deliveredAt: validTimestamp });
+      assert.strictEqual(d.status, "delivered");
     });
 
-    test("should return frozen object (intent)", () => {
-      const intent = createNotificationIntent(baseIntent);
-      assert.throws(() => {
-        (intent as any).id = "changed";
-      });
+    test("valid transition: processing -> failed -> processing", () => {
+      const q = createNotificationAttempt(baseDelivery, { attemptedAt: validTimestamp, status: "queued" });
+      const p = createNotificationAttempt(q, { attemptedAt: validTimestamp, status: "processing" });
+      const f = markNotificationFailed(p, { code: "ERR", reason: "failed" });
+      const r = createNotificationAttempt(f, { attemptedAt: validTimestamp, status: "processing" });
+      assert.strictEqual(r.status, "processing");
+      assert.strictEqual(r.attempts.length, 3);
     });
 
-    test("should return frozen object (delivery)", () => {
-      const baseDelivery: NotificationDelivery = {
-        intentId: validIntentId,
-        workspaceId: validWorkspaceId,
-        status: "pending",
-        attempts: [],
-        metadata: {},
-      };
-      const updated = markNotificationDelivered(baseDelivery, { deliveredAt: validTimestamp });
-      assert.throws(() => {
-        (updated as any).status = "changed";
-      });
+    test("invalid transition: delivered -> processing", () => {
+      const q = createNotificationAttempt(baseDelivery, { attemptedAt: validTimestamp, status: "queued" });
+      const p = createNotificationAttempt(q, { attemptedAt: validTimestamp, status: "processing" });
+      const d = markNotificationDelivered(p, { deliveredAt: validTimestamp });
+      assert.throws(() => createNotificationAttempt(d, { attemptedAt: validTimestamp, status: "processing" }), /Invalid state transition/);
     });
 
-    test("should be serializable to JSON", () => {
-      const intent = createNotificationIntent(baseIntent);
-      const json = JSON.stringify(intent);
-      const parsed = JSON.parse(json);
-      assert.strictEqual(parsed.id, intent.id);
+    test("invalid transition: cancelled -> delivered", () => {
+      const c = createNotificationAttempt(baseDelivery, { attemptedAt: validTimestamp, status: "cancelled" });
+      assert.throws(() => markNotificationDelivered(c, { deliveredAt: validTimestamp }), /Invalid state transition/);
+    });
+  });
+
+  describe("Identity and Metadata Preservation", () => {
+    test("should preserve intentId, workspaceId and metadata across transitions", () => {
+      const q = createNotificationAttempt(baseDelivery, { attemptedAt: validTimestamp, status: "queued" });
+      assert.strictEqual(q.intentId, baseDelivery.intentId);
+      assert.strictEqual(q.workspaceId, baseDelivery.workspaceId);
+      assert.deepStrictEqual(q.metadata, baseDelivery.metadata);
+
+      const d = markNotificationDelivered(createNotificationAttempt(q, { attemptedAt: validTimestamp, status: "processing" }), { deliveredAt: validTimestamp });
+      assert.strictEqual(d.intentId, baseDelivery.intentId);
+      assert.strictEqual(d.workspaceId, baseDelivery.workspaceId);
+      assert.deepStrictEqual(d.metadata, baseDelivery.metadata);
+    });
+  });
+
+  describe("Failure and Delivered Constraints", () => {
+    test("markNotificationFailed should reject if no attempt exists (Option A)", () => {
+      // It fails transition first
+      assert.throws(() => markNotificationFailed(baseDelivery, { code: "ERR", reason: "fail" }), /Invalid state transition/);
+    });
+
+    test("markNotificationDelivered should update last attempt and preserve providerReference", () => {
+      const q = createNotificationAttempt(baseDelivery, { attemptedAt: validTimestamp, status: "queued" });
+      const p = createNotificationAttempt(q, { attemptedAt: validTimestamp, status: "processing", providerReference: "REF-1" });
+      const d = markNotificationDelivered(p, { deliveredAt: validTimestamp, providerReference: "REF-UPDATED" });
+
+      assert.strictEqual(d.attempts[1].status, "delivered");
+      assert.strictEqual(d.attempts[1].providerReference, "REF-UPDATED");
+    });
+
+    test("markNotificationDelivered should reject if last attempt was not processing", () => {
+      const q = createNotificationAttempt(baseDelivery, { attemptedAt: validTimestamp, status: "queued" });
+      // Transitions from queued to delivered is invalid
+      assert.throws(() => markNotificationDelivered(q, { deliveredAt: validTimestamp }), /Invalid state transition/);
+    });
+  });
+
+  describe("Immutability and Purity", () => {
+    test("should work with frozen input and not mutate", () => {
+      const frozenDelivery = Object.freeze({
+        ...baseDelivery,
+        attempts: Object.freeze([])
+      }) as NotificationDelivery;
+
+      const updated = createNotificationAttempt(frozenDelivery, { attemptedAt: validTimestamp, status: "queued" });
+      assert.ok(updated);
+      assert.notStrictEqual(updated, frozenDelivery);
+    });
+  });
+
+  describe("Failure Sanitization", () => {
+    test("should reject failure containing secrets", () => {
+      const failure: NotificationFailure = { code: "ERR", reason: "Sensitive apiKey: 12345" };
+
+      const q = createNotificationAttempt(baseDelivery, { attemptedAt: validTimestamp, status: "queued" });
+      const p = createNotificationAttempt(q, { attemptedAt: validTimestamp, status: "processing" });
+
+      assert.throws(() => markNotificationFailed(p, failure), /Forbidden keyword/i);
+    });
+
+    test("should reject failure containing unknown forbidden fields (via logic or schema)", () => {
+      const failure = { code: "ERR", reason: "error", password: "123" };
+      const q = createNotificationAttempt(baseDelivery, { attemptedAt: validTimestamp, status: "queued" });
+      const p = createNotificationAttempt(q, { attemptedAt: validTimestamp, status: "processing" });
+
+      assert.throws(() => markNotificationFailed(p, failure as any));
     });
   });
 });

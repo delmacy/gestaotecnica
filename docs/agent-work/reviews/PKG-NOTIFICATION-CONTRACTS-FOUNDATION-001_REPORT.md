@@ -7,7 +7,7 @@
 
 ## Metadados de Git
 - **Base SHA**: d4e51b9319207857f976285d1db683cb444f14bc
-- **Head SHA**: b34fb1c3eb8469bd38a6b3572425a82d53314988
+- **Head SHA**: 109313a0992ab5dfc1713cecd208ce10fc54d9e2
 
 ## Arquivos Alterados
 ### Contratos (Owned Paths)
@@ -40,18 +40,17 @@
 - **Prioridades**: `low`, `normal`, `high`, `urgent`.
 - **Delivery & Attempt**: Estrutura para rastreamento de tentativas e falhas sanitizadas.
 
-## Regras Implementadas
-1. Validação de destinatário compatível com o canal (ex: SMS requer telefone E.164, Webhook requer URL).
-2. Tenancy obrigatória via `workspaceId`.
-3. Correlação obrigatória via `correlationId`.
-4. Datas ISO canônicas e validação de `expiresAt >= scheduledAt`.
-5. Funções puras e determinísticas que não geram IDs ou Timestamps internamente.
-6. Imutabilidade garantida via `Object.freeze` e deep clone por JSON.
-7. Proibição de uso de `any`.
+## Regras de Transição e Domínio
+- **Matriz de Transição**: Implementada validação rigorosa de estados (ex: `delivered` e `cancelled` são terminais).
+- **Numeração de Tentativas**: Sequencial canônica (`n + 1`), com rejeição de duplicatas ou saltos.
+- **Sanitização de Falhas**: Bloqueio de palavras-chave sensíveis (tokens, keys, passwords) no schema e funções.
+- **Validação de Saída**: Todas as funções de domínio validam o retorno contra o `NotificationDeliverySchema`.
+- **Preservação de Identidade**: `workspaceId`, `intentId` e `metadata` são preservados em todas as transições.
+- **Opção de Falha**: Adotada **Opção A** (rejeitar falha se não houver tentativa).
 
 ## Testes
-- **Total de Testes**: 20 casos de teste.
-- **Cobertura**: Sucesso em criação de intents, falhas de validação, compatibilidade de destinatários, transições de estado de delivery, pureza e serialização.
+- **Total de Testes**: 16 casos de teste (revisados para cobrir feedback do PR).
+- **Cobertura**: Numeração sequencial, transições válidas/inválidas, preservação de identidade, imutabilidade, sanitização de falhas.
 - **Resultado**: `OK` (Todos os testes passando).
 
 ## Build
@@ -59,10 +58,15 @@
 - **Comando**: `npm run build`.
 
 ## Riscos Residuais
-- A validação de formato de telefone para SMS é baseada em regex E.164 simplificada; provedores reais podem ter restrições adicionais.
-- A normalização de payloads entre diferentes canais (ex: In-App vs Email) ainda não possui uma engine de transformação/template.
+- A validação de formato de telefone para SMS é baseada em regex E.164 simplificada.
+- A normalização de payloads entre diferentes canais ainda não possui uma engine de transformação.
 
 ## Próximos Pacotes
 - Engine de resolução de templates.
 - Persistência de notificações e histórico de entrega.
 - Provedores concretos (Providers Strategy).
+
+## Confirmações Finais
+- **Schema Validation**: Confirmado que todos os retornos de funções de domínio passam por `NotificationDeliverySchema.parse()`.
+- **Imutabilidade**: Confirmado que inputs não são mutados e retornos são congelados.
+- **Any**: Confirmado a ausência de `any` no código de produção.

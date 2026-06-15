@@ -59,9 +59,10 @@ function getAllFiles(dirPath: string, arrayOfFiles: string[] = []): string[] {
 
 function extractImports(content: string): string[] {
   const imports: string[] = [];
-  const standardImportRegex = /(?:import|export)\s+.*?\s+from\s+['"](.*?)['"]/g;
+  const standardImportRegex = /(?:import|export)\s+(?:type\s+)?[\s\S]*?\s*from\s+['"](.*?)['"]/g;
   const sideEffectImportRegex = /import\s+['"](.*?)['"]/g;
   const dynamicImportRegex = /import\(['"](.*?)['"]\)/g;
+  const danglingFromRegex = /\}\s+from\s+['"](.*?)['"]/g;
 
   let match;
   while ((match = standardImportRegex.exec(content)) !== null) {
@@ -72,6 +73,9 @@ function extractImports(content: string): string[] {
   }
   while ((match = dynamicImportRegex.exec(content)) !== null) {
     imports.push(match[1]);
+  }
+  while ((match = danglingFromRegex.exec(content)) !== null) {
+    if (!imports.includes(match[1])) imports.push(match[1]);
   }
 
   return imports;
@@ -170,7 +174,7 @@ export function analyze(config: AnalysisConfig, virtualFiles?: Record<string, st
       if (!normalizedFile.includes('tests/')) {
         publicIndexDirs.forEach((indexDir, idx) => {
           if (resolvedImp.startsWith(indexDir + '/') && !normalizedFile.startsWith(indexDir) && resolvedImp !== normalizedPublicIndices[idx]) {
-            violations.push({ file: normalizedFile, importPath: imp, ruleName: `Deep import from ${indexDir}. Use public index instead.`, severity: 'MEDIUM' });
+            violations.push({ file: normalizedFile, importPath: imp, ruleName: 'Deep import from ' + indexDir + '. Use public index instead.', severity: 'MEDIUM' });
           }
         });
       }
@@ -310,6 +314,12 @@ test('Boundary Verifier Self-Tests', async (t) => {
     assert.ok(res.some(v => v.ruleName === 'Registry access to UI'));
   });
 
+  await t.test('detects dangling from imports', () => {
+    const virtualFiles = { 'src/test.ts': '} from "@' + '/db/runtime/schema/workflow";' };
+    const res = analyze(config, virtualFiles);
+    assert.ok(res.some(v => v.importPath === '@/db/runtime/schema/workflow'));
+  });
+
   await t.test('detects deep import through public index', () => {
     const virtualFiles = { 'src/other/test.ts': "import { c } from '@/platform/contracts/actor';" };
     const res = analyze(config, virtualFiles);
@@ -327,8 +337,6 @@ test('Production Module Boundaries Audit', () => {
   const config: AnalysisConfig = { root: 'src', boundaryRules, baseline, publicIndices };
   const allViolations = analyze(config);
 
-  const criticalViolations = allViolations.filter(v => v.severity === 'BLOCKER' || v.severity === 'HIGH');
-
   const isBaseline = (v: Violation) => baseline.some(b =>
     b.file === v.file &&
     b.importPath === v.importPath &&
@@ -336,15 +344,25 @@ test('Production Module Boundaries Audit', () => {
     b.severity === v.severity
   );
 
+  const criticalViolations = allViolations.filter(v => v.severity === 'BLOCKER' || v.severity === 'HIGH');
   const newCritical = criticalViolations.filter(v => !isBaseline(v));
 
   if (allViolations.length > 0) {
     console.log('\nBoundary violations found:');
     allViolations.forEach(v => {
       const b = isBaseline(v);
-      console.log(`${b ? '[BASELINE] ' : ''}[${v.severity}] ${v.file} -> ${v.importPath} (${v.ruleName})`);
+      if (!b && (v.severity === 'BLOCKER' || v.severity === 'HIGH')) {
+          console.log('[NEW CRITICAL] [' + v.severity + '] ' + v.file + ' -> ' + v.importPath + ' (' + v.ruleName + ')');
+      } else {
+          console.log((b ? '[BASELINE] ' : '') + '[' + v.severity + '] ' + v.file + ' -> ' + v.importPath + ' (' + v.ruleName + ')');
+      }
     });
   }
 
-  assert.strictEqual(newCritical.length, 0, `Found ${newCritical.length} NEW critical boundary violations`);
+  if (newCritical.length > 0) {
+      console.log('\nFAILED: Found NEW critical boundary violations:');
+      newCritical.forEach(v => console.log(JSON.stringify(v, null, 2)));
+  }
+
+  assert.strictEqual(newCritical.length, 0, 'Found ' + newCritical.length + ' NEW critical boundary violations');
 });

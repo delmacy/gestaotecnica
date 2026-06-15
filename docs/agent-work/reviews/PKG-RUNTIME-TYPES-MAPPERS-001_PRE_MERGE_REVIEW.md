@@ -5,7 +5,7 @@
 - **Pull Request:** #176
 - **Módulo:** runtime-engine
 - **Base SHA:** 079eaf4a3ce42d8c9eee4313f7a8ffd03057186e
-- **Head SHA Revisitado:** 977d488c2c7343eb7b0dc80004f4a98d4e804bf8 (Reviewer Head)
+- **Head SHA Revisitado:** b5b132abfde4fd2536f7205685ab356e43e165f3 (Reviewer Head)
 
 ## Arquivos Alterados (Owned Paths)
 - `src/platform/workflows/runtime/mappers/action-execution.mapper.ts`
@@ -47,8 +47,10 @@
 ## Achados por Severidade
 
 ### BLOCKER
-- **Initial Regressions:** A branch continha deleções acidentais de 18 arquivos (mappers de eventos e componentes do form builder) presentes na `main`.
+- **Initial Regressions:** A branch continha deleções acidentais de 18 arquivos presentes na `main`.
   - **Status:** CORRIGIDO pelo reviewer Jules restaurando os arquivos da `main`.
+- **CI Failure (Vitest):** Arquivos restaurados da `main` ainda utilizavam Vitest, causando falha no CI.
+  - **Status:** CORRIGIDO pelo reviewer Jules migrando os testes restaurados para `node:test`.
 
 ### HIGH
 - **ProcessPayload Mapper Incompleto:** O mapeador de payload não possuía normalização para `snake_case` e carecia totalmente de testes unitários.
@@ -61,4 +63,4 @@
 ## Decisão Final
 **APPROVE**
 
-*Nota: O pacote foi aprovado após as correções aplicadas pelo reviewer Jules diretamente na branch para garantir a integridade do sistema e o cumprimento dos requisitos de revisão.*
+*Nota: O pacote foi aprovado após as correções aplicadas pelo reviewer Jules diretamente na branch para garantir a integridade do sistema, o cumprimento dos requisitos de revisão e a estabilidade do CI.*

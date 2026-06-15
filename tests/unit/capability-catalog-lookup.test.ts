@@ -10,7 +10,7 @@ import {
 import { Capability } from "../../src/platform/registry/capabilities/schemas";
 import { CAPABILITY_DOMAINS, CAPABILITY_GROUPS } from "../../src/platform/registry/capabilities/constants";
 
-// Mock catalog for testing
+// Mock catalog for testing with canonical metadata.tags
 const MOCK_CATALOG: Capability[] = [
   {
     id: "cap-1",
@@ -23,9 +23,16 @@ const MOCK_CATALOG: Capability[] = [
     status: "active",
     businessObjects: [{ key: "req", name: "Request" }],
     businessActions: [{ key: "create", name: "Create" }],
+    businessEvents: [],
+    businessRules: [],
+    roles: [],
+    inputs: [],
+    outputs: [],
+    dependencies: [],
+    relatedCapabilities: [],
+    applicableSectors: [],
     metadata: {},
-    // Using unknown for tags as it's not in the base schema but required for the search logic
-  } as unknown as Capability,
+  },
   {
     id: "cap-2",
     key: "schedule-resource",
@@ -37,11 +44,18 @@ const MOCK_CATALOG: Capability[] = [
     status: "active",
     businessObjects: [{ key: "sched", name: "Schedule" }],
     businessActions: [{ key: "alloc", name: "Allocate" }],
-    metadata: { tags: ["planning", "human-resources"] },
-    // Actually, based on my implementation, I expect 'tags' to be at the root if it were there,
-    // but the instruction said "Pesquisar somente em: key, name, description, tags".
-    // I implemented search to look for tags at the root of the capability object.
-  } as unknown as Capability & { tags: string[] },
+    businessEvents: [],
+    businessRules: [],
+    roles: [],
+    inputs: [],
+    outputs: [],
+    dependencies: [],
+    relatedCapabilities: [],
+    applicableSectors: [],
+    metadata: {
+      tags: ["planning", "resource", 123] // includes non-string to test safety
+    },
+  },
   {
     id: "cap-3",
     key: "issue-invoice",
@@ -53,12 +67,17 @@ const MOCK_CATALOG: Capability[] = [
     status: "active",
     businessObjects: [{ key: "inv", name: "Invoice" }],
     businessActions: [{ key: "gen", name: "Generate" }],
+    businessEvents: [],
+    businessRules: [],
+    roles: [],
+    inputs: [],
+    outputs: [],
+    dependencies: [],
+    relatedCapabilities: [],
+    applicableSectors: [],
     metadata: {},
-  } as unknown as Capability,
+  },
 ];
-
-// Add tags to the second mock capability correctly for the test
-(MOCK_CATALOG[1] as unknown as Record<string, unknown>).tags = ["planning", "resource"];
 
 test("capability catalog lookup", async (t) => {
   await t.test("findCapabilityByKey finds existing key", () => {
@@ -110,10 +129,21 @@ test("capability catalog lookup", async (t) => {
     assert.strictEqual(result[0].id, "cap-3");
   });
 
-  await t.test("searchCapabilities by tag", () => {
+  await t.test("searchCapabilities by tag (metadata.tags)", () => {
     const result = searchCapabilities(MOCK_CATALOG, "planning");
     assert.strictEqual(result.length, 1);
     assert.strictEqual(result[0].id, "cap-2");
+  });
+
+  await t.test("searchCapabilities ignores non-string tags and handles missing tags safely", () => {
+    // Should match "resource" but ignore 123
+    const resultResource = searchCapabilities(MOCK_CATALOG, "resource");
+    assert.strictEqual(resultResource.length, 1);
+    assert.strictEqual(resultResource[0].id, "cap-2");
+
+    // Should not match 123 (as a string it won't be there because of the filter)
+    const resultNum = searchCapabilities(MOCK_CATALOG, "123");
+    assert.strictEqual(resultNum.length, 0);
   });
 
   await t.test("searchCapabilities case-insensitive", () => {
@@ -141,14 +171,14 @@ test("capability catalog lookup", async (t) => {
   });
 
   await t.test("catalog is not mutated", () => {
-    const original = [...MOCK_CATALOG];
+    const original = JSON.stringify(MOCK_CATALOG);
     searchCapabilities(MOCK_CATALOG, "work");
     listCapabilitiesByDomain(MOCK_CATALOG, CAPABILITY_DOMAINS.WORK_EXECUTION);
-    assert.deepStrictEqual(MOCK_CATALOG, original);
+    assert.strictEqual(JSON.stringify(MOCK_CATALOG), original);
   });
 
   await t.test("works with frozen catalog", () => {
-    const frozenCatalog = Object.freeze([...MOCK_CATALOG.map(c => Object.freeze({...c}))]);
+    const frozenCatalog = Object.freeze([...MOCK_CATALOG.map(c => Object.freeze({...c, metadata: Object.freeze({...c.metadata})}))]);
     const result = searchCapabilities(frozenCatalog as Capability[], "work");
     assert.strictEqual(result.length, 1);
   });

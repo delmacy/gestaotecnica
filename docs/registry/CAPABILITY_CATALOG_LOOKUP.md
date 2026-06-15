@@ -24,7 +24,7 @@ Realiza uma busca textual nas capabilities.
 - `key`
 - `name`
 - `description`
-- `tags` (se presentes no objeto)
+- `metadata.tags` (Busca segura dentro do objeto de metadados)
 
 **Regras de busca:**
 - Case-insensitive (não diferencia maiúsculas de minúsculas).

@@ -1,6 +1,27 @@
 import { Capability, CapabilityDomain, CapabilityGroup } from "./schemas";
 
 /**
+ * Helper to safely read tags from capability metadata.
+ */
+function readCapabilityTags(capability: Capability): readonly string[] {
+  const metadata = capability.metadata;
+
+  if (
+    typeof metadata !== "object" ||
+    metadata === null ||
+    !("tags" in metadata)
+  ) {
+    return [];
+  }
+
+  const tags = (metadata as Record<string, unknown>).tags;
+
+  return Array.isArray(tags)
+    ? tags.filter((tag): tag is string => typeof tag === "string")
+    : [];
+}
+
+/**
  * Finds a capability by its unique key.
  *
  * @param catalog - The capability catalog array.
@@ -69,14 +90,10 @@ export function searchCapabilities(catalog: Capability[], query: string): Capabi
     const nameMatch = cap.name.toLowerCase().includes(trimmedQuery);
     const descriptionMatch = cap.description.toLowerCase().includes(trimmedQuery);
 
-    // Safe access to tags as it's not in the base schema but required by the lookup rules
-    const capAsRecord = cap as unknown as Record<string, unknown>;
-    const tags = capAsRecord.tags;
-    const tagsMatch =
-      Array.isArray(tags) &&
-      tags.some(
-        (tag) => typeof tag === "string" && tag.toLowerCase().includes(trimmedQuery)
-      );
+    const tags = readCapabilityTags(cap);
+    const tagsMatch = tags.some((tag) =>
+      tag.toLowerCase().includes(trimmedQuery)
+    );
 
     return keyMatch || nameMatch || descriptionMatch || tagsMatch;
   });

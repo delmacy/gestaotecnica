@@ -4,8 +4,8 @@
 - **Package ID:** PKG-RUNTIME-TYPES-MAPPERS-001
 - **Wave:** WAVE-01-FOUNDATION
 - **Base SHA:** ceb1ed98f7c0183d978a98072b0fb5680eb090a7
-- **Head SHA:** c6f22571c0e2ffb4481a0094cc04e2b1b6f4f2b4
-- **Branch de Trabalho:** wave-01/pkg-runtime-types-mappers-001
+- **Head SHA:** 720e49af50f3967a85a621592fc9a487230f5538
+- **Branch de Trabalho:** wave-01/pkg-runtime-types-mappers-001-fix-tests
 
 ## Alterações Realizadas
 ### Tipos Canônicos (Owned Paths)
@@ -22,6 +22,7 @@
 
 ### Testes
 - `tests/unit/runtime-mappers.test.ts`: Testes unitários utilizando o framework nativo do Node.js, cobrindo validação, normalização de `snake_case`, rejeição e preservação de metadados.
+- **Correção de CI:** Foram restaurados os arquivos `tests/unit/form-builder-contracts.test.ts` e `tests/unit/form-builder-persistence.test.ts` utilizando `node:test` (conforme padrão migrado em PR anterior) para garantir que a suite de testes passe no ambiente de CI que não possui `vitest`.
 
 ## Contratos
 - **Contratos Consumidos:**
@@ -42,7 +43,9 @@
 
 ## Testes Executados
 - `npm run test:unit -- --test-name-pattern=runtime`
-- Resultado: Todos os testes relacionados ao runtime e contratos compartilhados passaram.
+- `npm run test:unit -- tests/unit/form-builder-contracts.test.ts`
+- `npm run test:unit -- tests/unit/form-builder-persistence.test.ts`
+- Resultado: Todos os testes relacionados ao runtime e correções de CI passaram.
 
 ## Resultado do Build
 - `npm run build` executado com sucesso.

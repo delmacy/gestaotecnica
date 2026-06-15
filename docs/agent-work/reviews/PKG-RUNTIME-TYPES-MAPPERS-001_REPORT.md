@@ -4,8 +4,11 @@
 - **Pacote**: PKG-RUNTIME-TYPES-MAPPERS-001
 - **Wave**: WAVE-01-FOUNDATION
 - **Módulo**: runtime
-- **Original Head SHA**: 6a0160b974105f26d09f3f866e404c0b63fa13e6
-- **Corrected Head SHA**: 7b51c899f2dbac6a72f39679bbc58cf1550fbe4b
+
+## Cadeia de Evidência
+- **Original implementation head**: 6a0160b974105f26d09f3f866e404c0b63fa13e6
+- **Previous corrective head**: d4a524e0c3658f7d51cf7ca4ae183d2201cfa288
+- **Final reviewed PR #185 head**: 80d9c4ba8d2a6d5d1cc043bce2a0d2bffc8c03be
 
 ## Objetivos Alcançados
 1. Implementação de Schemas Zod canônicos para:
@@ -29,4 +32,4 @@
 - Build: `npm run build` (PASSED)
 
 ## Conclusão
-Este PR #185 substitui integralmente os PRs #176 e #180.
+Este PR #185 substitui integralmente os PRs #176, #180 e #181.

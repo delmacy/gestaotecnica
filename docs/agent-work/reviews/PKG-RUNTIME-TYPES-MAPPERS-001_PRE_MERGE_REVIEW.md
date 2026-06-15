@@ -5,6 +5,11 @@
 - **PR original substituído**: #176 (e #180)
 - **Pacote**: PKG-RUNTIME-TYPES-MAPPERS-001
 
+## Cadeia de Evidência
+- **Original implementation head**: 6a0160b974105f26d09f3f866e404c0b63fa13e6
+- **Previous corrective head**: d4a524e0c3658f7d51cf7ca4ae183d2201cfa288
+- **Final reviewed PR #185 head**: 80d9c4ba8d2a6d5d1cc043bce2a0d2bffc8c03be
+
 ## Resumo da Revisão
 O PR #185 consolida as correções para o pacote de Runtime Types and Mappers, garantindo tipagem estrita, limpeza de branch e alinhamento arquitetural com a Opção B.
 

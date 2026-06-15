@@ -220,7 +220,36 @@ const boundaryRules: BoundaryRule[] = [
   {
     name: 'Form Builder Persistence boundaries',
     path: 'src/components/builder/form-builder/persistence',
-    forbidden: ['src/components', 'src/app', 'src/platform/workflows'],
+    forbidden: [
+      'src/db',
+      'src/platform/workflows',
+      'src/platform/events',
+      'src/app',
+      'next',
+      'react',
+      'src/components/ui',
+      'src/components/layout',
+      'src/components/platform',
+      'src/components/action-bar',
+      'src/components/builder/as-is-mirror',
+      'src/components/builder/candidates',
+      'src/components/builder/capabilities',
+      'src/components/builder/docs',
+      'src/components/builder/enterprise-map',
+      'src/components/builder/gap-tracker',
+      'src/components/builder/governance-matrix',
+      'src/components/builder/operator-guide',
+      'src/components/builder/process-mirroring',
+      'src/components/builder/registry',
+      'src/components/builder/shell',
+      'src/components/builder/source-intake',
+      'src/components/builder/tasker',
+      'src/components/builder/ui-contracts',
+      'src/components/builder/view-builder',
+      'src/components/builder/workflow-builder',
+      'src/components/builder/form-builder/adapters',
+      'src/components/builder/form-builder/Form'
+    ],
     severity: 'HIGH'
   },
   {
@@ -232,9 +261,6 @@ const boundaryRules: BoundaryRule[] = [
 ];
 
 const baseline: BaselineEntry[] = [
-  { file: 'src/components/builder/form-builder/persistence/form-persistence-port.ts', importPath: '../contracts/form-definition-contract', ruleName: 'Form Builder Persistence boundaries', severity: 'HIGH' },
-  { file: 'src/components/builder/form-builder/persistence/in-memory-form-persistence.ts', importPath: '../contracts/form-definition-contract', ruleName: 'Form Builder Persistence boundaries', severity: 'HIGH' },
-  { file: 'src/components/builder/form-builder/persistence/in-memory-form-persistence.ts', importPath: './form-persistence-port', ruleName: 'Form Builder Persistence boundaries', severity: 'HIGH' },
   { file: 'src/platform/events/event-log-service.ts', importPath: '@/db', ruleName: 'Events boundaries', severity: 'BLOCKER' },
   { file: 'src/platform/events/event-log-service.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Events boundaries', severity: 'BLOCKER' },
   { file: 'src/platform/events/event-log-service.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Deep import from src/db. Use public index instead.', severity: 'MEDIUM' },
@@ -330,6 +356,34 @@ test('Boundary Verifier Self-Tests', async (t) => {
     const virtualFiles = { 'src/other/test.ts': "import { c } from '@/platform/contracts';" };
     const res = analyze(config, virtualFiles);
     assert.strictEqual(res.filter(v => v.ruleName.includes('Deep import')).length, 0);
+  });
+
+  await t.test('Form Builder Persistence allows internal imports', () => {
+    const virtualFiles = {
+      'src/components/builder/form-builder/persistence/test.ts':
+        "import { c } from '../contracts/form-definition-contract';\n" +
+        "import { s } from '../schema/form-schema';\n" +
+        "import { v } from '../view-model/form-view-model';\n" +
+        "import { p } from './form-persistence-port';"
+    };
+    const res = analyze(config, virtualFiles);
+    assert.strictEqual(res.filter(v => v.ruleName === 'Form Builder Persistence boundaries').length, 0);
+  });
+
+  await t.test('Form Builder Persistence rejects forbidden imports', () => {
+    const virtualFiles = {
+      'src/components/builder/form-builder/persistence/test.ts': "import { db } from 'src/db';"
+    };
+    const res = analyze(config, virtualFiles);
+    assert.ok(res.some(v => v.ruleName === 'Form Builder Persistence boundaries' && v.importPath === 'src/db'));
+  });
+
+  await t.test('Form Builder Persistence rejects external UI components', () => {
+    const virtualFiles = {
+      'src/components/builder/form-builder/persistence/test.ts': "import { Button } from 'src/components/ui/button';"
+    };
+    const res = analyze(config, virtualFiles);
+    assert.ok(res.some(v => v.ruleName === 'Form Builder Persistence boundaries' && v.importPath === 'src/components/ui/button'));
   });
 });
 

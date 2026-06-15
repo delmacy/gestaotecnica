@@ -17,7 +17,7 @@ Corrigir a regra de fronteira arquitetural da camada de persistência do Form Bu
     - Refinada a regra "Form Builder Persistence boundaries" para remover a proibição genérica de `src/components`.
     - Adicionadas proibições específicas para `src/db`, `src/platform/events`, `next`, `react` e componentes de UI/outros builders.
     - Removidas 3 entradas do `baseline` que eram falsos positivos.
-    - Adicionados 3 novos testes de unidade para validar permissões e proibições da camada de persistência.
+    - Adicionados novos testes de unidade focados para validar permissões e proibições da camada de persistência, incluindo testes explícitos para rejeição de Runtime, Events, App, Next.js e React.
 - **docs/architecture/MODULE_BOUNDARY_MATRIX.md**:
     - Atualizada a matriz para refletir que a persistência pode depender de `Form Builder Contracts, Schema, View-Model`.
 

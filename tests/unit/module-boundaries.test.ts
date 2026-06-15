@@ -385,6 +385,29 @@ test('Boundary Verifier Self-Tests', async (t) => {
     const res = analyze(config, virtualFiles);
     assert.ok(res.some(v => v.ruleName === 'Form Builder Persistence boundaries' && v.importPath === 'src/components/ui/button'));
   });
+
+  await t.test('Form Builder Persistence rejects specific forbidden layers', async (t) => {
+    const cases = [
+      { path: 'src/platform/workflows', label: 'Runtime' },
+      { path: 'src/platform/events', label: 'Events' },
+      { path: 'src/app', label: 'App' },
+      { path: 'next', label: 'Next.js' },
+      { path: 'react', label: 'React' },
+    ];
+
+    for (const c of cases) {
+      await t.test(`rejects ${c.label} (${c.path})`, () => {
+        const virtualFiles = {
+          'src/components/builder/form-builder/persistence/test.ts': `import { x } from '${c.path}';`
+        };
+        const res = analyze(config, virtualFiles);
+        assert.ok(
+          res.some(v => v.ruleName === 'Form Builder Persistence boundaries' && (v.importPath === c.path || resolveImport(v.importPath, 'src/components/builder/form-builder/persistence/test.ts').startsWith(c.path))),
+          `Form Builder Persistence should have rejected ${c.label} import: ${c.path}`
+        );
+      });
+    }
+  });
 });
 
 test('Production Module Boundaries Audit', () => {

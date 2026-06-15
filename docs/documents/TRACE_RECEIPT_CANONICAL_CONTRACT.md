@@ -15,7 +15,7 @@ O **Trace Receipt** é um artefato canônico da plataforma projetado para fornec
 
 ### Subject
 
-Define a entidade afetada pela ação. Suporta diversos tipos através de uma união discriminada:
+Define a entidade afetada pela ação. Suporta diversos tipos através de uma união discriminada. O esquema é estrito para evitar campos não documentados.
 
 - `process`
 - `process_instance`
@@ -25,7 +25,7 @@ Define a entidade afetada pela ação. Suporta diversos tipos através de uma un
 - `work_request`
 - `form`
 - `notification`
-- `custom` (permite categorias adicionais)
+- `custom` (requer `category`)
 
 ### Actor
 
@@ -48,9 +48,10 @@ Descreve a operação realizada:
 
 ### Artifacts
 
-Referências a arquivos ou dados produzidos durante a ação. Cada artefato contém:
+Referências a arquivos ou dados produzidos durante a ação.
 
 - `id`, `name`, `mediaType`, `uri`, `size`.
+- **Política de URI:** Suporta URLs absolutas (`https`) e esquemas explícitos de storage/referência: `s3://`, `minio://`, `file://`, ou `urn:`.
 - `hashReference`: Referência ao hash correspondente na lista de hashes.
 - `metadata`: Dados adicionais contextuais.
 
@@ -58,29 +59,41 @@ Referências a arquivos ou dados produzidos durante a ação. Cada artefato cont
 
 Lista de hashes calculados para garantir a integridade.
 
-- Algoritmos suportados: `sha256`, `sha512`.
+- Algoritmos suportados: `sha256` (64 chars), `sha512` (128 chars).
 - Escopos: `receipt`, `artifact`, `payload`, `document`.
 
 ## Canonicalização
 
-Para garantir que o hash de um recibo seja determinístico, o payload deve ser canonicalizado antes do hashing. O processo envolve:
+Para garantir que o hash de um recibo seja determinístico, o payload deve ser canonicalizado. O processo envolve:
 
-1. **Ordenação de chaves:** Todas as propriedades de objetos são ordenadas alfabeticamente.
-2. **Preservação de Arrays:** A ordem dos elementos em arrays é mantida.
-3. **Serialização Determinística:** Produz uma string JSON consistente independente da ordem original das propriedades na memória.
+1. **Ordenação de chaves:** Propriedades de objetos são ordenadas alfabeticamente.
+2. **Recursão em Arrays:** Elementos de arrays são processados recursivamente.
+3. **Tipos Suportados:** `null`, `boolean`, `number`, `string` (Unicode).
+4. **Undefined:** Propriedades `undefined` em objetos são omitidas; em arrays são convertidas para `null`.
+
+## Payload Assinável (Signable Payload)
+
+Para evitar circularidade (um hash não pode conter a si mesmo), o hash do recibo é calculado sobre um payload assinalável gerado pela função `createSignableReceiptPayload(receipt)`.
+
+**Regras de Exclusão:**
+- São excluídos todos os itens da lista `hashes` cujo `scope` seja `receipt`.
+- Artifact hashes e outros escopos permanecem no payload.
+
+## Verificação
+
+A verificação é determinística e requer contexto explícito:
+- **Entradas:** `receipt`, `algorithm`, `expectedHash`, `verifiedAt` (timestamp).
+- **Processo:**
+  1. Gera o payload assinalável do recibo.
+  2. Calcula o hash usando o algoritmo especificado.
+  3. Compara com o `expectedHash`.
+  4. Retorna `TraceReceiptVerificationResult` com o timestamp fornecido.
 
 ## Cadeia de Recibos
 
 O campo `previousReceiptId` permite criar uma trilha encadeada.
 - Regra: Um recibo não pode apontar para si mesmo.
-- A verificação de integridade da cadeia exige um repositório externo para validar a existência e o hash do recibo anterior.
-
-## Verificação
-
-A verificação consiste em:
-1. Recalcular o hash do recibo (usando canonicalização).
-2. Comparar com o valor esperado.
-3. Validar se os artefatos referenciados possuem hashes consistentes.
+- A função `linkReceiptToPrevious` gera um novo objeto validado.
 
 ## Exemplo JSON
 
@@ -112,7 +125,7 @@ A verificação consiste em:
       "id": "art-999",
       "name": "signed_doc.pdf",
       "mediaType": "application/pdf",
-      "uri": "https://s3.example.com/buckets/docs/signed_doc.pdf",
+      "uri": "s3://buckets/docs/signed_doc.pdf",
       "size": 524288,
       "hashReference": "h-1"
     }
@@ -124,15 +137,6 @@ A verificação consiste em:
       "scope": "artifact"
     }
   ],
-  "correlationId": "corr-xyz-123",
-  "metadata": {
-    "ip_address": "192.168.1.50"
-  }
+  "correlationId": "corr-xyz-123"
 }
 ```
-
-## Evolução Futura
-
-- **Assinatura Assimétrica:** Implementação de assinaturas digitais (RSA/ECDSA) para garantir não-repúdio.
-- **Integração com Storage:** Automação do cálculo de hash durante o upload para provedores de storage (S3/MinIO).
-- **Blockchain/Immutable Ledgers:** Persistência dos hashes em livros razão imutáveis para provas de existência externas.

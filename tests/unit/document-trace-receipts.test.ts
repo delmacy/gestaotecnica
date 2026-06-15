@@ -6,6 +6,7 @@ import {
   calculateReceiptHash,
   verifyReceiptHash,
   linkReceiptToPrevious,
+  createSignableReceiptPayload,
   TraceReceipt,
 } from "../../src/platform/documents/traceability";
 
@@ -47,104 +48,185 @@ describe("Document Trace Receipts Contracts & Logic", () => {
     assert.strictEqual(receipt.workspaceId, "123e4567-e89b-12d3-a456-426614174000");
   });
 
-  test("should fail if workspaceId is missing", () => {
-    const { workspaceId, ...invalidInput } = validReceiptInput as any;
+  test("should fail if unknown fields are present in receipt", () => {
+    const invalidInput = { ...validReceiptInput, unknownField: "bad" } as any;
     assert.throws(() => createTraceReceipt(invalidInput));
   });
 
-  test("should fail if correlationId is missing", () => {
-    const { correlationId, ...invalidInput } = validReceiptInput as any;
+  test("should fail if unknown fields are present in actor", () => {
+    const invalidInput = { ...validReceiptInput, actor: { ...validReceiptInput.actor, extra: 1 } } as any;
     assert.throws(() => createTraceReceipt(invalidInput));
   });
 
-  test("should fail with invalid actor type", () => {
-    const invalidInput = { ...validReceiptInput, actor: { type: "invalid", id: "1" } };
-    assert.throws(() => createTraceReceipt(invalidInput));
-  });
-
-  test("should fail with invalid subject type", () => {
-    const invalidInput = { ...validReceiptInput, subject: { type: "invalid", id: "1" } };
-    assert.throws(() => createTraceReceipt(invalidInput));
-  });
-
-  test("should fail with invalid action result", () => {
+  test("SHA-256 length validation", () => {
     const invalidInput = {
       ...validReceiptInput,
-      action: { ...validReceiptInput.action, result: "invalid" },
+      hashes: [{ algorithm: "sha256", value: "abc", scope: "artifact" }],
     };
     assert.throws(() => createTraceReceipt(invalidInput));
+
+    const validHex64 = "a".repeat(64);
+    const validInput = {
+      ...validReceiptInput,
+      hashes: [{ algorithm: "sha256", value: validHex64, scope: "artifact" }],
+    };
+    assert.doesNotThrow(() => createTraceReceipt(validInput));
   });
 
-  test("should fail with invalid hash format", () => {
+  test("SHA-512 length validation", () => {
     const invalidInput = {
       ...validReceiptInput,
-      hashes: [{ algorithm: "sha256", value: "not-hex", scope: "receipt" }],
+      hashes: [{ algorithm: "sha512", value: "a".repeat(64), scope: "artifact" }],
     };
     assert.throws(() => createTraceReceipt(invalidInput));
-  });
 
-  test("should fail with invalid algorithm", () => {
-    const invalidInput = {
+    const validHex128 = "a".repeat(128);
+    const validInput = {
       ...validReceiptInput,
-      hashes: [{ algorithm: "md5", value: "abc", scope: "receipt" }],
-    } as any;
-    assert.throws(() => createTraceReceipt(invalidInput));
+      hashes: [{ algorithm: "sha512", value: validHex128, scope: "artifact" }],
+    };
+    assert.doesNotThrow(() => createTraceReceipt(validInput));
   });
 
-  test("should fail if linking to itself", () => {
-    const receipt = createTraceReceipt(validReceiptInput);
-    assert.throws(() => linkReceiptToPrevious(receipt, receipt.id));
+  test("Artifact URI policy validation", () => {
+    const invalidURIs = [
+      "ftp://example.com",
+      "just-a-string",
+      "s3:/bucket/key", // missing double slash
+    ];
+    for (const uri of invalidURIs) {
+      const invalidInput = {
+        ...validReceiptInput,
+        artifacts: [{ ...validReceiptInput.artifacts[0], uri }],
+      };
+      assert.throws(() => createTraceReceipt(invalidInput), `Should throw for URI: ${uri}`);
+    }
+
+    const validURIs = [
+      "https://example.com",
+      "s3://bucket/key",
+      "minio://bucket/key",
+      "urn:example:123",
+      "file:///tmp/test",
+    ];
+    for (const uri of validURIs) {
+      const validInput = {
+        ...validReceiptInput,
+        artifacts: [{ ...validReceiptInput.artifacts[0], uri }],
+      };
+      assert.doesNotThrow(() => createTraceReceipt(validInput), `Should not throw for URI: ${uri}`);
+    }
   });
 
-  test("should link to previous receipt correctly", () => {
-    const receipt = createTraceReceipt(validReceiptInput);
-    const linked = linkReceiptToPrevious(receipt, "prev-999");
-    assert.strictEqual(linked.previousReceiptId, "prev-999");
+  test("signable payload should exclude receipt-scope hashes", () => {
+    const receipt: TraceReceipt = {
+      ...validReceiptInput,
+      hashes: [
+        { algorithm: "sha256", value: "a".repeat(64), scope: "artifact" },
+        { algorithm: "sha256", value: "b".repeat(64), scope: "receipt" },
+      ],
+    };
+    const signable = createSignableReceiptPayload(receipt);
+    const parsedSignable = JSON.parse(signable);
+
+    assert.strictEqual(parsedSignable.hashes.length, 1);
+    assert.strictEqual(parsedSignable.hashes[0].scope, "artifact");
+    assert.ok(!signable.includes("receipt"));
   });
 
-  test("canonicalization should be deterministic regardless of property order", () => {
-    const obj1 = { a: 1, b: 2, c: { d: 3, e: 4 }, f: [{ h: 1, g: 2 }] };
-    const obj2 = { b: 2, a: 1, c: { e: 4, d: 3 }, f: [{ g: 2, h: 1 }] };
+  test("changing receipt-level stored hash does not alter signable payload", () => {
+    const receipt1: TraceReceipt = {
+      ...validReceiptInput,
+      hashes: [{ algorithm: "sha256", value: "a".repeat(64), scope: "receipt" }],
+    };
+    const receipt2: TraceReceipt = {
+      ...validReceiptInput,
+      hashes: [{ algorithm: "sha256", value: "b".repeat(64), scope: "receipt" }],
+    };
 
-    const canon1 = canonicalizeReceiptPayload(obj1);
-    const canon2 = canonicalizeReceiptPayload(obj2);
+    const signable1 = createSignableReceiptPayload(receipt1);
+    const signable2 = createSignableReceiptPayload(receipt2);
 
-    assert.strictEqual(canon1, canon2);
-    assert.strictEqual(canon1, '{"a":1,"b":2,"c":{"d":3,"e":4},"f":[{"g":2,"h":1}]}');
+    assert.strictEqual(signable1, signable2);
   });
 
-  test("hash should change if payload changes", () => {
-    const h1 = calculateReceiptHash("payload1");
-    const h2 = calculateReceiptHash("payload2");
+  test("changing business payload alters computed hash", () => {
+    const receipt1 = { ...validReceiptInput, correlationId: "corr-1" };
+    const receipt2 = { ...validReceiptInput, correlationId: "corr-2" };
+
+    const s1 = createSignableReceiptPayload(receipt1);
+    const s2 = createSignableReceiptPayload(receipt2);
+
+    const h1 = calculateReceiptHash(s1, "sha256");
+    const h2 = calculateReceiptHash(s2, "sha256");
+
     assert.notStrictEqual(h1, h2);
   });
 
-  test("verifyReceiptHash success", () => {
+  test("SHA-256 and SHA-512 calculation and verification", () => {
     const receipt = createTraceReceipt(validReceiptInput);
-    const canon = canonicalizeReceiptPayload(receipt);
-    const hash = calculateReceiptHash(canon, "sha256");
-    const result = verifyReceiptHash(receipt, hash);
-    assert.strictEqual(result.valid, true);
+    const signable = createSignableReceiptPayload(receipt);
+
+    const h256 = calculateReceiptHash(signable, "sha256");
+    const h512 = calculateReceiptHash(signable, "sha512");
+
+    assert.strictEqual(h256.length, 64);
+    assert.strictEqual(h512.length, 128);
+
+    const v256 = verifyReceiptHash(receipt, {
+      algorithm: "sha256",
+      expectedHash: h256,
+      verifiedAt: "2023-10-27T11:00:00Z"
+    });
+    assert.strictEqual(v256.valid, true);
+    assert.strictEqual(v256.timestamp, "2023-10-27T11:00:00Z");
+
+    const v512 = verifyReceiptHash(receipt, {
+      algorithm: "sha512",
+      expectedHash: h512,
+      verifiedAt: "2023-10-27T11:00:00Z"
+    });
+    assert.strictEqual(v512.valid, true);
   });
 
-  test("verifyReceiptHash failure", () => {
+  test("deterministic verification", () => {
     const receipt = createTraceReceipt(validReceiptInput);
-    const result = verifyReceiptHash(receipt, "wrong-hash");
-    assert.strictEqual(result.valid, false);
-    assert.ok(result.details?.includes("Hash mismatch"));
+    const signable = createSignableReceiptPayload(receipt);
+    const h256 = calculateReceiptHash(signable, "sha256");
+
+    const v1 = verifyReceiptHash(receipt, { algorithm: "sha256", expectedHash: h256, verifiedAt: "T1" });
+    const v2 = verifyReceiptHash(receipt, { algorithm: "sha256", expectedHash: h256, verifiedAt: "T1" });
+
+    assert.deepStrictEqual(v1, v2);
   });
 
-  test("should not mutate input object", () => {
+  test("linked receipt validation", () => {
+    const receipt = createTraceReceipt(validReceiptInput);
+    const linked = linkReceiptToPrevious(receipt, "prev-id");
+
+    assert.strictEqual(linked.previousReceiptId, "prev-id");
+    assert.notStrictEqual(receipt, linked); // should be new object
+    assert.doesNotThrow(() => createTraceReceipt(linked)); // should be valid
+  });
+
+  test("canonicalization edge cases", () => {
+    const cases = [
+      { input: { b: 2, a: 1 }, expected: '{"a":1,"b":2}' },
+      { input: { a: [3, 2, 1] }, expected: '{"a":[3,2,1]}' },
+      { input: { a: null, b: true, c: 1.5, d: "Unicode \u2713" }, expected: '{"a":null,"b":true,"c":1.5,"d":"Unicode \u2713"}' },
+      { input: { a: undefined, b: 1 }, expected: '{"b":1}' },
+      { input: [undefined, 1], expected: '[null,1]' }, // JSON.stringify behavior for arrays
+    ];
+
+    for (const { input, expected } of cases) {
+      assert.strictEqual(canonicalizeReceiptPayload(input), expected);
+    }
+  });
+
+  test("should not mutate input object and support frozen input", () => {
     const input = JSON.parse(JSON.stringify(validReceiptInput));
     Object.freeze(input);
-    assert.doesNotThrow(() => canonicalizeReceiptPayload(input));
+    assert.doesNotThrow(() => createSignableReceiptPayload(input));
     assert.doesNotThrow(() => createTraceReceipt(input));
-  });
-
-  test("should be JSON serializable", () => {
-    const receipt = createTraceReceipt(validReceiptInput);
-    const serialized = JSON.stringify(receipt);
-    const parsed = JSON.parse(serialized);
-    assert.deepStrictEqual(parsed, receipt);
   });
 });

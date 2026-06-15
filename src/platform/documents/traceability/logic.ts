@@ -8,6 +8,15 @@ import {
 
 /**
  * Internal helper to get a canonical version of a value (sorted keys for objects, recursive for arrays).
+ * Handles:
+ * - nested objects: sorted keys
+ * - arrays: recursive elements
+ * - null: preserved
+ * - booleans: preserved
+ * - numbers: preserved
+ * - Unicode strings: preserved
+ * - undefined object properties: omitted from JSON.stringify
+ * - undefined array entries: preserved as null in JSON.stringify
  */
 function getCanonicalValue(payload: unknown): unknown {
   if (payload === null || typeof payload !== "object") {
@@ -22,7 +31,10 @@ function getCanonicalValue(payload: unknown): unknown {
   const sortedObject: Record<string, unknown> = {};
 
   for (const key of sortedKeys) {
-    sortedObject[key] = getCanonicalValue((payload as Record<string, unknown>)[key]);
+    const value = (payload as Record<string, unknown>)[key];
+    if (value !== undefined) {
+      sortedObject[key] = getCanonicalValue(value);
+    }
   }
 
   return sortedObject;
@@ -33,6 +45,26 @@ function getCanonicalValue(payload: unknown): unknown {
  */
 export function canonicalizeReceiptPayload(payload: unknown): string {
   return JSON.stringify(getCanonicalValue(payload));
+}
+
+/**
+ * Creates a signable payload for a receipt.
+ * Excludes fields that would make the hash self-referential:
+ * - hashes with scope "receipt"
+ * - any metadata that should not be signed (none currently identified as mandatory, but field is preserved)
+ */
+export function createSignableReceiptPayload(receipt: TraceReceipt): string {
+  const { hashes, ...rest } = receipt;
+
+  // Filter out receipt-scope hashes to avoid self-reference
+  const signableHashes = hashes.filter(h => h.scope !== "receipt");
+
+  const signableObject = {
+    ...rest,
+    hashes: signableHashes,
+  };
+
+  return canonicalizeReceiptPayload(signableObject);
 }
 
 /**
@@ -54,28 +86,31 @@ export function createTraceReceipt(input: unknown): TraceReceipt {
 
 /**
  * Verifies if the receipt's hash matches the expected value.
+ * Verification is deterministic: requires explicit algorithm, expectedHash, and verifiedAt.
  */
 export function verifyReceiptHash(
   receipt: TraceReceipt,
-  expectedHash: string
+  context: {
+    algorithm: TraceReceiptHashAlgorithm;
+    expectedHash: string;
+    verifiedAt: string;
+  }
 ): TraceReceiptVerificationResult {
-  // To verify the receipt itself, we typically hash the canonicalized receipt excluding the hash itself if it's stored inside.
-  // However, the requirement says "verifyReceiptHash(receipt, expectedHash)".
-  // Let's assume it means verifying the payload of the receipt.
-  const canonical = canonicalizeReceiptPayload(receipt);
-  const actualHash = calculateReceiptHash(canonical, "sha256"); // Defaulting to sha256 for receipt integrity
+  const signable = createSignableReceiptPayload(receipt);
+  const actualHash = calculateReceiptHash(signable, context.algorithm);
 
-  const isValid = actualHash === expectedHash;
+  const isValid = actualHash === context.expectedHash;
 
   return {
     valid: isValid,
-    timestamp: new Date().toISOString(),
-    details: isValid ? undefined : `Hash mismatch. Expected ${expectedHash}, got ${actualHash}`,
+    timestamp: context.verifiedAt,
+    details: isValid ? undefined : `Hash mismatch. Expected ${context.expectedHash}, got ${actualHash}`,
   };
 }
 
 /**
  * Links a receipt to a previous one, ensuring no self-reference.
+ * Produces a new object and validates against TraceReceiptSchema.
  */
 export function linkReceiptToPrevious(
   receipt: TraceReceipt,
@@ -85,8 +120,10 @@ export function linkReceiptToPrevious(
     throw new Error("A receipt cannot point to itself as previousReceiptId");
   }
 
-  return {
+  const linkedReceipt = {
     ...receipt,
     previousReceiptId,
   };
+
+  return TraceReceiptSchema.parse(linkedReceipt);
 }

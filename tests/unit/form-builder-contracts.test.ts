@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 import { FormDefinitionSchema } from '../../src/components/builder/form-builder/schema/form-schema';
 
 describe('Form Builder Contracts', () => {
@@ -16,7 +17,7 @@ describe('Form Builder Contracts', () => {
 
   it('validates a minimal valid form', () => {
     const result = FormDefinitionSchema.safeParse(validMinimalForm);
-    expect(result.success).toBe(true);
+    assert.strictEqual(result.success, true);
   });
 
   it('validates a complete valid form', () => {
@@ -55,7 +56,7 @@ describe('Form Builder Contracts', () => {
       }
     };
     const result = FormDefinitionSchema.safeParse(completeForm);
-    expect(result.success).toBe(true);
+    assert.strictEqual(result.success, true);
   });
 
   it('rejects duplicate field keys', () => {
@@ -67,7 +68,7 @@ describe('Form Builder Contracts', () => {
       ]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('rejects duplicate field IDs', () => {
@@ -79,7 +80,7 @@ describe('Form Builder Contracts', () => {
       ]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('rejects layout referencing non-existent field ID', () => {
@@ -95,7 +96,7 @@ describe('Form Builder Contracts', () => {
       }
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('rejects visibility referencing non-existent field key', () => {
@@ -110,14 +111,14 @@ describe('Form Builder Contracts', () => {
       }]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('performs JSON round trip correctly', () => {
     const result = FormDefinitionSchema.parse(validMinimalForm);
     const json = JSON.stringify(result);
     const back = JSON.parse(json);
-    expect(back).toEqual(validMinimalForm);
+    assert.deepStrictEqual(back, validMinimalForm);
   });
 
   it('rejects incompatible defaultValue for number field', () => {
@@ -126,7 +127,7 @@ describe('Form Builder Contracts', () => {
       fields: [{ id: 'f1', key: 'k1', type: 'number', label: 'L1', defaultValue: 'string' }]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('rejects missing options for select field', () => {
@@ -135,6 +136,6 @@ describe('Form Builder Contracts', () => {
       fields: [{ id: 'f1', key: 'k1', type: 'select', label: 'L1' }]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 });

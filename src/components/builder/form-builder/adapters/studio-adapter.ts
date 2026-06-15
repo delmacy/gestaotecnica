@@ -1,10 +1,13 @@
-import { FormDefinition, FieldDefinition, LayoutSection, LayoutGroup, FormStatus } from "../contracts/form-definition-contract";
+import {
+  FormDefinition,
+  FormDefinitionSchema
+} from "../contracts/form-definition-contract";
 import {
   FormBuilderStudioState,
+  FormBuilderStudioStateSchema,
   StudioFieldState,
-  StudioLayoutState,
-  StudioSectionState,
   StudioLayoutGroupState,
+  StudioSectionState,
 } from "../view-model/studio-state";
 
 export interface AdapterWarning {
@@ -76,25 +79,30 @@ export function formDefinitionToStudioState(form: FormDefinition): AdapterResult
         return studioField;
       }),
       layout: {
-        sections: form.layout.sections.map(section => ({
-          id: section.id,
-          title: section.title,
-          description: section.description,
-          groups: section.groups.map(group => ({
-            id: group.id,
-            title: group.title,
-            description: group.description,
-            fieldReferences: [...group.fieldReferences],
-            columns: group.columns,
-          })),
-        })),
+        sections: form.layout.sections.map(section => {
+          const studioSection: StudioSectionState = {
+            id: section.id,
+            title: section.title,
+            description: section.description,
+            groups: section.groups.map(group => {
+              const studioGroup: StudioLayoutGroupState = {
+                id: group.id,
+                title: group.title,
+                description: group.description,
+                fieldReferences: [...group.fieldReferences],
+                columns: group.columns,
+              };
+              return studioGroup;
+            }),
+          };
+          return studioSection;
+        }),
       },
       metadata: form.metadata,
       createdAt: form.created_at,
       updatedAt: form.updated_at,
     };
 
-    // Use JSON.parse(JSON.stringify()) once at the end to clean undefined and ensure deep copy
     return {
       success: true,
       value: JSON.parse(JSON.stringify(studioState)),
@@ -115,102 +123,124 @@ export function studioStateToFormDefinition(
   state: FormBuilderStudioState,
   context: AdapterContext = {}
 ): AdapterResult<FormDefinition> {
-  try {
-    const warnings: AdapterWarning[] = [];
-    const errors: AdapterError[] = [];
+  const warnings: AdapterWarning[] = [];
 
-    if (!state.id) errors.push({ code: "MISSING_ID", message: "Form ID is required", path: ["id"] });
-
-    const fields: FieldDefinition[] = state.fields.map((field, index) => {
-      if (!field.id) errors.push({ code: "MISSING_ID", message: `Field at index ${index} is missing ID`, path: ["fields", String(index), "id"] });
-
-      const fieldDef: FieldDefinition = {
-        id: field.id,
-        key: field.key,
-        type: field.type,
-        label: field.label,
-        description: field.description,
-        required: field.required,
-        defaultValue: field.defaultValue,
-        placeholder: field.placeholder,
-        validation: field.validation.map(v => ({
-          type: v.type,
-          value: v.value,
-          message: v.message,
-          customRuleReference: v.customRuleReference,
-        })),
-        visibility: field.visibility.map(v => ({
-          fieldReference: v.fieldReference,
-          operator: v.operator,
-          expectedValue: v.expectedValue,
-        })),
-        metadata: field.metadata,
-      };
-
-      if (field.options) {
-        fieldDef.options = field.options.map(o => ({
-          label: o.label,
-          value: o.value,
-        }));
-      }
-
-      return fieldDef;
-    });
-
-    const sections: LayoutSection[] = state.layout.sections.map((section, sIdx) => {
-      if (!section.id) errors.push({ code: "MISSING_ID", message: `Section at index ${sIdx} is missing ID`, path: ["layout", "sections", String(sIdx), "id"] });
-
-      return {
-        id: section.id,
-        title: section.title,
-        description: section.description,
-        groups: section.groups.map((group, gIdx) => {
-          if (!group.id) errors.push({ code: "MISSING_ID", message: `Group at index ${gIdx} in section ${sIdx} is missing ID`, path: ["layout", "sections", String(sIdx), "groups", String(gIdx), "id"] });
-
-          return {
-            id: group.id,
-            title: group.title,
-            description: group.description,
-            fieldReferences: [...group.fieldReferences],
-            columns: group.columns,
-          };
-        }),
-      };
-    });
-
-    if (errors.length > 0) {
-      return { success: false, errors };
-    }
-
-    const formDef: FormDefinition = {
-      id: state.id,
-      key: state.key,
-      name: state.name,
-      description: state.description,
-      version: state.version,
-      status: state.status as FormStatus,
-      workspace_id: state.workspaceId || context.workspaceId,
-      fields,
-      layout: {
-        sections,
-      },
-      metadata: state.metadata,
-      created_at: state.createdAt,
-      updated_at: state.updatedAt,
-    };
-
+  // 1. Validate Input Studio State
+  const studioParse = FormBuilderStudioStateSchema.safeParse(state);
+  if (!studioParse.success) {
     return {
-      success: true,
-      value: JSON.parse(JSON.stringify(formDef)) as FormDefinition,
-      warnings,
+      success: false,
+      errors: studioParse.error.issues.map(issue => ({
+        code: "INVALID_STUDIO_STATE",
+        message: issue.message,
+        path: issue.path.map(String),
+      })),
     };
-  } catch (error) {
+  }
+
+  // 2. Resolve Workspace Identity
+  const stateWorkspaceId = state.workspaceId;
+  const contextWorkspaceId = context.workspaceId;
+
+  // Requirement 5: Workspace divergence
+  if (stateWorkspaceId != null && stateWorkspaceId !== "" &&
+      contextWorkspaceId != null && contextWorkspaceId !== "" &&
+      stateWorkspaceId !== contextWorkspaceId) {
     return {
       success: false,
       errors: [{
-        code: "CONVERSION_ERROR",
-        message: error instanceof Error ? error.message : String(error),
+        code: "WORKSPACE_DIVERGENCE",
+        message: "Workspace ID in state diverges from context",
+        path: ["workspaceId"],
       }],
     };
   }
+
+  // Requirement 1: Resolve using nullish logic (not ||)
+  const resolvedWorkspaceId = stateWorkspaceId ?? contextWorkspaceId;
+
+  if (!resolvedWorkspaceId || resolvedWorkspaceId === "") {
+    return {
+      success: false,
+      errors: [{
+        code: "MISSING_WORKSPACE_ID",
+        message: "Workspace ID is mandatory",
+        path: ["workspaceId"],
+      }],
+    };
+  }
+
+  // 3. Build Candidate Object
+  const candidate = {
+    id: state.id,
+    key: state.key,
+    name: state.name,
+    description: state.description,
+    version: state.version,
+    status: state.status,
+    workspace_id: resolvedWorkspaceId,
+    fields: state.fields.map(field => ({
+      id: field.id,
+      key: field.key,
+      type: field.type,
+      label: field.label,
+      description: field.description,
+      required: field.required,
+      defaultValue: field.defaultValue,
+      placeholder: field.placeholder,
+      validation: field.validation.map(v => ({
+        type: v.type,
+        value: v.value,
+        message: v.message,
+        customRuleReference: v.customRuleReference,
+      })),
+      visibility: field.visibility.map(v => ({
+        fieldReference: v.fieldReference,
+        operator: v.operator,
+        expectedValue: v.expectedValue,
+      })),
+      options: field.options?.map(o => ({
+        label: o.label,
+        value: o.value,
+      })),
+      metadata: field.metadata,
+    })),
+    layout: {
+      sections: state.layout.sections.map(section => ({
+        id: section.id,
+        title: section.title,
+        description: section.description,
+        groups: section.groups.map(group => ({
+          id: group.id,
+          title: group.title,
+          description: group.description,
+          fieldReferences: [...group.fieldReferences],
+          columns: group.columns,
+        })),
+      })),
+    },
+    metadata: state.metadata,
+    created_at: state.createdAt,
+    updated_at: state.updatedAt,
+  };
+
+  // 4. Validate Final Canonical Contract
+  const canonicalParse = FormDefinitionSchema.safeParse(candidate);
+  if (!canonicalParse.success) {
+    return {
+      success: false,
+      errors: canonicalParse.error.issues.map(issue => ({
+        code: "INVALID_CANONICAL_DEFINITION",
+        message: issue.message,
+        path: issue.path.map(String),
+      })),
+    };
+  }
+
+  // Clean the output to match round-trip expectations exactly (removing undefineds)
+  return {
+    success: true,
+    value: JSON.parse(JSON.stringify(canonicalParse.data)),
+    warnings,
+  };
 }

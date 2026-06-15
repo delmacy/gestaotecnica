@@ -1,80 +1,101 @@
-export type StudioFieldType =
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'date'
-  | 'datetime'
-  | 'select'
-  | 'multiselect'
-  | 'checkbox'
-  | 'radio'
-  | 'boolean'
-  | 'file'
-  | 'reference';
+import { z } from "zod";
 
-export interface StudioValidationRule {
-  type: 'required' | 'min' | 'max' | 'minLength' | 'maxLength' | 'pattern' | 'enum' | 'custom';
-  value?: unknown;
-  message?: string;
-  customRuleReference?: string;
-}
+export const StudioFieldTypeSchema = z.enum([
+  'text',
+  'textarea',
+  'number',
+  'date',
+  'datetime',
+  'select',
+  'multiselect',
+  'checkbox',
+  'radio',
+  'boolean',
+  'file',
+  'reference',
+]);
 
-export interface StudioVisibilityRule {
-  fieldReference: string;
-  operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains' | 'exists';
-  expectedValue?: unknown;
-}
+export type StudioFieldType = z.infer<typeof StudioFieldTypeSchema>;
 
-export interface StudioFieldOption {
-  label: string;
-  value: string | number | boolean;
-}
+export const StudioValidationRuleSchema = z.object({
+  type: z.enum(['required', 'min', 'max', 'minLength', 'maxLength', 'pattern', 'enum', 'custom']),
+  value: z.unknown().optional(),
+  message: z.string().optional(),
+  customRuleReference: z.string().optional(),
+});
 
-export interface StudioFieldState {
-  id: string;
-  key: string;
-  type: StudioFieldType;
-  label: string;
-  description?: string;
-  required: boolean;
-  defaultValue?: unknown;
-  placeholder?: string;
-  validation: StudioValidationRule[];
-  visibility: StudioVisibilityRule[];
-  options?: StudioFieldOption[];
-  metadata?: Record<string, unknown>;
-}
+export type StudioValidationRule = z.infer<typeof StudioValidationRuleSchema>;
 
-export interface StudioLayoutGroupState {
-  id: string;
-  title?: string;
-  description?: string;
-  fieldReferences: string[];
-  columns?: number;
-}
+export const StudioVisibilityRuleSchema = z.object({
+  fieldReference: z.string(),
+  operator: z.enum(['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'contains', 'exists']),
+  expectedValue: z.unknown().optional(),
+});
 
-export interface StudioSectionState {
-  id: string;
-  title: string;
-  description?: string;
-  groups: StudioLayoutGroupState[];
-}
+export type StudioVisibilityRule = z.infer<typeof StudioVisibilityRuleSchema>;
 
-export interface StudioLayoutState {
-  sections: StudioSectionState[];
-}
+export const StudioFieldOptionSchema = z.object({
+  label: z.string(),
+  value: z.union([z.string(), z.number(), z.boolean()]),
+});
 
-export interface FormBuilderStudioState {
-  id: string;
-  key: string;
-  name: string;
-  description?: string;
-  version: string;
-  status: 'draft' | 'published' | 'archived';
-  workspaceId?: string;
-  fields: StudioFieldState[];
-  layout: StudioLayoutState;
-  metadata?: Record<string, unknown>;
-  createdAt: string;
-  updatedAt: string;
-}
+export type StudioFieldOption = z.infer<typeof StudioFieldOptionSchema>;
+
+export const StudioFieldStateSchema = z.object({
+  id: z.string().min(1),
+  key: z.string().min(1),
+  type: StudioFieldTypeSchema,
+  label: z.string().min(1),
+  description: z.string().optional(),
+  required: z.boolean(),
+  defaultValue: z.unknown().optional(),
+  placeholder: z.string().optional(),
+  validation: z.array(StudioValidationRuleSchema),
+  visibility: z.array(StudioVisibilityRuleSchema),
+  options: z.array(StudioFieldOptionSchema).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+export type StudioFieldState = z.infer<typeof StudioFieldStateSchema>;
+
+export const StudioLayoutGroupStateSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  fieldReferences: z.array(z.string()),
+  columns: z.number().optional(),
+});
+
+export type StudioLayoutGroupState = z.infer<typeof StudioLayoutGroupStateSchema>;
+
+export const StudioSectionStateSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  groups: z.array(StudioLayoutGroupStateSchema),
+});
+
+export type StudioSectionState = z.infer<typeof StudioSectionStateSchema>;
+
+export const StudioLayoutStateSchema = z.object({
+  sections: z.array(StudioSectionStateSchema),
+});
+
+export type StudioLayoutState = z.infer<typeof StudioLayoutStateSchema>;
+
+export const FormBuilderStudioStateSchema = z.object({
+  id: z.string().min(1),
+  key: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  version: z.string().min(1),
+  status: z.enum(['draft', 'published', 'archived']),
+  workspaceId: z.string().optional(),
+  fields: z.array(StudioFieldStateSchema),
+  layout: StudioLayoutStateSchema,
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export type FormBuilderStudioState = z.infer<typeof FormBuilderStudioStateSchema>;

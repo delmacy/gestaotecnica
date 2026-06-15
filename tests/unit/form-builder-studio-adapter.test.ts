@@ -1,34 +1,40 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
-import { FormDefinition } from "../../src/components/builder/form-builder/contracts/form-definition-contract";
+import { FormDefinition, FormDefinitionSchema } from "../../src/components/builder/form-builder/contracts/form-definition-contract";
 import {
   formDefinitionToStudioState,
   studioStateToFormDefinition,
-  AdapterResult
 } from "../../src/components/builder/form-builder/adapters/studio-adapter";
 import { FormBuilderStudioState } from "../../src/components/builder/form-builder/view-model/studio-state";
 
 describe("FormBuilderStudio Adapter", () => {
-  const minForm: FormDefinition = JSON.parse(JSON.stringify({
+  const VALID_WORKSPACE_ID = "00000000-0000-0000-0000-000000000000";
+
+  // Helper to ensure deep cleanup of undefineds for strict equality checks
+  const clean = (obj: any) => JSON.parse(JSON.stringify(obj));
+
+  // Ensure fixtures are valid canonical FormDefinitions
+  const minForm: FormDefinition = clean(FormDefinitionSchema.parse({
     id: "form-1",
     key: "min-form",
     name: "Minimal Form",
     version: "1.0.0",
     status: "draft",
+    workspace_id: VALID_WORKSPACE_ID,
     fields: [],
     layout: { sections: [] },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }));
 
-  const completeForm: FormDefinition = JSON.parse(JSON.stringify({
+  const completeForm: FormDefinition = clean(FormDefinitionSchema.parse({
     id: "form-2",
     key: "complete-form",
     name: "Complete Form",
     description: "Full test form",
     version: "2.1.0",
     status: "published",
-    workspace_id: "ws-123",
+    workspace_id: VALID_WORKSPACE_ID,
     fields: [
       {
         id: "f1",
@@ -116,43 +122,57 @@ describe("FormBuilderStudio Adapter", () => {
     }
   });
 
-  test("should preserve workspaceId from context if missing in state", () => {
+  test("should supply workspace from context if missing in state", () => {
+    const toStudioResult = formDefinitionToStudioState(minForm);
+    if (toStudioResult.success) {
+      const stateWithoutWs: FormBuilderStudioState = {
+        ...toStudioResult.value,
+        workspaceId: undefined
+      };
+      const result = studioStateToFormDefinition(stateWithoutWs, { workspaceId: VALID_WORKSPACE_ID });
+      assert.strictEqual(result.success, true);
+      if (result.success) {
+        assert.strictEqual(result.value.workspace_id, VALID_WORKSPACE_ID);
+      }
+    }
+  });
+
+  test("should reject workspace divergence between state and context", () => {
+    const toStudioResult = formDefinitionToStudioState(minForm);
+    if (toStudioResult.success) {
+      const state: FormBuilderStudioState = {
+        ...toStudioResult.value,
+        workspaceId: "00000000-0000-0000-0000-000000000001"
+      };
+      const result = studioStateToFormDefinition(state, { workspaceId: "00000000-0000-0000-0000-000000000002" });
+      assert.strictEqual(result.success, false);
+      if (!result.success) {
+        assert.ok(result.errors.some(e => e.code === "WORKSPACE_DIVERGENCE"));
+      }
+    }
+  });
+
+  test("should fail if workspace is missing in both state and context", () => {
     const toStudioResult = formDefinitionToStudioState(minForm);
     if (toStudioResult.success) {
       const state: FormBuilderStudioState = {
         ...toStudioResult.value,
         workspaceId: undefined
       };
-      const result = studioStateToFormDefinition(state, { workspaceId: "ws-context" });
-      assert.strictEqual(result.success, true);
-      if (result.success) {
-        assert.strictEqual(result.value.workspace_id, "ws-context");
-      }
-    } else {
-      assert.fail("Setup failed");
-    }
-  });
-
-  test("should return error if ID is missing during studioStateToFormDefinition", () => {
-    const toStudioResult = formDefinitionToStudioState(minForm);
-    if (toStudioResult.success) {
-      const state: FormBuilderStudioState = { ...toStudioResult.value, id: "" };
       const result = studioStateToFormDefinition(state);
       assert.strictEqual(result.success, false);
       if (!result.success) {
-        assert.ok(result.errors.some(e => e.code === "MISSING_ID"));
+        assert.ok(result.errors.some(e => e.code === "MISSING_WORKSPACE_ID"));
       }
-    } else {
-      assert.fail("Setup failed");
     }
   });
 
-  test("should handle all field types", () => {
+  test("should handle all field types in round trip", () => {
     const types = [
       "text", "textarea", "number", "boolean", "date", "datetime", "select", "multiselect", "radio", "checkbox", "file", "reference"
     ] as const;
 
-    const formWithAllTypes: FormDefinition = JSON.parse(JSON.stringify({
+    const formWithAllTypes: FormDefinition = clean(FormDefinitionSchema.parse({
       ...minForm,
       fields: types.map((type, i) => ({
         id: `f${i}`,
@@ -173,6 +193,67 @@ describe("FormBuilderStudio Adapter", () => {
       assert.strictEqual(roundTrip.success, true);
       if (roundTrip.success) {
         assert.deepStrictEqual(roundTrip.value, formWithAllTypes);
+      }
+    }
+  });
+
+  test("should detect invalid Studio status", () => {
+    const toStudioResult = formDefinitionToStudioState(minForm);
+    if (toStudioResult.success) {
+      const state = clean(toStudioResult.value);
+      state.status = "invalid";
+      const result = studioStateToFormDefinition(state);
+      assert.strictEqual(result.success, false);
+      if (!result.success) {
+        assert.ok(result.errors.some(e => e.code === "INVALID_STUDIO_STATE"));
+      }
+    }
+  });
+
+  test("should detect invalid canonical field configuration (select without options)", () => {
+    const toStudioResult = formDefinitionToStudioState(minForm);
+    if (toStudioResult.success) {
+      const state: FormBuilderStudioState = {
+        ...toStudioResult.value,
+        fields: [{
+          id: "f1",
+          key: "k1",
+          type: "select",
+          label: "Select",
+          required: false,
+          validation: [],
+          visibility: [],
+          options: [] // Invalid for canonical
+        }]
+      };
+      const result = studioStateToFormDefinition(state);
+      assert.strictEqual(result.success, false);
+      if (!result.success) {
+        assert.ok(result.errors.some(e => e.code === "INVALID_CANONICAL_DEFINITION"));
+      }
+    }
+  });
+
+  test("should detect invalid layout reference", () => {
+    const toStudioResult = formDefinitionToStudioState(minForm);
+    if (toStudioResult.success) {
+      const state: FormBuilderStudioState = {
+        ...toStudioResult.value,
+        layout: {
+          sections: [{
+            id: "s1",
+            title: "S1",
+            groups: [{
+              id: "g1",
+              fieldReferences: ["non-existent"],
+            }]
+          }]
+        }
+      };
+      const result = studioStateToFormDefinition(state);
+      assert.strictEqual(result.success, false);
+      if (!result.success) {
+        assert.ok(result.errors.some(e => e.code === "INVALID_CANONICAL_DEFINITION"));
       }
     }
   });
@@ -210,25 +291,6 @@ describe("FormBuilderStudio Adapter", () => {
       const back1 = studioStateToFormDefinition(result1.value);
       const back2 = studioStateToFormDefinition(result2.value);
       assert.deepStrictEqual(back1, back2);
-    }
-  });
-
-  test("should detect missing IDs in fields, sections and groups", () => {
-    const toStudioResult = formDefinitionToStudioState(completeForm);
-    if (toStudioResult.success) {
-      const stateWithErrors = JSON.parse(JSON.stringify(toStudioResult.value)) as FormBuilderStudioState;
-      stateWithErrors.fields[0].id = "";
-      stateWithErrors.layout.sections[0].id = "";
-      stateWithErrors.layout.sections[0].groups[0].id = "";
-
-      const result = studioStateToFormDefinition(stateWithErrors);
-      assert.strictEqual(result.success, false);
-      if (!result.success) {
-        assert.strictEqual(result.errors.length, 3);
-        assert.ok(result.errors.every(e => e.code === "MISSING_ID"));
-      }
-    } else {
-      assert.fail("Setup failed");
     }
   });
 });

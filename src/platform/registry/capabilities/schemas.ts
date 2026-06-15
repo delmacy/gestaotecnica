@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { EntityIdSchema } from "../../contracts/identifiers";
 import { SchemaVersionSchema } from "../../contracts/payload";
+import { CAPABILITY_DOMAINS, CAPABILITY_GROUPS } from "./constants";
 
 /**
  * Capability Status
@@ -106,14 +107,28 @@ export type ComplianceRequirement = z.infer<typeof ComplianceRequirementSchema>;
 /**
  * Capability Domain
  */
-export const CapabilityDomainSchema = z.string().min(1);
+const DOMAIN_VALUES = Object.values(CAPABILITY_DOMAINS) as [string, ...string[]];
+export const CapabilityDomainSchema = z.enum(DOMAIN_VALUES);
 export type CapabilityDomain = z.infer<typeof CapabilityDomainSchema>;
 
 /**
  * Capability Group
  */
-export const CapabilityGroupSchema = z.string().min(1);
+const GROUP_VALUES = Object.values(CAPABILITY_GROUPS) as [string, ...string[]];
+export const CapabilityGroupSchema = z.enum(GROUP_VALUES);
 export type CapabilityGroup = z.infer<typeof CapabilityGroupSchema>;
+
+/**
+ * Helper to validate unique keys in arrays
+ */
+const uniqueKeyRefinement = (arr: { key: string }[]) => {
+  const keys = arr.map(item => item.key);
+  return new Set(keys).size === keys.length;
+};
+
+const uniqueKeyMessage = (path: string) => ({
+  message: `Duplicate keys found in ${path}`,
+});
 
 /**
  * Capability Schema
@@ -127,16 +142,16 @@ export const CapabilitySchema = z.object({
   group: CapabilityGroupSchema,
   version: SchemaVersionSchema,
   status: CapabilityStatusSchema,
-  businessObjects: z.array(BusinessObjectSchema).min(1),
-  businessActions: z.array(BusinessActionSchema).min(1),
-  businessEvents: z.array(BusinessEventSchema).default([]),
-  businessRules: z.array(BusinessRuleSchema).default([]),
-  roles: z.array(BusinessRoleSchema).default([]),
-  inputs: z.array(DataRequirementSchema).default([]),
-  outputs: z.array(DataRequirementSchema).default([]),
-  dependencies: z.array(z.string()).default([]), // Keys of required capabilities
-  relatedCapabilities: z.array(z.string()).default([]), // Keys of related capabilities
-  applicableSectors: z.array(z.string()).default([]), // Tags
+  businessObjects: z.array(BusinessObjectSchema).min(1).refine(uniqueKeyRefinement, uniqueKeyMessage("businessObjects")),
+  businessActions: z.array(BusinessActionSchema).min(1).refine(uniqueKeyRefinement, uniqueKeyMessage("businessActions")),
+  businessEvents: z.array(BusinessEventSchema).default([]).refine(uniqueKeyRefinement, uniqueKeyMessage("businessEvents")),
+  businessRules: z.array(BusinessRuleSchema).default([]).refine(uniqueKeyRefinement, uniqueKeyMessage("businessRules")),
+  roles: z.array(BusinessRoleSchema).default([]).refine(uniqueKeyRefinement, uniqueKeyMessage("roles")),
+  inputs: z.array(DataRequirementSchema).default([]).refine(uniqueKeyRefinement, uniqueKeyMessage("inputs")),
+  outputs: z.array(DataRequirementSchema).default([]).refine(uniqueKeyRefinement, uniqueKeyMessage("outputs")),
+  dependencies: z.array(z.string()).default([]),
+  relatedCapabilities: z.array(z.string()).default([]),
+  applicableSectors: z.array(z.string()).default([]),
   metadata: z.record(z.string(), z.unknown()).default({}),
 });
 

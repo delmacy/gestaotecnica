@@ -1,8 +1,8 @@
 import { FormDefinition } from "../contracts/form-definition-contract";
 
 export interface FormPersistencePort {
-  saveDraft(form: FormDefinition): Promise<void>;
-  loadDraft(id: string): Promise<FormDefinition | null>;
-  listVersions(key: string): Promise<FormDefinition[]>;
-  deleteDraft(id: string): Promise<void>;
+  saveDraft(workspaceId: string, form: FormDefinition): Promise<void>;
+  loadDraft(workspaceId: string, id: string): Promise<FormDefinition | null>;
+  listVersions(workspaceId: string, key: string): Promise<FormDefinition[]>;
+  deleteDraft(workspaceId: string, id: string): Promise<void>;
 }

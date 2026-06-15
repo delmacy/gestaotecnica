@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 import { FormDefinitionSchema } from '../../src/components/builder/form-builder/schema/form-schema';
 
 describe('Form Builder Contracts', () => {
@@ -16,7 +17,7 @@ describe('Form Builder Contracts', () => {
 
   it('validates a minimal valid form', () => {
     const result = FormDefinitionSchema.safeParse(validMinimalForm);
-    expect(result.success).toBe(true);
+    assert.strictEqual(result.success, true);
   });
 
   it('validates a complete valid form', () => {
@@ -29,14 +30,16 @@ describe('Form Builder Contracts', () => {
           type: 'text',
           label: 'Field 1',
           required: true,
-          validation: [{ type: 'minLength', value: 3, message: 'Too short' }]
+          validation: [{ type: 'minLength', value: 3, message: 'Too short' }],
+          visibility: []
         },
         {
           id: 'field-2',
           key: 'field_2',
           type: 'select',
           label: 'Field 2',
-          options: [{ label: 'Opt 1', value: '1' }]
+          options: [{ label: 'Opt 1', value: '1' }],
+          visibility: []
         }
       ],
       layout: {
@@ -55,37 +58,37 @@ describe('Form Builder Contracts', () => {
       }
     };
     const result = FormDefinitionSchema.safeParse(completeForm);
-    expect(result.success).toBe(true);
+    assert.strictEqual(result.success, true);
   });
 
   it('rejects duplicate field keys', () => {
     const invalidForm = {
       ...validMinimalForm,
       fields: [
-        { id: 'f1', key: 'dup', type: 'text', label: 'L1' },
-        { id: 'f2', key: 'dup', type: 'text', label: 'L2' }
+        { id: 'f1', key: 'dup', type: 'text', label: 'L1', visibility: [] },
+        { id: 'f2', key: 'dup', type: 'text', label: 'L2', visibility: [] }
       ]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('rejects duplicate field IDs', () => {
     const invalidForm = {
       ...validMinimalForm,
       fields: [
-        { id: 'dup', key: 'k1', type: 'text', label: 'L1' },
-        { id: 'dup', key: 'k2', type: 'text', label: 'L2' }
+        { id: 'dup', key: 'k1', type: 'text', label: 'L1', visibility: [] },
+        { id: 'dup', key: 'k2', type: 'text', label: 'L2', visibility: [] }
       ]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('rejects layout referencing non-existent field ID', () => {
     const invalidForm = {
       ...validMinimalForm,
-      fields: [{ id: 'f1', key: 'k1', type: 'text', label: 'L1' }],
+      fields: [{ id: 'f1', key: 'k1', type: 'text', label: 'L1', visibility: [] }],
       layout: {
         sections: [{
           id: 's1',
@@ -95,7 +98,7 @@ describe('Form Builder Contracts', () => {
       }
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('rejects visibility referencing non-existent field key', () => {
@@ -110,31 +113,31 @@ describe('Form Builder Contracts', () => {
       }]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('performs JSON round trip correctly', () => {
     const result = FormDefinitionSchema.parse(validMinimalForm);
     const json = JSON.stringify(result);
     const back = JSON.parse(json);
-    expect(back).toEqual(validMinimalForm);
+    assert.deepStrictEqual(back, validMinimalForm);
   });
 
   it('rejects incompatible defaultValue for number field', () => {
     const invalidForm = {
       ...validMinimalForm,
-      fields: [{ id: 'f1', key: 'k1', type: 'number', label: 'L1', defaultValue: 'string' }]
+      fields: [{ id: 'f1', key: 'k1', type: 'number', label: 'L1', defaultValue: 'string', visibility: [] }]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 
   it('rejects missing options for select field', () => {
     const invalidForm = {
       ...validMinimalForm,
-      fields: [{ id: 'f1', key: 'k1', type: 'select', label: 'L1' }]
+      fields: [{ id: 'f1', key: 'k1', type: 'select', label: 'L1', visibility: [] }]
     };
     const result = FormDefinitionSchema.safeParse(invalidForm);
-    expect(result.success).toBe(false);
+    assert.strictEqual(result.success, false);
   });
 });

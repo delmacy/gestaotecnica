@@ -37,10 +37,18 @@ export function canonicalizeTraceValue(value: unknown): string {
       activePath.add(val);
 
       try {
-        if (Array.isArray(val)) {
+        let isArr: boolean;
+        try {
+          isArr = Array.isArray(val);
+        } catch {
+          throw new Error("NON_CANONICAL_PROPERTY_ACCESS");
+        }
+
+        if (isArr) {
+          const arr = val as unknown[];
           let length: number;
           try {
-            length = val.length;
+            length = arr.length;
           } catch {
             throw new Error("NON_CANONICAL_PROPERTY_ACCESS");
           }
@@ -50,20 +58,26 @@ export function canonicalizeTraceValue(value: unknown): string {
             const key = i.toString();
             let descriptor: PropertyDescriptor | undefined;
             try {
-              descriptor = Object.getOwnPropertyDescriptor(val, key);
+              descriptor = Object.getOwnPropertyDescriptor(arr, key);
             } catch {
               throw new Error("NON_CANONICAL_PROPERTY_ACCESS");
             }
 
-            // If it's a hole or undefined, it becomes null
-            if (!descriptor || descriptor.value === undefined) {
+            // 1. Missing descriptor (hole)
+            if (!descriptor) {
               items.push("null");
               continue;
             }
 
-            // Check for accessors even in arrays
-            if (descriptor.get || descriptor.set || !("value" in descriptor)) {
+            // 2. Accessor detection (must come before value check)
+            if (!("value" in descriptor) || descriptor.get || descriptor.set) {
               throw new Error("NON_CANONICAL_ACCESSOR_PROPERTY");
+            }
+
+            // 3. Undefined value
+            if (descriptor.value === undefined) {
+              items.push("null");
+              continue;
             }
 
             items.push(walk(descriptor.value));

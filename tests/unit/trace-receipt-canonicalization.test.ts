@@ -162,4 +162,41 @@ test("canonicalizeTraceValue", async (t) => {
   await t.test("should reject undefined at root", () => {
     assert.throws(() => canonicalizeTraceValue(undefined), { message: "NON_CANONICAL_OBJECT_TYPE" });
   });
+
+  await t.test("should reject accessor on array index without execution", () => {
+    let getterExecuted = false;
+    const input: unknown[] = [];
+    Object.defineProperty(input, "0", {
+      enumerable: true,
+      configurable: true,
+      get() {
+        getterExecuted = true;
+        return "unsafe";
+      },
+    });
+    input.length = 1;
+
+    assert.throws(() => canonicalizeTraceValue(input), { message: "NON_CANONICAL_ACCESSOR_PROPERTY" });
+    assert.strictEqual(getterExecuted, false, "Array index getter should not have been executed");
+  });
+
+  await t.test("should handle hostile Proxy on Object.getPrototypeOf", () => {
+    const target = {};
+    const proxy = new Proxy(target, {
+      getPrototypeOf() {
+        throw new Error("Proxy error");
+      }
+    });
+    assert.throws(() => canonicalizeTraceValue(proxy), { message: "NON_CANONICAL_PROPERTY_ACCESS" });
+  });
+
+  await t.test("should handle hostile Proxy on Object.getOwnPropertyDescriptor", () => {
+    const target = { a: 1 };
+    const proxy = new Proxy(target, {
+      getOwnPropertyDescriptor() {
+        throw new Error("Proxy error");
+      }
+    });
+    assert.throws(() => canonicalizeTraceValue(proxy), { message: "NON_CANONICAL_PROPERTY_ACCESS" });
+  });
 });

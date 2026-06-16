@@ -15,12 +15,12 @@ Implementation of a deterministic and pure canonicalization function for Trace R
 - **Recursive Processing**: Deep canonicalization of nested structures.
 - **Strict Validation**: Rejection of non-canonical types (BigInt, Function, Date, etc.).
 - **Cycle Detection**: Prevention of infinite recursion through active path tracking.
-- **Accessor Safety**: Prevention of arbitrary code execution via getters/setters.
-- **Proxy Robustness**: Defensive handling of hostile Proxies during object inspection.
+- **Accessor Safety**: Prevention of arbitrary code execution via getters/setters, including array indices.
+- **Proxy Robustness**: Defensive handling of hostile Proxies during object inspection (getPrototypeOf, keys, descriptors).
 - **Shared Reference Support**: Proper handling of multiple references to the same object (DAGs).
 
 ## Verification Results
-- **Unit Tests**: All 27 test cases passed (simple objects, sorting, nested structures, arrays, undefined/null handling, Unicode, shared/circular references, rejected types, Proxy safety, immutability).
+- **Unit Tests**: All 30 test cases passed (simple objects, sorting, nested structures, arrays, undefined/null handling, Unicode, shared/circular references, rejected types, Proxy safety, immutability, array accessors).
 - **Build**: `npm run build` completed successfully.
 - **Module Boundaries**: No violations of architectural rules.
 
@@ -29,3 +29,4 @@ Implementation of a deterministic and pure canonicalization function for Trace R
 - No changes to `contracts.ts`.
 - Max 5 files modified.
 - Pure function implementation.
+- No `any` used in tests.

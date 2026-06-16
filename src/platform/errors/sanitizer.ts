@@ -58,14 +58,6 @@ function isSensitive(key: string): boolean {
 }
 
 /**
- * Checks if a key is forbidden and should be omitted at any level.
- */
-function isForbidden(key: string): boolean {
-  const lowerKey = key.toLowerCase();
-  return FORBIDDEN_KEYS.has(lowerKey) || SENSITIVE_KEYS.has(lowerKey);
-}
-
-/**
  * Safely converts a value to string without triggering hostile getters or throwing.
  */
 function safeToString(value: unknown): string {
@@ -118,7 +110,7 @@ function internalSanitize(
   // 2. Cycle detection
   if (stack.has(value)) return "[CIRCULAR]";
 
-  // 3. Special objects (allowed even beyond MAX_DEPTH as base cases)
+  // 3. Special objects (base cases)
   try {
     if (value instanceof Date) {
       return isNaN(value.getTime()) ? "Invalid Date" : value.toISOString();
@@ -135,14 +127,32 @@ function internalSanitize(
     // 4. Depth check - apply for objects and arrays
     if (depth >= MAX_DEPTH) return "[TRUNCATED]";
 
-    // Array
+    // Array processing
     if (Array.isArray(value)) {
       const result: unknown[] = [];
       stack.add(value);
       try {
         const len = Math.min(value.length, MAX_ITEMS);
         for (let i = 0; i < len; i++) {
-          result.push(internalSanitize(value[i], depth + 1, stack));
+          try {
+            const descriptor = Object.getOwnPropertyDescriptor(value, String(i));
+            if (!descriptor) {
+              // Hole or missing descriptor
+              result.push("undefined");
+              continue;
+            }
+
+            if (typeof descriptor.get !== "undefined") {
+              // Accessor property - do not execute
+              result.push("[UNREADABLE]");
+            } else {
+              // Data property
+              result.push(internalSanitize(descriptor.value, depth + 1, stack));
+            }
+          } catch {
+            // Descriptor lookup failure (e.g. Proxy trap throws)
+            result.push("[UNREADABLE]");
+          }
         }
         if (value.length > MAX_ITEMS) result.push("[TRUNCATED]");
       } finally {
@@ -151,11 +161,12 @@ function internalSanitize(
       return result;
     }
 
-    // General Object
+    // General Object processing
     const result: Record<string, unknown> = {};
     stack.add(value);
 
     try {
+      // getOwnPropertyNames can throw on revoked Proxy
       const props = Object.getOwnPropertyNames(value);
       const len = Math.min(props.length, MAX_PROPS);
 
@@ -176,16 +187,15 @@ function internalSanitize(
         try {
           const descriptor = Object.getOwnPropertyDescriptor(value, key);
           if (descriptor && typeof descriptor.get === "undefined") {
-            const val = internalSanitize(descriptor.value, depth + 1, stack);
-            result[key] = val;
+            result[key] = internalSanitize(descriptor.value, depth + 1, stack);
+          } else if (descriptor && typeof descriptor.get !== "undefined") {
+            // Accessor on object - omit or mark as unreadable?
+            // Contract says skip or emit marker. Omission is safer for objects.
           }
         } catch {
           // Ignore hostile properties
         }
       }
-
-      // Note: we don't add _truncated to avoid allowlist issues at root,
-      // and it wasn't strictly required to be a property named _truncated.
     } finally {
       stack.delete(value);
     }
@@ -224,9 +234,26 @@ export function sanitizeUnknownError(value: unknown): Record<string, unknown> {
       }
     }
 
+    // Secondary safety issue correction: Read name/message through internalSanitize result or descriptors
     if (value instanceof Error) {
-      if (!result.name) result.name = (value as Error).name;
-      if (!result.message) result.message = (value as Error).message;
+      if (!result.name) {
+        try {
+          const d = Object.getOwnPropertyDescriptor(value, "name");
+          if (d && typeof d.get === "undefined") result.name = String(d.value);
+          else if (!d) result.name = value.name; // Fallback to prototype name if no own property
+        } catch {
+          result.name = "Error";
+        }
+      }
+      if (!result.message) {
+        try {
+          const d = Object.getOwnPropertyDescriptor(value, "message");
+          if (d && typeof d.get === "undefined") result.message = String(d.value);
+          // If message is a getter on own property or prototype, we rely on safeToString or skip
+        } catch {
+          // Ignore
+        }
+      }
     }
 
     if (Object.keys(result).length === 0) {

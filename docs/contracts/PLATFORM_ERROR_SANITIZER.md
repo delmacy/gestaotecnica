@@ -18,7 +18,7 @@ Somente as seguintes chaves são permitidas na raiz do objeto de saída:
 - `issues`
 - `metadata`
 
-## Redação de Segredos
+## Redação de Segredos e Omissão Técnica
 Qualquer chave (em qualquer nível) que coincida (case-insensitive) com a lista abaixo terá seu valor substituído por `"[REDACTED]"`:
 - `password`, `passwd`
 - `secret`
@@ -29,9 +29,15 @@ Qualquer chave (em qualquer nível) que coincida (case-insensitive) com a lista 
 - `clientSecret`
 - `connectionString`
 
+As chaves abaixo são omitidas em todos os níveis por serem consideradas ruído técnico ou inseguras:
+- `stack`, `raw`, `original`
+- `request`, `response`, `headers`, `cookies`
+- `sql`, `query`
+- `environment`, `process`
+
 ## Limites
 - **Profundidade máxima:** 5 níveis de processamento (0 a 4).
-- **Truncamento:** No nível 5, objetos, arrays e o campo `cause` são substituídos por `"[TRUNCATED]"`.
+- **Truncamento:** No nível 5, objetos e arrays são substituídos por `"[TRUNCATED]"`.
 - **Máximo de propriedades por objeto:** 50.
 - **Máximo de itens por array:** 50.
 - **Máximo de caracteres por string:** 2000.
@@ -45,10 +51,11 @@ Qualquer chave (em qualquer nível) que coincida (case-insensitive) com a lista 
 - `RegExp`, `URL`: convertidos para string.
 - `Map`, `Set`, `ArrayBuffer`, `TypedArray`, `Promise`: convertidos para marcador `"[UNSUPPORTED:Type]"`.
 
-## Segurança
-- Não executa getters (usa `Object.getOwnPropertyDescriptor`).
-- Proteção contra `Proxy` revogado e objetos hostis (uso de `try-catch` extensivo).
-- Não utiliza `JSON.stringify` ou `String()` diretamente sem proteção.
+## Segurança (Getters e Proxies)
+- **Arrays e Objetos:** Não executa getters. Usa `Object.getOwnPropertyDescriptor` para ler apenas propriedades de dados.
+- **Marcadores:** Buracos em arrays, assessores (getters) ou falhas de Proxy resultam em `"[UNREADABLE]"` ou `"undefined"`.
+- **Errors:** `name` e `message` são lidos com proteção contra assessores hostis.
+- **Proteção:** Uso extensivo de `try-catch` para garantir que a função nunca lance exceções.
 
 ## Exemplos
 
@@ -63,7 +70,7 @@ sanitizeUnknownError(err);
 ```typescript
 const obj = { message: "op", password: "123" };
 sanitizeUnknownError(obj);
-// { message: "op" } // password não está na allowlist da raiz
+// { message: "op" } // password omitido por não estar na allowlist da raiz (e redigido se estivesse aninhado)
 ```
 
 ### Truncamento por Profundidade

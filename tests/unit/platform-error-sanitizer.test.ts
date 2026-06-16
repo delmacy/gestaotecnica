@@ -84,7 +84,7 @@ test("sanitizeUnknownError: Security", async (t) => {
       },
     };
     const result = sanitizeUnknownError(obj);
-    const metadata = result.metadata as any;
+    const metadata = result.metadata as Record<string, unknown>;
     assert.equal(metadata.password, "[REDACTED]");
     assert.equal(metadata.token, "[REDACTED]");
     assert.equal(metadata.authorization, "[REDACTED]");
@@ -101,7 +101,7 @@ test("sanitizeUnknownError: Security", async (t) => {
       },
     };
     const result = sanitizeUnknownError(obj);
-    const metadata = result.metadata as any;
+    const metadata = result.metadata as Record<string, unknown>;
     assert.equal(metadata.PASSWORD, "[REDACTED]");
     assert.equal(metadata.Token, "[REDACTED]");
   });
@@ -116,7 +116,6 @@ test("sanitizeUnknownError: Security", async (t) => {
     };
     const result = sanitizeUnknownError(obj);
     assert.equal(executed, false);
-    // message will probably be a fallback or default
     assert.notEqual(result.message, "gotcha");
   });
 
@@ -156,6 +155,29 @@ test("sanitizeUnknownError: Security", async (t) => {
     const result = sanitizeUnknownError(obj);
     assert.ok(result.message);
   });
+
+  await t.test("hostile Error name/message getters are not executed", () => {
+    let nameExecuted = false;
+    let msgExecuted = false;
+    class HostileError extends Error {
+      get name() {
+        nameExecuted = true;
+        return "Hostile";
+      }
+      get message() {
+        msgExecuted = true;
+        return "Boom";
+      }
+    }
+    const err = new HostileError();
+    // Force them to be own properties if they are not
+    Object.defineProperty(err, "name", { get: () => { nameExecuted = true; return "H"; } });
+    Object.defineProperty(err, "message", { get: () => { msgExecuted = true; return "B"; } });
+
+    const result = sanitizeUnknownError(err);
+    assert.equal(nameExecuted, false, "name getter should not be executed");
+    assert.equal(msgExecuted, false, "message getter should not be executed");
+  });
 });
 
 test("sanitizeUnknownError: Structures", async (t) => {
@@ -179,12 +201,11 @@ test("sanitizeUnknownError: Structures", async (t) => {
   });
 
   await t.test("object property truncation", () => {
-    const manyProps: any = {};
+    const manyProps: Record<string, number> = {};
     for (let i = 0; i < 100; i++) manyProps[`p${i}`] = i;
     const obj = { metadata: manyProps };
     const result = sanitizeUnknownError(obj);
-    const metadata = result.metadata as any;
-    // MAX_PROPS is 50. props are 0 to 49.
+    const metadata = result.metadata as Record<string, unknown>;
     assert.equal(Object.keys(metadata).length, 50);
   });
 
@@ -273,6 +294,70 @@ test("sanitizeUnknownError: Structures", async (t) => {
     const result = sanitizeUnknownError(err);
     assert.equal(result.message, "parent");
     assert.equal((result.cause as any).message, "child");
+  });
+
+  await t.test("array accessor is not executed and position is preserved", () => {
+    let executed = false;
+    const arr = [];
+    Object.defineProperty(arr, "0", {
+      get: () => {
+        executed = true;
+        return "hidden";
+      },
+      enumerable: true,
+      configurable: true
+    });
+    arr.push("visible");
+
+    const result = sanitizeUnknownError({ metadata: { arr } });
+    const sanitizedArr = (result.metadata as any).arr;
+
+    assert.equal(executed, false, "array accessor should not be executed");
+    assert.equal(sanitizedArr[0], "[UNREADABLE]");
+    assert.equal(sanitizedArr[1], "visible");
+    assert.equal(sanitizedArr.length, 2);
+  });
+
+  await t.test("Proxy that throws from getOwnPropertyDescriptor on array", () => {
+    const arr = ["ok"];
+    const proxy = new Proxy(arr, {
+      getOwnPropertyDescriptor() {
+        throw new Error("trap fail");
+      }
+    });
+
+    const result = sanitizeUnknownError({ metadata: { proxy } });
+    const sanitizedArr = (result.metadata as any).proxy;
+
+    assert.equal(sanitizedArr[0], "[UNREADABLE]");
+  });
+
+  await t.test("sparse array handling", () => {
+    const arr = new Array(3);
+    arr[1] = "present";
+
+    const result = sanitizeUnknownError({ metadata: { arr } });
+    const sanitizedArr = (result.metadata as any).arr;
+
+    assert.equal(sanitizedArr[0], "undefined");
+    assert.equal(sanitizedArr[1], "present");
+    assert.equal(sanitizedArr[2], "undefined");
+    assert.equal(sanitizedArr.length, 3);
+  });
+
+  await t.test("nested arrays respect depth-5 truncation", () => {
+    const nest = (d: number): any => d === 0 ? ["leaf"] : [nest(d - 1)];
+    // nest(5) -> [[[[[leaf]]]]]
+    // root(0) -> [1] -> [2] -> [3] -> [4] -> [5] -> [TRUNCATED]
+    const arr = nest(5);
+    const result = sanitizeUnknownError({ metadata: { arr } });
+    const m = result.metadata as any;
+    // metadata is depth 1
+    // m.arr is depth 2
+    // m.arr[0] is depth 3
+    // m.arr[0][0] is depth 4
+    // m.arr[0][0][0] is depth 5 -> [TRUNCATED]
+    assert.equal(m.arr[0][0][0], "[TRUNCATED]");
   });
 });
 

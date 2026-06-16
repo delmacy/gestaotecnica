@@ -31,7 +31,8 @@ Gera um objeto `TraceReceiptHash` validado pelo schema, contendo o algoritmo, o 
 ### `verifyTraceHash(value, hash)`
 Verifica se um valor corresponde a um objeto `TraceReceiptHash`.
 - Realiza comparação em tempo constante (`timingSafeEqual`) para evitar ataques de temporização.
-- Valida estruturalmente o objeto de hash antes da comparação.
+- Valida estruturalmente o objeto de hash antes da comparação via `TraceReceiptHashSchema`. Hashes com comprimentos inválidos ou algoritmos não suportados são rejeitados pelo schema, disparando um erro.
+- Retorna `false` para divergências comuns de digest (hashes válidos mas que não correspondem ao valor).
 - Propaga erros de canonicalização.
 
 ## Escopo (Scope)

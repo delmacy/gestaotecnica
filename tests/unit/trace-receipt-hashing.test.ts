@@ -58,7 +58,7 @@ test("hashCanonicalTraceValue: supports null", () => {
 });
 
 test("canonicalization integration: rejects circular references", () => {
-  const circular: any = { a: 1 };
+  const circular: Record<string, unknown> = { a: 1 };
   circular.self = circular;
   assert.throws(() => hashCanonicalTraceValue(circular, "sha256"), /NON_CANONICAL_CIRCULAR_REFERENCE/);
 });
@@ -71,13 +71,51 @@ test("canonicalization integration: rejects NaN", () => {
   assert.throws(() => hashCanonicalTraceValue({ a: NaN }, "sha256"), /NON_CANONICAL_NON_FINITE_NUMBER/);
 });
 
-test("canonicalization integration: rejects getters", () => {
-  const obj = {};
-  Object.defineProperty(obj, "a", {
-    get: () => 1,
+test("canonicalization integration: rejects getters without execution", () => {
+  let executed = false;
+  const input = {};
+  Object.defineProperty(input, "value", {
     enumerable: true,
+    get() {
+      executed = true;
+      return 1;
+    },
   });
-  assert.throws(() => hashCanonicalTraceValue(obj, "sha256"), /NON_CANONICAL_ACCESSOR_PROPERTY/);
+
+  assert.throws(
+    () => hashCanonicalTraceValue(input, "sha256"),
+    /NON_CANONICAL_ACCESSOR_PROPERTY/
+  );
+  assert.strictEqual(executed, false);
+});
+
+test("canonicalization integration: accepts shared references", () => {
+  const shared = { x: 1 };
+  const input = { a: shared, b: shared };
+  const hash = hashCanonicalTraceValue(input, "sha256");
+  assert.strictEqual(typeof hash, "string");
+});
+
+test("canonicalization integration: hostile Proxy failure propagates", () => {
+  const hostile = new Proxy({}, {
+    ownKeys() {
+      throw new Error("PROXIED_OWNKEYS_ERROR");
+    },
+    getOwnPropertyDescriptor() {
+      throw new Error("PROXIED_GETOWNPROPERTYDESCRIPTOR_ERROR");
+    }
+  });
+  assert.throws(
+    () => hashCanonicalTraceValue(hostile, "sha256"),
+    /NON_CANONICAL_PROPERTY_ACCESS/
+  );
+});
+
+test("canonicalization integration: input remains unmodified", () => {
+  const input = { a: 1, b: [2, 3] };
+  const original = JSON.stringify(input);
+  hashCanonicalTraceValue(input, "sha256");
+  assert.strictEqual(JSON.stringify(input), original);
 });
 
 test("createTraceHash: creates valid sha256 hash", () => {
@@ -147,13 +185,4 @@ test("verifyTraceHash: rejects structurally invalid hash", () => {
   };
   // @ts-expect-error
   assert.throws(() => verifyTraceHash(val, invalidHash));
-});
-
-test("verifyTraceHash: returns false if lengths differ (even if not possible with valid schema)", () => {
-  const val = { a: 1 };
-  // Manually bypass schema for a moment if we were to test length check directly in verifyTraceHash
-  // but verifyTraceHash calls parse first.
-  // So we test that it doesn't crash if we passed something that passed parse but had diff length (not possible with current schema)
-  const traceHash = createTraceHash(val, "sha256", "receipt");
-  // This is mostly to ensure coverage of the length check line.
 });

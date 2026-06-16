@@ -77,6 +77,23 @@ describe("ProcessNodeSchema", () => {
     assert.throws(() => ProcessNodeSchema.parse({ ...baseNode, type: "subprocess" }));
   });
 
+  it("should reject invalid subprocessDefinitionKey", () => {
+    const invalidKeys = [
+      "UPPERCASE-KEY",
+      "key with spaces",
+      "key_with_underscore",
+      "key-ending-with-",
+      "consecutive--hyphens"
+    ];
+    invalidKeys.forEach(key => {
+      assert.throws(() => ProcessNodeSchema.parse({
+        ...baseNode,
+        type: "subprocess",
+        subprocessDefinitionKey: key
+      }), `Should have rejected key: ${key}`);
+    });
+  });
+
   it("should accept other types without special keys", () => {
     assert.doesNotThrow(() => ProcessNodeSchema.parse({ ...baseNode, type: "decision" }));
     assert.doesNotThrow(() => ProcessNodeSchema.parse({ ...baseNode, type: "wait" }));

@@ -32,9 +32,13 @@ Total: 5 arquivos.
 - **Language**: expression, json_logic.
 
 ## Qualidade e Testes
-- Todos os testes unitários passaram (`35 tests`, `5 suites`).
+- Todos os testes unitários passaram (`36 tests`, `5 suites`).
 - Build do projeto (`npm run build`) concluído com sucesso.
-- Cobertura de testes inclui: tipos válidos/inválidos, posições (incluindo negativas, NaN, Infinity), regras condicionais de campos, limites de caracteres e campos desconhecidos.
+- Cobertura de testes inclui: tipos válidos/inválidos, posições (incluindo negativas, NaN, Infinity), regras condicionais de campos (incluindo validação rigorosa de `subprocessDefinitionKey` via `ProcessDefinitionKeySchema`), limites de caracteres e campos desconhecidos.
 
 ## Considerações Finais
-O pacote cumpre todos os requisitos do prompt, mantendo a integridade do `ProcessVersionSchema` para integração futura e respeitando os limites de caminhos e arquivos.
+O pacote cumpre todos os requisitos do prompt e o feedback da revisão técnica:
+- `subprocessDefinitionKey` utiliza o schema canônico `ProcessDefinitionKeySchema`.
+- `actionKey` e `formKey` permanecem como strings não vazias (nenhum schema canônico global encontrado).
+- Mantida a integridade do `ProcessVersionSchema` com arrays `unknown`.
+- Nenhuma validação de grafo introduzida.

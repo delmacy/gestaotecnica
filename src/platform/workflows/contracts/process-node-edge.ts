@@ -41,7 +41,7 @@ export const ProcessNodeSchema = z
     description: z.string().max(2000).optional(),
     actionKey: z.string().min(1).optional(),
     formKey: z.string().min(1).optional(),
-    subprocessDefinitionKey: z.string().min(1).optional(),
+    subprocessDefinitionKey: ProcessDefinitionKeySchema.optional(),
     metadata: UnknownRecordSchema.optional(),
   })
   .strict()

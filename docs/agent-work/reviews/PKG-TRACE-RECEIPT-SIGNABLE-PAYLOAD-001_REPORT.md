@@ -57,3 +57,9 @@ Tests were implemented in `tests/unit/trace-receipt-signable-payload.test.ts` co
 ## Conclusion
 
 The implementation follows all requirements and constraints. The functions are pure, deterministic, and correctly handle the exclusion of the top-level `hashes` field. The test suite has been strengthened to ensure deep immutability and correct reference behavior without relying on placeholder tests or weak cloning methods.
+
+Behavior summary:
+- new top-level payload object;
+- top-level hashes omitted;
+- input graph is never mutated;
+- deep cloning is not guaranteed or required.

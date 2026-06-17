@@ -173,11 +173,15 @@ describe("Trace Receipt Signable Payload", () => {
     assert.throws(() => createSignableTraceReceiptPayload(invalidReceipt));
   });
 
+  it("should return a new top-level object", () => {
+    const payload = createSignableTraceReceiptPayload(FULL_RECEIPT);
+    assert.notStrictEqual(payload, FULL_RECEIPT);
+  });
+
   it("should work with deep-frozen input", () => {
     const frozenReceipt = deepFreeze(structuredClone(FULL_RECEIPT));
     const payload = createSignableTraceReceiptPayload(frozenReceipt);
     assert.strictEqual(payload.id, frozenReceipt.id);
-    assert.notStrictEqual(payload, frozenReceipt);
   });
 
   it("should not mutate original input (deep check)", () => {

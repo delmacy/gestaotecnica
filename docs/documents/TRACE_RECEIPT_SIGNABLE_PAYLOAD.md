@@ -72,3 +72,10 @@ receipt.hashes.push(selfHash);
 - No side effects.
 - Strict validation of input types.
 - Deterministic output.
+
+## Implementation Behavior
+
+- Returns a new top-level payload object.
+- Top-level `hashes` are always omitted.
+- The input graph is never mutated.
+- Deep cloning of nested structures is not guaranteed or required.

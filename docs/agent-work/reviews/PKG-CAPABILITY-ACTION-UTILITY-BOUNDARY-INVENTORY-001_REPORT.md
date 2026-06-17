@@ -3,7 +3,7 @@
 ## 1. Identificação
 - **Package ID:** PKG-CAPABILITY-ACTION-UTILITY-BOUNDARY-INVENTORY-001
 - **Base SHA:** d747fff7398c6be62bf5f347410934d940695368
-- **Head SHA:** (Current commit after documentation update)
+- **Head SHA:** GitHub PR head
 - **Status:** Concluído
 
 ## 2. Arquivos Analisados
@@ -32,13 +32,13 @@
 
 ## 5. Lacunas Identificadas
 - **Contratos de Capability:** Ausência de contratos formais de Input/Output (Zod) para capabilities.
-- **Utility App:** Inexistência de entidade formal e contrato no código atual (proposta baseada em requisitos de negócio).
+- **Utility App:** Inexistência de entidade formal e contrato no código atual; proposta consolidada em PR #212.
 - **Extensibilidade de Binding:** O `ViewBinding` atual é fechado para um conjunto pequeno de tipos, dificultando a integração de novas ferramentas como Utility Apps.
 
 ## 6. Sequência Recomendada
 1. `PKG-CAPABILITY-CORE-CONTRACT-001` (Definição de contratos de negócio)
 2. `PKG-ACTION-DESCRIPTOR-CONTRACT-001` (Unificação de metadados de ações)
-3. `PKG-UTILITY-APP-CORE-CONTRACT-001` (Definição de contrato de Utility App)
+3. `PKG-UTILITY-APP-CORE-CONTRACT-001` (Consolidado em PR #212)
 4. `PKG-REGISTRY-PERSISTENCE-UPDATE-001` (Atualização de persistência do Registry)
 5. `PKG-UTILITY-CAPABILITY-BINDING-001` (Ligação entre ferramentas e capacidades)
 6. `PKG-UTILITY-ACTION-ADAPTER-001` (Ponte de execução técnica)

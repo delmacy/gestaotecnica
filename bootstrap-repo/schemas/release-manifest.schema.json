@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Release Manifest",
+  "description": "Metadata for a System Builder platform release.",
+  "type": "object",
+  "required": [
+    "releaseId",
+    "version",
+    "channel",
+    "createdAt",
+    "commitSha",
+    "containerImages",
+    "packages",
+    "databaseSchemaVersion",
+    "minimumClientSchemaVersion",
+    "compatibleRuntimeRange",
+    "breakingChanges",
+    "requiredMigrations",
+    "optionalMigrations",
+    "checksums",
+    "sbom"
+  ],
+  "properties": {
+    "releaseId": { "type": "string", "format": "uuid" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "channel": {
+      "type": "string",
+      "enum": ["stable", "candidate", "beta", "alpha"]
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "commitSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "containerImages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "image": { "type": "string" },
+          "tag": { "type": "string" },
+          "digest": { "type": "string" }
+        }
+      }
+    },
+    "packages": { "type": "object" },
+    "databaseSchemaVersion": { "type": "string" },
+    "minimumClientSchemaVersion": { "type": "string" },
+    "compatibleRuntimeRange": { "type": "string" },
+    "breakingChanges": { "type": "boolean" },
+    "requiredMigrations": { "type": "array", "items": { "type": "string" } },
+    "optionalMigrations": { "type": "array", "items": { "type": "string" } },
+    "checksums": { "type": "object" },
+    "sbom": { "type": "object" }
+  }
+}

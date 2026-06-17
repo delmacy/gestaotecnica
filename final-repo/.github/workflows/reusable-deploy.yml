@@ -1,0 +1,68 @@
+name: Reusable Deploy
+
+on:
+  workflow_call:
+    inputs:
+      client_id:
+        required: true
+        type: string
+      installation_id:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      artifact_digest:
+        required: true
+        type: string
+      migration_required:
+        type: boolean
+        default: false
+      rollback_version:
+        type: string
+    outputs:
+      deployment_status:
+        value: ${{ jobs.deploy.outputs.status }}
+      deployment_receipt:
+        value: ${{ jobs.deploy.outputs.receipt }}
+      workflow_run_url:
+        value: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      status: ${{ steps.exec.outputs.status }}
+      receipt: ${{ steps.exec.outputs.receipt }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Environment Evaluation
+        id: eval
+        run: |
+          if [ "${{ inputs.environment }}" == "production" ]; then
+            echo "mode=APPROVAL_REQUIRED" >> $GITHUB_OUTPUT
+          else
+            echo "mode=DRY_RUN" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Execute Deployment (Mode: ${{ steps.eval.outputs.mode }})
+        id: exec
+        run: |
+          echo "### Deployment Status: ${{ steps.eval.outputs.mode }}" >> $GITHUB_STEP_SUMMARY
+          echo "Target: ${{ inputs.client_id }} (${{ inputs.environment }})" >> $GITHUB_STEP_SUMMARY
+          echo "Version: ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.eval.outputs.mode }}" == "APPROVAL_REQUIRED" ]; then
+            echo "status=NOT_CONFIGURED" >> $GITHUB_OUTPUT
+            echo "receipt=" >> $GITHUB_OUTPUT
+            echo "Production requires explicit configuration and approval gate." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "status=DRY_RUN" >> $GITHUB_OUTPUT
+            echo "receipt=receipts/dry-run-${{ github.run_id }}.json" >> $GITHUB_OUTPUT
+            echo "Dry run completed successfully." >> $GITHUB_STEP_SUMMARY
+          fi

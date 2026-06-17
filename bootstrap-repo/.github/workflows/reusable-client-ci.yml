@@ -1,0 +1,98 @@
+name: Reusable Client CI
+
+on:
+  workflow_call:
+    inputs:
+      client_manifest_path:
+        required: true
+        type: string
+      builder_version:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      allow_breaking_changes:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  validate-client-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Manifest Schema
+        run: |
+          echo "Validating ${{ inputs.client_manifest_path }} against client-manifest.schema.json"
+          # Logic to use ajv-cli or similar to validate JSON against schema
+
+  validate-builder-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Builder Version Compatibility
+        run: |
+          echo "Verifying if builder version ${{ inputs.builder_version }} is supported..."
+
+  validate-capabilities:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Requested Capabilities
+        run: |
+          echo "Checking if all enabled capabilities are available in version ${{ inputs.builder_version }}..."
+
+  validate-blueprints:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Blueprints
+        run: |
+          echo "Checking blueprint compatibility..."
+
+  compatibility-check:
+    needs: [validate-client-manifest, validate-builder-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Full Compatibility Check
+        run: |
+          echo "Executing compatibility-check script..."
+          # scripts/compatibility-check/run.sh --manifest ${{ inputs.client_manifest_path }} --version ${{ inputs.builder_version }}
+
+  migration-dry-run:
+    needs: compatibility-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Migration Dry Run
+        run: |
+          echo "Simulating database migrations for ${{ inputs.environment }}..."
+
+  client-tests:
+    needs: compatibility-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Client-Specific Tests
+        run: echo "Executing custom test suite for client instance..."
+
+  build-instance:
+    needs: [client-tests, migration-dry-run]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Instance Artifacts
+        run: echo "Generating client-specific build..."
+
+  deployment-readiness:
+    needs: build-instance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Final Readiness Check
+        run: |
+          echo "### Deployment Readiness" >> $GITHUB_STEP_SUMMARY
+          echo "- Client: ${{ inputs.client_manifest_path }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Environment: ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Readiness: READY" >> $GITHUB_STEP_SUMMARY

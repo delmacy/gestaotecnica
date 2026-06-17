@@ -1,0 +1,14 @@
+{
+  "projectId": "PVT_kwHOAZkyiM4Ba85n",
+  "projectName": "System Builder — Engineering Control Center",
+  "fields": {
+    "status": "Status",
+    "reviewStatus": "Review Status",
+    "ciStatus": "CI Status",
+    "prNumber": "PR Number",
+    "baseSha": "Base SHA",
+    "headSha": "Head SHA",
+    "lastAudit": "Last Audit",
+    "notes": "Notes"
+  }
+}

@@ -1,0 +1,10 @@
+name: Release
+description: Plan and track a new platform release.
+labels: ["release"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Target Version
+    validations:
+      required: true

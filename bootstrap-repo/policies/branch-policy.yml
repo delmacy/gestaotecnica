@@ -1,0 +1,11 @@
+branch_policy:
+  default_branch: main
+  require_pr: true
+  require_review: true
+  required_approvals: 1
+  allowed_authors:
+    - engineering-leads
+    - jules-git-manager
+  protected_branches:
+    - main
+    - release/*

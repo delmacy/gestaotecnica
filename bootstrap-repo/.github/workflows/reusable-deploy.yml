@@ -1,0 +1,70 @@
+name: Reusable Deploy
+
+on:
+  workflow_call:
+    inputs:
+      client_id:
+        required: true
+        type: string
+      installation_id:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      artifact_digest:
+        required: true
+        type: string
+      migration_required:
+        type: boolean
+        default: false
+      rollback_version:
+        type: string
+    outputs:
+      deployment_status:
+        value: ${{ jobs.deploy.outputs.status }}
+      deployment_receipt:
+        value: ${{ jobs.deploy.outputs.receipt }}
+      workflow_run_url:
+        value: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      status: ${{ steps.exec.outputs.status }}
+      receipt: ${{ steps.exec.outputs.receipt }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Production Approval Check
+        if: inputs.environment == 'production'
+        run: |
+          echo "Production environment detected. Ensuring environment protection rules were met."
+
+      - name: Execute Deployment (Dry Run)
+        id: exec
+        run: |
+          echo "SIMULATING DEPLOYMENT"
+          echo "Target: ${{ inputs.client_id }} (${{ inputs.environment }})"
+          echo "Version: ${{ inputs.version }}"
+          echo "Digest: ${{ inputs.artifact_digest }}"
+
+          # Generate Mock Receipt
+          RECEIPT_ID=$(uuidgen || echo "mock-uuid")
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "receipt=receipts/${RECEIPT_ID}.json" >> $GITHUB_OUTPUT
+
+          echo "### Deployment Receipt" >> $GITHUB_STEP_SUMMARY
+          echo "- Operation ID: ${RECEIPT_ID}" >> $GITHUB_STEP_SUMMARY
+          echo "- Client: ${{ inputs.client_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: SUCCESS (DRY-RUN)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Archive Receipt
+        run: |
+          echo "Saving deployment receipt to audit storage..."
+          # scripts/deployment-receipt/generate.sh --id ${{ inputs.client_id }} --version ${{ inputs.version }}

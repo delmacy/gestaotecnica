@@ -1,0 +1,16 @@
+deployment_policy:
+  environments:
+    preview:
+      strategy: automatic
+      requires_approval: false
+    staging:
+      strategy: after-ci
+      requires_approval: false
+    production:
+      strategy: protected
+      requires_approval: true
+      approvers:
+        - engineering-leads
+        - product-owners
+  prohibited_hours:
+    - Friday 18:00 to Monday 09:00

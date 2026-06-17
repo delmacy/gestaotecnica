@@ -1,0 +1,8 @@
+token_policy:
+  allowed_tokens:
+    - GITHUB_TOKEN
+    - GITHUB_TOKEN_ADMIN
+    - PLATFORM_DEPLOY_TOKEN
+  strict_mode: true
+  rotation_period_days: 90
+  prohibit_literals: true

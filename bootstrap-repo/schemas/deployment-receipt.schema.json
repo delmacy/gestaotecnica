@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Deployment Receipt",
+  "description": "Proof of a deployment operation and its outcome.",
+  "type": "object",
+  "required": [
+    "operationId",
+    "clientId",
+    "installationId",
+    "environment",
+    "requestedVersion",
+    "previousVersion",
+    "artifactDigest",
+    "requestedBy",
+    "approvedBy",
+    "startedAt",
+    "completedAt",
+    "status",
+    "migrationStatus",
+    "rollbackAvailable",
+    "workflowRunId",
+    "commitSha"
+  ],
+  "properties": {
+    "operationId": { "type": "string", "format": "uuid" },
+    "clientId": { "type": "string", "format": "uuid" },
+    "installationId": { "type": "string" },
+    "environment": { "type": "string", "enum": ["preview", "staging", "production"] },
+    "requestedVersion": { "type": "string" },
+    "previousVersion": { "type": "string" },
+    "artifactDigest": { "type": "string" },
+    "requestedBy": { "type": "string" },
+    "approvedBy": { "type": "array", "items": { "type": "string" } },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "completedAt": { "type": "string", "format": "date-time" },
+    "status": { "type": "string", "enum": ["success", "failure", "rolled_back"] },
+    "migrationStatus": { "type": "string" },
+    "rollbackAvailable": { "type": "boolean" },
+    "workflowRunId": { "type": "string" },
+    "commitSha": { "type": "string" }
+  }
+}

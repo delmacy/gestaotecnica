@@ -1,0 +1,41 @@
+name: Project Synchronization
+
+on:
+  issues:
+    types: [opened, closed, reopened]
+  pull_request:
+    types: [opened, closed, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+  workflow_run:
+    types: [completed]
+  release:
+    types: [published]
+  deployment_status:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load Project Config
+        id: config
+        run: |
+          CONFIG=$(cat .github/project-config.json)
+          echo "project_id=$(echo $CONFIG | jq -r .projectId)" >> $GITHUB_OUTPUT
+
+      - name: Sync to Engineering Control Center (Dry Run)
+        run: |
+          echo "Syncing event: ${{ github.event_name }}"
+          echo "Target Project ID: ${{ steps.config.outputs.project_id }}"
+
+          # Logic to update project fields using GitHub GraphQL API
+          # Use scripts/project-sync/update-field.sh
+          echo "Updating fields: Status, CI Status, PR Number..."
+
+          if [ "${{ github.event_name }}" == "workflow_run" ]; then
+             echo "Updating CI Status to ${{ github.event.workflow_run.conclusion }}"
+          fi
+
+          echo "Audit recorded at $(date)"

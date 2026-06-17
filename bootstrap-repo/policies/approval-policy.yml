@@ -1,0 +1,12 @@
+approval_policy:
+  release_orchestration:
+    mode: quorum
+    required_count: 1
+    roles: [architect, lead]
+  production_deployment:
+    mode: manual
+    required_count: 2
+    roles: [operator, architect]
+  jules_capabilities:
+    can_operate: true
+    can_approve_production: false

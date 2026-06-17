@@ -1,0 +1,16 @@
+name: Client Onboarding
+description: Request onboarding for a new client instance.
+labels: ["onboarding", "operations"]
+body:
+  - type: input
+    id: client_name
+    attributes:
+      label: Client Name
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: Client Repository
+    validations:
+      required: true

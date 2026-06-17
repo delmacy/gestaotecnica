@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Client Manifest",
+  "description": "Configuration manifest for a System Builder client instance.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "clientId",
+    "clientSlug",
+    "displayName",
+    "repository",
+    "managementMode",
+    "updateChannel",
+    "systemBuilderVersion",
+    "runtimeVersion",
+    "enabledCapabilities",
+    "enabledBlueprints",
+    "environments",
+    "integrations",
+    "deploymentStrategy",
+    "telemetryPolicy"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "clientId": { "type": "string", "format": "uuid" },
+    "clientSlug": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "displayName": { "type": "string" },
+    "repository": { "type": "string" },
+    "managementMode": {
+      "type": "string",
+      "enum": ["observe", "assisted", "managed"]
+    },
+    "updateChannel": {
+      "type": "string",
+      "enum": ["stable", "candidate", "manual", "pinned"]
+    },
+    "systemBuilderVersion": { "type": "string" },
+    "runtimeVersion": { "type": "string" },
+    "enabledCapabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "enabledBlueprints": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "environments": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "format": "uri" },
+          "provider": { "type": "string" }
+        }
+      }
+    },
+    "integrations": { "type": "array", "items": { "type": "object" } },
+    "deploymentStrategy": { "type": "string" },
+    "telemetryPolicy": { "type": "string" }
+  }
+}

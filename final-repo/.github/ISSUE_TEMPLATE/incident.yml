@@ -1,0 +1,18 @@
+name: Incident Report
+description: Report an operational incident or outage.
+labels: ["incident", "high-priority"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Incident Description
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical
+        - Major
+        - Minor

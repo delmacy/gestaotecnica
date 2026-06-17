@@ -1,0 +1,18 @@
+name: Package Proposal
+description: Propose a new package or major architectural change.
+labels: ["package", "triage"]
+body:
+  - type: input
+    id: package_id
+    attributes:
+      label: Package ID
+      placeholder: e.g., PKG-CORE-001
+    validations:
+      required: true
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What are we building?
+    validations:
+      required: true

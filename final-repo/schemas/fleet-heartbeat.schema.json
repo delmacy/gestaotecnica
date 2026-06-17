@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Fleet Heartbeat",
+  "description": "Health and status signal from a running client instance.",
+  "type": "object",
+  "required": [
+    "clientId",
+    "installationId",
+    "environment",
+    "runtimeVersion",
+    "builderVersion",
+    "schemaVersion",
+    "enabledCapabilities",
+    "health",
+    "migrationStatus",
+    "lastDeploymentId",
+    "sentAt",
+    "agentVersion"
+  ],
+  "properties": {
+    "clientId": { "type": "string", "format": "uuid" },
+    "installationId": { "type": "string" },
+    "environment": { "type": "string" },
+    "runtimeVersion": { "type": "string" },
+    "builderVersion": { "type": "string" },
+    "schemaVersion": { "type": "string" },
+    "enabledCapabilities": { "type": "array", "items": { "type": "string" } },
+    "health": { "type": "string", "enum": ["healthy", "degraded", "critical"] },
+    "migrationStatus": { "type": "string" },
+    "lastDeploymentId": { "type": "string" },
+    "sentAt": { "type": "string", "format": "date-time" },
+    "agentVersion": { "type": "string" }
+  }
+}

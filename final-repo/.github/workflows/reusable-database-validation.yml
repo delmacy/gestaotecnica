@@ -1,0 +1,60 @@
+name: Reusable Database Validation
+
+on:
+  workflow_call:
+    inputs:
+      destructiveMigrationApproved:
+        type: boolean
+        default: false
+
+jobs:
+  validate-migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Migration Files
+        run: |
+          echo "Checking migration syntax and naming conventions..."
+          # Logic to ensure migrations follow [timestamp]_[name].sql
+
+  up-down-strategy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Up/Down Strategy
+        run: |
+          echo "Ensuring each migration has a corresponding rollback path..."
+
+  schema-drift-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Schema Drift
+        run: echo "Comparing current code schema with production/reference database..."
+
+  destructive-statement-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for Destructive Statements
+        run: |
+          echo "Scanning for DROP, TRUNCATE, DELETE without WHERE..."
+          DESTRUCTIVE_FOUND=$(grep -riE "(DROP TABLE|TRUNCATE|DELETE FROM)" . || true)
+          if [ ! -z "$DESTRUCTIVE_FOUND" ] && [ "${{ inputs.destructiveMigrationApproved }}" != "true" ]; then
+            echo "Destructive statements found but not approved!"
+            exit 1
+          fi
+
+  tenant-isolation-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Tenant Isolation
+        run: |
+          echo "Verifying workspace_id requirements in new schemas..."
+
+  rollback-metadata-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Rollback Metadata
+        run: echo "Ensuring migration metadata includes rollback instructions..."

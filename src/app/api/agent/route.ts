@@ -1,36 +1,51 @@
 import { NextResponse } from "next/server";
 import { processAgentSubmissionWithMetadata } from "@/features/platform/gateway/agent-gateway-metadata.service";
+import {
+  toNextPlatformErrorResponse,
+  toNextUnknownErrorResponse,
+} from "@/platform/errors/next-response-adapter";
+import { createPlatformError } from "@/platform/errors/factory";
+import { randomUUID } from "crypto";
 
 export async function POST(request: Request) {
+  const correlationId = request.headers.get("x-correlation-id");
+
+  const context = {
+    id: `err-${randomUUID()}`,
+    timestamp: new Date().toISOString(),
+    correlationId: correlationId || undefined,
+  };
+
   try {
     const agentKey = request.headers.get("x-agent-key");
-    const correlationId = request.headers.get("x-correlation-id");
     const idempotencyKey = request.headers.get("x-idempotency-key");
     const validKey = process.env.AGENT_GATEWAY_KEY;
 
     if (!validKey) {
       console.warn("AGENT_GATEWAY_KEY is not configured in the environment.");
-      return NextResponse.json(
+      const envelope = createPlatformError(
         {
-          error: {
-            code: "SERVER_ERROR",
-            message: "Agent Gateway is not properly configured.",
-          },
+          code: "AGENT.CONFIG.MISSING_KEY",
+          category: "unexpected",
+          severity: "error",
+          message: "Agent Gateway is not properly configured.",
         },
-        { status: 500 },
+        context,
       );
+      return toNextPlatformErrorResponse(envelope);
     }
 
     if (!agentKey || agentKey !== validKey) {
-      return NextResponse.json(
+      const envelope = createPlatformError(
         {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Invalid or missing x-agent-key.",
-          },
+          code: "AGENT.AUTH.INVALID_KEY",
+          category: "authentication",
+          severity: "error",
+          message: "Invalid or missing x-agent-key.",
         },
-        { status: 401 },
+        context,
       );
+      return toNextPlatformErrorResponse(envelope);
     }
 
     const payload = await request.json();
@@ -41,10 +56,23 @@ export async function POST(request: Request) {
     });
 
     if (!result.ok) {
-      return NextResponse.json(
-        { error: result.error, receipt: result.receipt },
-        { status: 400 },
+      const envelope = createPlatformError(
+        {
+          code: result.error?.code === "INVALID_PAYLOAD" ? "VALIDATION.PAYLOAD.INVALID" : (result.error?.code || "VALIDATION.PAYLOAD.UNKNOWN"),
+          category: "validation",
+          severity: "warning",
+          message: result.error?.message || "Payload validation failed.",
+          details: {
+            ...result.error?.details,
+            receipt: result.receipt,
+          },
+        },
+        {
+          ...context,
+          correlationId: result.receipt.correlationId,
+        },
       );
+      return toNextPlatformErrorResponse(envelope);
     }
 
     return NextResponse.json(
@@ -52,15 +80,6 @@ export async function POST(request: Request) {
       { status: 200 },
     );
   } catch (error) {
-    console.error("Agent Gateway Submission Error:", error);
-    return NextResponse.json(
-      {
-        error: {
-          code: "INTERNAL_ERROR",
-          message: "Failed to process agent submission.",
-        },
-      },
-      { status: 500 },
-    );
+    return toNextUnknownErrorResponse(error, context);
   }
 }

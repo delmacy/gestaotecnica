@@ -6,7 +6,7 @@ Este documento mapeia os ativos reais no repositório `delmacy/gestaotecnica` qu
 
 | Ativo | Caminho | Símbolo/Tabela | Comportamento | Reutilização Possível | Limitação | Confiança |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **TraceReceipt (Contract)** | `src/platform/documents/traceability/contracts.ts` | `TraceReceiptSchema` | Validação Zod completa do recibo. | Definição de colunas da tabela. | Apenas contrato, sem suporte nativo a assinatura digital (JWS). | **CONFIRMED** |
+| **TraceReceipt (Contract)** | `src/platform/documents/traceability/contracts.ts` | `TraceReceiptSchema` | Validação Zod completa do recibo. | Definição da estrutura de dados. | Apenas contrato, sem suporte nativo a assinatura digital (JWS). | **CONFIRMED** |
 | **trace_receipts (Table)** | `src/db/runtime/schema/documents.ts` | `traceReceipts` | Tabela Drizzle para recibos de documentos. | Modelo inicial de tabela. | Acoplada a `documentId` e `documentVersionId`. | **CONFIRMED** |
 | **Event Store (Workflow)** | `src/db/runtime/schema/workflow.ts` | `events` | Armazenamento de fatos de domínio. | Padrão de inserção indexada por workspace. | Específico para transições de estado de workflow. | **CONFIRMED** |
 | **Workspace Isolation** | `src/db/runtime/schema/workspace.ts` | `workspaces` | Tabela central de workspaces. | Referência para FK em novas tabelas. | Exige aplicação manual de filtros em queries. | **CONFIRMED** |
@@ -18,9 +18,9 @@ Este documento mapeia os ativos reais no repositório `delmacy/gestaotecnica` qu
 
 ## Análise de Lacunas
 
-1. **Inexistência de Tabela Genérica**: A tabela `trace_receipts` atual é restrita ao domínio de documentos. É necessária uma tabela genérica capaz de referenciar qualquer `subject` (conforme `TraceReceiptSubjectTypeSchema`).
+1. **Especialização da Tabela Atual**: A tabela `trace_receipts` atual é restrita ao domínio de documentos. O inventário suporta a proposta de uma tabela genérica capaz de referenciar qualquer `subject` (conforme `TraceReceiptSubjectTypeSchema`).
 2. **Desalinhamento de Esquema**: A tabela atual não contempla campos fundamentais do rastro de evidência, como `previous_receipt_id`, `correlation_id` e `causation_id`.
-3. **Persistência de Estruturas Complexas**: O rastro canônico inclui arrays de `artifacts` e `hashes`. Recomenda-se o uso de `jsonb` para evitar normalização prematura e manter a fidelidade ao contrato verificado.
+3. **Persistência de Estruturas Complexas**: O rastro canônico inclui arrays de `artifacts` e `hashes`. Propõe-se o uso de `jsonb` para evitar normalização prematura e manter a fidelidade ao contrato verificado.
 
 ## Índices Recomendados (PROPOSED)
 

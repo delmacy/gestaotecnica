@@ -67,15 +67,19 @@ describe("Platform Error Next.js Adapter", () => {
     });
 
     test("should NOT include internal details in body", async () => {
+      // Use narrow cast to avoid 'any'
       const error = {
         ...baseError,
         details: { internal: "data" },
         metadata: { secret: "true" }
-      } as any;
+      } as unknown as PlatformErrorEnvelope;
+
       const response = toNextPlatformErrorResponse(error);
       const body = await response.json();
-      assert.strictEqual(body.error.details, undefined);
-      assert.strictEqual(body.error.metadata, undefined);
+
+      // Verification
+      assert.strictEqual(Object.hasOwn(body.error, "details"), false);
+      assert.strictEqual(Object.hasOwn(body.error, "metadata"), false);
     });
   });
 
@@ -110,6 +114,23 @@ describe("Platform Error Next.js Adapter", () => {
         get message() { throw new Error("hostile"); }
       };
       const response = toNextUnknownErrorResponse(hostile, baseContext);
+      assert.strictEqual(response.status, 500);
+      const body = await response.json();
+      assert.strictEqual(body.error.message, "An unexpected error occurred.");
+    });
+
+    test("should handle number input", async () => {
+      const response = toNextUnknownErrorResponse(42, baseContext);
+      assert.strictEqual(response.status, 500);
+      const body = await response.json();
+      assert.strictEqual(body.error.message, "An unexpected error occurred.");
+    });
+
+    test("should handle revoked proxy", async () => {
+      const { proxy, revoke } = Proxy.revocable({}, {});
+      revoke();
+
+      const response = toNextUnknownErrorResponse(proxy, baseContext);
       assert.strictEqual(response.status, 500);
       const body = await response.json();
       assert.strictEqual(body.error.message, "An unexpected error occurred.");

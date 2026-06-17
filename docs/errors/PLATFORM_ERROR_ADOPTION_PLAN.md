@@ -9,53 +9,52 @@ A adoção formal ainda é limitada:
 
 ## 2. Onde unknown é convertido diretamente em string?
 Ocorre em diversos blocos `catch` que tentam extrair uma mensagem para retorno ou log sem usar o sanitizer canônico:
-- `src/platform/actions/action-runner.ts`: `message: error instanceof Error ? error.message : "Falha ao executar action."`
-- `src/platform/flows/flow-runner.ts`: Usa `console.error` e extrai mensagens simples.
-- `src/app/api/agent/route.ts`: Converte erro capturado em uma resposta JSON genérica com mensagem fixa.
+- `src/platform/actions/action-runner.ts`: Na função `runAction`, usa `error instanceof Error ? error.message : "Falha ao executar action."`
+- `src/platform/flows/flow-runner.ts`: No método `execute`, captura erros e usa mensagens simples.
+- `src/app/api/agent/route.ts`: No handler `POST`, converte erro capturado em uma resposta JSON genérica.
 
 ## 3. Onde stack pode escapar?
-O risco de vazamento de `stack` existe onde o objeto de erro original é passado diretamente para o campo `details` ou para logs externos:
-- `src/platform/actions/action-runner.ts`: Atribui `details: error` no retorno de `runAction`.
-- `src/app/api/agent/route.ts`: `console.error("Agent Gateway Submission Error:", error)` pode imprimir a stack no log do servidor.
+O risco de vazamento de `stack` deve ser analisado por fronteira:
+- **Exposição em Logs de Servidor**: `console.error(error)` em `src/app/api/agent/route.ts` e diversos queries em `src/platform/*/infra/`. Imprime a stack completa no stdout/stderr do servidor.
+- **Exposição em Resposta ao Cliente**: `src/platform/actions/action-runner.ts` retorna `details: error`. Se o erro for um objeto nativo, dependendo da serialização final, a stack pode vazar para o chamador.
+- **Exposição em Persistência**: `src/platform/events/event-log-service.ts` pode persistir o objeto de erro sem filtro.
 
 ## 4. Onde erros são enviados ao cliente?
-- **API Routes**: `src/app/api/**/*` usa `NextResponse.json` para retornar objetos de erro.
-- **Server Actions**: `src/modules/*/actions.ts` lançam `Error` que o Next.js captura ou retornam `ActionResult` com erro.
-- **UI Components**: Componentes como `src/features/builder/canvas/BuilderCanvas.tsx` capturam erros de renderização/lógica.
+- **API Routes**: `src/app/api/**/*` via `NextResponse.json`. Ex: `src/app/api/agent/route.ts`.
+- **Server Actions**: `src/modules/*/actions.ts` retornam objetos que chegam ao frontend. Ex: `createSchedule` em `src/modules/schedules/actions.ts`.
+- **UI Components**: `src/features/builder/canvas/BuilderCanvas.tsx` trata erros de integração local.
 
 ## 5. Onde detalhes técnicos são persistidos?
-- **Logs de Console**: Presentes em quase todos os arquivos de infraestrutura (`src/platform/registry/infra`, `src/platform/blueprints/infra`).
-- **Event Logs**: `src/platform/events/event-log-service.ts` pode persistir payloads de erro sem sanitização prévia.
+- **Logs de Console**: Infraestrutura (`src/platform/registry/infra`, `src/platform/blueprints/infra`).
+- **Event Logs**: `src/platform/events/event-log-service.ts` registra falhas de processamento.
 
 ## 6. Onde há perda de category/code/status?
-Quase todos os consumidores atuais fora do pacote `platform-errors` perdem metadados estruturados:
-- `src/modules/*/actions.ts`: As server actions costumam lançar `new Error(message)` básico, descartando códigos de erro específicos do domínio.
-- `src/platform/actions/action-runner.ts`: Mapeia tudo para `ACTION_FAILED` independente da causa raiz.
+- **Server Actions**: A maioria em `src/modules/` lança `new Error(message)` básico, perdendo a semântica do erro de negócio.
+- **Action Runner**: O `runAction` em `src/platform/actions/action-runner.ts` encapsula erros originais em um código genérico `ACTION_FAILED`.
 
 ## 7. Onde o sanitizer deve entrar?
 O `sanitizeUnknownError` deve ser injetado em:
-- Todos os blocos `catch` de **API Routes**.
-- Todos os blocos `catch` de **Server Actions**.
-- O `action-runner.ts` e o `flow-runner.ts` para garantir que `details` não contenha segredos ou stacks.
+- Blocos `catch` de **API Routes** antes do `NextResponse.json`.
+- Blocos `catch` de **Server Actions** para normalizar o retorno.
+- Middleware de tratamento de erro global, se existente.
 
 ## 8. Onde a serialização determinística deve entrar?
-- Respostas de API (`NextResponse`).
-- Persistência em tabelas de auditoria e `event_logs`.
-- Comunicação entre o Worker de background e a API principal.
+- Apenas onde contratos de transporte (ex: assinaturas, hashing de integridade) ou persistência estável (ex: `event_logs` imutáveis) exigirem payloads byte-stable.
+- **Não** é recomendada para todas as respostas HTTP simples, onde o `NextResponse.json` padrão é suficiente.
 
 ## 9. Quais pontos não devem usar serialização?
-- Scripts de build e manutenção local (`src/scripts/*`).
-- Logs de depuração em ambiente de desenvolvimento.
-- Testes unitários internos que verificam a estrutura bruta do erro.
+- Scripts de manutenção local (`src/scripts/*`).
+- Mensagens de log internas de depuração (debug level).
+- Verificações de asserção em testes unitários.
 
 ## 10. Qual a sequência de migração mais segura?
-1. **Core Platform**: Migrar `action-runner.ts` e `flow-runner.ts` para retornar `PlatformErrorEnvelope`.
-2. **API Gateways**: Atualizar `src/app/api/agent/route.ts` e similares para usar o sanitizer.
-3. **Application Layer**: Padronizar o retorno das Server Actions em `src/modules/`.
-4. **Observability**: Integrar o `PlatformError` com o serviço de logs centralizado.
+1. **Blindagem da Borda (API)**: Adotar `sanitizeUnknownError` nos Gateways (ex: Agent Gateway).
+2. **Normalização de Executores**: Ajustar `ActionRunner` para retornar `PlatformErrorEnvelope`.
+3. **Refatoração de Camada de Aplicação**: Padronizar retornos de Server Actions em `src/modules/`.
+4. **Governança de Logs**: Substituir `console.error` direto por logger sanitizado.
 
 ## Propostas de Pacotes Futuros
 
-- **PKG-PLATFORM-ERROR-HTTP-MAPPING-001**: Utilitários para converter `PlatformErrorEnvelope` em `NextResponse` com status HTTP correto.
-- **PKG-PLATFORM-ERROR-LOGGING-ADAPTER-001**: Adapter para o logger canônico que aceita envelopes de erro.
-- **PKG-PLATFORM-ERROR-WEBHOOK-ADAPTER-001**: Normalização de erros para disparos de webhooks de saída.
+- **PKG-PLATFORM-ERROR-HTTP-MAPPING-001**: Mapeamento de `PlatformErrorEnvelope` para status HTTP e `NextResponse`.
+- **PKG-PLATFORM-ERROR-LOGGING-ADAPTER-001**: Adapter para integração com sistemas de log (ex: console, sentry) usando envelopes.
+- **PKG-PLATFORM-ERROR-WEBHOOK-ADAPTER-001**: Normalização de erros para disparo de webhooks externos.

@@ -7,40 +7,38 @@
 - **Data**: 2024-06-17
 
 ## Resumo Analítico
-Foi realizada uma varredura completa no repositório `gestaotecnica` para identificar o uso atual e as necessidades de migração para o padrão `PlatformError`.
+Foi realizada uma varredura completa no repositório `gestaotecnica` para identificar o uso atual e as necessidades de migração para o padrão `PlatformError`. Toda evidência foi validada para garantir a presença de símbolos/funções concretos.
 
-### Estatísticas de Consumidores
-- **Total de Ocorrências Analisadas**: ~379
-- **Consumidores Únicos Identificados (Deduplicados)**: 124
+### Estatísticas de Consumidores (Recalculadas)
+- **Método de contagem**: 1 consumidor = 1 símbolo/função/route boundary concreto.
+- **Consumidores Únicos Confirmados**: 194
 
 #### Distribuição por Classificação (Boundary)
-- **Application**: 33
-- **Server Action**: 24
-- **Domain**: 22
-- **Logging**: 16
-- **Background Job**: 11
-- **API**: 9
-- **Action Runner**: 4
+- **Server Action**: 62
+- **Domain**: 37
+- **Background Job**: 35
+- **Application**: 25
+- **Logging**: 17
+- **API**: 12
 - **UI**: 3
-- **Workflow Engine**: 2
+- **Action Runner**: 2
+- **Workflow Engine**: 1
 
 #### Distribuição por Status de Adoção
-- **CANONICAL**: 3 (Core do módulo platform-errors)
-- **SAFE_BUT_LEGACY**: 8 (Usam Error mas estão na camada de plataforma)
-- **PARTIAL**: 88 (Adoção incompleta ou uso de Error padrão)
-- **UNSAFE**: 25 (Vazamento de detalhes, logs diretos de erro unknown)
+- **CANONICAL**: 3
+- **SAFE_BUT_LEGACY**: 8
+- **PARTIAL**: 144
+- **UNSAFE**: 39
 
-## Maiores Riscos Identificados
-1. **Vazamento de Stack Traces**: Identificado em `src/platform/actions/action-runner.ts` onde o erro bruto é passado para o campo `details`.
-2. **Segredos em Logs**: Uso extensivo de `console.error(error)` em APIs e infraestrutura de banco de dados, sem redacting de campos sensíveis.
-3. **Inconsistência de Contratos**: APIs retornam estruturas de erro heterogêneas, dificultando o tratamento uniforme no frontend.
-4. **Perda de Contexto**: Uso predominante de `throw new Error(string)`, o que remove informações de severidade, categoria e IDs de correlação.
+## Riscos de Exposição e Vazamento
+- **Server Log Exposure (Stack Traces)**: Confirmado em `src/app/api/agent/route.ts` (handler POST) e executores de flows, onde `console.error` despeja o objeto de erro bruto no stdout do servidor.
+- **Client Response Exposure**: Risco identificado em `src/platform/actions/action-runner.ts` (função `runAction`) ao retornar `details: error` diretamente no payload de resposta.
+- **Persistence Exposure**: Identificado em `src/platform/events/event-log-service.ts` onde metadados técnicos podem ser salvos no banco de dados sem sanitização.
 
-## Sequência Recomendada de Migração
-1. **Blindagem da Borda (API)**: Implementar `sanitizeUnknownError` em todos os roteadores de API e Gateways.
-2. **Padronização de Executores**: Migrar `ActionRunner` e `FlowRunner` para produzir `PlatformErrorEnvelope`.
-3. **Refatoração de Server Actions**: Substituir lançamentos de `Error` genérico por chamadas ao `createPlatformError` nas ações de módulo.
-4. **Consolidação de Observabilidade**: Centralizar logs através do `PlatformError` para garantir auditoria determinística.
+## Recomendações
+1. **Sanitização Imediata**: Aplicar `sanitizeUnknownError` nos pontos de saída de API e no Action Runner.
+2. **Normalização de Símbolos**: Migrar as 62 server actions identificadas para o uso de `createPlatformError` para preservar códigos de erro.
+3. **Serialização Seletiva**: Utilizar serialização determinística apenas para contratos imutáveis ou assinados, mantendo `NextResponse.json` para o tráfego HTTP comum.
 
 ## Conclusão
-O sistema possui uma base sólida para tratamento de erros, mas a adoção do padrão canônico está concentrada no core. A migração das camadas de aplicação e API é crítica para garantir a segurança e a rastreabilidade exigidas pela arquitetura.
+A correção de qualidade de evidência aumentou a visibilidade de consumidores granulares (de 124 para 194). Todo registro no inventário agora aponta para um símbolo ou função verificável, eliminando entradas genéricas.

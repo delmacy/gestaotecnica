@@ -3,7 +3,7 @@
 ## 1. Identificação
 - **Package ID:** PKG-CAPABILITY-ACTION-UTILITY-BOUNDARY-INVENTORY-001
 - **Base SHA:** d747fff7398c6be62bf5f347410934d940695368
-- **Head SHA:** (Current commit after documentation)
+- **Head SHA:** (Current commit after documentation update)
 - **Status:** Concluído
 
 ## 2. Arquivos Analisados
@@ -17,25 +17,29 @@
 - `docs/utility-apps/UTILITY_APP_AS_IS_INVENTORY.md`
 
 ## 3. Conceitos Confirmados
-- **Capability:** Existe como tabela em `registry.capabilities`. Representa habilidades de negócio.
-- **Action:** Existe tanto em `workflow.actions` (runtime) quanto em `workflow.action_registry` (catálogo).
-- **Module:** Existe em `registry.modules` como unidade de empacotamento.
-- **Process:** Existe em `workflow.process_definitions` como orquestrador de estados.
-- **View Binding:** Existe em `ViewBlueprint` para ligar visualizações a targets (capabilities, forms).
-- **Registry:** Namespace `registrySchema` no PostgreSQL.
+- **Capability:** Existe como tabela em `registry.capabilities`. Representa habilidades de negócio declarativas.
+- **Action Descriptor:** Metadados e schemas de ações persistidos na tabela `workflow.action_registry`.
+- **Action Handler:** Funções executáveis registradas em memória no `ActionRegistry` (`src/platform/actions/action-registry.ts`).
+- **Action Instance:** Passos de fluxo configurados na tabela `workflow.actions` vinculados a versões de processo.
+- **Module:** Existe em `registry.modules` como unidade de empacotamento e distribuição.
+- **Process:** Orquestração de fluxos temporais em `workflow.process_definitions`.
+- **View Binding:** Interface em `ViewBlueprint` para ligar visualizações a targets; suporte a `capability` e `form` confirmado via schema.
+- **Registry:** Namespace de definições persistido no PostgreSQL.
 
 ## 4. Sobreposições Encontradas
-- **Ações:** Há uma sobreposição conceitual entre ações de workflow (passos de processo) e o catálogo global de ações (`action_registry`).
-- **Módulos vs Capabilities:** Em alguns lugares, o termo "módulo" é usado para se referir a uma capability instalada, embora existam tabelas separadas para ambos.
+- **Ações:** O termo `Action` é sobrecarregado para descrever o catálogo (Descriptor), a lógica técnica (Handler) e o nó do fluxo (Instance).
+- **Módulos vs Capabilities:** Há acoplamento semântico onde módulos são usados para entregar capacidades, mas a distinção entre o pacote (Module) e a habilidade (Capability) é mantida em tabelas separadas.
 
 ## 5. Lacunas Identificadas
-- **Contratos de Capability:** Ausência de esquemas de entrada/saída (I/O) para capabilities.
-- **Utility App:** Falta uma entidade formal para Utility Apps no banco de dados e nos contratos.
-- **Descoberta de Ações:** O mecanismo de descoberta de ações de Utility Apps ainda não existe.
+- **Contratos de Capability:** Ausência de contratos formais de Input/Output (Zod) para capabilities.
+- **Utility App:** Inexistência de entidade formal e contrato no código atual (proposta baseada em requisitos de negócio).
+- **Extensibilidade de Binding:** O `ViewBinding` atual é fechado para um conjunto pequeno de tipos, dificultando a integração de novas ferramentas como Utility Apps.
 
 ## 6. Sequência Recomendada
-1. Formalizar contratos de Capability (`PKG-CAPABILITY-CORE-CONTRACT-001`).
-2. Unificar descritores de Action (`PKG-ACTION-DESCRIPTOR-CONTRACT-001`).
-3. Criar o registro formal de Utility Apps (`PKG-UTILITY-APP-REGISTRY-001`).
-4. Implementar adaptadores de execução (`PKG-UTILITY-ACTION-ADAPTER-001`).
-5. Extender View Bindings para novos targets (`PKG-VIEW-BINDING-EXTENSION-001`).
+1. `PKG-CAPABILITY-CORE-CONTRACT-001` (Definição de contratos de negócio)
+2. `PKG-ACTION-DESCRIPTOR-CONTRACT-001` (Unificação de metadados de ações)
+3. `PKG-UTILITY-APP-CORE-CONTRACT-001` (Definição de contrato de Utility App)
+4. `PKG-REGISTRY-PERSISTENCE-UPDATE-001` (Atualização de persistência do Registry)
+5. `PKG-UTILITY-CAPABILITY-BINDING-001` (Ligação entre ferramentas e capacidades)
+6. `PKG-UTILITY-ACTION-ADAPTER-001` (Ponte de execução técnica)
+7. `PKG-VIEW-BINDING-EXTENSION-001` (Extensão de bindings de interface)

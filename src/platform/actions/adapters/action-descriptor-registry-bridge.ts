@@ -23,14 +23,40 @@ export interface ActionDescriptorCompatibilityReport {
  * @throws Error if the definition cannot be converted to a valid descriptor
  */
 export function toActionDescriptor(definition: ActionDefinition): ActionDescriptor {
+  // Safe property access to avoid hostile getter execution
+  const getData = <K extends keyof ActionDefinition>(key: K): ActionDefinition[K] | undefined => {
+    const desc = Object.getOwnPropertyDescriptor(definition, key);
+    return desc && !desc.get && !desc.set ? desc.value : undefined;
+  };
+
+  const key = getData("key");
+  const uiLabel = getData("uiLabel");
+  const description = getData("description");
+  const uiDescription = getData("uiDescription");
+  const inputSchema = getData("inputSchema");
+  const outputSchema = getData("outputSchema");
+  const idempotent = getData("idempotent");
+
+  if (typeof key !== "string") {
+    throw new Error("ActionDefinition must have a string 'key' data property");
+  }
+
+  if (!inputSchema || typeof inputSchema !== "object") {
+    throw new Error(`ActionDefinition "${key}" missing or invalid inputSchema`);
+  }
+
+  if (!outputSchema || typeof outputSchema !== "object") {
+    throw new Error(`ActionDefinition "${key}" missing or invalid outputSchema`);
+  }
+
   const descriptorData = {
-    key: definition.key,
-    name: definition.uiLabel || definition.key,
-    description: (definition.description || definition.uiDescription)?.slice(0, 2000),
-    handlerKey: definition.key, // Policy: Reuse definition key as handlerKey
-    inputSchema: definition.inputSchema ?? { type: "object", properties: {} },
-    outputSchema: definition.outputSchema ?? { type: "object", properties: {} },
-    idempotent: definition.idempotent,
+    key,
+    name: (typeof uiLabel === "string" ? uiLabel : key),
+    description: (typeof description === "string" ? description : (typeof uiDescription === "string" ? uiDescription : undefined))?.slice(0, 2000),
+    handlerKey: key, // Policy: Reuse definition key as handlerKey
+    inputSchema,
+    outputSchema,
+    idempotent: typeof idempotent === "boolean" ? idempotent : undefined,
     tags: [],
   };
 
@@ -38,7 +64,7 @@ export function toActionDescriptor(definition: ActionDefinition): ActionDescript
 
   if (!result.success) {
     const errors = result.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join(", ");
-    throw new Error(`ActionDefinition "${definition.key}" is incompatible with ActionDescriptor: ${errors}`);
+    throw new Error(`ActionDefinition "${key}" is incompatible with ActionDescriptor: ${errors}`);
   }
 
   return result.data;
@@ -53,26 +79,35 @@ export function validateDescriptorAgainstDefinition(
 ): ActionDescriptorCompatibilityReport {
   const issues: ActionDescriptorCompatibilityIssue[] = [];
 
+  // Safe property access
+  const getData = <K extends keyof ActionDefinition>(key: K): ActionDefinition[K] | undefined => {
+    const desc = Object.getOwnPropertyDescriptor(definition, key);
+    return desc && !desc.get && !desc.set ? desc.value : undefined;
+  };
+
+  const defKey = getData("key");
+  const defInputSchema = getData("inputSchema");
+  const defOutputSchema = getData("outputSchema");
+
   // 1. Key compatibility
-  if (descriptor.key !== definition.key) {
+  if (descriptor.key !== defKey) {
     issues.push({
       code: "KEY_MISMATCH",
-      message: `Descriptor key "${descriptor.key}" does not match definition key "${definition.key}"`,
+      message: `Descriptor key "${descriptor.key}" does not match definition key "${defKey}"`,
       path: ["key"],
     });
   }
 
   // 2. handlerKey identity policy
-  if (descriptor.handlerKey !== definition.key) {
+  if (descriptor.handlerKey !== defKey) {
     issues.push({
       code: "HANDLER_KEY_MISMATCH",
-      message: `Descriptor handlerKey "${descriptor.handlerKey}" does not match executable identity "${definition.key}"`,
+      message: `Descriptor handlerKey "${descriptor.handlerKey}" does not match executable identity "${defKey}"`,
       path: ["handlerKey"],
     });
   }
 
   // 3. Schema safety and compatibility
-  // We check safety specifically as requested
   const inputSafety = checkSafety(descriptor.inputSchema);
   if (!inputSafety.isSafe) {
     issues.push({
@@ -91,21 +126,14 @@ export function validateDescriptorAgainstDefinition(
     });
   }
 
-  // 4. Structural comparison (basic check)
-  // If both are present, they should ideally be equivalent
-  if (definition.inputSchema && JSON.stringify(descriptor.inputSchema) !== JSON.stringify(definition.inputSchema)) {
+  // 4. Structural comparison policy
+  // We do not use JSON.stringify for comparison.
+  // We return SCHEMA_COMPARISON_UNSUPPORTED if schemas are present to signify
+  // that a formal structural equality foundation is required.
+  if (defInputSchema || defOutputSchema) {
     issues.push({
-      code: "INPUT_SCHEMA_INCOMPATIBLE",
-      message: "Descriptor input schema differs from definition input schema",
-      path: ["inputSchema"],
-    });
-  }
-
-  if (definition.outputSchema && JSON.stringify(descriptor.outputSchema) !== JSON.stringify(definition.outputSchema)) {
-    issues.push({
-      code: "OUTPUT_SCHEMA_INCOMPATIBLE",
-      message: "Descriptor output schema differs from definition output schema",
-      path: ["outputSchema"],
+      code: "SCHEMA_COMPARISON_UNSUPPORTED",
+      message: "Formal structural schema comparison is not yet supported in this bridge.",
     });
   }
 

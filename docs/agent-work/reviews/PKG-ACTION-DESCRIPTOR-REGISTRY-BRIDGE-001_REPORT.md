@@ -1,48 +1,46 @@
-# Review Report: PKG-ACTION-DESCRIPTOR-REGISTRY-BRIDGE-001
+# Review Report: PKG-ACTION-DESCRIPTOR-REGISTRY-BRIDGE-001 (Update 1)
 
 ## Executive Summary
 
-The compatibility bridge between `ActionDescriptor` and `ActionDefinition`/`ActionRegistry` has been successfully implemented. This bridge allows the platform to generate declarative descriptors from executable definitions without exposing implementation details (like handlers) or compromising security.
+The compatibility bridge between `ActionDescriptor` and `ActionDefinition`/`ActionRegistry` has been updated to address security and semantic concerns regarding schema comparison and property access.
 
 ## Implementation Details
 
 - **Package ID**: PKG-ACTION-DESCRIPTOR-REGISTRY-BRIDGE-001
 - **Module**: actions
-- **Base SHA**: (Current main state)
-- **Files Created/Modified**:
-  - `src/platform/actions/adapters/action-descriptor-registry-bridge.ts` (Implementation)
-  - `src/platform/actions/adapters/index.ts` (Export)
-  - `src/platform/actions/index.ts` (Re-export)
-  - `tests/unit/action-descriptor-registry-bridge.test.ts` (Tests)
-  - `docs/actions/ACTION_DESCRIPTOR_REGISTRY_BRIDGE.md` (Documentation)
+- **Key Changes in Update 1**:
+  - Removed `JSON.stringify` comparison in favor of `SCHEMA_COMPARISON_UNSUPPORTED` status.
+  - Enforced mandatory `inputSchema` and `outputSchema` in `toActionDescriptor`.
+  - Implemented safe property access via `getOwnPropertyDescriptor` to avoid hostile getter execution on definitions.
+  - Refined unit tests to remove `as any` and `@ts-ignore` (except for intentional safety bypasses in tests).
 
 ## Key Findings
 
-### ActionDefinition Analysis
-The real `ActionDefinition` found in `src/platform/actions/action-types.ts` is an executable contract containing a `handler` function. It uses JSON schemas (`ActionJsonSchema`) for input and output validation.
+### Schema Comparison Policy
+Structural schema comparison is deferred until a canonical deterministic foundation is available. The bridge now explicitly reports that formal comparison is unsupported instead of using brittle stringification.
 
-### Descriptor/Definition Differences
-- **Descriptor**: Purely declarative, persistible, serializable. Contains `handlerKey` instead of a function.
-- **Definition**: Executable, contains `handler` (function). Contains UI-specific fields like `uiLabel` and `uiDescription`.
+### Mandatory Schemas
+The bridge no longer invents default empty schemas. If a definition lacks explicit serializable schemas, it is considered incompatible with the `ActionDescriptor` contract.
 
-### handlerKey Policy
-The bridge enforces a 1:1 mapping between `definition.key` and `descriptor.handlerKey`. This simplifies the registry lookup logic and prevents naming conflicts.
+### Hostile Property Protection
+By inspecting property descriptors before reading, the bridge ensures that simply attempting to convert a definition cannot trigger side effects through malicious getters.
 
 ## Verification Results
 
-- **Unit Tests**: 10 tests passing in `tests/unit/action-descriptor-registry-bridge.test.ts`.
+- **Unit Tests**: 11 tests passing in `tests/unit/action-descriptor-registry-bridge.test.ts`.
   - Minimal conversion: OK
-  - Schema safety: OK (rejected functions in schemas)
-  - Deterministic snapshot: OK (sorted by key)
-  - Non-mutation: OK
+  - Missing schemas throw: OK
+  - Safe property access: OK
+  - Schema safety/cycles: OK
+  - Deterministic snapshot: OK
   - No handler execution: OK
 - **Contract Integrity**: `tests/unit/action-descriptor-contract.test.ts` passing.
 - **Build**: `npm run build` completed successfully.
 
 ## Compliance
 
-- [x] No `any` used.
+- [x] No `any` used in implementation.
 - [x] No handler execution.
+- [x] Hostile getter protection.
 - [x] Deterministic snapshot.
-- [x] Structured incompatibility reporting.
-- [x] Zod safety check integrated.
+- [x] Brittle JSON.stringify comparison removed.

@@ -17,7 +17,8 @@ Converts an executable `ActionDefinition` into a persistible `ActionDescriptor`.
 - Maps `uiLabel` to `name`.
 - Maps `description` or `uiDescription` to `description` (truncated to 2000 chars).
 - Reuses `key` as `handlerKey`.
-- Ensures schema safety and structural integrity.
+- **Mandatory Schemas**: Both `inputSchema` and `outputSchema` must be present as data properties on the definition.
+- **Security**: Uses `getOwnPropertyDescriptor` to prevent execution of hostile getters on the definition object.
 
 ### `validateDescriptorAgainstDefinition(descriptor, definition): ActionDescriptorCompatibilityReport`
 
@@ -26,7 +27,7 @@ Validates that a descriptor correctly represents a definition.
 - Checks for key mismatches.
 - Enforces `handlerKey` identity policy.
 - Verifies schema safety (no functions, no accessors).
-- Performs structural comparison of input/output schemas.
+- **Comparison Policy**: Does not perform structural comparison of schemas (returns `SCHEMA_COMPARISON_UNSUPPORTED`) as it requires a formal deterministic foundation.
 
 ### `createActionCatalogSnapshot(definitions: readonly ActionDefinition[]): ActionDescriptor[]`
 
@@ -42,4 +43,5 @@ The `handlerKey` in `ActionDescriptor` MUST be identical to the `key` of the `Ac
 
 - The bridge never executes the `handler` function.
 - Input definitions are treated as immutable and never modified.
+- **Hostile Property Protection**: The bridge only reads own data properties from definitions to avoid triggering malicious getters.
 - All schemas are verified for safety to prevent execution of hostile code (getters, etc.) during serialization.

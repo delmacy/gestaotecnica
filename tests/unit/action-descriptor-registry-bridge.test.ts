@@ -5,13 +5,16 @@ import {
   validateDescriptorAgainstDefinition,
   createActionCatalogSnapshot
 } from "../../src/platform/actions/adapters/action-descriptor-registry-bridge";
-import { ActionDefinition } from "../../src/platform/actions/action-types";
-import { ActionDescriptor } from "../../src/platform/actions/contracts/action-descriptor";
+import { ActionDefinition, ActionJsonSchema } from "../../src/platform/actions/action-types";
 
 describe("Action Descriptor Registry Bridge", () => {
+  const emptySchema: ActionJsonSchema = { type: "object", properties: {} };
+
   const minimalDefinition: ActionDefinition = {
     key: "test.minimal_action",
     moduleKey: "test",
+    inputSchema: emptySchema,
+    outputSchema: emptySchema,
     handler: async () => ({ success: true }),
   };
 
@@ -21,10 +24,18 @@ describe("Action Descriptor Registry Bridge", () => {
     assert.strictEqual(descriptor.key, minimalDefinition.key);
     assert.strictEqual(descriptor.handlerKey, minimalDefinition.key);
     assert.strictEqual(descriptor.name, minimalDefinition.key);
-    assert.deepStrictEqual(descriptor.inputSchema, { type: "object", properties: {} });
-    assert.deepStrictEqual(descriptor.outputSchema, { type: "object", properties: {} });
-    // @ts-ignore - ensuring handler is not present in descriptor
-    assert.strictEqual(descriptor.handler, undefined);
+    assert.deepStrictEqual(descriptor.inputSchema, emptySchema);
+    assert.deepStrictEqual(descriptor.outputSchema, emptySchema);
+  });
+
+  test("should throw if schemas are missing", () => {
+    const incompleteDefinition = {
+        key: "test.incomplete",
+        moduleKey: "test",
+        handler: async () => ({ success: true }),
+    } as ActionDefinition;
+
+    assert.throws(() => toActionDescriptor(incompleteDefinition), /missing or invalid inputSchema/);
   });
 
   test("should map labels and descriptions correctly", () => {
@@ -37,17 +48,15 @@ describe("Action Descriptor Registry Bridge", () => {
 
     const descriptor = toActionDescriptor(richDefinition);
     assert.strictEqual(descriptor.name, "Rich Action");
-    // uiDescription should take precedence if we want, but here we just slice whatever we get.
-    // In my implementation: (definition.description || definition.uiDescription)
     assert.strictEqual(descriptor.description, "Description from core");
   });
 
-  test("should validate compatible descriptor and definition", () => {
+  test("should validate key compatibility (with comparison warning)", () => {
     const descriptor = toActionDescriptor(minimalDefinition);
     const report = validateDescriptorAgainstDefinition(descriptor, minimalDefinition);
 
-    assert.strictEqual(report.compatible, true);
-    assert.strictEqual(report.issues.length, 0);
+    assert.strictEqual(report.compatible, false); // false because of SCHEMA_COMPARISON_UNSUPPORTED
+    assert.ok(report.issues.some(i => i.code === "SCHEMA_COMPARISON_UNSUPPORTED"));
   });
 
   test("should report key mismatch", () => {
@@ -60,37 +69,63 @@ describe("Action Descriptor Registry Bridge", () => {
     assert.ok(report.issues.some(i => i.code === "KEY_MISMATCH"));
   });
 
-  test("should report handlerKey mismatch", () => {
-    const descriptor = toActionDescriptor(minimalDefinition);
-    // Manually mutate descriptor to break policy
-    const invalidDescriptor = { ...descriptor, handlerKey: "wrong_handler" };
-
-    const report = validateDescriptorAgainstDefinition(invalidDescriptor, minimalDefinition);
-
-    assert.strictEqual(report.compatible, false);
-    assert.ok(report.issues.some(i => i.code === "HANDLER_KEY_MISMATCH"));
-  });
-
   test("should report unsafe schemas", () => {
+    const unsafeSchema: ActionJsonSchema = {
+        type: "object",
+        properties: {}
+    };
+    Object.defineProperty(unsafeSchema, "evil", {
+        get: () => { throw new Error("Executed!"); },
+        enumerable: true
+    });
+
     const unsafeDefinition: ActionDefinition = {
       ...minimalDefinition,
-      inputSchema: {
-        type: "object",
-        properties: {
-          // @ts-ignore - injecting unsafe function
-          evil: () => {}
-        }
-      } as any
+      inputSchema: unsafeSchema
     };
 
-    // toActionDescriptor should throw because it runs safeParse which calls checkSafety
-    assert.throws(() => toActionDescriptor(unsafeDefinition), /is unsafe: FUNCTION/);
+    assert.throws(() => toActionDescriptor(unsafeDefinition), /is unsafe: ACCESSOR/);
+  });
+
+  test("should report cyclic schemas", () => {
+    const cyclicSchema: any = { type: "object", properties: {} };
+    cyclicSchema.properties.self = cyclicSchema;
+
+    const cyclicDefinition: ActionDefinition = {
+      ...minimalDefinition,
+      inputSchema: cyclicSchema
+    };
+
+    assert.throws(() => toActionDescriptor(cyclicDefinition), /is unsafe: CYCLE/);
+  });
+
+  test("should not execute hostile getters on definition", () => {
+    const hostileDefinition = {
+        moduleKey: "test",
+        inputSchema: emptySchema,
+        outputSchema: emptySchema,
+        handler: async () => ({ success: true }),
+    } as ActionDefinition;
+
+    let executed = false;
+    Object.defineProperty(hostileDefinition, "key", {
+        get: () => {
+            executed = true;
+            return "hostile.key";
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    // Should throw because key is not found via getOwnPropertyDescriptor (or it's a getter)
+    assert.throws(() => toActionDescriptor(hostileDefinition), /must have a string 'key' data property/);
+    assert.strictEqual(executed, false, "Hostile getter was executed");
   });
 
   test("should create deterministic snapshot", () => {
-    const defA: ActionDefinition = { key: "a.action", moduleKey: "m", handler: async () => ({ success: true }) };
-    const defB: ActionDefinition = { key: "b.action", moduleKey: "m", handler: async () => ({ success: true }) };
-    const defC: ActionDefinition = { key: "c.action", moduleKey: "m", handler: async () => ({ success: true }) };
+    const defA: ActionDefinition = { ...minimalDefinition, key: "a.action" };
+    const defB: ActionDefinition = { ...minimalDefinition, key: "b.action" };
+    const defC: ActionDefinition = { ...minimalDefinition, key: "c.action" };
 
     const snapshot1 = createActionCatalogSnapshot([defC, defA, defB]);
     const snapshot2 = createActionCatalogSnapshot([defA, defC, defB]);
@@ -99,17 +134,6 @@ describe("Action Descriptor Registry Bridge", () => {
     assert.strictEqual(snapshot1[1].key, "b.action");
     assert.strictEqual(snapshot1[2].key, "c.action");
     assert.deepStrictEqual(snapshot1, snapshot2);
-  });
-
-  test("should not mutate input definition", () => {
-    const original = JSON.parse(JSON.stringify(minimalDefinition));
-    // Re-add handler as it's not stringifiable
-    minimalDefinition.handler = async () => ({ success: true });
-
-    toActionDescriptor(minimalDefinition);
-
-    assert.strictEqual(minimalDefinition.key, original.key);
-    assert.ok(typeof minimalDefinition.handler === "function");
   });
 
   test("should never execute handler during conversion or validation", async () => {

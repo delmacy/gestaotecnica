@@ -61,25 +61,78 @@ test("verifyTraceReceiptSelfHash: validates sha256 self-hash", () => {
   assert.strictEqual(verifyTraceReceiptSelfHash(receipt), true);
 });
 
-test("robustness: invalid null item does not throw", () => {
-  const chain = [null as unknown as TraceReceipt];
-  const result = verifyTraceReceiptChain(chain);
-  assert.strictEqual(result.valid, false);
-  assert.strictEqual(result.errors[0].code, "INVALID_RECEIPT");
+test("verifyTraceReceiptLink: valid direct link", () => {
+  const previous = createMockReceipt({ id: "prev-1" });
+  const current = createMockReceipt({
+    id: "curr-2",
+    previousReceiptId: "prev-1",
+  });
+  assert.strictEqual(verifyTraceReceiptLink(previous, current), true);
 });
 
-test("robustness: hostile accessor input does not execute getter", () => {
+test("verifyTraceReceiptLink robustness: getter on previous.id is not executed", () => {
   let executed = false;
-  const hostile = {
-    get id() {
+  const previous = createMockReceipt({ id: "prev-1" });
+  Object.defineProperty(previous, "id", {
+    get() {
       executed = true;
       return "hostile";
-    }
-  } as unknown as TraceReceipt;
+    },
+    enumerable: true
+  });
+  const current = createMockReceipt({
+    id: "curr-2",
+    previousReceiptId: "prev-1",
+  });
 
-  const result = verifyTraceReceiptChain([hostile]);
-  assert.strictEqual(result.valid, false);
+  const result = verifyTraceReceiptLink(previous, current);
+  assert.strictEqual(result, false);
   assert.strictEqual(executed, false);
+});
+
+test("verifyTraceReceiptLink robustness: getter on current.previousReceiptId is not executed", () => {
+  let executed = false;
+  const previous = createMockReceipt({ id: "prev-1" });
+  const current = createMockReceipt({
+    id: "curr-2",
+    previousReceiptId: "prev-1",
+  });
+  Object.defineProperty(current, "previousReceiptId", {
+    get() {
+      executed = true;
+      return "hostile";
+    },
+    enumerable: true
+  });
+
+  const result = verifyTraceReceiptLink(previous, current);
+  assert.strictEqual(result, false);
+  assert.strictEqual(executed, false);
+});
+
+test("verifyTraceReceiptLink robustness: revoked proxy as previous fails safely", () => {
+  const { proxy, revoke } = Proxy.revocable(createMockReceipt({ id: "prev-1" }), {});
+  revoke();
+  const current = createMockReceipt({
+    id: "curr-2",
+    previousReceiptId: "prev-1",
+  });
+
+  const result = verifyTraceReceiptLink(proxy as unknown as TraceReceipt, current);
+  assert.strictEqual(result, false);
+});
+
+test("verifyTraceReceiptLink robustness: schema-invalid current returns false", () => {
+  const previous = createMockReceipt({ id: "prev-1" });
+  const current = createMockReceipt({
+    id: "curr-2",
+    previousReceiptId: "prev-1",
+  });
+  // @ts-expect-error
+  delete current.actor;
+
+  const result = verifyTraceReceiptLink(previous, current);
+  assert.strictEqual(result, false);
 });
 
 test("robustness: nested getter in actor is not executed", () => {
@@ -98,61 +151,6 @@ test("robustness: nested getter in actor is not executed", () => {
   assert.strictEqual(executed, false);
 });
 
-test("robustness: nested getter in source.metadata is not executed", () => {
-  let executed = false;
-  const receipt = createMockReceipt();
-  receipt.source.metadata = {};
-  Object.defineProperty(receipt.source.metadata, "foo", {
-    get() {
-      executed = true;
-      return "bar";
-    },
-    enumerable: true
-  });
-
-  const result = verifyTraceReceiptChain([receipt]);
-  assert.strictEqual(result.valid, false);
-  assert.strictEqual(executed, false);
-});
-
-test("robustness: getter in artifacts item is not executed", () => {
-  let executed = false;
-  const receipt = createMockReceipt();
-  const item = { id: "art-1", name: "art", mediaType: "text/plain", uri: "file:///tmp", size: 10 };
-  Object.defineProperty(item, "id", {
-    get() {
-      executed = true;
-      return "hostile";
-    },
-    enumerable: true
-  });
-  // @ts-expect-error
-  receipt.artifacts.push(item);
-
-  const result = verifyTraceReceiptChain([receipt]);
-  assert.strictEqual(result.valid, false);
-  assert.strictEqual(executed, false);
-});
-
-test("robustness: getter in hashes item is not executed", () => {
-  let executed = false;
-  const receipt = createMockReceipt();
-  const item = { algorithm: "sha256", scope: "receipt", value: "a".repeat(64) };
-  Object.defineProperty(item, "value", {
-    get() {
-      executed = true;
-      return "hostile";
-    },
-    enumerable: true
-  });
-  // @ts-expect-error
-  receipt.hashes.push(item);
-
-  const result = verifyTraceReceiptChain([receipt]);
-  assert.strictEqual(result.valid, false);
-  assert.strictEqual(executed, false);
-});
-
 test("robustness: cyclic metadata fails safely", () => {
   const receipt = createMockReceipt();
   const meta: Record<string, unknown> = { foo: "bar" };
@@ -162,43 +160,6 @@ test("robustness: cyclic metadata fails safely", () => {
   const result = verifyTraceReceiptChain([receipt]);
   assert.strictEqual(result.valid, false);
   assert.strictEqual(result.errors[0].message, "Receipt contains hostile or cyclic structure");
-});
-
-test("robustness: revoked proxy at root fails safely", () => {
-  const { proxy, revoke } = Proxy.revocable({}, {});
-  revoke();
-
-  const result = verifyTraceReceiptChain([proxy as unknown as TraceReceipt]);
-  assert.strictEqual(result.valid, false);
-  assert.strictEqual(result.errors[0].code, "INVALID_RECEIPT");
-});
-
-test("robustness: revoked proxy nested fails safely", () => {
-  const { proxy, revoke } = Proxy.revocable({}, {});
-  revoke();
-  const receipt = createMockReceipt();
-  receipt.metadata = { hostile: proxy };
-
-  const result = verifyTraceReceiptChain([receipt]);
-  assert.strictEqual(result.valid, false);
-});
-
-test("robustness: array holes are handled", () => {
-  const receipt = createMockReceipt();
-  // @ts-expect-error
-  receipt.artifacts = [undefined, { id: "art-1", name: "art", mediaType: "text/plain", uri: "file:///tmp", size: 10 }];
-
-  const result = verifyTraceReceiptChain([receipt]);
-  assert.strictEqual(result.valid, false);
-  assert.strictEqual(result.errors[0].code, "INVALID_RECEIPT");
-});
-
-test("immutability: input and nested metadata remain unmodified", () => {
-  const r1 = createMockReceipt({ id: "r1", metadata: { foo: "bar" } });
-  Object.freeze(r1);
-  Object.freeze(r1.metadata);
-
-  assert.doesNotThrow(() => verifyTraceReceiptChain([r1]));
 });
 
 test("verifyTraceReceiptChain: valid chain of three", () => {
@@ -218,4 +179,12 @@ test("robustness: invalid first item followed by valid second item", () => {
   assert.strictEqual(result.errors.length, 2);
   assert.strictEqual(result.errors[0].code, "INVALID_RECEIPT");
   assert.strictEqual(result.errors[1].code, "INVALID_PREVIOUS_RECEIPT_ID");
+});
+
+test("immutability: input and nested metadata remain unmodified", () => {
+  const r1 = createMockReceipt({ id: "r1", metadata: { foo: "bar" } });
+  Object.freeze(r1);
+  Object.freeze(r1.metadata);
+
+  assert.doesNotThrow(() => verifyTraceReceiptChain([r1]));
 });

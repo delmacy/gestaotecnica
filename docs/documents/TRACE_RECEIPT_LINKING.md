@@ -24,10 +24,11 @@ Localiza o hash com `scope = "receipt"`. Retorna `undefined` se não houver exat
 **Nota:** Espera um receipt já validado estruturalmente.
 
 ### `verifyTraceReceiptSelfHash`
-Valida a estrutura do receipt (via `safeParse` sobre cópia higienizada) e verifica se o seu self-hash corresponde ao conteúdo recalculado.
+Valida a estrutura do receipt (via `safeParse` sobre cópia higienizada recursivamente) e verifica se o seu self-hash corresponde ao conteúdo recalculado.
 
 ### `verifyTraceReceiptLink`
 Verifica se o receipt `current` aponta corretamente para `previous` e se ambos possuem integridade válida.
+**Nota:** Utiliza higienização e validação recursiva antes de qualquer acesso aos campos, prevenindo a execução de accessores hostis.
 
 ### `verifyTraceReceiptChain`
 Valida uma cadeia completa de receipts, coletando todos os erros identificados (IDs duplicados, links quebrados, hashes inválidos, etc.).
@@ -38,11 +39,11 @@ Valida uma cadeia completa de receipts, coletando todos os erros identificados (
 - **Identidade:** O vínculo é feito estritamente pelo campo `previousReceiptId`.
 - **Imutabilidade:** As funções de verificação não modificam os objetos de entrada.
 - **Ordem:** A cadeia é validada na ordem em que é recebida no array.
-- **Robustez Avançada:**
-  - Utiliza higienização recursiva (`recursivelySanitize`) antes da validação.
-  - **Defesa contra Accessores:** Cópias recursivas são feitas apenas através de descritores de dados próprios, garantindo que nenhum `getter` (mesmo aninhado) seja executado.
+- **Robustez Avançada (Defesa Recursiva):**
+  - Utiliza higienização recursiva (`recursivelySanitize`) em todas as funções de verificação.
+  - **Defesa contra Accessores:** Cópias recursivas são feitas apenas através de descritores de dados próprios, garantindo que nenhum `getter` (mesmo aninhado ou nos campos de ID) seja executado.
   - **Falha Segura:** Falhas em descritores de propriedades (ex: Proxies revogados) ou detecção de ciclos resultam em falha de validação estrutural imediata sem lançar exceções.
-  - **Preservação:** Posições de arrays são preservadas durante a higienização.
+  - **Isolamento de Entradas Brutas:** Campos de entradas brutas nunca são acessados diretamente antes da validação. Apenas dados resultantes de `safeParse` são utilizados após a higienização.
   - Se um item for inválido, ele não é acessado novamente e recebe um ID sintético (`unknown-<index>`) para fins de relatório de erro.
   - A validação continua para os itens subsequentes mesmo após falhas estruturais em itens anteriores.
 

@@ -131,6 +131,53 @@ test("Safe JSON Contract - Security Constraints", async (t) => {
   });
 });
 
+test("Safe JSON Contract - Strict Array Inspection", async (t) => {
+  await t.test("Rejects array with own getter", () => {
+    const arr = [1];
+    Object.defineProperty(arr, "0", {
+      get() { return 1; },
+      enumerable: true,
+      configurable: true
+    });
+    assert.deepStrictEqual(checkSafeJsonValue(arr), { safe: false, reason: "ACCESSOR", path: ["0"] });
+  });
+
+  await t.test("Rejects array with symbol key", () => {
+    const arr: any = [1];
+    const sym = Symbol("extra");
+    arr[sym] = "bad";
+    assert.deepStrictEqual(checkSafeJsonValue(arr), { safe: false, reason: "SYMBOL_KEY", path: [] });
+  });
+
+  await t.test("Rejects array with extra named property", () => {
+    const arr: any = [1];
+    arr.extra = "bad";
+    assert.deepStrictEqual(checkSafeJsonValue(arr), { safe: false, reason: "HOSTILE_OBJECT", path: ["extra"] });
+  });
+
+  await t.test("Rejects array with extra numeric-like but non-index key", () => {
+    const arr: any = [1];
+    arr["1.0"] = "bad";
+    assert.deepStrictEqual(checkSafeJsonValue(arr), { safe: false, reason: "HOSTILE_OBJECT", path: ["1.0"] });
+  });
+
+  await t.test("Rejects array with index >= length", () => {
+     const arr = [1];
+     const proxy = new Proxy(arr, {
+         ownKeys(target) {
+             return ["0", "1", "length"];
+         },
+         getOwnPropertyDescriptor(target, prop) {
+             if (prop === "1") {
+                 return { value: 2, enumerable: true, configurable: true };
+             }
+             return Object.getOwnPropertyDescriptor(target, prop);
+         }
+     });
+     assert.deepStrictEqual(checkSafeJsonValue(proxy), { safe: false, reason: "HOSTILE_OBJECT", path: ["1"] });
+  });
+});
+
 test("Safe JSON Contract - Proxies", async (t) => {
   await t.test("Rejects revoked proxies", () => {
     const { proxy, revoke } = Proxy.revocable({}, {});
@@ -144,7 +191,7 @@ test("Safe JSON Contract - Proxies", async (t) => {
             throw new Error("Hostile!");
         }
     });
-    assert.deepStrictEqual(checkSafeJsonValue(proxy), { safe: false, reason: "HOSTILE_OBJECT", path: [] });
+    assert.deepStrictEqual(checkSafeJsonValue(proxy), { safe: false, reason: "HOSTILE_OBJECT", path: ["a"] });
   });
 
   await t.test("Handles hostile proxies in ownKeys", () => {
@@ -154,6 +201,24 @@ test("Safe JSON Contract - Proxies", async (t) => {
           }
       });
       assert.deepStrictEqual(checkSafeJsonValue(proxy), { safe: false, reason: "HOSTILE_OBJECT", path: [] });
+  });
+
+  await t.test("Rejects revoked array proxy", () => {
+      const { proxy, revoke } = Proxy.revocable([], {});
+      revoke();
+      assert.deepStrictEqual(checkSafeJsonValue(proxy), { safe: false, reason: "HOSTILE_OBJECT", path: [] });
+  });
+
+  await t.test("Rejects array with hostile length descriptor", () => {
+      const proxy = new Proxy([1], {
+          getOwnPropertyDescriptor(target, prop) {
+              if (prop === "length") {
+                  return { get() { return 1; }, configurable: true };
+              }
+              return Object.getOwnPropertyDescriptor(target, prop);
+          }
+      });
+      assert.deepStrictEqual(checkSafeJsonValue(proxy), { safe: false, reason: "HOSTILE_OBJECT", path: ["length"] });
   });
 });
 

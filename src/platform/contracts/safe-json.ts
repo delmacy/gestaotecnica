@@ -75,32 +75,106 @@ function internalCheckSafeJson(
 
       activePath.add(value);
       try {
-        let length = 0;
+        // 1. Reject symbol keys on arrays
+        let symbols: symbol[] = [];
         try {
-          length = (value as unknown[]).length;
+          symbols = Object.getOwnPropertySymbols(value);
+        } catch {
+          return { safe: false, reason: "HOSTILE_OBJECT", path };
+        }
+        if (symbols.length > 0) {
+          return { safe: false, reason: "SYMBOL_KEY", path };
+        }
+
+        // 2. Get length safely via descriptor to avoid proxy traps executing code
+        let lengthDescriptor: PropertyDescriptor | undefined;
+        try {
+          lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length");
+        } catch {
+          return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, "length"] };
+        }
+
+        if (!lengthDescriptor || lengthDescriptor.get || lengthDescriptor.set || typeof lengthDescriptor.value !== "number") {
+          return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, "length"] };
+        }
+        const length = lengthDescriptor.value;
+
+        // 3. Inspect all own property names via Reflect.ownKeys to catch non-enumerable numeric keys
+        let ownKeys: (string | symbol)[] = [];
+        try {
+          ownKeys = Reflect.ownKeys(value);
         } catch {
           return { safe: false, reason: "HOSTILE_OBJECT", path };
         }
 
-        // Percorrer via descritores para evitar getters
-        for (let i = 0; i < length; i++) {
+        const visitedIndices = new Set<string>();
+
+        for (const key of ownKeys) {
+          if (typeof key === "symbol") {
+             return { safe: false, reason: "SYMBOL_KEY", path };
+          }
+          if (key === "length") continue;
+
+          // Validate that key is a canonical numeric index "0", "1", ...
+          const index = Number(key);
+          if (!Number.isInteger(index) || index < 0 || index.toString() !== key) {
+            return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, key] };
+          }
+
+          if (index >= length) {
+             return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, key] };
+          }
+
+          visitedIndices.add(key);
+
           let descriptor: PropertyDescriptor | undefined;
           try {
-            descriptor = Object.getOwnPropertyDescriptor(value, i.toString());
+            descriptor = Object.getOwnPropertyDescriptor(value, key);
           } catch {
-            return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, i] };
+            return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, key] };
           }
 
           if (!descriptor) {
-            // Buraco em array (sparse array) ou elemento herdado (rejeitar)
-            return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, i] };
+            return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, key] };
           }
+
           if (descriptor.get || descriptor.set) {
-            return { safe: false, reason: "ACCESSOR", path: [...path, i] };
+            return { safe: false, reason: "ACCESSOR", path: [...path, key] };
           }
-          const result = internalCheckSafeJson(descriptor.value, [...path, i], activePath);
+
+          const result = internalCheckSafeJson(descriptor.value, [...path, key], activePath);
           if (!result.safe) return result;
         }
+
+        // 4. Sparse-array policy: check for missing indices
+        // AND check if there are any other indices < length that were missed by ownKeys (for hostile proxies)
+        for (let i = 0; i < length; i++) {
+          const key = i.toString();
+
+          if (!visitedIndices.has(key)) {
+            let descriptor: PropertyDescriptor | undefined;
+            try {
+               descriptor = Object.getOwnPropertyDescriptor(value, key);
+            } catch {
+               return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, i] };
+            }
+
+            if (!descriptor) {
+               return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, i] };
+            }
+
+            // Found an index that wasn't in ownKeys but exists. Hostile proxy.
+            if (descriptor.get || descriptor.set) {
+              return { safe: false, reason: "ACCESSOR", path: [...path, key] };
+            }
+            const result = internalCheckSafeJson(descriptor.value, [...path, key], activePath);
+            if (!result.safe) return result;
+          }
+        }
+
+        // Final protection: check if there's any property we missed that could be a numeric index >= length
+        // This is handled by the loop over ownKeys.
+
       } finally {
         activePath.delete(value);
       }
@@ -145,7 +219,7 @@ function internalCheckSafeJson(
         try {
           descriptor = Object.getOwnPropertyDescriptor(value, key);
         } catch {
-          return { safe: false, reason: "HOSTILE_OBJECT", path };
+          return { safe: false, reason: "HOSTILE_OBJECT", path: [...path, key] };
         }
 
         if (!descriptor) continue; // Não deve acontecer com getOwnPropertyNames

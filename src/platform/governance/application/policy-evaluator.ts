@@ -70,11 +70,14 @@ export function evaluateApprovalPolicy(
       reasons.push({ code: "OPERATION_MISMATCH", message: "Policy operation mismatch" });
     if (!isActive) reasons.push({ code: "POLICY_INACTIVE", message: "Policy is not active" });
 
+    // Deterministic reasons order
+    reasons.sort((a, b) => a.code.localeCompare(b.code));
+
     return {
-      satisfied: policy.requirement.mode === "none",
+      satisfied: false, // PR feedback: non-applicable policy should not be reported as satisfied
       applicable: false,
       countedDecisionIds: [],
-      ignoredDecisionIds: decisions.map((d) => d.id),
+      ignoredDecisionIds: [...decisions].map((d) => d.id).sort(),
       reasons,
       receivedApprovals: 0,
     };
@@ -89,7 +92,8 @@ export function evaluateApprovalPolicy(
     const typeMatch = d.subject.type === subject.type;
     const idMatch = d.subject.id === subject.id;
     const versionMatch = d.subject.version === subject.version;
-    const policyIdMatch = d.policyId ? d.policyId === policy.id : true;
+    // PR feedback: Decisions without policyId must not satisfy that policy.
+    const policyIdMatch = d.policyId === policy.id;
 
     if (workspaceMatch && typeMatch && idMatch && versionMatch && policyIdMatch) {
       relevantDecisions.push(d);
@@ -206,7 +210,12 @@ export function evaluateApprovalPolicy(
 
     case "unanimous":
       if (!approverRoles || approverRoles.length === 0) {
-        satisfied = receivedApprovals >= 1;
+        // PR feedback: Unanimous mode without approverRoles is semantically undefined
+        satisfied = false;
+        reasons.push({
+          code: "UNANIMOUS_ROLES_UNDEFINED",
+          message: "Unanimous mode requires defined approver roles",
+        });
       } else {
         const missingRoles = approverRoles.filter(
           (role) => (approvalsByRole[role]?.size ?? 0) === 0
@@ -222,11 +231,14 @@ export function evaluateApprovalPolicy(
       break;
   }
 
+  // PR feedback: Result arrays must be fully deterministic.
+  countedDecisionIds.sort();
   const ignoredDecisionIds = [
     ...initialIgnoredIds,
     ...duplicateIgnoredIds,
     ...rejectedOrNoRoleIgnoredIds,
-  ];
+  ].sort();
+  reasons.sort((a, b) => a.code.localeCompare(b.code));
 
   return {
     satisfied,

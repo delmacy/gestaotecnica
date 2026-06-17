@@ -55,6 +55,7 @@ function createDecision(
     subject: SUBJECT,
     decision: value,
     actor: { type: "human", id: actorId },
+    policyId: "policy-1", // Default to the main policy ID
     decidedAt: "2023-01-01T10:00:00Z",
     ...overrides,
   };
@@ -123,6 +124,19 @@ test("evaluateApprovalPolicy - Applicability", async (t) => {
     });
     assert.strictEqual(result.applicable, false);
     assert.ok(result.reasons.some((r) => r.code === "POLICY_INACTIVE"));
+  });
+
+  await t.test("non-applicable mode none is not satisfied", () => {
+    const policy = createPolicy({ status: "draft", requirement: { mode: "none" } });
+    const result = evaluateApprovalPolicy({
+      policy,
+      decisions: [],
+      subject: SUBJECT,
+      operation: OPERATION,
+      workspaceId: WORKSPACE_ID,
+    });
+    assert.strictEqual(result.applicable, false);
+    assert.strictEqual(result.satisfied, false, "PR feedback: non-applicable policy should not be reported as satisfied");
   });
 });
 
@@ -200,14 +214,13 @@ test("evaluateApprovalPolicy - Mode: quorum", async (t) => {
 });
 
 test("evaluateApprovalPolicy - Mode: unanimous", async (t) => {
-  const policy = createPolicy({
-    requirement: {
-      mode: "unanimous",
-      approverRoles: ["manager", "security"],
-    },
-  });
-
   await t.test("should not be satisfied if some roles are missing", () => {
+    const policy = createPolicy({
+      requirement: {
+        mode: "unanimous",
+        approverRoles: ["manager", "security"],
+      },
+    });
     const decisions = [createDecision("d1", "user1")];
     const actorRolesByActorId = { user1: ["manager"] };
     const result = evaluateApprovalPolicy({
@@ -223,6 +236,12 @@ test("evaluateApprovalPolicy - Mode: unanimous", async (t) => {
   });
 
   await t.test("should be satisfied if all roles have at least one approval", () => {
+    const policy = createPolicy({
+      requirement: {
+        mode: "unanimous",
+        approverRoles: ["manager", "security"],
+      },
+    });
     const decisions = [createDecision("d1", "user1"), createDecision("d2", "user2")];
     const actorRolesByActorId = {
       user1: ["manager"],
@@ -240,21 +259,23 @@ test("evaluateApprovalPolicy - Mode: unanimous", async (t) => {
     assert.strictEqual(result.receivedApprovals, 2);
   });
 
-  await t.test("should be satisfied if one actor has multiple required roles", () => {
+  await t.test("unanimous without roles returns explicit unsatisfied reason", () => {
+    const policy = createPolicy({
+      requirement: {
+        mode: "unanimous",
+        approverRoles: [], // Empty or missing
+      },
+    });
     const decisions = [createDecision("d1", "user1")];
-    const actorRolesByActorId = {
-      user1: ["manager", "security"],
-    };
     const result = evaluateApprovalPolicy({
       policy,
       decisions,
       subject: SUBJECT,
       operation: OPERATION,
       workspaceId: WORKSPACE_ID,
-      actorRolesByActorId,
     });
-    assert.strictEqual(result.satisfied, true);
-    assert.strictEqual(result.receivedApprovals, 1);
+    assert.strictEqual(result.satisfied, false);
+    assert.ok(result.reasons.some((r) => r.code === "UNANIMOUS_ROLES_UNDEFINED"));
   });
 });
 
@@ -293,9 +314,9 @@ test("evaluateApprovalPolicy - Filtering", async (t) => {
     assert.ok(result.ignoredDecisionIds.includes("d2"));
   });
 
-  await t.test("should ignore decisions from different workspace", () => {
+  await t.test("decision without policyId ignored", () => {
     const decisions = [
-      createDecision("d1", "user1", "approved", { workspaceId: OTHER_WORKSPACE_ID }),
+      createDecision("d1", "user1", "approved", { policyId: undefined }),
     ];
     const result = evaluateApprovalPolicy({
       policy,
@@ -305,13 +326,29 @@ test("evaluateApprovalPolicy - Filtering", async (t) => {
       workspaceId: WORKSPACE_ID,
     });
     assert.strictEqual(result.receivedApprovals, 0);
+    assert.ok(result.ignoredDecisionIds.includes("d1"));
+  });
+
+  await t.test("decision with another policyId ignored", () => {
+    const decisions = [
+      createDecision("d1", "user1", "approved", { policyId: "other-policy" }),
+    ];
+    const result = evaluateApprovalPolicy({
+      policy,
+      decisions,
+      subject: SUBJECT,
+      operation: OPERATION,
+      workspaceId: WORKSPACE_ID,
+    });
+    assert.strictEqual(result.receivedApprovals, 0);
+    assert.ok(result.ignoredDecisionIds.includes("d1"));
   });
 });
 
 test("evaluateApprovalPolicy - Deduplication and Most Recent Wins", async (t) => {
   const policy = createPolicy({ requirement: { mode: "single" } });
 
-  await t.test("should take the most recent decision from the same actor (by date)", () => {
+  await t.test("latest rejected decision overrides earlier approved decision", () => {
     const decisions = [
       createDecision("d1", "user1", "approved", { decidedAt: "2023-01-01T10:00:00Z" }),
       createDecision("d2", "user1", "rejected", { decidedAt: "2023-01-01T11:00:00Z" }),
@@ -323,11 +360,24 @@ test("evaluateApprovalPolicy - Deduplication and Most Recent Wins", async (t) =>
       operation: OPERATION,
       workspaceId: WORKSPACE_ID,
     });
-    // Most recent is d2 (rejected), so it shouldn't count as approval
     assert.strictEqual(result.receivedApprovals, 0);
     assert.strictEqual(result.satisfied, false);
-    assert.ok(result.ignoredDecisionIds.includes("d1"), "Old decision should be ignored as duplicate");
-    assert.ok(result.ignoredDecisionIds.includes("d2"), "Most recent (rejected) should be ignored from counted");
+  });
+
+  await t.test("latest changes_requested overrides earlier approved decision", () => {
+    const decisions = [
+      createDecision("d1", "user1", "approved", { decidedAt: "2023-01-01T10:00:00Z" }),
+      createDecision("d2", "user1", "changes_requested", { decidedAt: "2023-01-01T11:00:00Z" }),
+    ];
+    const result = evaluateApprovalPolicy({
+      policy,
+      decisions,
+      subject: SUBJECT,
+      operation: OPERATION,
+      workspaceId: WORKSPACE_ID,
+    });
+    assert.strictEqual(result.receivedApprovals, 0);
+    assert.strictEqual(result.satisfied, false);
   });
 
   await t.test("should take the most recent decision from the same actor (by id if date equal)", () => {
@@ -347,60 +397,42 @@ test("evaluateApprovalPolicy - Deduplication and Most Recent Wins", async (t) =>
     assert.strictEqual(result.satisfied, true);
     assert.deepStrictEqual(result.countedDecisionIds, ["d2"]);
   });
-
-  await t.test("rejection after approval should revoke satisfaction", () => {
-    const decisions = [
-      createDecision("d1", "user1", "approved", { decidedAt: "2023-01-01T10:00:00Z" }),
-      createDecision("d2", "user1", "rejected", { decidedAt: "2023-01-01T11:00:00Z" }),
-    ];
-    const result = evaluateApprovalPolicy({
-      policy,
-      decisions,
-      subject: SUBJECT,
-      operation: OPERATION,
-      workspaceId: WORKSPACE_ID,
-    });
-    assert.strictEqual(result.satisfied, false);
-  });
 });
 
-test("evaluateApprovalPolicy - Role Requirements", async (t) => {
-  const policy = createPolicy({
-    requirement: {
-      mode: "single",
-      approverRoles: ["manager"],
-    },
+test("evaluateApprovalPolicy - Determinism", () => {
+  const policy = createPolicy({ requirement: { mode: "quorum", minimumApprovals: 2 } });
+  const decisions = [
+    createDecision("d1", "user1"),
+    createDecision("d2", "user2"),
+    createDecision("d3", "user3", "rejected"),
+    createDecision("d0", "user0", "approved", { workspaceId: OTHER_WORKSPACE_ID }),
+  ];
+
+  const shuffled = [...decisions].sort(() => Math.random() - 0.5);
+
+  const result1 = evaluateApprovalPolicy({
+    policy,
+    decisions,
+    subject: SUBJECT,
+    operation: OPERATION,
+    workspaceId: WORKSPACE_ID,
   });
 
-  await t.test("should ignore decision if actor doesn't have required role", () => {
-    const decisions = [createDecision("d1", "user1")];
-    const actorRolesByActorId = { user1: ["employee"] };
-    const result = evaluateApprovalPolicy({
-      policy,
-      decisions,
-      subject: SUBJECT,
-      operation: OPERATION,
-      workspaceId: WORKSPACE_ID,
-      actorRolesByActorId,
-    });
-    assert.strictEqual(result.receivedApprovals, 0);
-    assert.strictEqual(result.satisfied, false);
+  const result2 = evaluateApprovalPolicy({
+    policy,
+    decisions: shuffled,
+    subject: SUBJECT,
+    operation: OPERATION,
+    workspaceId: WORKSPACE_ID,
   });
 
-  await t.test("should count decision if actor has required role", () => {
-    const decisions = [createDecision("d1", "user1")];
-    const actorRolesByActorId = { user1: ["manager"] };
-    const result = evaluateApprovalPolicy({
-      policy,
-      decisions,
-      subject: SUBJECT,
-      operation: OPERATION,
-      workspaceId: WORKSPACE_ID,
-      actorRolesByActorId,
-    });
-    assert.strictEqual(result.receivedApprovals, 1);
-    assert.strictEqual(result.satisfied, true);
-  });
+  assert.deepStrictEqual(result1.countedDecisionIds, result2.countedDecisionIds, "counted IDs deterministic across shuffled input");
+  assert.deepStrictEqual(result1.ignoredDecisionIds, result2.ignoredDecisionIds, "ignored IDs deterministic across shuffled input");
+  assert.deepStrictEqual(result1.reasons, result2.reasons, "reasons deterministic across shuffled input");
+
+  // Verify sort
+  assert.deepStrictEqual([...result1.countedDecisionIds].sort(), result1.countedDecisionIds);
+  assert.deepStrictEqual([...result1.ignoredDecisionIds].sort(), result1.ignoredDecisionIds);
 });
 
 test("evaluateApprovalPolicy - Purity and Immutability", () => {

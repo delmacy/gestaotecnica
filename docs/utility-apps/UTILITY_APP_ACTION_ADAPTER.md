@@ -23,7 +23,7 @@ Defines the declarative link between a Utility App and an Action Descriptor.
   inputMapping?: Record<string, string>;  // { utilityField: actionField }
   outputMapping?: Record<string, string>; // { actionField: utilityField }
   enabled: boolean;
-  metadata?: unknown;        // Safe JSON metadata
+  metadata?: Record<string, unknown>; // Safe JSON metadata record
 }
 ```
 
@@ -34,8 +34,10 @@ Mappings are strictly declarative and support only field selection and renaming.
 - **Output Mapping**: Defines how Action output fields are renamed to match the Utility App's expected output schema.
 
 ## Security
-- **Safe Traversal**: Metadata and mappings are validated using `checkSafety` to prevent execution of hostile getters or functions.
+- **Safe Traversal**: Metadata and mappings are validated using `checkSafety` before being parsed by Zod to prevent execution of hostile getters or functions during validation.
 - **Prototype Pollution**: The adapter explicitly rejects and prevents the use of `__proto__`, `prototype`, and `constructor` in mapping keys and values.
+- **Getter Safety**: Runtime mapping uses `Object.getOwnPropertyDescriptor` and rejects any mapped field that is an accessor (getter/setter) to prevent side-effects during mapping.
+- **Prototype-less Results**: Result objects are created using `Object.create(null)` to ensure they are prototype-safe.
 - **Immutability**: Mapping functions do not mutate the provided input objects.
 
 ## Functions
@@ -44,7 +46,7 @@ Mappings are strictly declarative and support only field selection and renaming.
 Validates that a binding object conforms to the `UtilityAppActionBindingSchema`.
 
 ### `mapUtilityAppInput(binding, utilityInput)`
-Returns a new object with fields renamed according to the `inputMapping`.
+Returns a new prototype-less object with fields renamed according to the `inputMapping`. Throws if a mapped field is an accessor.
 
 ### `mapActionOutput(binding, actionOutput)`
-Returns a new object with fields renamed according to the `outputMapping`.
+Returns a new prototype-less object with fields renamed according to the `outputMapping`. Throws if a mapped field is an accessor.

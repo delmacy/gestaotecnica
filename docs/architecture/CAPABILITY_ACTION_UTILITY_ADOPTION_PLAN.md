@@ -27,6 +27,7 @@ Baseado no inventário de fronteiras, este plano propõe a sequência de pacotes
 - **Escopo:**
   - `src/platform/utility-apps/contracts/utility-app.ts`.
   - Esquema Zod para metadados, versões e categorias (lookup, calculation, etc.).
+- **Status:** Consolidado via PR #212.
 - **Dependência:** Fase 1.
 
 #### PKG-REGISTRY-PERSISTENCE-UPDATE-001
@@ -64,7 +65,7 @@ Baseado no inventário de fronteiras, este plano propõe a sequência de pacotes
 
 1. `PKG-CAPABILITY-CORE-CONTRACT-001` (Contrato de negócio)
 2. `PKG-ACTION-DESCRIPTOR-CONTRACT-001` (Contrato técnico)
-3. `PKG-UTILITY-APP-CORE-CONTRACT-001` (Contrato de ferramenta)
+3. `PKG-UTILITY-APP-CORE-CONTRACT-001` (Consolidado em PR #212)
 4. `PKG-REGISTRY-PERSISTENCE-UPDATE-001` (Habilitação de persistência)
 5. `PKG-UTILITY-CAPABILITY-BINDING-001` (Ligação de negócio)
 6. `PKG-UTILITY-ACTION-ADAPTER-001` (Habilitação técnica)

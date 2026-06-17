@@ -1,27 +1,20 @@
-# Report: PKG-UTILITY-APP-AS-IS-INVENTORY-001 (Revised)
+# Report: PKG-UTILITY-APP-AS-IS-INVENTORY-001 (Revised V2)
 
 ## Identificação
 - **Package ID:** `PKG-UTILITY-APP-AS-IS-INVENTORY-001`
 - **Módulo:** `utility-apps`
-- **Status:** Documentation-only inventory (REVISED)
+- **Status:** Documentation-only inventory (REVISED V2)
 
-## Resumo das Correções
-O inventário foi revisado para garantir rastreabilidade total ao código real, distinguindo claramente entre ativos confirmados, parciais e propostos.
+## Resumo das Correções Conceituais
+O inventário e o plano futuro foram refinados para maior precisão conceitual quanto à natureza dos Utility Apps e ao papel do hashing na governança.
 
-### Ativos Confirmados (Traceable)
-- **Builders Schemas:** `FormFieldTypeSchema`, `ValidationRuleSchema`, `FieldDefinitionSchema` (`src/components/builder/form-builder/schema/field-schema.ts`).
-- **View Contracts:** `ViewBlueprint`, `ViewType`, `ViewFilter`, `ViewBinding`, `DataSourceMode` (`src/components/builder/view-builder/view-builder-types.ts`).
-- **Registry Schema:** `module_versions.config_schema` (`src/db/platform/schema/registry.ts`).
+### Natureza dos Utility Apps
+- Corrigida a definição para remover a restrição de "estateless". Utility Apps são ferramentas orientadas a execução focada (I/O), mas podem possuir persistência, versões e histórico.
+- Mantida a distinção: Process App orquestra fluxos temporais; Utility App realiza trabalho focado de entrada/saída.
 
-### Ativos Downgraded / Parciais
-- **Action Registry/Runner:** Confirmada a existência física dos arquivos (`src/platform/actions/`), mas rotulados como `PARTIAL` por não possuírem persistência em banco ou sandboxing para Utility Apps específicos.
-- **View Engine:** Confirmado (`src/platform/views/view-engine.ts`), mas focado em ações de entidade, não utilitários genéricos.
-- **Traceability Integration:** O hashing é um primitivo confirmado, mas a governança de regras (Rule Provenance) é `PROPOSED`.
+### Hashing e Governança
+- O hashing foi redefinido apenas como evidência de **integridade** e identidade de conteúdo.
+- A evidência de **aprovação formal** foi detalhada como um conjunto multi-fatorial (hash + ator + decisão + timestamp + política + versão + link de proveniência).
 
-### Ativos Movidos para Propostos (Gaps)
-- **Dataset Entities:** Não existem tabelas ou contratos para dados tabulares puros.
-- **Formula Engine:** Existe o contrato (`ProcessEdgeConditionSchema`), mas não o executor.
-- **CSV/Excel Importer:** Ausência total de implementação.
-
-## Conclusão da Revisão
-A arquitetura atual oferece contratos de UI sólidos, mas carece de infraestrutura de persistência e execução de lógica para Utility Apps. O roadmap foi ajustado para priorizar esses novos motores de dados e execução.
+## Conclusão
+A documentação agora reflete uma arquitetura que suporta utilitários complexos e persistentes, enquanto mantém uma barra rigorosa para o que constitui uma evidência de aprovação formal no sistema de governança.

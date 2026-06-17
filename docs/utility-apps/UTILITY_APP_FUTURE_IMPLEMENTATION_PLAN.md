@@ -21,19 +21,26 @@ Este documento descreve a sequência recomendada de pacotes para a implementaç�
 
 ## Detalhamento da Estratégia
 
-### 1. Separação de Dados
-- **Datasets Tabulares:** Devem ter persistência própria (tabelas de linhas/colunas) para permitir indexação e buscas eficientes, evitando o uso de JSONB de definições para dados volumosos.
-- **Configuração:** O JSONB deve ser restrito a metadados e versões de regras.
+### 1. Separação de Dados e Execução
+- **Datasets Tabulares:** Devem ter persistência própria (tabelas de linhas/colunas) para permitir indexação e buscas eficientes.
+- **Utility App Definition:** Focada em execução pontual, mas podendo manter estado persistente como versões, histórico e configurações.
 
 ### 2. Runtime e Sandbox
-- A execução de Utility Apps deve ser isolada do motor de workflow principal para garantir performance e segurança. O pacote `PKG-UTILITY-APP-EXECUTION-PORT-001` deve implementar um executor de `json_logic` ou similar que não exponha o servidor.
+- A execução deve ser isolada do motor de workflow principal. O pacote `PKG-UTILITY-APP-EXECUTION-PORT-001` deve garantir uma sandbox segura para lógica dinâmica.
 
-### 3. Governança
-- A integração com `Traceability` (`PKG-UTILITY-APP-PROVENANCE-001`) transformará o hashing em uma evidência de aprovação formal de regras técnicas.
+### 3. Governança e Aprovação
+- Rastreabilidade e hashing provêm evidência determinística de integridade. A **evidência formal de aprovação** requer, no mínimo:
+  - Hash do conteúdo.
+  - Identidade do ator.
+  - Decisão explícita de aprovação.
+  - Timestamp.
+  - Versão aprovada.
+  - Política ou regra de aprovação associada.
+  - Link de rastreabilidade (Trace/Provenance).
 
 ---
 
 ## Riscos de Implementação
-1. **Performance:** Ingestão de planilhas gigantes sem estratégia de paginação/indexação em banco.
-2. **Segurança:** Injeção de lógica em expressões dinâmicas.
-3. **Acoplamento:** Dependência excessiva de tipos do Form Builder em utilitários que não requerem UI.
+1. **Performance:** Ingestão de grandes volumes de dados sem indexação adequada.
+2. **Segurança:** Riscos de injeção em motores de expressão dinâmicos.
+3. **Acoplamento:** Dependência excessiva de tipos de UI para utilitários "headless".

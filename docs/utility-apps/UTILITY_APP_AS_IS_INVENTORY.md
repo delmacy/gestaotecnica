@@ -49,7 +49,7 @@ Este documento mapeia os ativos existentes no repositório `gestaotecnica` que p
    `PROPOSED`. Reutilizar o padrão de "Definition" e "Version" usado em Workflows, onde cada versão contém o snapshot do dataset.
 
 9. **Como registrar origem e aprovação de regras?**
-   `PARTIAL`. O módulo de `traceability` em `src/platform/documents/traceability/` provê primitivos de integridade (hashing), mas o workflow de aprovação e o registro de proveniência de regras são `PROPOSED`.
+   `PARTIAL`. O módulo de `traceability` em `src/platform/documents/traceability/` provê primitivos de integridade (hashing). A evidência formal de aprovação exige um registro de governança vinculando o hash a um ator, decisão e política.
 
 10. **Como ligar Utility Apps a capabilities?**
     `PROPOSED`. Utility Apps podem implementar uma ou mais `Capabilities` registradas no `Registry`. A Capability define a habilidade de negócio, enquanto o Utility App provê a ferramenta executável.
@@ -102,14 +102,14 @@ Este documento mapeia os ativos existentes no repositório `gestaotecnica` que p
 | **DecisionTableDefinition**| `PROPOSED` | Matrizes de decisão em JSON. |
 | **UtilityViewDefinition** | `PARTIAL` | Estender `ViewBlueprint` para ferramentas. |
 | **RuleApproval** | `PROPOSED` | Workflow de governança para regras. |
-| **RuleProvenance** | `PARTIAL` | Usar `TraceReceipt` como primitivo. |
+| **RuleProvenance** | `PARTIAL` | Usar `TraceReceipt` como primitivo de integridade. |
 
 ---
 
 ## 5. Distinção de Conceitos
 
-- **Process App:** Orquestração de passos e estados temporais. Focado em fluxo.
-- **Utility App:** Transformação ou consulta pontual sem estado persistente. Focado em I/O.
+- **Process App:** Orquestração de fluxos temporais, estados e transições.
+- **Utility App:** Ferramenta executável orientada a consulta, cálculo, comparação, diagnóstico ou transformação pontual de dados. Diferentemente de um Process App, não representa necessariamente um fluxo temporal de etapas e estados, embora possa consumir dados persistidos, possuir versões e registrar histórico de execução.
 - **Capability:** Conceito de negócio / habilidade no catálogo (ex: "Cálculo de Imposto").
 - **View:** Componente visual de apresentação de dados.
 - **Action:** Unidade de execução lógica registrada no sistema.

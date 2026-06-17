@@ -70,14 +70,18 @@ test("DatasetDefinitionSchema - should reject invalid status", () => {
   assert.strictEqual(result.success, false);
 });
 
-test("DatasetDefinitionSchema - should reject invalid kind", () => {
-  const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, kind: "streaming" });
-  assert.strictEqual(result.success, false);
+test("DatasetDefinitionSchema - should reject reduced enum values for kind", () => {
+  ["analytical", "derived", "streaming"].forEach((kind) => {
+    const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, kind });
+    assert.strictEqual(result.success, false, `Should reject kind: ${kind}`);
+  });
 });
 
-test("DatasetDefinitionSchema - should reject invalid refresh mode", () => {
-  const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, refreshMode: "cron" });
-  assert.strictEqual(result.success, false);
+test("DatasetDefinitionSchema - should reject reduced enum values for refresh mode", () => {
+  ["on_demand", "event_driven", "cron"].forEach((refreshMode) => {
+    const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, refreshMode });
+    assert.strictEqual(result.success, false, `Should reject refreshMode: ${refreshMode}`);
+  });
 });
 
 test("DatasetDefinitionSchema - should reject empty fields", () => {
@@ -152,16 +156,72 @@ test("DatasetDefinitionSchema - should not mutate input", () => {
   assert.deepStrictEqual(input, VALID_DATASET);
 });
 
-test("DatasetDefinitionSchema - should reject dangerous fields in metadata", () => {
+test("DatasetDefinitionSchema - metadata safety - should reject functions", () => {
+  const result = DatasetDefinitionSchema.safeParse({
+    ...VALID_DATASET,
+    metadata: {
+      fn: () => console.log("evil"),
+    },
+  });
+  assert.strictEqual(result.success, false);
+});
+
+test("DatasetDefinitionSchema - metadata safety - should reject getters", () => {
+  const objWithGetter = {
+    get evil() {
+      console.log("executing getter");
+      return "hostile";
+    },
+  };
+
+  const result = DatasetDefinitionSchema.safeParse({
+    ...VALID_DATASET,
+    metadata: objWithGetter as any,
+  });
+  assert.strictEqual(result.success, false);
+});
+
+test("DatasetDefinitionSchema - metadata safety - should reject cycles", () => {
+  const cycle: any = { a: 1 };
+  cycle.self = cycle;
+
+  const result = DatasetDefinitionSchema.safeParse({
+    ...VALID_DATASET,
+    metadata: cycle,
+  });
+  assert.strictEqual(result.success, false);
+});
+
+test("DatasetDefinitionSchema - metadata safety - should reject non-JSON types", () => {
+  const forbidden = [new Date(), new Map(), new Set(), new WeakMap(), new WeakSet()];
+  forbidden.forEach((val) => {
     const result = DatasetDefinitionSchema.safeParse({
-        ...VALID_DATASET,
-        metadata: {
-            fn: () => console.log("evil")
-        }
+      ...VALID_DATASET,
+      metadata: { val },
     });
-    // Zod's UnknownRecordSchema (z.record(z.string(), z.unknown())) doesn't automatically reject functions,
-    // unless explicitly handled. However, in this task we are focused on the contract definition.
-    // If we wanted to reject functions, we'd need a more complex "json-safe" schema.
-    // Given the instructions: "função em metadata rejeitada, se contrato seguro".
-    // I used UnknownRecordSchema which is the platform standard.
+    assert.strictEqual(result.success, false, `Should reject type: ${val.constructor.name}`);
+  });
+});
+
+test("DatasetDefinitionSchema - sourceReference safety - should accept logical IDs", () => {
+  const validSources = ["sql-orders-v1", "legacy_crm/clients", "s3.bucket.logs"];
+  validSources.forEach((sourceReference) => {
+    const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, sourceReference });
+    assert.strictEqual(result.success, true, `Should accept sourceReference: ${sourceReference}`);
+  });
+});
+
+test("DatasetDefinitionSchema - sourceReference safety - should reject URLs and connection strings", () => {
+  const invalidSources = [
+    "https://api.example.com",
+    "postgres://user:pass@localhost:5432/db",
+    "mysql://root@localhost/db",
+    "SELECT * FROM users",
+    "/etc/passwd",
+    "C:\\Windows\\System32",
+  ];
+  invalidSources.forEach((sourceReference) => {
+    const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, sourceReference });
+    assert.strictEqual(result.success, false, `Should reject sourceReference: ${sourceReference}`);
+  });
 });

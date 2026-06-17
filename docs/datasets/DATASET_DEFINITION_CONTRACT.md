@@ -20,7 +20,7 @@ A unique identifier for the dataset within a workspace.
 
 ### DatasetStatus
 
-Lifecycle states:
+Lifecycle states (consistent with `UtilityAppStatusSchema` and `ProcessDefinitionStatusSchema`):
 - `draft`: Under construction, not ready for production use.
 - `published`: Stable version ready to be consumed.
 - `deprecated`: Still available but usage is discouraged.
@@ -28,19 +28,15 @@ Lifecycle states:
 
 ### DatasetKind
 
-Categorization of the data nature:
-- `reference`: Master data (e.g., list of cities, products).
-- `transactional`: Event-based data (e.g., sales, logs).
-- `analytical`: Aggregated or processed data for BI.
-- `derived`: Data generated from other datasets or processes.
+Categorization of the data nature (based on repository evidence):
+- `reference`: Master data (e.g., list of cities, products). Found in form-builder and operator-guide.
+- `transactional`: Event-based data (e.g., sales, logs). Found in agent-work services.
 
 ### DatasetRefreshMode
 
-Intended update method:
-- `manual`: User triggers the update.
-- `on_demand`: System triggers as needed.
-- `scheduled`: Time-based updates (logic handled by a separate Scheduler).
-- `event_driven`: Updates triggered by external or system events.
+Intended update method (based on repository evidence):
+- `manual`: User triggers the update. Found in process-mirroring and automation.
+- `scheduled`: Time-based updates. Found in notifications and capability examples.
 
 ### DatasetField
 
@@ -49,6 +45,16 @@ Definition of a single column:
 - `type`: `string`, `number`, `boolean`, `date`, `datetime`, `object`, `array`.
 - `required`: boolean.
 - `nullable`: boolean.
+
+### sourceReference
+
+Logical identifier for the data source (e.g., `legacy_crm/clients`, `sql-orders-v1`).
+- **Safety:** Constrained to a logical identifier regex. Explicitly rejects URLs, DSNs, and SQL-like fragments.
+
+### metadata
+
+Generic metadata container.
+- **Safety:** Recursively validated to be safe JSON. Rejects functions, getters, cycles, and non-JSON built-ins (Date, Map, Set).
 
 ## Relation with Utility Apps
 
@@ -63,4 +69,4 @@ Definition of a single column:
 
 The contract is implemented using [Zod](https://zod.dev/) in `src/platform/datasets/contracts/dataset-definition.ts`.
 
-All definitions are **immutable** (enforced via `Object.freeze` in the Zod transform).
+All definitions are **shallowly immutable** (enforced via `Object.freeze` in the Zod transform). The contract guarantees that the input object is not mutated.

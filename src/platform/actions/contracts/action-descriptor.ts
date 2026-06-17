@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { UnknownRecordSchema } from "@/platform/contracts";
 import { checkSafety } from "./safe-traversal";
 
 /**
@@ -46,8 +45,8 @@ export const ActionDescriptorSchema = z
     description: z.string().max(2000).optional(),
     handlerKey: z.string().min(1).max(200),
 
-    // Explicitly use z.unknown() to avoid early getter execution by Zod's internal parsing.
-    // Validation as record/object is handled by checkSafety and implicit serializability goals.
+    // Use z.unknown() to allow checkSafety to handle all object introspection
+    // and avoid any early trigger of getters by Zod.
     inputSchema: z.unknown(),
     outputSchema: z.unknown(),
 
@@ -66,15 +65,13 @@ export const ActionDescriptorSchema = z
   })
   .strict()
   .superRefine((data, ctx) => {
-    // We manually enforce the UnknownRecordSchema contract (plain object)
-    // to have total control over property access during validation.
-
     const schemas: ["inputSchema", "outputSchema"] = ["inputSchema", "outputSchema"];
 
     for (const schemaPath of schemas) {
       const schemaValue = data[schemaPath];
 
       // 1. Must be a plain object (UnknownRecord equivalent)
+      // We manually check for object and non-array here as top-level requirement.
       if (schemaValue === null || typeof schemaValue !== "object" || Array.isArray(schemaValue)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

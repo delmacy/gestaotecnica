@@ -8,13 +8,14 @@ export type TraversalResult =
  * - No getter/setter execution (rejects if present)
  * - Cycle detection using active path
  * - Shared references (DAGs) allowed
- * - Built-ins like Date, Map, Set, etc. rejected
+ * - Built-ins and custom classes rejected
  * - Handles proxies/hostile objects safely
  */
 export function checkSafety(
   value: unknown,
   path = new Set<unknown>()
 ): TraversalResult {
+  // Basic non-object types
   if (typeof value === "function") {
     return { isSafe: false, reason: "FUNCTION" };
   }
@@ -23,22 +24,28 @@ export function checkSafety(
     return { isSafe: true };
   }
 
-  // Reject non-plain built-ins
-  const tag = Object.prototype.toString.call(value);
-  if (tag !== "[object Object]" && tag !== "[object Array]") {
-    return { isSafe: false, reason: "UNSUPPORTED_BUILTIN" };
-  }
-
-  // Cycle detection: only reject if the object is in the CURRENT recursion path
-  if (path.has(value)) {
-    return { isSafe: false, reason: "CYCLE" };
-  }
-
-  path.add(value);
-
+  // Entire object introspection must be protected
   try {
+    // 1. Cycle detection (active path)
+    if (path.has(value)) {
+      return { isSafe: false, reason: "CYCLE" };
+    }
+
+    // 2. Determine if it is a plain object or array without executing Symbol.toStringTag
+    const proto = Object.getPrototypeOf(value);
+    const isPlainObject = proto === null || proto === Object.prototype;
+    const isArray = Array.isArray(value);
+
+    if (!isPlainObject && !isArray) {
+      return { isSafe: false, reason: "UNSUPPORTED_BUILTIN" };
+    }
+
+    // 3. Descend
+    path.add(value);
+
+    // We use getOwnPropertyNames to avoid prototype traversal
+    const keys = Object.getOwnPropertyNames(value);
     const descriptors = Object.getOwnPropertyDescriptors(value);
-    const keys = Object.keys(descriptors);
 
     for (const key of keys) {
       const descriptor = descriptors[key];
@@ -54,10 +61,28 @@ export function checkSafety(
         return result;
       }
     }
+
+    // Check symbols specifically for toStringTag if it's an own property
+    const symbols = Object.getOwnPropertySymbols(value);
+    for (const sym of symbols) {
+       const descriptor = Object.getOwnPropertyDescriptor(value, sym);
+       if (descriptor?.get || descriptor?.set) {
+         return { isSafe: false, reason: "ACCESSOR" };
+       }
+
+       // Only recurse on non-toStringTag symbols for content safety
+       if (sym !== Symbol.toStringTag) {
+           const result = checkSafety(descriptor?.value, path);
+           if (!result.isSafe) {
+             return result;
+           }
+       }
+    }
+
   } catch {
+    // Catch-all for revoked proxies or hostile objects
     return { isSafe: false, reason: "REVOKED_PROXY" };
   } finally {
-    // Remove from path after finishing this branch to allow shared references elsewhere
     path.delete(value);
   }
 

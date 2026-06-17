@@ -40,7 +40,7 @@ export type UtilityAppStatus = z.infer<typeof UtilityAppStatusSchema>;
  *
  * Technical Note: This regex is deliberately shared with ProcessDefinitionKeySchema
  * for consistency across the System Builder, but UtilityAppKey remains a distinct
- * nominal type and must not be used interchangeably with ProcessDefinitionKey.
+ * semantic contract and must not be used interchangeably with ProcessDefinitionKey.
  */
 export const UtilityAppKeySchema = z
   .string()
@@ -50,9 +50,16 @@ export const UtilityAppKeySchema = z
 export type UtilityAppKey = z.infer<typeof UtilityAppKeySchema>;
 
 /**
+ * Capability Key Reference
+ * Local schema for referencing capabilities, following the registry convention.
+ */
+export const CapabilityKeySchema = z.string().regex(/^[a-z0-9-]+$/);
+export type CapabilityKey = z.infer<typeof CapabilityKeySchema>;
+
+/**
  * Utility App Definition Schema
  * Canonical contract for representing a Utility App in the System Builder.
- * Focused on I/O tools (stateless helpers) rather than temporal processes.
+ * Focused on specialized I/O execution semantics rather than temporal processes.
  */
 export const UtilityAppDefinitionSchema = z
   .object({
@@ -67,7 +74,12 @@ export const UtilityAppDefinitionSchema = z
     inputSchema: UnknownRecordSchema,
     outputSchema: UnknownRecordSchema,
     configuration: UnknownRecordSchema,
-    capabilityKeys: z.array(z.string().min(1)).optional(),
+    capabilityKeys: z
+      .array(CapabilityKeySchema)
+      .optional()
+      .refine((items) => !items || new Set(items).size === items.length, {
+        message: "capabilityKeys must be unique",
+      }),
     tags: z
       .array(z.string().min(1))
       .optional()

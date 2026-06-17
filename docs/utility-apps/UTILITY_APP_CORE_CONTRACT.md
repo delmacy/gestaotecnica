@@ -7,7 +7,7 @@ This document defines the canonical contract for Utility Apps within the System 
 To ensure a clear architectural separation, the following definitions are established:
 
 ### Utility App Definition
-Defines an executable tool focused on I/O (Input/Output). Utility Apps are stateless helpers designed to perform specific operations like calculations, lookups, or decision tables. They do not manage complex temporal flows or state transitions themselves.
+Defines an executable tool focused on I/O (Input/Output). Utility Apps are specialized tools designed to perform specific operations like calculations, lookups, or decision tables. While they may consume persisted datasets, maintain versions, and record execution history, they are characterized by their execution semantics rather than temporal flow management.
 
 ### Capability
 Defines a business ability or skill (e.g., "Credit Scoring", "Identity Verification") that can be implemented by one or more tools, processes, or modules. A Utility App may declare that it implements certain capabilities via `capabilityKeys`, but the Utility App itself is not a Capability.

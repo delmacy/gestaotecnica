@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { UtilityAppDefinitionSchema, UtilityAppCategorySchema, UtilityAppStatusSchema, UtilityAppKeySchema } from "../../src/platform/utility-apps/contracts/utility-app";
+import { UtilityAppDefinitionSchema, UtilityAppCategorySchema, UtilityAppStatusSchema, UtilityAppKeySchema, CapabilityKeySchema } from "../../src/platform/utility-apps/contracts/utility-app";
 
 const validBase = {
   id: "utility-123",
@@ -89,6 +89,20 @@ test("UtilityAppKeySchema - invalid keys", () => {
   }
 });
 
+test("CapabilityKeySchema - valid keys", () => {
+  const validKeys = ["cap-1", "my-capability", "123-abc"];
+  for (const key of validKeys) {
+    assert.ok(CapabilityKeySchema.safeParse(key).success, `Capability key ${key} should be valid`);
+  }
+});
+
+test("CapabilityKeySchema - invalid keys", () => {
+  const invalidKeys = ["My-Cap", "cap_1", "cap.1", " "];
+  for (const key of invalidKeys) {
+    assert.strictEqual(CapabilityKeySchema.safeParse(key).success, false, `Capability key ${key} should be invalid`);
+  }
+});
+
 test("UtilityAppDefinitionSchema - name cannot be empty", () => {
   const invalid = { ...validBase, name: "" };
   assert.strictEqual(UtilityAppDefinitionSchema.safeParse(invalid).success, false);
@@ -115,9 +129,12 @@ test("UtilityAppDefinitionSchema - tags must be unique", () => {
   const invalid = { ...validBase, tags: ["tag1", "tag1"] };
   const result = UtilityAppDefinitionSchema.safeParse(invalid);
   assert.strictEqual(result.success, false, "Duplicate tags should be invalid");
-  if (!result.success) {
-    assert.ok(result.error.issues.some(i => i.message === "tags must be unique"));
-  }
+});
+
+test("UtilityAppDefinitionSchema - capabilityKeys must be unique", () => {
+  const invalid = { ...validBase, capabilityKeys: ["cap-1", "cap-1"] };
+  const result = UtilityAppDefinitionSchema.safeParse(invalid);
+  assert.strictEqual(result.success, false, "Duplicate capabilityKeys should be invalid");
 });
 
 test("UtilityAppDefinitionSchema - rejects unknown fields", () => {

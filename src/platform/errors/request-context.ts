@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { PlatformErrorContext } from "./factory";
-import { CorrelationIdSchema } from "../contracts";
+import { CorrelationIdSchema, EntityIdSchema, ISODateTimeSchema } from "../contracts";
 
 /**
  * PlatformErrorRequestContextDependencies - injectable dependencies for PlatformErrorContext creation.
@@ -14,8 +14,8 @@ export interface PlatformErrorRequestContextDependencies {
  * createPlatformErrorContextFromRequest - centralizes the creation of PlatformErrorContext from an HTTP request.
  *
  * Rules:
- * 1. id: Generated via createId() dependency (defaults to randomUUID).
- * 2. timestamp: Generated via now() dependency (defaults to new Date().toISOString()).
+ * 1. id: Generated via createId() dependency. Validated against EntityIdSchema. Throws on failure.
+ * 2. timestamp: Generated via now() dependency. Validated against ISODateTimeSchema. Throws on failure.
  * 3. correlationId: Preserved ONLY if present in 'x-correlation-id' header and valid.
  * 4. Safety: No sensitive headers (authorization, cookies, etc.) are copied.
  * 5. Validation: Validates correlationId against canonical schema and CRLF policy.
@@ -23,6 +23,7 @@ export interface PlatformErrorRequestContextDependencies {
  * @param request - The incoming HTTP Request.
  * @param dependencies - Optional dependency overrides for deterministic testing.
  * @returns PlatformErrorContext
+ * @throws {ZodError} If generated id or timestamp are invalid.
  */
 export function createPlatformErrorContextFromRequest(
   request: Request,
@@ -33,9 +34,15 @@ export function createPlatformErrorContextFromRequest(
     now = () => new Date().toISOString(),
   } = dependencies;
 
+  // 1. Generate and Validate ID
+  const id = EntityIdSchema.parse(createId());
+
+  // 2. Generate and Validate Timestamp
+  const timestamp = ISODateTimeSchema.parse(now());
+
   const context: PlatformErrorContext = {
-    id: createId(),
-    timestamp: now(),
+    id,
+    timestamp,
   };
 
   const correlationHeader = request.headers.get("x-correlation-id");
@@ -47,7 +54,7 @@ export function createPlatformErrorContextFromRequest(
     // 2. Reject CRLF
     const hasCRLF = /[\r\n]/.test(trimmed);
 
-    // 3. Length limit (standard CorrelationIdSchema usually handles min(1), we add reasonable max)
+    // 3. Length limit
     const isTooLong = trimmed.length > 255;
 
     if (!hasCRLF && !isTooLong && trimmed.length > 0) {
@@ -59,10 +66,6 @@ export function createPlatformErrorContextFromRequest(
       }
     }
   }
-
-  // Idempotency key is not yet part of PlatformErrorContext contract
-  // CausationId is not typically sourced directly from simple HTTP headers without specific protocols
-  // WorkspaceId is usually resolved by a dedicated service/middleware, not directly from raw request in this factory
 
   return Object.freeze(context);
 }

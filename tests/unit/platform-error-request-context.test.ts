@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import { createPlatformErrorContextFromRequest } from "../../src/platform/errors/request-context";
+import { PlatformErrorContext } from "../../src/platform/errors/factory";
+import { ZodError } from "zod";
 
 test("PlatformErrorRequestContext - request without correlationId", () => {
   const request = new Request("http://localhost/api");
@@ -24,10 +26,6 @@ test("PlatformErrorRequestContext - valid correlationId", () => {
 });
 
 test("PlatformErrorRequestContext - correlationId with CRLF is rejected", () => {
-  // We can't easily test this by passing it to Request constructor in some environments
-  // as it throws there. But we want to ensure our factory handles it if it somehow gets through
-  // or if we use a mock request.
-
   const mockRequest = {
     headers: {
       get: (name: string) => name === "x-correlation-id" ? "corr-123\r\nInjected: value" : null
@@ -81,12 +79,19 @@ test("PlatformErrorRequestContext - sensitive headers are not copied", () => {
       "Cookie": "session=123",
     },
   });
-  const context = createPlatformErrorContextFromRequest(request) as any;
+  const context = createPlatformErrorContextFromRequest(request);
 
   assert.strictEqual(context.correlationId, "corr-123");
-  assert.strictEqual(context.authorization, undefined);
-  assert.strictEqual(context.cookie, undefined);
-  assert.strictEqual(context.Authorization, undefined);
+
+  // Verify context only contains expected keys
+  const keys = Object.keys(context);
+  assert.ok(keys.includes("id"));
+  assert.ok(keys.includes("timestamp"));
+  assert.ok(keys.includes("correlationId"));
+  assert.ok(!keys.includes("Authorization"));
+  assert.ok(!keys.includes("authorization"));
+  assert.ok(!keys.includes("Cookie"));
+  assert.ok(!keys.includes("cookie"));
 });
 
 test("PlatformErrorRequestContext - request is not mutated", () => {
@@ -98,20 +103,41 @@ test("PlatformErrorRequestContext - request is not mutated", () => {
   assert.strictEqual(request.headers.get("x-correlation-id"), "corr-123");
 });
 
-test("PlatformErrorRequestContext - invalid timestamp from dependency (still returned but will fail envelope validation later)", () => {
-    const request = new Request("http://localhost/api");
-    const context = createPlatformErrorContextFromRequest(request, {
+test("PlatformErrorRequestContext - invalid timestamp rejected (throws)", () => {
+  const request = new Request("http://localhost/api");
+  assert.throws(() => {
+    createPlatformErrorContextFromRequest(request, {
       now: () => "invalid-date",
     });
+  }, (err) => err instanceof ZodError);
+});
 
-    assert.strictEqual(context.timestamp, "invalid-date");
+test("PlatformErrorRequestContext - invalid generated id rejected (throws)", () => {
+  const request = new Request("http://localhost/api");
+  assert.throws(() => {
+    createPlatformErrorContextFromRequest(request, {
+      createId: () => "", // EntityIdSchema requires min(1)
+    });
+  }, (err) => err instanceof ZodError);
+});
+
+test("PlatformErrorRequestContext - valid injected values accepted", () => {
+  const request = new Request("http://localhost/api");
+  const context = createPlatformErrorContextFromRequest(request, {
+    createId: () => "valid-id",
+    now: () => "2024-05-20T10:00:00Z",
+  });
+
+  assert.strictEqual(context.id, "valid-id");
+  assert.strictEqual(context.timestamp, "2024-05-20T10:00:00Z");
 });
 
 test("PlatformErrorRequestContext - frozen context", () => {
-    const request = new Request("http://localhost/api");
-    const context = createPlatformErrorContextFromRequest(request);
+  const request = new Request("http://localhost/api");
+  const context = createPlatformErrorContextFromRequest(request) as PlatformErrorContext;
 
-    assert.throws(() => {
-      (context as any).id = "new-id";
-    }, /TypeError/);
+  assert.throws(() => {
+    // @ts-expect-error - testing readonly enforcement
+    context.id = "new-id";
+  }, /TypeError/);
 });

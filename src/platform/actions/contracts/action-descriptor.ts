@@ -1,12 +1,6 @@
 import { z } from "zod";
+import { UnknownRecordSchema } from "@/platform/contracts";
 import { checkSafety } from "./safe-traversal";
-
-/**
- * Redefinition of UnknownRecordSchema to ensure strict compliance and avoid
- * circular dependencies with platform contracts if they ever occur.
- * No 'any' allowed.
- */
-const UnknownRecordSchema = z.record(z.string(), z.unknown());
 
 /**
  * Action Descriptor Status
@@ -44,7 +38,6 @@ export type ActionDescriptorKey = z.infer<typeof ActionDescriptorKeySchema>;
 /**
  * Action Descriptor Schema
  * Canonical contract for describing an Action in the technical catalog.
- * Strict validation and safety checks for schemas.
  */
 export const ActionDescriptorSchema = z
   .object({
@@ -52,8 +45,12 @@ export const ActionDescriptorSchema = z
     name: z.string().min(1).max(200),
     description: z.string().max(2000).optional(),
     handlerKey: z.string().min(1).max(200),
+
+    // Explicitly use z.unknown() to avoid early getter execution by Zod's internal parsing.
+    // Validation as record/object is handled by checkSafety and implicit serializability goals.
     inputSchema: z.unknown(),
     outputSchema: z.unknown(),
+
     version: z.number().int().positive().optional(),
     status: ActionDescriptorStatusSchema.optional(),
     executionMode: ActionExecutionModeSchema.optional(),
@@ -69,25 +66,33 @@ export const ActionDescriptorSchema = z
   })
   .strict()
   .superRefine((data, ctx) => {
-    // We check inputSchema and outputSchema for safety.
-    // Use z.unknown() to avoid Zod triggering getters during its own parsing.
+    // We manually enforce the UnknownRecordSchema contract (plain object)
+    // to have total control over property access during validation.
 
-    const inputResult = checkSafety(data.inputSchema);
-    if (!inputResult.isSafe) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `inputSchema is unsafe: ${inputResult.reason}`,
-        path: ["inputSchema"],
-      });
-    }
+    const schemas: ["inputSchema", "outputSchema"] = ["inputSchema", "outputSchema"];
 
-    const outputResult = checkSafety(data.outputSchema);
-    if (!outputResult.isSafe) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `outputSchema is unsafe: ${outputResult.reason}`,
-        path: ["outputSchema"],
-      });
+    for (const schemaPath of schemas) {
+      const schemaValue = data[schemaPath];
+
+      // 1. Must be a plain object (UnknownRecord equivalent)
+      if (schemaValue === null || typeof schemaValue !== "object" || Array.isArray(schemaValue)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${schemaPath} must be a plain object`,
+          path: [schemaPath],
+        });
+        continue;
+      }
+
+      // 2. Perform deep safety check
+      const safetyResult = checkSafety(schemaValue);
+      if (!safetyResult.isSafe) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${schemaPath} is unsafe: ${safetyResult.reason}`,
+          path: [schemaPath],
+        });
+      }
     }
   });
 

@@ -1,16 +1,20 @@
 export type TraversalResult =
   | { isSafe: true }
-  | { isSafe: false; reason: "FUNCTION" | "ACCESSOR" | "CYCLE" | "REVOKED_PROXY" | "HOSTILE_OBJECT" };
+  | { isSafe: false; reason: "FUNCTION" | "ACCESSOR" | "CYCLE" | "REVOKED_PROXY" | "UNSUPPORTED_BUILTIN" | "HOSTILE_OBJECT" };
 
 /**
  * Checks if a value is safe for serialization using strict traversal.
  * - No prototype traversal
  * - No getter/setter execution (rejects if present)
- * - Cycle detection (rejects if present)
+ * - Cycle detection using active path
+ * - Shared references (DAGs) allowed
+ * - Built-ins like Date, Map, Set, etc. rejected
  * - Handles proxies/hostile objects safely
- * - No 'any' usage
  */
-export function checkSafety(value: unknown, seen = new WeakSet()): TraversalResult {
+export function checkSafety(
+  value: unknown,
+  path = new Set<unknown>()
+): TraversalResult {
   if (typeof value === "function") {
     return { isSafe: false, reason: "FUNCTION" };
   }
@@ -19,11 +23,18 @@ export function checkSafety(value: unknown, seen = new WeakSet()): TraversalResu
     return { isSafe: true };
   }
 
-  // Handle cycles - Rejects cycles as non-serializable for this contract
-  if (seen.has(value)) {
+  // Reject non-plain built-ins
+  const tag = Object.prototype.toString.call(value);
+  if (tag !== "[object Object]" && tag !== "[object Array]") {
+    return { isSafe: false, reason: "UNSUPPORTED_BUILTIN" };
+  }
+
+  // Cycle detection: only reject if the object is in the CURRENT recursion path
+  if (path.has(value)) {
     return { isSafe: false, reason: "CYCLE" };
   }
-  seen.add(value);
+
+  path.add(value);
 
   try {
     const descriptors = Object.getOwnPropertyDescriptors(value);
@@ -37,15 +48,17 @@ export function checkSafety(value: unknown, seen = new WeakSet()): TraversalResu
         return { isSafe: false, reason: "ACCESSOR" };
       }
 
-      // Recurse only through descriptor.value (the data property)
-      const result = checkSafety(descriptor.value, seen);
+      // Recurse through data property
+      const result = checkSafety(descriptor.value, path);
       if (!result.isSafe) {
         return result;
       }
     }
   } catch {
-    // If Object.getOwnPropertyDescriptors throws, it's likely a revoked proxy or hostile object
     return { isSafe: false, reason: "REVOKED_PROXY" };
+  } finally {
+    // Remove from path after finishing this branch to allow shared references elsewhere
+    path.delete(value);
   }
 
   return { isSafe: true };

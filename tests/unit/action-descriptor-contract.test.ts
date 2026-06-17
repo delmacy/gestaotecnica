@@ -6,6 +6,8 @@ import {
 } from "../../src/platform/actions/contracts/action-descriptor";
 import { checkSafety } from "../../src/platform/actions/contracts/safe-traversal";
 
+type MutableRecord = Record<string, unknown>;
+
 const validDescriptorBase = {
   key: "test.action",
   name: "Test Action",
@@ -22,7 +24,7 @@ test("checkSafety - should reject functions", () => {
 
 test("checkSafety - should reject accessors (getters)", () => {
   let executed = false;
-  const obj = {};
+  const obj: MutableRecord = {};
   Object.defineProperty(obj, "evil", {
     get: () => {
       executed = true;
@@ -38,7 +40,7 @@ test("checkSafety - should reject accessors (getters)", () => {
 });
 
 test("checkSafety - should reject accessors (setters)", () => {
-  const obj = {};
+  const obj: MutableRecord = {};
   Object.defineProperty(obj, "evil", {
     set: () => {},
     enumerable: true
@@ -50,12 +52,29 @@ test("checkSafety - should reject accessors (setters)", () => {
 });
 
 test("checkSafety - should reject cycles", () => {
-  const obj: any = {};
+  const obj: MutableRecord = {};
   obj.self = obj;
 
   const result = checkSafety(obj);
   assert.strictEqual(result.isSafe, false);
   if (!result.isSafe) assert.strictEqual(result.reason, "CYCLE");
+});
+
+test("checkSafety - should allow shared references (DAG)", () => {
+  const shared: MutableRecord = { detail: "shared" };
+  const obj: MutableRecord = {
+    a: shared,
+    b: shared
+  };
+
+  const result = checkSafety(obj);
+  assert.strictEqual(result.isSafe, true, "Shared references should be allowed if acyclic");
+});
+
+test("checkSafety - should reject non-plain built-ins", () => {
+  assert.strictEqual(checkSafety(new Date()).isSafe, false, "Date");
+  assert.strictEqual(checkSafety(new Map()).isSafe, false, "Map");
+  assert.strictEqual(checkSafety(new Set()).isSafe, false, "Set");
 });
 
 test("checkSafety - should ignore prototype-inherited functions", () => {
@@ -137,35 +156,30 @@ test("ActionDescriptorSchema - unknown field rejection", () => {
   assert.strictEqual(ActionDescriptorSchema.safeParse({ ...validDescriptorBase, extra: "field" }).success, false);
 });
 
-test("ActionDescriptorSchema - cyclic inputSchema rejection", () => {
-  const inputSchema: any = { type: "object" };
-  inputSchema.self = inputSchema;
-
-  const descriptor = {
-    ...validDescriptorBase,
-    inputSchema
-  };
-
-  const result = ActionDescriptorSchema.safeParse(descriptor);
-  assert.strictEqual(result.success, false, "Should reject cycles in inputSchema");
+test("ActionDescriptorSchema - primitive schemas rejection", () => {
+  assert.strictEqual(ActionDescriptorSchema.safeParse({ ...validDescriptorBase, inputSchema: "string" }).success, false, "string schema");
+  assert.strictEqual(ActionDescriptorSchema.safeParse({ ...validDescriptorBase, inputSchema: 123 }).success, false, "number schema");
+  assert.strictEqual(ActionDescriptorSchema.safeParse({ ...validDescriptorBase, inputSchema: true }).success, false, "boolean schema");
 });
 
-test("ActionDescriptorSchema - cyclic outputSchema rejection", () => {
-  const outputSchema: any = { type: "object" };
-  outputSchema.self = outputSchema;
+test("ActionDescriptorSchema - array schemas rejection", () => {
+  assert.strictEqual(ActionDescriptorSchema.safeParse({ ...validDescriptorBase, inputSchema: [] }).success, false, "array schema");
+});
 
-  const descriptor = {
-    ...validDescriptorBase,
-    outputSchema
-  };
+test("ActionDescriptorSchema - cyclic schemas rejection", () => {
+  const inputSchema: MutableRecord = { type: "object" };
+  inputSchema.self = inputSchema;
 
-  const result = ActionDescriptorSchema.safeParse(descriptor);
-  assert.strictEqual(result.success, false, "Should reject cycles in outputSchema");
+  const result = ActionDescriptorSchema.safeParse({ ...validDescriptorBase, inputSchema });
+  assert.strictEqual(result.success, false, "Should reject cycles");
+  if (!result.success) {
+    assert.ok(result.error.issues.some(i => i.message.includes("CYCLE")));
+  }
 });
 
 test("ActionDescriptorSchema - nested getter rejection", () => {
   let executed = false;
-  const inputSchema = {};
+  const inputSchema: MutableRecord = {};
   Object.defineProperty(inputSchema, "evilGetter", {
     get: () => {
       executed = true;
@@ -174,30 +188,20 @@ test("ActionDescriptorSchema - nested getter rejection", () => {
     enumerable: true,
   });
 
-  const descriptor = {
-    ...validDescriptorBase,
-    inputSchema
-  };
-
-  const result = ActionDescriptorSchema.safeParse(descriptor);
-  assert.strictEqual(result.success, false, "Should reject getters in inputSchema");
+  const result = ActionDescriptorSchema.safeParse({ ...validDescriptorBase, inputSchema });
+  assert.strictEqual(result.success, false, "Should reject getters");
   assert.strictEqual(executed, false, "Getter was executed!");
 });
 
 test("ActionDescriptorSchema - setter-only property rejection", () => {
-  const inputSchema = {};
+  const inputSchema: MutableRecord = {};
   Object.defineProperty(inputSchema, "evilSetter", {
     set: () => {},
     enumerable: true,
   });
 
-  const descriptor = {
-    ...validDescriptorBase,
-    inputSchema
-  };
-
-  const result = ActionDescriptorSchema.safeParse(descriptor);
-  assert.strictEqual(result.success, false, "Should reject setters in inputSchema");
+  const result = ActionDescriptorSchema.safeParse({ ...validDescriptorBase, inputSchema });
+  assert.strictEqual(result.success, false, "Should reject setters");
 });
 
 test("ActionDescriptorSchema - revoked proxy rejection", () => {
@@ -205,14 +209,11 @@ test("ActionDescriptorSchema - revoked proxy rejection", () => {
   const proxy = revocable.proxy;
   revocable.revoke();
 
-  const descriptor = {
+  const result = ActionDescriptorSchema.safeParse({
     ...validDescriptorBase,
-    inputSchema: {
-      badProxy: proxy
-    }
-  };
+    inputSchema: { badProxy: proxy }
+  });
 
-  const result = ActionDescriptorSchema.safeParse(descriptor);
   assert.strictEqual(result.success, false, "Revoked proxy should cause rejection");
 });
 

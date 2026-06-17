@@ -1,46 +1,52 @@
-/**
- * Checks if a value contains any functions using safe traversal.
- * - No prototype traversal
- * - No getter execution
- * - Cycle detection
- * - Handles proxies/hostile objects
- */
-export function hasFunction(value: unknown, seen = new WeakSet()): boolean {
-  if (typeof value === "function") return true;
+export type TraversalResult =
+  | { isSafe: true }
+  | { isSafe: false; reason: "FUNCTION" | "ACCESSOR" | "CYCLE" | "REVOKED_PROXY" | "HOSTILE_OBJECT" };
 
-  if (value === null || typeof value !== "object") {
-    return false;
+/**
+ * Checks if a value is safe for serialization using strict traversal.
+ * - No prototype traversal
+ * - No getter/setter execution (rejects if present)
+ * - Cycle detection (rejects if present)
+ * - Handles proxies/hostile objects safely
+ * - No 'any' usage
+ */
+export function checkSafety(value: unknown, seen = new WeakSet()): TraversalResult {
+  if (typeof value === "function") {
+    return { isSafe: false, reason: "FUNCTION" };
   }
 
-  // Handle cycles
+  if (value === null || typeof value !== "object") {
+    return { isSafe: true };
+  }
+
+  // Handle cycles - Rejects cycles as non-serializable for this contract
   if (seen.has(value)) {
-    return false;
+    return { isSafe: false, reason: "CYCLE" };
   }
   seen.add(value);
 
-  // Use Object.getOwnPropertyNames to avoid prototype traversal and inherited getters
-  const props = Object.getOwnPropertyNames(value);
-  for (const prop of props) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, prop);
+  try {
+    const descriptors = Object.getOwnPropertyDescriptors(value);
+    const keys = Object.keys(descriptors);
 
-    // Skip if it's a getter to avoid execution
-    if (descriptor?.get) {
-      continue;
-    }
+    for (const key of keys) {
+      const descriptor = descriptors[key];
 
-    // Recurse on the value
-    try {
-      // Accessing property directly might trigger proxy traps or inherited getters if not careful
-      // But we already checked it's an "own" property and not a getter descriptor.
-      const val = (value as any)[prop];
-      if (hasFunction(val, seen)) {
-        return true;
+      // Reject any own property that is a getter or setter
+      if (descriptor.get || descriptor.set) {
+        return { isSafe: false, reason: "ACCESSOR" };
       }
-    } catch {
-      // If accessing the property throws (e.g. revoked proxy), we treat it as potentially unsafe/unserializable
-      return true;
+
+      // Recurse only through descriptor.value (the data property)
+      const result = checkSafety(descriptor.value, seen);
+      if (!result.isSafe) {
+        return result;
+      }
     }
+  } catch {
+    // If Object.getOwnPropertyDescriptors throws, it's likely a revoked proxy or hostile object
+    return { isSafe: false, reason: "REVOKED_PROXY" };
   }
 
-  return false;
+  return { isSafe: true };
 }

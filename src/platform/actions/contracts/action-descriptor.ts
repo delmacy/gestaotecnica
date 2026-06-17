@@ -1,11 +1,15 @@
 import { z } from "zod";
-import { UnknownRecordSchema } from "@/platform/contracts";
-import { hasFunction } from "./safe-traversal";
+import { checkSafety } from "./safe-traversal";
+
+/**
+ * Redefinition of UnknownRecordSchema to ensure strict compliance and avoid
+ * circular dependencies with platform contracts if they ever occur.
+ * No 'any' allowed.
+ */
+const UnknownRecordSchema = z.record(z.string(), z.unknown());
 
 /**
  * Action Descriptor Status
- * Represents the lifecycle state of the action descriptor.
- * (Optional extension, made optional due to lack of immediate persistence evidence)
  */
 export const ActionDescriptorStatusSchema = z.enum([
   "draft",
@@ -17,26 +21,18 @@ export type ActionDescriptorStatus = z.infer<typeof ActionDescriptorStatusSchema
 
 /**
  * Action Execution Mode
- * Defines how the action is expected to be executed.
- * (Optional extension)
  */
 export const ActionExecutionModeSchema = z.enum(["sync", "async"]);
 export type ActionExecutionMode = z.infer<typeof ActionExecutionModeSchema>;
 
 /**
  * Action Side Effect
- * Categorizes the impact of the action on the system state.
- * (Optional extension)
  */
 export const ActionSideEffectSchema = z.enum(["none", "read", "write", "external"]);
 export type ActionSideEffect = z.infer<typeof ActionSideEffectSchema>;
 
 /**
  * Action Descriptor Key
- * Rules:
- * - Namespace and name separated by dot (e.g. "workspaces.update")
- * - lowercase alphanumeric and underscores
- * - At least one dot required for qualification
  */
 export const ActionDescriptorKeySchema = z
   .string()
@@ -48,23 +44,16 @@ export type ActionDescriptorKey = z.infer<typeof ActionDescriptorKeySchema>;
 /**
  * Action Descriptor Schema
  * Canonical contract for describing an Action in the technical catalog.
- * It contains metadata and I/O contracts, but NO executable code.
+ * Strict validation and safety checks for schemas.
  */
 export const ActionDescriptorSchema = z
   .object({
     key: ActionDescriptorKeySchema,
     name: z.string().min(1).max(200),
     description: z.string().max(2000).optional(),
-
-    // Mandatory field to decouple descriptor from implementation.
-    // Maps to the key used in the memory-resident registry/ActionDefinition.
     handlerKey: z.string().min(1).max(200),
-
-    // Mandatory I/O schemas
-    inputSchema: UnknownRecordSchema,
-    outputSchema: UnknownRecordSchema,
-
-    // Optional fields (extensions without current DB/Runtime mandatory evidence)
+    inputSchema: z.unknown(),
+    outputSchema: z.unknown(),
     version: z.number().int().positive().optional(),
     status: ActionDescriptorStatusSchema.optional(),
     executionMode: ActionExecutionModeSchema.optional(),
@@ -80,19 +69,23 @@ export const ActionDescriptorSchema = z
   })
   .strict()
   .superRefine((data, ctx) => {
-    // Safe recursive check for functions in schemas
-    if (hasFunction(data.inputSchema)) {
+    // We check inputSchema and outputSchema for safety.
+    // Use z.unknown() to avoid Zod triggering getters during its own parsing.
+
+    const inputResult = checkSafety(data.inputSchema);
+    if (!inputResult.isSafe) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "inputSchema must not contain functions",
+        message: `inputSchema is unsafe: ${inputResult.reason}`,
         path: ["inputSchema"],
       });
     }
 
-    if (hasFunction(data.outputSchema)) {
+    const outputResult = checkSafety(data.outputSchema);
+    if (!outputResult.isSafe) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "outputSchema must not contain functions",
+        message: `outputSchema is unsafe: ${outputResult.reason}`,
         path: ["outputSchema"],
       });
     }

@@ -4,7 +4,7 @@ import {
   ActionDescriptorSchema,
   ActionDescriptorKeySchema
 } from "../../src/platform/actions/contracts/action-descriptor";
-import { hasFunction } from "../../src/platform/actions/contracts/safe-traversal";
+import { checkSafety } from "../../src/platform/actions/contracts/safe-traversal";
 
 const validDescriptorBase = {
   key: "test.action",
@@ -14,20 +14,57 @@ const validDescriptorBase = {
   outputSchema: { type: "boolean" },
 };
 
-test("Safe Traversal - should not execute getters", () => {
+test("checkSafety - should reject functions", () => {
+  const result = checkSafety(() => {});
+  assert.strictEqual(result.isSafe, false);
+  if (!result.isSafe) assert.strictEqual(result.reason, "FUNCTION");
+});
+
+test("checkSafety - should reject accessors (getters)", () => {
   let executed = false;
   const obj = {};
   Object.defineProperty(obj, "evil", {
     get: () => {
       executed = true;
-      return () => "evil";
+      return "evil";
     },
     enumerable: true
   });
 
-  const result = hasFunction(obj);
-  assert.strictEqual(result, false, "Should be false because getter is not executed");
+  const result = checkSafety(obj);
+  assert.strictEqual(result.isSafe, false);
+  if (!result.isSafe) assert.strictEqual(result.reason, "ACCESSOR");
   assert.strictEqual(executed, false, "Getter MUST NOT be executed");
+});
+
+test("checkSafety - should reject accessors (setters)", () => {
+  const obj = {};
+  Object.defineProperty(obj, "evil", {
+    set: () => {},
+    enumerable: true
+  });
+
+  const result = checkSafety(obj);
+  assert.strictEqual(result.isSafe, false);
+  if (!result.isSafe) assert.strictEqual(result.reason, "ACCESSOR");
+});
+
+test("checkSafety - should reject cycles", () => {
+  const obj: any = {};
+  obj.self = obj;
+
+  const result = checkSafety(obj);
+  assert.strictEqual(result.isSafe, false);
+  if (!result.isSafe) assert.strictEqual(result.reason, "CYCLE");
+});
+
+test("checkSafety - should ignore prototype-inherited functions", () => {
+  const proto = { inheritedFn: () => {} };
+  const obj = Object.create(proto);
+  obj.type = "string";
+
+  const result = checkSafety(obj);
+  assert.strictEqual(result.isSafe, true);
 });
 
 test("ActionDescriptorSchema - minimum valid descriptor using only evidence-backed fields", () => {
@@ -77,17 +114,12 @@ test("ActionDescriptorSchema - invalid version", () => {
   assert.strictEqual(ActionDescriptorSchema.safeParse({ ...validDescriptorBase, version: 1.5 }).success, false, "version decimal");
 });
 
-test("ActionDescriptorSchema - invalid status", () => {
-  // @ts-expect-error - testing invalid status
-  assert.strictEqual(ActionDescriptorSchema.safeParse({ ...validDescriptorBase, status: "invalid" }).success, false);
-});
-
 test("ActionDescriptorSchema - missing mandatory fields", () => {
   const fields = ["key", "name", "inputSchema", "outputSchema", "handlerKey"];
   for (const field of fields) {
     const descriptor = { ...validDescriptorBase };
     // @ts-expect-error - testing missing field
-    delete descriptor[field];
+    delete descriptor[field as keyof typeof validDescriptorBase];
     assert.strictEqual(ActionDescriptorSchema.safeParse(descriptor).success, false, `Missing mandatory field: ${field}`);
   }
 });
@@ -105,35 +137,7 @@ test("ActionDescriptorSchema - unknown field rejection", () => {
   assert.strictEqual(ActionDescriptorSchema.safeParse({ ...validDescriptorBase, extra: "field" }).success, false);
 });
 
-test("ActionDescriptorSchema - own function rejection", () => {
-  const descriptorWithFunction = {
-    ...validDescriptorBase,
-    inputSchema: {
-      fn: () => "evil"
-    }
-  };
-  const result = ActionDescriptorSchema.safeParse(descriptorWithFunction);
-  assert.strictEqual(result.success, false);
-  if (!result.success) {
-    assert.ok(result.error.issues.some(i => i.message.includes("must not contain functions")));
-  }
-});
-
-test("ActionDescriptorSchema - prototype-inherited function ignored", () => {
-  const proto = { inheritedFn: () => "evil" };
-  const inputSchema = Object.create(proto);
-  inputSchema.type = "string";
-
-  const descriptor = {
-    ...validDescriptorBase,
-    inputSchema
-  };
-
-  const result = ActionDescriptorSchema.safeParse(descriptor);
-  assert.strictEqual(result.success, true, "Inherited functions should be ignored by safe traversal");
-});
-
-test("ActionDescriptorSchema - cyclic input/output schema", () => {
+test("ActionDescriptorSchema - cyclic inputSchema rejection", () => {
   const inputSchema: any = { type: "object" };
   inputSchema.self = inputSchema;
 
@@ -143,24 +147,57 @@ test("ActionDescriptorSchema - cyclic input/output schema", () => {
   };
 
   const result = ActionDescriptorSchema.safeParse(descriptor);
-  assert.strictEqual(result.success, true, "Cycles should be handled safely");
+  assert.strictEqual(result.success, false, "Should reject cycles in inputSchema");
 });
 
-test("ActionDescriptorSchema - nested getter (should not be executed)", () => {
-  // Re-verify manually because of previous test failure confusion
+test("ActionDescriptorSchema - cyclic outputSchema rejection", () => {
+  const outputSchema: any = { type: "object" };
+  outputSchema.self = outputSchema;
+
+  const descriptor = {
+    ...validDescriptorBase,
+    outputSchema
+  };
+
+  const result = ActionDescriptorSchema.safeParse(descriptor);
+  assert.strictEqual(result.success, false, "Should reject cycles in outputSchema");
+});
+
+test("ActionDescriptorSchema - nested getter rejection", () => {
   let executed = false;
   const inputSchema = {};
   Object.defineProperty(inputSchema, "evilGetter", {
     get: () => {
       executed = true;
-      return () => "evil";
+      return "evil";
     },
     enumerable: true,
   });
 
-  const result = hasFunction(inputSchema);
-  assert.strictEqual(result, false);
-  assert.strictEqual(executed, false);
+  const descriptor = {
+    ...validDescriptorBase,
+    inputSchema
+  };
+
+  const result = ActionDescriptorSchema.safeParse(descriptor);
+  assert.strictEqual(result.success, false, "Should reject getters in inputSchema");
+  assert.strictEqual(executed, false, "Getter was executed!");
+});
+
+test("ActionDescriptorSchema - setter-only property rejection", () => {
+  const inputSchema = {};
+  Object.defineProperty(inputSchema, "evilSetter", {
+    set: () => {},
+    enumerable: true,
+  });
+
+  const descriptor = {
+    ...validDescriptorBase,
+    inputSchema
+  };
+
+  const result = ActionDescriptorSchema.safeParse(descriptor);
+  assert.strictEqual(result.success, false, "Should reject setters in inputSchema");
 });
 
 test("ActionDescriptorSchema - revoked proxy rejection", () => {

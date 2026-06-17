@@ -28,15 +28,21 @@ Lifecycle states (consistent with `UtilityAppStatusSchema` and `ProcessDefinitio
 
 ### DatasetKind
 
-Categorization of the data nature (based on repository evidence):
-- `reference`: Master data (e.g., list of cities, products). Found in form-builder and operator-guide.
-- `transactional`: Event-based data (e.g., sales, logs). Found in agent-work services.
+Categorization of the data nature.
+Initial canonical choices:
+- `reference`: Master data.
+- `transactional`: Event-based data.
+
+*Note: speculative types like `analytical` or `derived` are reserved for future extensions.*
 
 ### DatasetRefreshMode
 
-Intended update method (based on repository evidence):
-- `manual`: User triggers the update. Found in process-mirroring and automation.
-- `scheduled`: Time-based updates. Found in notifications and capability examples.
+Intended update method.
+Initial canonical choices:
+- `manual`: User triggers the update.
+- `scheduled`: Time-based updates.
+
+*Note: speculative modes like `on_demand` or `event_driven` are reserved for future extensions.*
 
 ### DatasetField
 
@@ -49,12 +55,12 @@ Definition of a single column:
 ### sourceReference
 
 Logical identifier for the data source (e.g., `legacy_crm/clients`, `sql-orders-v1`).
-- **Safety:** Constrained to a logical identifier regex. Explicitly rejects URLs, DSNs, and SQL-like fragments.
+- **Safety:** Constrained to a segment-based logical identifier regex. Rejects traversal segments (`.`, `..`), empty segments, leading/trailing separators, URLs, DSNs, and SQL-like fragments.
 
 ### metadata
 
 Generic metadata container.
-- **Safety:** Recursively validated to be safe JSON. Rejects functions, getters, cycles, and non-JSON built-ins (Date, Map, Set).
+- **Safety:** Recursively validated using a robust platform-shared validator. Rejects functions, getters/setters (own and inherited), symbol properties, cycles, non-JSON built-ins (Date, Map, Set), and hostile/revoked proxies. Shared acyclic references (DAGs) are supported.
 
 ## Relation with Utility Apps
 
@@ -70,3 +76,4 @@ Generic metadata container.
 The contract is implemented using [Zod](https://zod.dev/) in `src/platform/datasets/contracts/dataset-definition.ts`.
 
 All definitions are **shallowly immutable** (enforced via `Object.freeze` in the Zod transform). The contract guarantees that the input object is not mutated.
+JSON safety is enforced via a shared validator in `src/platform/contracts/json-safety.ts`.

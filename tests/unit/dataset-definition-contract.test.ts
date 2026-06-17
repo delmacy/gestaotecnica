@@ -139,7 +139,7 @@ test("DatasetDefinitionSchema - should reject invalid timestamps", () => {
   assert.strictEqual(result.success, false);
 });
 
-test("DatasetDefinitionSchema - should freeze output", () => {
+test("DatasetDefinitionSchema - should freeze output (shallowly)", () => {
   const result = DatasetDefinitionSchema.safeParse(VALID_DATASET);
   if (result.success) {
     assert.throws(() => {
@@ -169,7 +169,6 @@ test("DatasetDefinitionSchema - metadata safety - should reject functions", () =
 test("DatasetDefinitionSchema - metadata safety - should reject getters", () => {
   const objWithGetter = {
     get evil() {
-      console.log("executing getter");
       return "hostile";
     },
   };
@@ -181,7 +180,16 @@ test("DatasetDefinitionSchema - metadata safety - should reject getters", () => 
   assert.strictEqual(result.success, false);
 });
 
-test("DatasetDefinitionSchema - metadata safety - should reject cycles", () => {
+test("DatasetDefinitionSchema - metadata safety - should reject symbols", () => {
+  const sym = Symbol("evil");
+  const result = DatasetDefinitionSchema.safeParse({
+    ...VALID_DATASET,
+    metadata: { [sym]: "hostile" },
+  });
+  assert.strictEqual(result.success, false);
+});
+
+test("DatasetDefinitionSchema - metadata safety - should reject self-cycles", () => {
   const cycle: any = { a: 1 };
   cycle.self = cycle;
 
@@ -190,6 +198,33 @@ test("DatasetDefinitionSchema - metadata safety - should reject cycles", () => {
     metadata: cycle,
   });
   assert.strictEqual(result.success, false);
+});
+
+test("DatasetDefinitionSchema - metadata safety - should reject mutual cycles", () => {
+  const a: any = { name: "A" };
+  const b: any = { name: "B" };
+  a.ref = b;
+  b.ref = a;
+
+  const result = DatasetDefinitionSchema.safeParse({
+    ...VALID_DATASET,
+    metadata: { a },
+  });
+  assert.strictEqual(result.success, false);
+});
+
+test("DatasetDefinitionSchema - metadata safety - should accept shared acyclic references (DAGs)", () => {
+  const shared = { name: "shared" };
+  const dag = {
+    first: shared,
+    second: shared,
+  };
+
+  const result = DatasetDefinitionSchema.safeParse({
+    ...VALID_DATASET,
+    metadata: dag,
+  });
+  assert.strictEqual(result.success, true);
 });
 
 test("DatasetDefinitionSchema - metadata safety - should reject non-JSON types", () => {
@@ -201,6 +236,34 @@ test("DatasetDefinitionSchema - metadata safety - should reject non-JSON types",
     });
     assert.strictEqual(result.success, false, `Should reject type: ${val.constructor.name}`);
   });
+});
+
+test("DatasetDefinitionSchema - metadata safety - should reject revoked proxies safely", () => {
+  const { proxy, revoke } = Proxy.revocable({ a: 1 }, {});
+  revoke();
+
+  const result = DatasetDefinitionSchema.safeParse({
+    ...VALID_DATASET,
+    metadata: proxy as any,
+  });
+  assert.strictEqual(result.success, false);
+});
+
+test("DatasetDefinitionSchema - metadata safety - should reject hostile proxies with throwing traps", () => {
+  const hostile = new Proxy({}, {
+    getOwnPropertyDescriptor() {
+      throw new Error("trap!");
+    },
+    get() {
+      throw new Error("trap!");
+    }
+  });
+
+  const result = DatasetDefinitionSchema.safeParse({
+    ...VALID_DATASET,
+    metadata: hostile as any,
+  });
+  assert.strictEqual(result.success, false);
 });
 
 test("DatasetDefinitionSchema - sourceReference safety - should accept logical IDs", () => {
@@ -217,8 +280,23 @@ test("DatasetDefinitionSchema - sourceReference safety - should reject URLs and 
     "postgres://user:pass@localhost:5432/db",
     "mysql://root@localhost/db",
     "SELECT * FROM users",
-    "/etc/passwd",
-    "C:\\Windows\\System32",
+  ];
+  invalidSources.forEach((sourceReference) => {
+    const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, sourceReference });
+    assert.strictEqual(result.success, false, `Should reject sourceReference: ${sourceReference}`);
+  });
+});
+
+test("DatasetDefinitionSchema - sourceReference safety - should reject traversals and empty segments", () => {
+  const invalidSources = [
+    "source/../../secret",
+    "source//table",
+    "source/./table",
+    "/source/table",
+    "source/table/",
+    "source..table",
+    "source.table.",
+    ".source.table"
   ];
   invalidSources.forEach((sourceReference) => {
     const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, sourceReference });

@@ -60,7 +60,7 @@ Logical identifier for the data source (e.g., `legacy_crm/clients`, `sql-orders-
 ### metadata
 
 Generic metadata container.
-- **Safety:** Recursively validated using a robust platform-shared validator. Rejects functions, getters/setters (own and inherited), symbol properties, cycles, non-JSON built-ins (Date, Map, Set), and hostile/revoked proxies. Shared acyclic references (DAGs) are supported.
+- **Safety:** Uses canonical `SafeJsonRecordSchema` which recursively validates the structure. Rejects functions, accessors, symbol properties, cycles, and non-JSON built-ins (Date, Map, Set). Shared acyclic references (DAGs) are supported.
 
 ## Relation with Utility Apps
 
@@ -76,4 +76,4 @@ Generic metadata container.
 The contract is implemented using [Zod](https://zod.dev/) in `src/platform/datasets/contracts/dataset-definition.ts`.
 
 All definitions are **shallowly immutable** (enforced via `Object.freeze` in the Zod transform). The contract guarantees that the input object is not mutated.
-JSON safety is enforced via a shared validator in `src/platform/contracts/json-safety.ts`.
+JSON safety is enforced via the canonical `SafeJsonRecordSchema`.

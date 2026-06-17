@@ -3,13 +3,13 @@ import {
   EntityIdSchema,
   WorkspaceIdSchema,
   ISODateTimeSchema,
-  UnknownRecordSchema,
-  isSafeJson,
+  SafeJsonRecordSchema,
 } from "@/platform/contracts";
 
 /**
  * Dataset Status
  * Represents the lifecycle state of the dataset definition.
+ * Adopts 'published' convention established for canonical platform assets.
  */
 export const DatasetStatusSchema = z.enum(["draft", "published", "deprecated", "archived"]);
 export type DatasetStatus = z.infer<typeof DatasetStatusSchema>;
@@ -20,16 +20,11 @@ export type DatasetStatus = z.infer<typeof DatasetStatusSchema>;
  *
  * Initial canonical choices:
  * - reference: Master data.
- * - transactional: Event data.
- * - analytical: Speculative (Future extension).
- * - derived: Speculative (Future extension).
+ * - transactional: Event-based data.
+ *
+ * Note: Speculative types like 'analytical' or 'derived' are reserved for future extensions.
  */
-export const DatasetKindSchema = z.enum([
-  "reference",
-  "transactional",
-  // "analytical", // Future extension
-  // "derived",    // Future extension
-]);
+export const DatasetKindSchema = z.enum(["reference", "transactional"]);
 export type DatasetKind = z.infer<typeof DatasetKindSchema>;
 
 /**
@@ -37,17 +32,12 @@ export type DatasetKind = z.infer<typeof DatasetKindSchema>;
  * Describes the intended method for updating dataset content.
  *
  * Initial canonical choices:
- * - manual: User-triggered.
- * - scheduled: Time-based.
- * - on_demand: Speculative (Future extension).
- * - event_driven: Speculative (Future extension).
+ * - manual: User triggers the update.
+ * - scheduled: Time-based updates.
+ *
+ * Note: Speculative modes like 'on_demand' or 'event_driven' are reserved for future extensions.
  */
-export const DatasetRefreshModeSchema = z.enum([
-  "manual",
-  "scheduled",
-  // "on_demand",   // Future extension
-  // "event_driven", // Future extension
-]);
+export const DatasetRefreshModeSchema = z.enum(["manual", "scheduled"]);
 export type DatasetRefreshMode = z.infer<typeof DatasetRefreshModeSchema>;
 
 /**
@@ -154,12 +144,7 @@ export const DatasetDefinitionSchema = z
       }),
     createdAt: ISODateTimeSchema,
     updatedAt: ISODateTimeSchema,
-    metadata: z
-      .unknown()
-      .optional()
-      .refine((val) => val === undefined || isSafeJson(val), {
-        message: "metadata contains unsafe values (functions, getters, or non-JSON types)",
-      }),
+    metadata: SafeJsonRecordSchema.optional(),
   })
   .strict()
   .transform((data) => {

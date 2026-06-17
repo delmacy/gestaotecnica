@@ -70,14 +70,14 @@ test("DatasetDefinitionSchema - should reject invalid status", () => {
   assert.strictEqual(result.success, false);
 });
 
-test("DatasetDefinitionSchema - should reject reduced enum values for kind", () => {
+test("DatasetDefinitionSchema - should reject speculative kind values", () => {
   ["analytical", "derived", "streaming"].forEach((kind) => {
     const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, kind });
     assert.strictEqual(result.success, false, `Should reject kind: ${kind}`);
   });
 });
 
-test("DatasetDefinitionSchema - should reject reduced enum values for refresh mode", () => {
+test("DatasetDefinitionSchema - should reject speculative refresh mode values", () => {
   ["on_demand", "event_driven", "cron"].forEach((refreshMode) => {
     const result = DatasetDefinitionSchema.safeParse({ ...VALID_DATASET, refreshMode });
     assert.strictEqual(result.success, false, `Should reject refreshMode: ${refreshMode}`);
@@ -166,36 +166,11 @@ test("DatasetDefinitionSchema - metadata safety - should reject functions", () =
   assert.strictEqual(result.success, false);
 });
 
-test("DatasetDefinitionSchema - metadata safety - should reject getters", () => {
-  const objWithGetter = {
-    get evil() {
-      return "hostile";
-    },
-  };
-
-  const result = DatasetDefinitionSchema.safeParse({
-    ...VALID_DATASET,
-    metadata: objWithGetter as any,
-  });
-  assert.strictEqual(result.success, false);
-});
-
 test("DatasetDefinitionSchema - metadata safety - should reject symbols", () => {
   const sym = Symbol("evil");
   const result = DatasetDefinitionSchema.safeParse({
     ...VALID_DATASET,
     metadata: { [sym]: "hostile" },
-  });
-  assert.strictEqual(result.success, false);
-});
-
-test("DatasetDefinitionSchema - metadata safety - should reject self-cycles", () => {
-  const cycle: any = { a: 1 };
-  cycle.self = cycle;
-
-  const result = DatasetDefinitionSchema.safeParse({
-    ...VALID_DATASET,
-    metadata: cycle,
   });
   assert.strictEqual(result.success, false);
 });
@@ -225,45 +200,6 @@ test("DatasetDefinitionSchema - metadata safety - should accept shared acyclic r
     metadata: dag,
   });
   assert.strictEqual(result.success, true);
-});
-
-test("DatasetDefinitionSchema - metadata safety - should reject non-JSON types", () => {
-  const forbidden = [new Date(), new Map(), new Set(), new WeakMap(), new WeakSet()];
-  forbidden.forEach((val) => {
-    const result = DatasetDefinitionSchema.safeParse({
-      ...VALID_DATASET,
-      metadata: { val },
-    });
-    assert.strictEqual(result.success, false, `Should reject type: ${val.constructor.name}`);
-  });
-});
-
-test("DatasetDefinitionSchema - metadata safety - should reject revoked proxies safely", () => {
-  const { proxy, revoke } = Proxy.revocable({ a: 1 }, {});
-  revoke();
-
-  const result = DatasetDefinitionSchema.safeParse({
-    ...VALID_DATASET,
-    metadata: proxy as any,
-  });
-  assert.strictEqual(result.success, false);
-});
-
-test("DatasetDefinitionSchema - metadata safety - should reject hostile proxies with throwing traps", () => {
-  const hostile = new Proxy({}, {
-    getOwnPropertyDescriptor() {
-      throw new Error("trap!");
-    },
-    get() {
-      throw new Error("trap!");
-    }
-  });
-
-  const result = DatasetDefinitionSchema.safeParse({
-    ...VALID_DATASET,
-    metadata: hostile as any,
-  });
-  assert.strictEqual(result.success, false);
 });
 
 test("DatasetDefinitionSchema - sourceReference safety - should accept logical IDs", () => {

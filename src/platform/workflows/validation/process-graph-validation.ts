@@ -62,7 +62,7 @@ export type ProcessGraphValidationReport = z.infer<typeof ProcessGraphValidation
  */
 export function validateProcessGraph(version: ProcessVersion): ProcessGraphValidationReport {
   const issues: ProcessGraphIssue[] = [];
-  const nodes = version.definition.nodes;
+  const nodes = [...version.definition.nodes].sort((a, b) => a.id.localeCompare(b.id));
   const edges = version.definition.edges;
 
   const startNodes = nodes.filter((n) => n.type === "start");
@@ -166,38 +166,25 @@ export function validateProcessGraph(version: ProcessVersion): ProcessGraphValid
     }
   }
 
-  // 3. Traversal rules (Reachability and Cycles)
+  // 3. Reachability (conditional on exactly one start node)
   if (startNodes.length === 1) {
     const startNode = startNodes[0];
     const reachableNodes = new Set<string>();
     const visited = new Set<string>();
 
-    // Cycle detection state
-    const recursionStack = new Set<string>();
-    let cycleDetected = false;
-
-    // DFS for reachability and cycle detection
     const traverse = (nodeId: string) => {
       visited.add(nodeId);
       reachableNodes.add(nodeId);
-      recursionStack.add(nodeId);
-
       const outgoing = outgoingEdgesMap.get(nodeId) || [];
       for (const edge of outgoing) {
-        if (recursionStack.has(edge.targetNodeId)) {
-          cycleDetected = true;
-        }
         if (!visited.has(edge.targetNodeId)) {
           traverse(edge.targetNodeId);
         }
       }
-
-      recursionStack.delete(nodeId);
     };
 
     traverse(startNode.id);
 
-    // Unreachable nodes
     for (const node of nodes) {
       if (!reachableNodes.has(node.id)) {
         issues.push({
@@ -208,13 +195,44 @@ export function validateProcessGraph(version: ProcessVersion): ProcessGraphValid
         });
       }
     }
+  }
 
-    if (cycleDetected) {
-      issues.push({
-        code: "CYCLE_DETECTED",
-        severity: "warning",
-        message: "Cycle detected in the process graph.",
-      });
+  // 4. Whole-graph cycle detection (independent of start nodes)
+  const cycleVisited = new Set<string>();
+  const recursionStack = new Set<string>();
+  const reportedCyclesInComponent = new Set<string>();
+
+  const detectCycles = (nodeId: string, componentRootId: string) => {
+    cycleVisited.add(nodeId);
+    recursionStack.add(nodeId);
+
+    // Sort outgoing edges by targetNodeId for deterministic traversal
+    const outgoing = [...(outgoingEdgesMap.get(nodeId) || [])].sort((a, b) =>
+      a.targetNodeId.localeCompare(b.targetNodeId)
+    );
+
+    for (const edge of outgoing) {
+      if (recursionStack.has(edge.targetNodeId)) {
+        if (!reportedCyclesInComponent.has(componentRootId)) {
+          issues.push({
+            code: "CYCLE_DETECTED",
+            severity: "warning",
+            message: "Cycle detected in the process graph.",
+            nodeId: edge.targetNodeId,
+          });
+          reportedCyclesInComponent.add(componentRootId);
+        }
+      } else if (!cycleVisited.has(edge.targetNodeId)) {
+        detectCycles(edge.targetNodeId, componentRootId);
+      }
+    }
+
+    recursionStack.delete(nodeId);
+  };
+
+  for (const node of nodes) {
+    if (!cycleVisited.has(node.id)) {
+      detectCycles(node.id, node.id);
     }
   }
 

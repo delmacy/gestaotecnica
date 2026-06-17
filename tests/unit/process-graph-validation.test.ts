@@ -219,7 +219,6 @@ test("validateProcessGraph - issue determinism", () => {
     ],
   });
 
-  // node-z and node-a are dead ends. node-a should come before node-z due to lexical sorting by nodeId.
   const report = validateProcessGraph(version);
   const deadEndIssues = report.issues.filter(i => i.code === "DEAD_END_NON_TERMINAL_NODE");
 
@@ -257,4 +256,85 @@ test("validateProcessGraph - empty graph", () => {
   assert.strictEqual(report.valid, false);
   assert.ok(report.issues.some((i) => i.code === "NO_START_NODE"));
   assert.ok(report.issues.some((i) => i.code === "NO_END_NODE"));
+});
+
+test("validateProcessGraph - cycle in unreachable component", () => {
+  const version = createBaseVersion({
+    nodes: [
+      { id: "start", key: "start", type: "start", name: "Start", position: { x: 0, y: 0 }, config: {} },
+      { id: "end", key: "end", type: "end", name: "End", position: { x: 200, y: 0 }, config: {} },
+      { id: "unreachable-1", key: "unreachable-1", type: "action", name: "U1", position: { x: 0, y: 100 }, config: {}, actionKey: "test" },
+      { id: "unreachable-2", key: "unreachable-2", type: "action", name: "U2", position: { x: 100, y: 100 }, config: {}, actionKey: "test" },
+    ],
+    edges: [
+      { id: "edge-1", sourceNodeId: "start", targetNodeId: "end", type: "default", priority: 0 },
+      { id: "edge-u1", sourceNodeId: "unreachable-1", targetNodeId: "unreachable-2", type: "default", priority: 0 },
+      { id: "edge-u2", sourceNodeId: "unreachable-2", targetNodeId: "unreachable-1", type: "default", priority: 0 },
+    ],
+  });
+
+  const report = validateProcessGraph(version);
+  assert.ok(report.issues.some((i) => i.code === "CYCLE_DETECTED" && i.severity === "warning"));
+  assert.ok(report.issues.some((i) => i.code === "UNREACHABLE_NODE" && i.nodeId === "unreachable-1"));
+});
+
+test("validateProcessGraph - cycle with no start node", () => {
+  const version = createBaseVersion({
+    nodes: [
+      { id: "action-1", key: "action-1", type: "action", name: "A1", position: { x: 0, y: 0 }, config: {}, actionKey: "test" },
+      { id: "action-2", key: "action-2", type: "action", name: "A2", position: { x: 100, y: 0 }, config: {}, actionKey: "test" },
+      { id: "end", key: "end", type: "end", name: "End", position: { x: 200, y: 0 }, config: {} },
+    ],
+    edges: [
+      { id: "edge-1", sourceNodeId: "action-1", targetNodeId: "action-2", type: "default", priority: 0 },
+      { id: "edge-2", sourceNodeId: "action-2", targetNodeId: "action-1", type: "default", priority: 0 },
+      { id: "edge-3", sourceNodeId: "action-2", targetNodeId: "end", type: "default", priority: 1 },
+    ],
+  });
+
+  const report = validateProcessGraph(version);
+  assert.ok(report.issues.some((i) => i.code === "CYCLE_DETECTED" && i.severity === "warning"));
+  assert.ok(report.issues.some((i) => i.code === "NO_START_NODE"));
+});
+
+test("validateProcessGraph - cycle with multiple start nodes", () => {
+  const version = createBaseVersion({
+    nodes: [
+      { id: "start-1", key: "start-1", type: "start", name: "S1", position: { x: 0, y: 0 }, config: {} },
+      { id: "start-2", key: "start-2", type: "start", name: "S2", position: { x: 0, y: 100 }, config: {} },
+      { id: "end", key: "end", type: "end", name: "End", position: { x: 200, y: 0 }, config: {} },
+    ],
+    edges: [
+      { id: "edge-1", sourceNodeId: "start-1", targetNodeId: "start-1", type: "default", priority: 0 },
+      { id: "edge-2", sourceNodeId: "start-1", targetNodeId: "end", type: "default", priority: 1 },
+      { id: "edge-3", sourceNodeId: "start-2", targetNodeId: "end", type: "default", priority: 0 },
+    ],
+  });
+
+  const report = validateProcessGraph(version);
+  assert.ok(report.issues.some((i) => i.code === "CYCLE_DETECTED" && i.severity === "warning"));
+  assert.ok(report.issues.some((i) => i.code === "MULTIPLE_START_NODES"));
+});
+
+test("validateProcessGraph - multiple disconnected cycles with deterministic reporting", () => {
+  const version = createBaseVersion({
+    nodes: [
+      { id: "start", key: "start", type: "start", name: "Start", position: { x: 0, y: 0 }, config: {} },
+      { id: "end", key: "end", type: "end", name: "End", position: { x: 200, y: 0 }, config: {} },
+      { id: "cycle-a", key: "cycle-a", type: "action", name: "CA", position: { x: 0, y: 100 }, config: {}, actionKey: "test" },
+      { id: "cycle-b", key: "cycle-b", type: "action", name: "CB", position: { x: 0, y: 200 }, config: {}, actionKey: "test" },
+    ],
+    edges: [
+      { id: "edge-start", sourceNodeId: "start", targetNodeId: "end", type: "default", priority: 0 },
+      { id: "edge-a", sourceNodeId: "cycle-a", targetNodeId: "cycle-a", type: "default", priority: 0 },
+      { id: "edge-b", sourceNodeId: "cycle-b", targetNodeId: "cycle-b", type: "default", priority: 0 },
+    ],
+  });
+
+  const report = validateProcessGraph(version);
+  const cycleIssues = report.issues.filter(i => i.code === "CYCLE_DETECTED");
+  assert.strictEqual(cycleIssues.length, 2);
+  // Deterministic order by nodeId
+  assert.strictEqual(cycleIssues[0].nodeId, "cycle-a");
+  assert.strictEqual(cycleIssues[1].nodeId, "cycle-b");
 });

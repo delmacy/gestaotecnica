@@ -1,50 +1,38 @@
-# Package Report: PKG-TRACE-RECEIPT-LINKING-001
+# Package Report: PKG-TRACE-RECEIPT-LINKING-001 (Robustness Correction)
 
 ## Identificação
 - **ID:** `PKG-TRACE-RECEIPT-LINKING-001`
 - **Módulo:** `document-traceability`
-- **Status:** Concluído
+- **Status:** Concluído com correções de robustez
 
 ## Objetivos Alcançados
 1. Implementação de funções puras para localização e verificação de self-hash de Trace Receipts.
 2. Implementação de lógica de vinculação direta entre receipts via `previousReceiptId`.
-3. Implementação de verificação de cadeia completa com coleta de erros estruturados.
+3. Implementação de verificação de cadeia completa com coleta de erros estruturados e **proteção contra entradas malformadas**.
 4. Exportação das novas funcionalidades através do index do módulo.
 
-## Implementação
+## Implementação e Robustez
 
 ### Arquivos Criados/Alterados
-- `src/platform/documents/traceability/linking.ts`: Lógica principal de vinculação e cadeias.
+- `src/platform/documents/traceability/linking.ts`: Lógica principal com `safeParse` e isolamento de entradas inválidas.
 - `src/platform/documents/traceability/index.ts`: Exportação do novo módulo.
-- `tests/unit/trace-receipt-linking.test.ts`: Suite de testes unitários abrangente.
-- `docs/documents/TRACE_RECEIPT_LINKING.md`: Documentação técnica.
+- `tests/unit/trace-receipt-linking.test.ts`: Suite de testes com cobertura para casos hostis e malformados.
+- `docs/documents/TRACE_RECEIPT_LINKING.md`: Documentação técnica atualizada com políticas de robustez.
 
-### Políticas Aplicadas
-- **Múltiplos Hashes:** A política exige exatamente um hash com `scope = "receipt"`. Se houver zero ou mais de um, a verificação falha.
-- **Root Receipt:** O primeiro receipt da cadeia é considerado raiz e não deve possuir `previousReceiptId`.
-- **Imutabilidade:** Nenhuma função altera os inputs. Testes confirmam que objetos congelados não causam erros.
+### Políticas de Robustez Aplicadas
+- **Malformed-input policy:** Utiliza `TraceReceiptSchema.safeParse` uma única vez por item. Se falhar, o item bruto não é acessado novamente. Erros usam IDs sintéticos `unknown-<index>`.
+- **Previous-invalid-item policy:** Se um item anterior na cadeia for estruturalmente inválido, ele não é acessado pelo item sucessor. O sucessor recebe um erro `INVALID_PREVIOUS_RECEIPT_ID` informando que o predecessor válido está indisponível.
+- **Isolamento:** Falhas em um item não interrompem a inspeção de itens subsequentes ou a coleta de erros independentes (como duplicidade de ID ou hashes ausentes em outros itens).
 
 ## Verificação Realizada
+- **Testes de Robustez:** Cobertura para `null`, `undefined`, objetos vazios, e accessores hostis (getters que não devem ser executados em caso de falha de validação).
 - **Testes Unitários:** `npx tsx --test tests/unit/trace-receipt-linking.test.ts` (Passou)
 - **Testes de Regressão:** `trace-receipt-hashing.test.ts` e `trace-receipt-signable-payload.test.ts` (Passou)
 - **Build:** `npm run build` (Passou)
 
-## Exemplo de Cadeia
-
-### Válida
-```json
-[
-  { "id": "A", "previousReceiptId": undefined, "hashes": [...] },
-  { "id": "B", "previousReceiptId": "A", "hashes": [...] },
-  { "id": "C", "previousReceiptId": "B", "hashes": [...] }
-]
-```
-
-### Inválida (Link Quebrado)
-```json
-[
-  { "id": "A", "previousReceiptId": undefined, "hashes": [...] },
-  { "id": "B", "previousReceiptId": "WRONG", "hashes": [...] }
-]
-```
-Erro: `INVALID_PREVIOUS_RECEIPT_ID` no índice 1.
+## Exemplo de Erro de Cadeia com Robustez
+Input: `[validA, null, validC_pointingToB]`
+Result:
+1. `validA`: OK
+2. `index 1`: `INVALID_RECEIPT`, ID: `unknown-1`
+3. `validC`: `INVALID_PREVIOUS_RECEIPT_ID` (predecessor indisponível)

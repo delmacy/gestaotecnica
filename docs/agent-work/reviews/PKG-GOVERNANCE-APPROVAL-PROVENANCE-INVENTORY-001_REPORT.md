@@ -2,35 +2,28 @@
 
 ## Sumário Executivo
 
-Este pacote realizou o mapeamento exaustivo dos ativos de governança, aprovação e proveniência no repositório. Foi identificada uma base sólida para integridade (via `TraceReceipt`) e versionamento (via `ProcessVersion`), mas uma lacuna significativa na formalização de decisões de aprovação e políticas de governança.
+Este pacote realizou o mapeamento dos ativos de governança, aprovação e proveniência. Foi identificada uma infraestrutura sólida para integridade técnica (hashing) e rastreabilidade (TraceReceipt), permitindo a futura acoplagem de um motor de decisão semântica e políticas de governança.
 
 ## Ativos Encontrados
 
-- **Integridade:** `TraceReceiptSchema` em `src/platform/documents/traceability/contracts.ts` provê hashing e vinculação de atores a ações.
-- **Identidade Histórica:** `ProcessVersionSchema` em `src/platform/workflows/contracts/process-definition.ts` já implementa imutabilidade básica e status de publicação.
-- **Atores:** `ActorReferenceSchema` (Platform) e `TraceReceiptActorSchema` (Traceability) definem as entidades que podem realizar ações.
-- **Auditoria Passiva:** Timestamps de criação e atualização presentes em todas as tabelas de banco de dados (`src/db/runtime/schema/`).
+- **Integridade Técnica:** `TraceReceiptSchema` provê hashing e rastro de ações.
+- **Ciclo de Vida:** Status `draft`, `published` e `archived` presentes em contratos de Workflows e Formulários.
+- **Atores:** Esquemas de referência de ator autenticado (`ActorReferenceSchema`).
+- **Rastro Operacional:** Timestamps e IDs de criador/publicador em ativos de runtime.
 
-## Lacunas Identificadas
+## Lacunas e Definições de Governança
 
-1. **Decisão de Aprovação:** Não existe um objeto ou contrato que represente explicitamente "Aprovado por X sob a justificativa Y".
-2. **Políticas de Governança:** O sistema não possui registro de "quem tem autoridade para aprovar o quê" fora das permissões básicas.
-3. **Assinatura Digital:** Embora o hash garanta integridade, não há uso formal de JWS/JWE para garantir o vínculo criptográfico forte entre o aprovador e o ativo.
-4. **Cadeia de Proveniência:** A ligação entre a origem de um processo (ex: um rascunho ou builder) e sua versão publicada não é rastreada de forma unificada.
+1. **Decisão Semântica:** Necessidade de um contrato para `ApprovalDecision` (Decisão != Hash).
+2. **Políticas de Publicação:** Definição de regras que tornem a aprovação obrigatória ou opcional conforme o contexto.
+3. **Assinaturas de Alta Garantia:** Diferenciação entre aprovação por identidade autenticada e aprovação por assinatura criptográfica (opcional).
 
 ## Entidades Prioritárias para Governança
 
-1. **Process Definitions:** Devido ao impacto direto na operação do negócio.
-2. **Form Definitions:** Pelo risco de conformidade na coleta de dados.
-3. **Utility Apps:** Pela criticidade das regras de cálculo e decisão que automatizam.
+1. **Process Definitions**
+2. **Form Definitions**
+3. **Utility Apps**
 
-## Recomendações
-
-- Adotar o `TraceReceipt` como o container universal para evidências de governança.
-- Implementar um contrato de `ApprovalDecision` que referencie o `id` de um `TraceReceipt`.
-- Evoluir o status `published` para ser condicional à existência de um recibo de aprovação válido conforme a política do workspace.
-
-## Sequência de Pacotes Proposta
+## Sequência de Pacotes Recomendada
 
 1. `PKG-APPROVAL-DECISION-CONTRACT-001`
 2. `PKG-APPROVAL-POLICY-CONTRACT-001`

@@ -6,17 +6,17 @@ Este documento mapeia os ativos reais no repositório `gestaotecnica` que susten
 
 | Ativo | Caminho | Símbolo/Tabela | Tipo de Evidência | Ator? | Decisão? | Timestamp? | Versão? | Hash? | Política? | Limitações | Confiança |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Process Status** | `src/platform/workflows/contracts/process-definition.ts` | `ProcessDefinitionStatusSchema` | Contract (Zod) | Não | Não | Não | Não | Não | Não | Apenas enum de status. | CONFIRMED |
-| **Process Version** | `src/platform/workflows/contracts/process-definition.ts` | `ProcessVersionSchema` | Contract (Zod) | Sim | Não | Sim | Sim | Não | Parcial | `publishedById` e `publishedAt` são mandatórios se status for `published`. | CONFIRMED |
-| **Trace Receipt** | `src/platform/documents/traceability/contracts.ts` | `TraceReceiptSchema` | Contract (Zod) | Sim | Parcial | Sim | Não | Sim | Não | `action` registra o que foi feito, mas não uma decisão formal de aprovação. | CONFIRMED |
+| **Process Status** | `src/platform/workflows/contracts/process-definition.ts` | `ProcessDefinitionStatusSchema` | Contract (Zod) | Não | Não | Não | Não | Não | Não | Valida o formato dos status permitidos. | CONFIRMED |
+| **Process Version** | `src/platform/workflows/contracts/process-definition.ts` | `ProcessVersionSchema` | Contract (Zod) | Sim | Não | Sim | Sim | Não | Parcial | `publishedById` e `publishedAt` são validados se status for `published`. | CONFIRMED |
+| **Trace Receipt** | `src/platform/documents/traceability/contracts.ts` | `TraceReceiptSchema` | Contract (Zod) | Sim | Parcial | Sim | Não | Sim | Não | Transportador de evidência técnica; não é um registro de decisão semântica. | CONFIRMED |
 | **Trace Actor** | `src/platform/documents/traceability/contracts.ts` | `TraceReceiptActorSchema` | Contract (Zod) | Sim | Não | Não | Não | Não | Não | Tipos: user, service, agent, system, external. | CONFIRMED |
 | **Platform Actor** | `src/platform/contracts/actor.ts` | `ActorReferenceSchema` | Contract (Zod) | Sim | Não | Não | Não | Não | Não | Tipos: human, system, worker, integration. | CONFIRMED |
-| **Trace Hash** | `src/platform/documents/traceability/contracts.ts` | `TraceReceiptHashSchema` | Contract (Zod) | Não | Não | Não | Não | Sim | Não | Suporta SHA-256 e SHA-512. | CONFIRMED |
+| **Trace Hash** | `src/platform/documents/traceability/contracts.ts` | `TraceReceiptHashSchema` | Contract (Zod) | Não | Não | Não | Não | Sim | Não | Provê integridade via SHA-256/SHA-512. | CONFIRMED |
 | **Form Status** | `src/components/builder/form-builder/schema/form-schema.ts` | `FormStatusSchema` | Contract (Zod) | Não | Não | Não | Não | Não | Não | draft, published, archived. | CONFIRMED |
-| **Document Table** | `src/db/runtime/schema/documents.ts` | `documents` | DB Schema | Não | Não | Sim | Não | Não | Não | Possui status `draft`. | CONFIRMED |
-| **Trace Table** | `src/db/runtime/schema/documents.ts` | `trace_receipts` | DB Schema | Sim | Não | Sim | Não | Sim | Não | Armazena `checksum_sha256` e link com versão de documento. | CONFIRMED |
-| **Compliance Audit** | `src/db/legacy/schema.ts` | `compliance_audits` | DB Schema | Não | Não | Sim | Não | Não | Não | Legado, focado em auditoria externa/conformidade. | CONFIRMED |
-| **Action Execution** | `src/db/runtime/schema/workflow.ts` | `action_executions` | DB Schema | Sim | Parcial | Sim | Não | Não | Não | Registra `status` (completed/failed) e `actor_id`. | CONFIRMED |
+| **Document Table** | `src/db/runtime/schema/documents.ts` | `documents` | DB Schema | Não | Não | Sim | Não | Não | Não | Possui campo de status `draft`. | CONFIRMED |
+| **Trace Table** | `src/db/runtime/schema/documents.ts` | `trace_receipts` | DB Schema | Sim | Não | Sim | Não | Sim | Não | Persiste `checksum_sha256` vinculado a versões de documentos. | CONFIRMED |
+| **Compliance Audit** | `src/db/legacy/schema.ts` | `compliance_audits` | DB Schema | Não | Não | Sim | Não | Não | Não | Registro histórico de auditorias de conformidade. | CONFIRMED |
+| **Action Execution** | `src/db/runtime/schema/workflow.ts` | `action_executions` | DB Schema | Sim | Parcial | Sim | Não | Não | Não | Registra rastro de execução (`status`, `actor_id`). | CONFIRMED |
 
 ## 2. Respostas às Perguntas Obrigatórias
 
@@ -26,55 +26,52 @@ Este documento mapeia os ativos reais no repositório `gestaotecnica` que susten
    - `documents` (tabela de runtime).
 
 2. **Onde ator e timestamps são registrados?**
-   - Timestamps (`createdAt`, `updatedAt`, `publishedAt`) estão em quase todos os contratos e tabelas de runtime.
-   - Ator é registrado como `createdById`, `publishedById` em workflows, e `actor.id` em `TraceReceipt`.
+   - Campos de timestamp (`createdAt`, `updatedAt`, `publishedAt`) e IDs de ator (`createdById`, `publishedById`, `actor.id`) estão presentes em diversos contratos e esquemas de banco de dados mapeados na Tabela de Evidências.
 
 3. **Existe conceito real de aprovação?**
-   `NÃO`. Existe o status `published`, que implica uma mudança de estado, mas não existe uma entidade ou contrato que registre explicitamente uma "Aprovação" (quem aprovou, sob qual política, com qual assinatura).
+   `NÃO`. Existe o status `published`, mas não há uma entidade "ApprovalDecision" que capture a intenção semântica de um aprovador vinculado a uma política.
 
 4. **Existe conceito real de revisão?**
-   `NÃO`. Não há workflow de revisão ou status `in_review` nos contratos canônicos. Aparece apenas em componentes de UI de mock (`GapTracker`).
+   `NÃO`. Não há contratos canônicos para fluxos de revisão ou status `in_review`.
 
 5. **TraceReceipt pode registrar decisão?**
-   `PARTIAL`. O campo `action` em `TraceReceipt` possui `type` e `name`, que poderiam ser preenchidos com "approval". No entanto, não há campos para o resultado da decisão (Approved/Rejected) de forma estruturada fora do `result` de execução (success/failure).
+   `PARTIAL`. O `TraceReceipt` pode registrar o rastro técnico de uma ação, mas ele atua como um transportador de evidência (carrier), não como a definição da decisão em si.
 
 6. **Quais campos faltam para aprovação formal?**
    - `policyId`: Referência à política de aprovação aplicada.
-   - `decision`: Enum explícito (APPROVED, REJECTED, CHANGES_REQUESTED).
-   - `signature`: Vínculo criptográfico (JWS/JWE) entre o ator e o hash do conteúdo.
-   - `justification`: Texto explicativo da decisão.
+   - `decision`: Resultado explícito (ex: APPROVED, REJECTED).
+   - `justification`: Justificativa da decisão.
+   - `signature` (Opcional): Assinatura digital para garantias superiores de autenticidade.
 
 7. **Como ligar aprovação a uma versão exata?**
-   Atualmente, a melhor forma é via `TraceReceipt` apontando para o `id` da `ProcessVersion` no campo `subject`.
+   Via referência ao ID e Hash da versão do ativo dentro do registro de decisão. O `TraceReceipt` pode ser usado para vincular a evidência técnica a este registro.
 
 8. **Onde a política de aprovação deveria viver?**
-   Deveria viver em um novo módulo `src/platform/governance/policies/`, definindo quem pode aprovar o quê e sob quais condições.
+   Em um módulo de governança centralizado (`src/platform/governance/policies/`), desacoplado da lógica de execução.
 
 9. **Como evitar que hash seja confundido com aprovação?**
-   O hash garante que o conteúdo não mudou (**Integridade**). A aprovação garante que um ator autorizado aceitou aquele conteúdo (**Vínculo/Vontade**). A aprovação deve *conter* o hash do conteúdo aprovado.
+   O hash garante apenas a **Integridade** (o conteúdo não mudou). A aprovação é um **Ato Semântico** de um ator autorizado.
 
 10. **Quais entidades precisarão governança primeiro?**
-    1. `process definitions`: Por serem o motor de execução do negócio.
-    2. `form definitions`: Por coletarem dados críticos.
+    1. `process definitions`: Críticas para a conformidade operacional.
+    2. `form definitions`: Críticas para a integridade na coleta de dados.
 
 ## 3. Distinções de Governança
 
-- **Integridade (Hash):** Garantia técnica de que os bits de um processo ou documento não foram alterados.
-- **Vínculo Criptográfico (Assinatura):** Prova de que um ator específico teve acesso à chave privada no momento da manifestação.
-- **Decisão (Aprovação):** Ato humano ou automatizado de validar um ativo para uso em produção.
-- **Disponibilidade (Publicação):** Mudança de status que torna um ativo visível/executável pelo sistema.
-- **Registro (Auditoria):** Rastro histórico passivo de quem fez o quê e quando.
-- **Cadeia de Custódia (Proveniência):** Histórico de transformações desde a origem até o estado atual.
-- **Identidade Histórica (Versionamento):** Capacidade de referenciar estados passados de um ativo de forma imutável.
+- **Integridade (Hash):** Garantia técnica de que o conteúdo não foi alterado.
+- **Autenticidade de Aprovação:** Registro da decisão por um ator autenticado pelo sistema.
+- **Assinatura Digital (Opcional):** Mecanismo de garantia superior (ex: JWS) para cenários que exigem maior evidência de autoria.
+- **Disponibilidade (Publicação):** Transição de estado que torna o ativo utilizável.
+- **Rastreabilidade (Traceability):** Capacidade de reconstruir a cadeia de eventos e evidências técnicas.
 
 ## 4. Prioridades de Governança
 
 | Entidade | Necessidade de Aprovação | Justificativa |
 | :--- | :--- | :--- |
-| **Process Definitions** | **Crítica** | Define o fluxo de valor e regras de conformidade. |
-| **Form Definitions** | **Alta** | Define a interface de captura de dados e obrigatoriedade. |
-| **Utility Apps** | **Média** | Regras de cálculo e conversão que impactam resultados. |
-| **Actions** | **Média** | Unidades de lógica que executam mutações no sistema. |
-| **Datasets** | **Média** | Dados de referência que guiam decisões automáticas. |
-| **Integrations** | **Baixa** | Configurações de conectores (geralmente geridas por IT). |
-| **View Definitions** | **Baixa** | Layout de apresentação (impacto menor em conformidade). |
+| **Process Definitions** | **Crítica** | Regras de negócio e conformidade. |
+| **Form Definitions** | **Alta** | Interface de captura e validação de dados. |
+| **Utility Apps** | **Média** | Lógicas de cálculo e decisão. |
+| **Actions** | **Média** | Unidades de execução atômicas. |
+| **Datasets** | **Média** | Dados de referência para automação. |
+| **Integrations** | **Baixa** | Configurações técnicas de conectividade. |
+| **View Definitions** | **Baixa** | Elementos de apresentação visual. |

@@ -10,8 +10,8 @@ import { validateGatewayRequest } from "@/platform/integrations/auth";
 import {
   toNextPlatformErrorResponse,
   toNextUnknownErrorResponse,
-  createPlatformErrorContext,
-} from "@/platform/errors/next-response-adapter";
+  createPlatformErrorContextFromRequest,
+} from "@/platform/errors";
 import { createPlatformError } from "@/platform/errors/factory";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,7 @@ type WebhookBody = {
 };
 
 export async function POST(request: Request) {
-  const context = createPlatformErrorContext(request);
+  const context = createPlatformErrorContextFromRequest(request);
 
   try {
     const authError = validateGatewayRequest(request);

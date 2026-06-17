@@ -66,12 +66,12 @@ describe("Platform Error Next.js Adapter", () => {
       assert.strictEqual(body.error.retryable, true);
     });
 
-    test("should NOT include internal details in body but ALLOW metadata", async () => {
+    test("should NOT include internal details in body", async () => {
       // Use narrow cast to avoid 'any'
       const error = {
         ...baseError,
         details: { internal: "data" },
-        metadata: { public: "data" }
+        metadata: { secret: "true" }
       } as unknown as PlatformErrorEnvelope;
 
       const response = toNextPlatformErrorResponse(error);
@@ -79,8 +79,7 @@ describe("Platform Error Next.js Adapter", () => {
 
       // Verification
       assert.strictEqual(Object.hasOwn(body.error, "details"), false);
-      assert.strictEqual(Object.hasOwn(body.error, "metadata"), true, "Metadata should be preserved if present");
-      assert.strictEqual(body.error.metadata.public, "data");
+      assert.strictEqual(Object.hasOwn(body.error, "metadata"), false);
     });
   });
 

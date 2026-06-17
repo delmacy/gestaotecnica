@@ -30,5 +30,7 @@ The following 3 routes were selected for the pilot migration based on their repr
 - Preserve public status codes when they are semantically correct.
 - Ensure no stack traces or internal details are leaked in production.
 - **Correlation ID Policy:** Existing `correlationId` is preserved from `x-correlation-id` header. If absent, none is generated at the context level to avoid non-deterministic behavior.
-- **Generated Values:** Error `id` (deterministic UUID prefix) and `timestamp` are generated per error instance via the central `createPlatformErrorContext` helper.
-- **Compatibility:** Public error responses for `/api/agent` include the `receipt` in the `metadata` field to maintain compatibility with existing consumers.
+- **Generated Values:** Error `id` (random UUID with prefix) and `timestamp` are generated per error instance via the central `createPlatformErrorContextFromRequest` helper.
+- **Compatibility Decisions:**
+  - **Auth Response**: The original auth body from `validateGatewayRequest` is replaced by the canonical PlatformError envelope. The 401 status is preserved.
+  - **Agent Receipt**: The `receipt` field formerly returned in 400 responses from `/api/agent` is now removed from the public response body to adhere to core adapter standards. It remains available in internal error `details` for logging.

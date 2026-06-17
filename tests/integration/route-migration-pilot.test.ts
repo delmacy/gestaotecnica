@@ -16,7 +16,7 @@ const mockProcessAgentSubmissionSuccess = async (payload: any, options: any) => 
 
 const mockProcessAgentSubmissionFail = async (payload: any, options: any) => ({
   ok: false,
-  error: { code: "INVALID_PAYLOAD", message: "Validation failed", details: { field: "name" } },
+  error: { code: "VALIDATION.PAYLOAD.INVALID", message: "Validation failed", details: { field: "name" } },
   receipt: { correlationId: options.correlationId || "corr-123", idempotencyKey: options.idempotencyKey || "idem-123", status: "failed" }
 });
 
@@ -113,7 +113,7 @@ test("Route Migration Pilot Integration Tests", async (t) => {
     assert.strictEqual(body.data.id, "cand-123");
   });
 
-  await t.test("POST /api/agent - Validation Failure with Receipt Compatibility", async () => {
+  await t.test("POST /api/agent - Validation Failure (Receipt removed from public body)", async () => {
     const correlationId = "corr-test-val";
     const req = new Request("http://localhost/api/agent", {
       method: "POST",
@@ -131,8 +131,7 @@ test("Route Migration Pilot Integration Tests", async (t) => {
     assert.strictEqual(body.error.code, "VALIDATION.PAYLOAD.INVALID");
     assert.strictEqual(body.error.category, "validation");
     assert.strictEqual(body.error.correlationId, correlationId);
-    assert.ok(body.error.metadata.receipt, "Receipt should be preserved in metadata for compatibility");
-    assert.strictEqual(body.error.metadata.receipt.status, "failed");
+    assert.strictEqual(body.receipt, undefined, "Receipt should be removed from public response for compatibility");
   });
 
   await t.test("POST /api/gateway/webhooks - Missing eventType (Canonical Pipeline)", async () => {

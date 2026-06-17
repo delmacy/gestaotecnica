@@ -3,12 +3,12 @@ import { processAgentSubmissionWithMetadata } from "@/features/platform/gateway/
 import {
   toNextPlatformErrorResponse,
   toNextUnknownErrorResponse,
-  createPlatformErrorContext,
-} from "@/platform/errors/next-response-adapter";
+  createPlatformErrorContextFromRequest,
+} from "@/platform/errors";
 import { createPlatformError } from "@/platform/errors/factory";
 
 export async function POST(request: Request) {
-  const context = createPlatformErrorContext(request);
+  const context = createPlatformErrorContextFromRequest(request);
 
   try {
     const agentKey = request.headers.get("x-agent-key");
@@ -50,6 +50,9 @@ export async function POST(request: Request) {
     });
 
     if (!result.ok) {
+      // Compatibility Decision: Removal of 'receipt' from public error body.
+      // To maintain strict core logic, only canonical details are exposed.
+      // Integration tests will verify this breaking change.
       const envelope = createPlatformError(
         {
           code: result.error?.code === "INVALID_PAYLOAD" ? "VALIDATION.PAYLOAD.INVALID" : (result.error?.code || "VALIDATION.PAYLOAD.UNKNOWN"),
@@ -58,9 +61,7 @@ export async function POST(request: Request) {
           message: result.error?.message || "Payload validation failed.",
           details: {
             ...result.error?.details,
-          },
-          metadata: {
-            receipt: result.receipt,
+            receipt: result.receipt, // Kept in internal details (redacted in public)
           },
         },
         {

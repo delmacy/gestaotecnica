@@ -10,6 +10,7 @@ export interface PlatformErrorHttpBody {
     category: string;
     correlationId?: string;
     retryable?: boolean;
+    metadata?: Record<string, unknown>;
   };
 }
 
@@ -79,6 +80,10 @@ export function toPlatformErrorHttpBody(error: PlatformErrorEnvelope): PlatformE
 
   if (error.retry !== undefined) {
     body.error.retryable = error.retry.retryable;
+  }
+
+  if (error.metadata) {
+    body.error.metadata = error.metadata;
   }
 
   return body;

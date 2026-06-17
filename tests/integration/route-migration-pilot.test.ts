@@ -90,6 +90,15 @@ test("Route Migration Pilot Integration Tests", async (t) => {
     assert.strictEqual(res.headers.get("x-correlation-id"), correlationId);
   });
 
+  await t.test("GET /api/gateway/modules - No correlationId when absent", async () => {
+    const req = new Request("http://localhost/api/gateway/modules");
+    const res = await getModulesUnauthorized(req);
+    const body = await res.json();
+
+    assert.strictEqual(body.error.correlationId, undefined);
+    assert.strictEqual(res.headers.get("x-correlation-id"), null);
+  });
+
   await t.test("POST /api/agent - Success", async () => {
     const req = new Request("http://localhost/api/agent", {
       method: "POST",
@@ -104,7 +113,7 @@ test("Route Migration Pilot Integration Tests", async (t) => {
     assert.strictEqual(body.data.id, "cand-123");
   });
 
-  await t.test("POST /api/agent - Validation Failure (Canonical Pipeline)", async () => {
+  await t.test("POST /api/agent - Validation Failure with Receipt Compatibility", async () => {
     const correlationId = "corr-test-val";
     const req = new Request("http://localhost/api/agent", {
       method: "POST",
@@ -122,6 +131,8 @@ test("Route Migration Pilot Integration Tests", async (t) => {
     assert.strictEqual(body.error.code, "VALIDATION.PAYLOAD.INVALID");
     assert.strictEqual(body.error.category, "validation");
     assert.strictEqual(body.error.correlationId, correlationId);
+    assert.ok(body.error.metadata.receipt, "Receipt should be preserved in metadata for compatibility");
+    assert.strictEqual(body.error.metadata.receipt.status, "failed");
   });
 
   await t.test("POST /api/gateway/webhooks - Missing eventType (Canonical Pipeline)", async () => {

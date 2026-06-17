@@ -1,7 +1,7 @@
 # Pilot Migration: PlatformError and NextResponse Adapter
 
 - **Package ID:** PKG-PLATFORM-ERROR-ROUTE-MIGRATION-PILOT-001
-- **Status:** In Progress
+- **Status:** Completed
 - **Target Branch:** feature/pkg-platform-error-route-migration-pilot-001
 
 ## Selected Routes
@@ -29,4 +29,6 @@ The following 3 routes were selected for the pilot migration based on their repr
 - Use `toNextUnknownErrorResponse` for unexpected errors (the "catch-all").
 - Preserve public status codes when they are semantically correct.
 - Ensure no stack traces or internal details are leaked in production.
-- Maintain existing `correlationId` if passed in headers.
+- **Correlation ID Policy:** Existing `correlationId` is preserved from `x-correlation-id` header. If absent, none is generated at the context level to avoid non-deterministic behavior.
+- **Generated Values:** Error `id` (deterministic UUID prefix) and `timestamp` are generated per error instance via the central `createPlatformErrorContext` helper.
+- **Compatibility:** Public error responses for `/api/agent` include the `receipt` in the `metadata` field to maintain compatibility with existing consumers.

@@ -11,8 +11,7 @@ import {
   toNextPlatformErrorResponse,
   toNextUnknownErrorResponse,
 } from "@/platform/errors/next-response-adapter";
-import { createPlatformError } from "@/platform/errors/factory";
-import { randomUUID } from "crypto";
+import { createPlatformError, createPlatformErrorContext } from "@/platform/errors/factory";
 
 export const dynamic = "force-dynamic";
 
@@ -25,12 +24,7 @@ type WebhookBody = {
 };
 
 export async function POST(request: Request) {
-  const correlationId = request.headers.get("x-correlation-id") || undefined;
-  const context = {
-    id: `err-${randomUUID()}`,
-    timestamp: new Date().toISOString(),
-    correlationId,
-  };
+  const context = createPlatformErrorContext(request);
 
   try {
     const authError = validateGatewayRequest(request);

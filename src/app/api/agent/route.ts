@@ -4,17 +4,10 @@ import {
   toNextPlatformErrorResponse,
   toNextUnknownErrorResponse,
 } from "@/platform/errors/next-response-adapter";
-import { createPlatformError } from "@/platform/errors/factory";
-import { randomUUID } from "crypto";
+import { createPlatformError, createPlatformErrorContext } from "@/platform/errors/factory";
 
 export async function POST(request: Request) {
-  const correlationId = request.headers.get("x-correlation-id");
-
-  const context = {
-    id: `err-${randomUUID()}`,
-    timestamp: new Date().toISOString(),
-    correlationId: correlationId || undefined,
-  };
+  const context = createPlatformErrorContext(request);
 
   try {
     const agentKey = request.headers.get("x-agent-key");
@@ -51,7 +44,7 @@ export async function POST(request: Request) {
     const payload = await request.json();
 
     const result = await processAgentSubmissionWithMetadata(payload, {
-      correlationId,
+      correlationId: context.correlationId,
       idempotencyKey,
     });
 
@@ -64,6 +57,8 @@ export async function POST(request: Request) {
           message: result.error?.message || "Payload validation failed.",
           details: {
             ...result.error?.details,
+          },
+          metadata: {
             receipt: result.receipt,
           },
         },

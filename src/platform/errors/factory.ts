@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import {
   EntityId,
   ISODateTime,
@@ -6,6 +7,24 @@ import {
   CausationId,
 } from "../contracts";
 import { PlatformErrorEnvelope, PlatformErrorEnvelopeSchema } from "./schema";
+
+/**
+ * createPlatformErrorContext - extracts canonical context from a request.
+ *
+ * Rules:
+ * - correlationId: preserved from x-correlation-id header, NOT generated if absent.
+ * - id: generated per error instance.
+ * - timestamp: generated at creation time.
+ */
+export function createPlatformErrorContext(request: Request): PlatformErrorContext {
+  const correlationId = request.headers.get("x-correlation-id") || undefined;
+
+  return {
+    id: `err-${randomUUID()}`,
+    timestamp: new Date().toISOString(),
+    correlationId,
+  };
+}
 
 /**
  * PlatformErrorContext - context provided by the platform for error creation.

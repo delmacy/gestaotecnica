@@ -6,6 +6,7 @@ import {
   UnknownRecordSchema,
 } from "@/platform/contracts";
 import { ProcessDefinitionKeySchema } from "./process-definition-key";
+import { ProcessNodeSchema, ProcessEdgeSchema } from "./process-node-edge";
 
 /**
  * Process Definition Status
@@ -29,19 +30,6 @@ export {
  */
 export const ProcessVersionNumberSchema = z.number().int().min(1);
 export type ProcessVersionNumber = z.infer<typeof ProcessVersionNumberSchema>;
-
-/**
- * Internal Process Definition Envelope
- * (Minimal structure for nodes and edges)
- */
-const ProcessDefinitionEnvelopeSchema = z
-  .object({
-    schemaVersion: z.string().min(1),
-    nodes: z.array(z.unknown()),
-    edges: z.array(z.unknown()),
-    metadata: UnknownRecordSchema.optional(),
-  })
-  .strict();
 
 /**
  * Process Definition Schema
@@ -79,7 +67,9 @@ export const ProcessVersionSchema = z
     createdAt: ISODateTimeSchema,
     updatedAt: ISODateTimeSchema,
     createdById: EntityIdSchema,
-    definition: ProcessDefinitionEnvelopeSchema,
+    schemaVersion: z.string().min(1),
+    nodes: z.array(ProcessNodeSchema),
+    edges: z.array(ProcessEdgeSchema),
     publishedAt: ISODateTimeSchema.optional(),
     publishedById: EntityIdSchema.optional(),
     changeSummary: z.string().optional(),
@@ -87,6 +77,7 @@ export const ProcessVersionSchema = z
   })
   .strict()
   .superRefine((data, ctx) => {
+    // Basic fields validation
     if (data.status === "published") {
       if (!data.publishedAt) {
         ctx.addIssue({
@@ -103,6 +94,81 @@ export const ProcessVersionSchema = z
         });
       }
     }
-  });
+
+    // Graph integrity validation
+    const nodeIds = new Set<string>();
+    data.nodes.forEach((node, index) => {
+      if (nodeIds.has(node.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate node ID: ${node.id}`,
+          path: ["nodes", index, "id"],
+        });
+      }
+      nodeIds.add(node.id);
+    });
+
+    const edgeIds = new Set<string>();
+    data.edges.forEach((edge, index) => {
+      if (edgeIds.has(edge.id)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate edge ID: ${edge.id}`,
+          path: ["edges", index, "id"],
+        });
+      }
+      edgeIds.add(edge.id);
+
+      if (!nodeIds.has(edge.fromNodeId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Edge source node not found: ${edge.fromNodeId}`,
+          path: ["edges", index, "fromNodeId"],
+        });
+      }
+
+      if (!nodeIds.has(edge.toNodeId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Edge target node not found: ${edge.toNodeId}`,
+          path: ["edges", index, "toNodeId"],
+        });
+      }
+    });
+  })
+  .transform((data) => Object.freeze(data));
 
 export type ProcessVersion = z.infer<typeof ProcessVersionSchema>;
+
+/**
+ * Process Definition Envelope Schema
+ * Composes Definition, Version and direct access to Graph
+ */
+export const ProcessDefinitionEnvelopeSchema = z
+  .object({
+    definition: ProcessDefinitionSchema,
+    version: ProcessVersionSchema,
+    nodes: z.array(ProcessNodeSchema),
+    edges: z.array(ProcessEdgeSchema),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    // Ensure nodes and edges are consistent with the version
+    if (JSON.stringify(data.nodes) !== JSON.stringify(data.version.nodes)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Envelope nodes must match version nodes",
+        path: ["nodes"],
+      });
+    }
+    if (JSON.stringify(data.edges) !== JSON.stringify(data.version.edges)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Envelope edges must match version edges",
+        path: ["edges"],
+      });
+    }
+  })
+  .transform((data) => Object.freeze(data));
+
+export type ProcessDefinitionEnvelope = z.infer<typeof ProcessDefinitionEnvelopeSchema>;

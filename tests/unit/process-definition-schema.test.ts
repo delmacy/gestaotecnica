@@ -26,11 +26,9 @@ const validVersionBase = {
   createdAt: "2023-10-27T10:00:00Z",
   updatedAt: "2023-10-27T10:00:00Z",
   createdById: "user-789",
-  definition: {
-    schemaVersion: "1.0.0",
-    nodes: [],
-    edges: [],
-  },
+  schemaVersion: "1.0.0",
+  nodes: [],
+  edges: [],
 };
 
 test("ProcessDefinition - minimum valid", () => {
@@ -151,28 +149,24 @@ test("ProcessVersion - definition validation", () => {
   // missing schemaVersion
   const noSchema = {
     ...validVersionBase,
-    definition: { nodes: [], edges: [] }
   };
   // @ts-ignore
+  delete noSchema.schemaVersion;
   assert.strictEqual(ProcessVersionSchema.safeParse(noSchema).success, false);
 
-  // unknown field in definition
+  // unknown field in root (since it is flattened)
   const unknownField = {
     ...validVersionBase,
-    definition: { schemaVersion: "1", nodes: [], edges: [], extra: true }
+    extra: true
   };
   assert.strictEqual(ProcessVersionSchema.safeParse(unknownField).success, false);
 
-  // nodes and edges accept unknown
-  const withComplexNodes = {
+  // nodes and edges must be valid per their schemas
+  const invalidNodes = {
     ...validVersionBase,
-    definition: {
-      schemaVersion: "1",
-      nodes: [{ id: "1", type: "task", complex: { data: 123 } }],
-      edges: [{ id: "e1", source: "1", target: "2" }]
-    }
+    nodes: [{ id: "1", type: "task" }], // invalid type 'task'
   };
-  assert.strictEqual(ProcessVersionSchema.safeParse(withComplexNodes).success, true);
+  assert.strictEqual(ProcessVersionSchema.safeParse(invalidNodes).success, false);
 });
 
 test("ProcessVersion - metadata valid", () => {

@@ -96,8 +96,8 @@ export type ProcessEdgeCondition = z.infer<typeof ProcessEdgeConditionSchema>;
 export const ProcessEdgeSchema = z
   .object({
     id: EntityIdSchema,
-    sourceNodeId: EntityIdSchema,
-    targetNodeId: EntityIdSchema,
+    fromNodeId: EntityIdSchema,
+    toNodeId: EntityIdSchema,
     type: ProcessEdgeTypeSchema,
     priority: z.number().int().min(0),
     name: z.string().min(1).max(200).optional(),

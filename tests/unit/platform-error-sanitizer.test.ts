@@ -14,7 +14,9 @@ test("sanitizeUnknownError: Basics", async (t) => {
   await t.test("TypeError", () => {
     const err = new TypeError("type failure");
     const result = sanitizeUnknownError(err);
-    assert.equal(result.name, "TypeError");
+    // Since we no longer traverse prototypes, 'TypeError' (which has 'name' on proto)
+    // will fall back to 'Error' unless an own property exists.
+    assert.equal(result.name, "Error");
     assert.equal(result.message, "type failure");
   });
 
@@ -177,8 +179,40 @@ test("sanitizeUnknownError: Security", async (t) => {
     const result = sanitizeUnknownError(err);
     assert.equal(nameExecuted, false, "name getter should not be executed");
     assert.equal(msgExecuted, false, "message getter should not be executed");
-    // Fallback name is "Error" or "HostileError" depending on implementation.
-    // Since we only read OWN string properties for 'name', and Error subclasses have 'name' on proto:
+    // Fallback name is "Error".
+    assert.equal(result.name, "Error");
+  });
+
+  await t.test("Error subclass with prototype data property 'name' is not trusted", () => {
+    class CustomError extends Error {}
+    Object.defineProperty(CustomError.prototype, "name", { value: "Untrusted", enumerable: true });
+    const err = new CustomError("test");
+
+    const result = sanitizeUnknownError(err);
+    assert.equal(result.name, "Error", "Should not trust prototype 'name' property");
+  });
+
+  await t.test("own string 'name' is preserved", () => {
+    const err = new Error("msg");
+    Object.defineProperty(err, "name", { value: "MyCustomError", enumerable: true });
+    const result = sanitizeUnknownError(err);
+    assert.equal(result.name, "MyCustomError");
+  });
+
+  await t.test("own accessor 'name' is not executed and falls back to 'Error'", () => {
+    let executed = false;
+    const err = new Error("msg");
+    Object.defineProperty(err, "name", {
+      get: () => {
+        executed = true;
+        return "Hidden";
+      },
+      enumerable: true,
+      configurable: true
+    });
+
+    const result = sanitizeUnknownError(err);
+    assert.equal(executed, false, "accessor should not be executed");
     assert.equal(result.name, "Error");
   });
 

@@ -226,35 +226,36 @@ export function sanitizeUnknownError(value: unknown): Record<string, unknown> {
 
     // Strictly safe reading of Error properties
     if (value instanceof Error) {
-      // Logic for 'name': must be a string
+      // Logic for 'name': must be an own string data property
       if (typeof result.name !== "string") {
         try {
-          const d = Object.getOwnPropertyDescriptor(value, "name");
-          if (d && "value" in d && typeof d.value === "string") {
-            result.name = d.value;
+          const descriptor = Object.getOwnPropertyDescriptor(value, "name");
+          if (
+            descriptor &&
+            "value" in descriptor &&
+            typeof descriptor.value === "string"
+          ) {
+            result.name = descriptor.value;
           } else {
-            const proto = Object.getPrototypeOf(value);
-            const pd = proto ? Object.getOwnPropertyDescriptor(proto, "name") : undefined;
-            if (pd && "value" in pd && typeof pd.value === "string") {
-              result.name = pd.value;
-            } else {
-              result.name = "Error";
-            }
+            result.name = "Error";
           }
         } catch {
           result.name = "Error";
         }
       }
 
-      // Logic for 'message': must be a string
+      // Logic for 'message': must be an own string data property
       if (typeof result.message !== "string") {
         try {
-          const d = Object.getOwnPropertyDescriptor(value, "message");
-          if (d && "value" in d && typeof d.value === "string") {
-            result.message = d.value;
+          const descriptor = Object.getOwnPropertyDescriptor(value, "message");
+          if (
+            descriptor &&
+            "value" in descriptor &&
+            typeof descriptor.value === "string"
+          ) {
+            result.message = descriptor.value;
           } else {
-            // If it was some non-string object, safe-string it
-            result.message = safeToString(root.message);
+            result.message = "";
           }
         } catch {
           result.message = "";

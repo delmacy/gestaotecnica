@@ -19,7 +19,7 @@ Implementação da função `sanitizeUnknownError` para conversão de valores `u
 ## Garantias de Segurança
 - **Ocultação de Stack Traces:** A chave `stack` é removida em todos os níveis.
 - **Redação de Segredos:** Chaves sensíveis como `password`, `token`, `secret`, etc., são substituídas por `"[REDACTED]"`.
-- **Prevenção de Execução de Código:** O uso de `Object.getOwnPropertyDescriptor` garante que nenhum getter de objeto ou array seja executado durante a sanitização, prevenindo ataques de side-effects ou exaustão de recursos.
+- **Prevenção de Execução de Código:** O uso de `Object.getOwnPropertyDescriptor` garante que nenhum getter de objeto ou array seja executado durante a sanitização. O sanitizador não realiza travessia de protótipos para `name` e `message`, lendo exclusivamente descriptores de propriedades próprias.
 - **Resiliência contra Hostilidade:** Tratamento de Proxies revogados, objetos circulares, e protótipos nulos.
 - **Limites de Memória:** Truncamento de strings (2000 chars), arrays (50 itens), objetos (50 chaves) e profundidade (5 níveis).
 

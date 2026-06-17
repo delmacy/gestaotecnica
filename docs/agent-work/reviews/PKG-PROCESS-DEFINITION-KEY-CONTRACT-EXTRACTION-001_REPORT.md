@@ -5,7 +5,8 @@
 * Package: `PKG-PROCESS-DEFINITION-KEY-CONTRACT-EXTRACTION-001`
 * Status: `completed`
 * Base SHA: `65b750ab957e65d7d9e35106fd2d3a9f253846cb`
-* Head SHA: 3b4f3ed4c5184c45fbdaa8c1c10c5823deb393b8
+* Implementation commit SHA: 3b4f3ed4c5184c45fbdaa8c1c10c5823deb393b8
+* Documentation correction commit: recorded in PR history
 
 ## Alterações Realizadas
 

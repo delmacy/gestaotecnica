@@ -4,8 +4,9 @@ import { gatewayModules } from "@/platform/integrations/module-registry";
 import {
   toNextPlatformErrorResponse,
   toNextUnknownErrorResponse,
+  createPlatformErrorContext,
 } from "@/platform/errors/next-response-adapter";
-import { createPlatformError, createPlatformErrorContext } from "@/platform/errors/factory";
+import { createPlatformError } from "@/platform/errors/factory";
 
 export const dynamic = "force-dynamic";
 

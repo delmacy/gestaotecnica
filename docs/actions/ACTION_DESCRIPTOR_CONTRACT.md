@@ -15,7 +15,7 @@ The Action Descriptor contract (PKG-ACTION-DESCRIPTOR-CONTRACT-001) provides a c
 ### 2. Action Handler
 - **Definition**: The executable logic (JavaScript/TypeScript function) that implements the action.
 - **Key**: Linked to the descriptor via `handlerKey`.
-- **Note**: Handlers are never serialized or persisted in the descriptor.
+- **Relationship**: The `handlerKey` in the descriptor matches the `key` property in the `ActionDefinition` registered in memory.
 
 ### 3. Action Instance
 - **Definition**: The specific usage of an action within a workflow process node.
@@ -30,21 +30,24 @@ The Action Descriptor contract (PKG-ACTION-DESCRIPTOR-CONTRACT-001) provides a c
 
 The `ActionDescriptor` includes the following fields:
 
-- `key`: Unique identifier (e.g., `crm.leads.create`).
+### Mandatory
+- `key`: Unique identifier using qualified naming (e.g., `crm.leads.create`).
 - `name`: Human-readable name.
+- `handlerKey`: Reference to the implementation.
+- `inputSchema`: JSON-serializable schema for input validation.
+- `outputSchema`: JSON-serializable schema for output validation.
+
+### Optional (Future Extensions)
 - `version`: Positive integer.
 - `status`: Lifecycle state (`draft`, `published`, `deprecated`, `archived`).
-- `inputSchema`: Zod-validated JSON schema for input.
-- `outputSchema`: Zod-validated JSON schema for output.
-- `handlerKey`: Reference to the implementation.
 - `executionMode`: `sync` or `async`.
 - `sideEffect`: `none`, `read`, `write`, or `external`.
 - `idempotent`: Boolean indicating if the action can be safely retried.
-- `timeoutMs`: Optional maximum execution time.
-- `tags`: Optional array of unique descriptive tags.
+- `timeoutMs`: Maximum execution time.
+- `tags`: Array of unique descriptive tags.
 
 ## Implementation Details
 
 - **Strictness**: The schema is strict and rejects unknown fields.
-- **Function Prohibition**: Input and output schemas are checked to ensure they do not contain function-like values.
-- **Key Convention**: Uses `namespace.action` format.
+- **Safe Traversal**: Input and output schemas are checked using safe property traversal to ensure they do not contain functions, avoiding prototype traversal or getter execution.
+- **Key Convention**: Requires at least one dot to encourage namespacing/qualification (e.g., `module.action`).

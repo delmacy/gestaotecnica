@@ -15,13 +15,13 @@ Ocorre em diversos blocos `catch` que tentam extrair uma mensagem para retorno o
 
 ## 3. Onde stack pode escapar?
 O risco de vazamento de `stack` deve ser analisado por fronteira:
-- **Exposição em Logs de Servidor**: `console.error(error)` em `src/app/api/agent/route.ts` e diversos queries em `src/platform/*/infra/`. Imprime a stack completa no stdout/stderr do servidor.
-- **Exposição em Resposta ao Cliente**: `src/platform/actions/action-runner.ts` retorna `details: error`. Se o erro for um objeto nativo, dependendo da serialização final, a stack pode vazar para o chamador.
-- **Exposição em Persistência**: `src/platform/events/event-log-service.ts` pode persistir o objeto de erro sem filtro.
+- **Exposição em Logs de Servidor (Server Log Exposure)**: Ocorre via `console.error(error)` em `src/app/api/agent/route.ts` (handler POST) e em queries em `src/platform/registry/infra/`. A stack é enviada para o stdout/stderr do servidor.
+- **Exposição em Resposta ao Cliente (Client Response Exposure)**: Identificado em `src/platform/actions/action-runner.ts` (função `runAction`) que retorna `details: error` diretamente no payload.
+- **Exposição em Persistência**: `src/platform/events/event-log-service.ts` (função `appendEvent`) pode salvar o objeto de erro no banco sem filtro.
 
 ## 4. Onde erros são enviados ao cliente?
 - **API Routes**: `src/app/api/**/*` via `NextResponse.json`. Ex: `src/app/api/agent/route.ts`.
-- **Server Actions**: `src/modules/*/actions.ts` retornam objetos que chegam ao frontend. Ex: `createSchedule` em `src/modules/schedules/actions.ts`.
+- **Server Actions**: Handlers em `src/modules/*/actions.ts` (ex: `createSchedule`, `updateShift`).
 - **UI Components**: `src/features/builder/canvas/BuilderCanvas.tsx` trata erros de integração local.
 
 ## 5. Onde detalhes técnicos são persistidos?
@@ -40,7 +40,7 @@ O `sanitizeUnknownError` deve ser injetado em:
 
 ## 8. Onde a serialização determinística deve entrar?
 - Apenas onde contratos de transporte (ex: assinaturas, hashing de integridade) ou persistência estável (ex: `event_logs` imutáveis) exigirem payloads byte-stable.
-- **Não** é recomendada para todas as respostas HTTP simples, onde o `NextResponse.json` padrão é suficiente.
+- **Não** é necessária para todas as respostas HTTP simples via `NextResponse.json`.
 
 ## 9. Quais pontos não devem usar serialização?
 - Scripts de manutenção local (`src/scripts/*`).

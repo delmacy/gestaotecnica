@@ -1,3 +1,4 @@
+export * from "./contracts";
 export { getAction, listActions, registerAction } from "./action-registry";
 export { runAction } from "./action-runner";
 export type {

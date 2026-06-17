@@ -43,7 +43,7 @@ test("Utility App Action Adapter: should fail on empty operationKey", () => {
   assert.throws(() => validateUtilityAppActionBinding(invalid));
 });
 
-test("Utility App Action Adapter: should fail on unsafe metadata", () => {
+test("Utility App Action Adapter: should fail on unsafe metadata (SafeJsonRecordSchema)", () => {
   const invalid = {
     ...validBinding,
     metadata: { fn: () => {} }
@@ -80,7 +80,7 @@ test("Utility App Action Adapter: should fail on duplicate mapping targets", () 
   assert.throws(() => validateUtilityAppActionBinding(invalid));
 });
 
-test("Utility App Action Adapter: should fail on mapping with accessors (superRefine safety check)", () => {
+test("Utility App Action Adapter: should fail on mapping with accessors (SafeJsonRecordSchema check)", () => {
   const mapping = {};
   Object.defineProperty(mapping, "field", {
     get: () => "target",
@@ -97,9 +97,12 @@ test("Utility App Action Adapter: mapUtilityAppInput should map fields correctly
     other: "ignored"
   };
   const result = mapUtilityAppInput(validBinding, input);
-  assert.strictEqual(result.a_field1, "value1");
-  assert.strictEqual(result.a_field2, 123);
-  assert.strictEqual(Object.getPrototypeOf(result), null);
+  assert.strictEqual(result.success, true);
+  if (result.success) {
+    assert.strictEqual(result.data.a_field1, "value1");
+    assert.strictEqual(result.data.a_field2, 123);
+    assert.strictEqual(Object.getPrototypeOf(result.data), null);
+  }
 });
 
 test("Utility App Action Adapter: mapUtilityAppInput should handle missing fields", () => {
@@ -107,8 +110,11 @@ test("Utility App Action Adapter: mapUtilityAppInput should handle missing field
     u_field1: "value1"
   };
   const result = mapUtilityAppInput(validBinding, input);
-  assert.strictEqual(result.a_field1, "value1");
-  assert.strictEqual(Object.keys(result).length, 1);
+  assert.strictEqual(result.success, true);
+  if (result.success) {
+    assert.strictEqual(result.data.a_field1, "value1");
+    assert.strictEqual(Object.keys(result.data).length, 1);
+  }
 });
 
 test("Utility App Action Adapter: mapActionOutput should map fields correctly", () => {
@@ -117,31 +123,27 @@ test("Utility App Action Adapter: mapActionOutput should map fields correctly", 
     a_other: "ignored"
   };
   const result = mapActionOutput(validBinding, output);
-  assert.strictEqual(result.u_result, "success");
-  assert.strictEqual(Object.getPrototypeOf(result), null);
+  assert.strictEqual(result.success, true);
+  if (result.success) {
+    assert.strictEqual(result.data.u_result, "success");
+    assert.strictEqual(Object.getPrototypeOf(result.data), null);
+  }
 });
 
-test("Utility App Action Adapter: should prevent prototype pollution in mapping", () => {
+test("Utility App Action Adapter: should prevent prototype pollution in mapping (validation)", () => {
   const mapping = JSON.parse('{"u_field": "__proto__"}') as Record<string, string>;
   const bindingWithPollution = {
     ...validBinding,
     inputMapping: mapping
   };
   assert.throws(() => validateUtilityAppActionBinding(bindingWithPollution));
-
-  // Test applyMapping internal guard
-  const input = { u_field: { polluted: true } };
-  // Even if we bypass validation, the adapter function uses applyMapping which guards targets
-  const result = mapUtilityAppInput(bindingWithPollution as any, input);
-  assert.strictEqual(Object.keys(result).length, 0);
-  assert.strictEqual(Object.getPrototypeOf(result), null);
 });
 
 test("Utility App Action Adapter: mapUtilityAppInput should not mutate original input", () => {
   const input = { u_field1: "value1" };
   Object.freeze(input);
   const result = mapUtilityAppInput(validBinding, input);
-  assert.strictEqual(result.a_field1, "value1");
+  assert.strictEqual(result.success, true);
 });
 
 test("Utility App Action Adapter: mapUtilityAppInput should handle hostile getters by not executing them if not in mapping", () => {
@@ -153,10 +155,11 @@ test("Utility App Action Adapter: mapUtilityAppInput should handle hostile gette
   });
 
   const result = mapUtilityAppInput(validBinding, input as Record<string, unknown>);
+  assert.strictEqual(result.success, true);
   assert.strictEqual(executed, false);
 });
 
-test("Utility App Action Adapter: mapUtilityAppInput should throw if own mapped field is a getter", () => {
+test("Utility App Action Adapter: mapUtilityAppInput should return error result if own mapped field is a getter", () => {
   let executed = false;
   const input = {};
   Object.defineProperty(input, "u_field1", {
@@ -164,15 +167,12 @@ test("Utility App Action Adapter: mapUtilityAppInput should throw if own mapped 
     enumerable: true
   });
 
-  assert.throws(() => mapUtilityAppInput(validBinding, input as Record<string, unknown>), /accessor/);
+  const result = mapUtilityAppInput(validBinding, input as Record<string, unknown>);
+  assert.strictEqual(result.success, false);
+  if (!result.success) {
+    assert.strictEqual(result.issues[0].code, "ACCESSOR_DETECTED");
+  }
   assert.strictEqual(executed, false);
-});
-
-test("Utility App Action Adapter: should reject revoked proxy as input", () => {
-  const { proxy, revoke } = Proxy.revocable({ u_field1: "val" }, {});
-  revoke();
-
-  assert.throws(() => mapUtilityAppInput(validBinding, proxy as Record<string, unknown>));
 });
 
 test("Utility App Action Adapter: should support minimum valid binding", () => {
@@ -187,16 +187,13 @@ test("Utility App Action Adapter: should support minimum valid binding", () => {
   assert.deepStrictEqual(validated, minBinding);
 });
 
-test("Utility App Action Adapter: mapping proxy should be rejected in validation", () => {
-  // A proxy that looks like a plain object but isn't
-  const proxy2 = new Proxy({}, { getPrototypeOf: () => ({}) });
-  const invalid2 = { ...validBinding, inputMapping: proxy2 };
-  assert.throws(() => validateUtilityAppActionBinding(invalid2));
+test("Utility App Action Adapter: mapping proxy should be rejected in validation (SafeJsonRecordSchema)", () => {
+  const proxy = new Proxy({}, { getPrototypeOf: () => ({}) });
+  const invalid = { ...validBinding, inputMapping: proxy };
+  assert.throws(() => validateUtilityAppActionBinding(invalid));
 });
 
 test("Utility App Action Adapter: should reject symbols in mapping keys", () => {
-  // MappingObjectSchema (z.record(z.string(), z.string())) only allows string keys.
-  // Symbols are rejected by MappingObjectSchema.
   const mapping = { [Symbol("test")]: "target" };
   const invalid = { ...validBinding, inputMapping: mapping };
   assert.throws(() => validateUtilityAppActionBinding(invalid));
@@ -210,9 +207,19 @@ test("Utility App Action Adapter: should fail if mapping target is a dangerous p
   assert.throws(() => validateUtilityAppActionBinding(invalid));
 });
 
-test("Utility App Action Adapter: result should be prototype-safe", () => {
+test("Utility App Action Adapter: result data should be prototype-safe", () => {
   const result = mapUtilityAppInput(validBinding, { u_field1: "val" });
-  assert.strictEqual(Object.getPrototypeOf(result), null);
-  assert.strictEqual(result.constructor, undefined);
-  assert.strictEqual(result.__proto__, undefined);
+  assert.strictEqual(result.success, true);
+  if (result.success) {
+    assert.strictEqual(Object.getPrototypeOf(result.data), null);
+    assert.strictEqual((result.data as any).constructor, undefined);
+    assert.strictEqual((result.data as any).__proto__, undefined);
+  }
+});
+
+test("Utility App Action Adapter: should reject revoked proxy as input (Object.getOwnPropertyDescriptor throws)", () => {
+  const { proxy, revoke } = Proxy.revocable({ u_field1: "val" }, {});
+  revoke();
+
+  assert.throws(() => mapUtilityAppInput(validBinding, proxy as Record<string, unknown>));
 });

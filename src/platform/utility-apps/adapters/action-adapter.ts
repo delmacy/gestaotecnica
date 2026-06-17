@@ -1,6 +1,22 @@
 import { UtilityAppActionBinding, UtilityAppActionBindingSchema } from "../contracts/utility-app-action-binding";
 
 /**
+ * Mapping Issues
+ */
+export type MappingIssue = {
+  code: "ACCESSOR_DETECTED" | "MISSING_FIELD" | "ILLEGAL_TARGET";
+  field: string;
+  message: string;
+};
+
+/**
+ * Mapping Result
+ */
+export type MappingResult =
+  | { success: true; data: Record<string, unknown> }
+  | { success: false; issues: MappingIssue[] };
+
+/**
  * Validates a Utility App Action Binding against its schema.
  */
 export function validateUtilityAppActionBinding(binding: unknown): UtilityAppActionBinding {
@@ -14,7 +30,7 @@ export function validateUtilityAppActionBinding(binding: unknown): UtilityAppAct
 export function mapUtilityAppInput(
   binding: UtilityAppActionBinding,
   utilityInput: Record<string, unknown>
-): Record<string, unknown> {
+): MappingResult {
   return applyMapping(binding.inputMapping || {}, utilityInput);
 }
 
@@ -25,7 +41,7 @@ export function mapUtilityAppInput(
 export function mapActionOutput(
   binding: UtilityAppActionBinding,
   actionOutput: Record<string, unknown>
-): Record<string, unknown> {
+): MappingResult {
   return applyMapping(binding.outputMapping || {}, actionOutput);
 }
 
@@ -36,12 +52,18 @@ export function mapActionOutput(
 function applyMapping(
   mapping: Record<string, string>,
   source: Record<string, unknown>
-): Record<string, unknown> {
-  const result = Object.create(null) as Record<string, unknown>;
+): MappingResult {
+  const data = Object.create(null) as Record<string, unknown>;
+  const issues: MappingIssue[] = [];
 
   for (const [sourceField, targetField] of Object.entries(mapping)) {
-    // 1. Protection against dangerous targets (already checked by schema, but double-guarding)
+    // 1. Protection against dangerous targets
     if (["__proto__", "prototype", "constructor"].includes(targetField)) {
+      issues.push({
+        code: "ILLEGAL_TARGET",
+        field: targetField,
+        message: `Target field "${targetField}" is illegal`,
+      });
       continue;
     }
 
@@ -54,12 +76,21 @@ function applyMapping(
 
     // 3. Reject accessors (getters/setters)
     if (descriptor.get || descriptor.set) {
-      throw new Error(`Mapping failed: field "${sourceField}" is an accessor`);
+      issues.push({
+        code: "ACCESSOR_DETECTED",
+        field: sourceField,
+        message: `Field "${sourceField}" is an accessor and cannot be mapped`,
+      });
+      continue;
     }
 
     // 4. Assign value
-    result[targetField] = descriptor.value;
+    data[targetField] = descriptor.value;
   }
 
-  return result;
+  if (issues.length > 0) {
+    return { success: false, issues };
+  }
+
+  return { success: true, data };
 }

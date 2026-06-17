@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { UtilityAppKeySchema } from "./utility-app";
 import { ActionDescriptorKeySchema } from "@/platform/actions/contracts/action-descriptor";
-import { checkSafety } from "@/platform/actions/contracts/safe-traversal";
+import { SafeJsonRecordSchema } from "@/platform/contracts/safe-json";
 
 /**
  * Utility App Action Direction
@@ -25,67 +25,35 @@ export const UtilityAppActionBindingSchema = z
     actionKey: ActionDescriptorKeySchema,
     direction: UtilityAppActionDirectionSchema,
     operationKey: z.string().min(1).max(100),
-    // Initially unknown to prevent Zod record traversal before safety check
+    // Use unknown to prevent early traversal before SafeJsonRecordSchema
     inputMapping: z.unknown().optional(),
     outputMapping: z.unknown().optional(),
     enabled: z.boolean(),
-    metadata: z.unknown().optional(),
+    metadata: SafeJsonRecordSchema.optional(),
   })
   .strict()
   .superRefine((data, ctx) => {
-    // 1. Validate Metadata (must be a plain record and safe)
-    if (data.metadata !== undefined) {
-      if (data.metadata === null || typeof data.metadata !== "object" || Array.isArray(data.metadata)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "metadata must be a plain object",
-          path: ["metadata"],
-        });
-      } else {
-        const safetyResult = checkSafety(data.metadata);
-        if (!safetyResult.isSafe) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `metadata is unsafe: ${safetyResult.reason}`,
-            path: ["metadata"],
-          });
-        }
-      }
-    }
-
-    // 2. Validate Mappings
+    // Validate Mappings using SafeJsonRecordSchema first
     const mappingPaths: ["inputMapping", "outputMapping"] = ["inputMapping", "outputMapping"];
     for (const path of mappingPaths) {
       const mapping = data[path];
       if (mapping === undefined) continue;
 
-      // 2.1 Basic Object Check
-      if (mapping === null || typeof mapping !== "object" || Array.isArray(mapping)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `${path} must be a plain object`,
-          path: [path],
-        });
+      // 1. Validate through canonical SafeJsonRecordSchema (handles proxies, accessors, etc.)
+      const safeResult = SafeJsonRecordSchema.safeParse(mapping);
+      if (!safeResult.success) {
+        for (const issue of safeResult.error.issues) {
+          ctx.addIssue({ ...issue, path: [path, ...issue.path] });
+        }
         continue;
       }
 
-      // 2.2 Safety Check (traverses own property descriptors)
-      const safetyResult = checkSafety(mapping);
-      if (!safetyResult.isSafe) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `${path} is unsafe: ${safetyResult.reason}`,
-          path: [path],
-        });
-        continue;
-      }
-
-      // 2.3 Structural Validation and uniqueness/pollution check
+      // 2. Structural Validation and uniqueness/pollution check
       const parseResult = MappingObjectSchema.safeParse(mapping);
       if (!parseResult.success) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `${path} structure is invalid`,
+          message: `${path} structure is invalid: values must be strings`,
           path: [path],
         });
         continue;

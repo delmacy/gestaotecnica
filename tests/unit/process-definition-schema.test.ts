@@ -154,6 +154,7 @@ test("ProcessVersion - definition validation", () => {
     definition: { nodes: [], edges: [] }
   };
   // @ts-ignore
+  delete noSchema.definition.schemaVersion;
   assert.strictEqual(ProcessVersionSchema.safeParse(noSchema).success, false);
 
   // unknown field in definition
@@ -163,16 +164,16 @@ test("ProcessVersion - definition validation", () => {
   };
   assert.strictEqual(ProcessVersionSchema.safeParse(unknownField).success, false);
 
-  // nodes and edges accept unknown
-  const withComplexNodes = {
+  // nodes and edges accept valid structures
+  const withNodes = {
     ...validVersionBase,
     definition: {
       schemaVersion: "1",
-      nodes: [{ id: "1", type: "task", complex: { data: 123 } }],
-      edges: [{ id: "e1", source: "1", target: "2" }]
+      nodes: [{ id: "1", key: "node-1", type: "start", name: "Start", position: { x: 0, y: 0 }, config: {} }],
+      edges: []
     }
   };
-  assert.strictEqual(ProcessVersionSchema.safeParse(withComplexNodes).success, true);
+  assert.strictEqual(ProcessVersionSchema.safeParse(withNodes).success, true);
 });
 
 test("ProcessVersion - metadata valid", () => {

@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import {
+  TraceReceipt,
   TraceReceiptSchema,
   TraceReceiptHashSchema,
   createSignableTraceReceiptPayload,
@@ -11,7 +12,7 @@ import {
 const VALID_WORKSPACE_ID = "123e4567-e89b-12d3-a456-426614174000";
 const VALID_TIMESTAMP = "2023-10-27T10:00:00Z";
 
-const MINIMAL_RECEIPT = {
+const MINIMAL_RECEIPT: TraceReceipt = {
   id: "receipt-1",
   workspaceId: VALID_WORKSPACE_ID,
   subject: {
@@ -35,9 +36,9 @@ const MINIMAL_RECEIPT = {
   artifacts: [],
   hashes: [],
   correlationId: "corr-1",
-} as const;
+};
 
-const FULL_RECEIPT = {
+const FULL_RECEIPT: TraceReceipt = {
   ...MINIMAL_RECEIPT,
   actor: {
     type: "service",
@@ -86,7 +87,29 @@ const FULL_RECEIPT = {
     custom: "data",
     hashes: { internal: true } // Nested hashes should be preserved
   },
-} as const;
+};
+
+/**
+ * Deeply freezes an object
+ */
+function deepFreeze<T>(obj: T): T {
+  if (obj === null || typeof obj !== "object") return obj;
+
+  Object.freeze(obj);
+
+  Object.getOwnPropertyNames(obj).forEach((prop) => {
+    const value = (obj as Record<string, unknown>)[prop];
+    if (
+      value !== null &&
+      (typeof value === "object" || typeof value === "function") &&
+      !Object.isFrozen(value)
+    ) {
+      deepFreeze(value);
+    }
+  });
+
+  return obj;
+}
 
 describe("Trace Receipt Signable Payload", () => {
   it("should create payload for minimal valid receipt", () => {
@@ -150,16 +173,32 @@ describe("Trace Receipt Signable Payload", () => {
     assert.throws(() => createSignableTraceReceiptPayload(invalidReceipt));
   });
 
-  it("should work with frozen input", () => {
-    const frozenReceipt = Object.freeze(JSON.parse(JSON.stringify(MINIMAL_RECEIPT)));
+  it("should work with deep-frozen input", () => {
+    const frozenReceipt = deepFreeze(structuredClone(FULL_RECEIPT));
     const payload = createSignableTraceReceiptPayload(frozenReceipt);
     assert.strictEqual(payload.id, frozenReceipt.id);
+    assert.notStrictEqual(payload, frozenReceipt);
   });
 
-  it("should not mutate original input", () => {
-    const receipt = JSON.parse(JSON.stringify(FULL_RECEIPT));
+  it("should not mutate original input (deep check)", () => {
+    const receipt = structuredClone(FULL_RECEIPT);
+
+    // Capture references
+    const originalArtifacts = receipt.artifacts;
+    const originalMetadata = receipt.metadata;
+    const originalHashes = receipt.hashes;
+    const originalSourceMetadata = receipt.source.metadata;
+
     createSignableTraceReceiptPayload(receipt);
+
+    // Verify values unchanged
     assert.deepStrictEqual(receipt, FULL_RECEIPT);
+
+    // Verify references unchanged (proves no mutation like sort or splice)
+    assert.strictEqual(receipt.artifacts, originalArtifacts);
+    assert.strictEqual(receipt.metadata, originalMetadata);
+    assert.strictEqual(receipt.hashes, originalHashes);
+    assert.strictEqual(receipt.source.metadata, originalSourceMetadata);
   });
 
   it("should produce deterministic canonicalization", () => {
@@ -170,7 +209,7 @@ describe("Trace Receipt Signable Payload", () => {
 
   it("should produce same canonicalization regardless of key order in input", () => {
     const receipt1 = { ...MINIMAL_RECEIPT };
-    const receipt2 = {
+    const receipt2: TraceReceipt = {
       correlationId: MINIMAL_RECEIPT.correlationId,
       hashes: MINIMAL_RECEIPT.hashes,
       artifacts: MINIMAL_RECEIPT.artifacts,
@@ -184,7 +223,6 @@ describe("Trace Receipt Signable Payload", () => {
     };
 
     const c1 = canonicalizeSignableTraceReceipt(receipt1);
-    // @ts-expect-error - order doesn't match type exactly but it's valid
     const c2 = canonicalizeSignableTraceReceipt(receipt2);
     assert.strictEqual(c1, c2);
   });
@@ -194,7 +232,7 @@ describe("Trace Receipt Signable Payload", () => {
     const receipt2 = {
       ...FULL_RECEIPT,
       hashes: [
-        { algorithm: "sha512", scope: "receipt", value: "b".repeat(128) }
+        { algorithm: "sha512" as const, scope: "receipt" as const, value: "b".repeat(128) }
       ]
     };
 
@@ -259,9 +297,5 @@ describe("Trace Receipt Signable Payload", () => {
     };
     const h2 = createTraceReceiptSelfHash(receipt2, "sha256");
     assert.notStrictEqual(h1.value, h2.value);
-  });
-
-  it("should not use any (checked by absence of 'any' in file)", () => {
-    assert.ok(true);
   });
 });

@@ -29,13 +29,14 @@ Tests were implemented in `tests/unit/trace-receipt-signable-payload.test.ts` co
 - [x] Nested `hashes` preservation (metadata, source, artifacts)
 - [x] Field preservation (`previousReceiptId`, `correlationId`, `causationId`, `artifacts`)
 - [x] Optional fields handling
-- [x] Invalid receipt rejection
-- [x] Unknown fields rejection
-- [x] Immutability and frozen input support
+- [x] Invalid receipt rejection (with `@ts-expect-error`)
+- [x] Unknown fields rejection (with `@ts-expect-error`)
+- [x] Deep immutability and deep-frozen input support
 - [x] Deterministic canonicalization
-- [x] Key order independence
+- [x] Key order independence (without `@ts-expect-error`)
 - [x] Scope verification (`receipt`)
 - [x] Hash algorithm support (SHA-256, SHA-512)
+- [x] Explicit reference behavior verification (`assert.notStrictEqual`)
 
 ### Build
 
@@ -47,12 +48,12 @@ Tests were implemented in `tests/unit/trace-receipt-signable-payload.test.ts` co
 - [x] No HMAC implemented.
 - [x] No linking or receipt chain implemented.
 - [x] No persistence, events, storage, API, or UI.
-- [x] No `any` or `as any` used in production code.
+- [x] No `any` or `as any` used in production code or tests.
 - [x] No `delete` on original object.
-- [x] No `JSON.parse(JSON.stringify(...))` for cloning in production code.
+- [x] No `JSON.parse(JSON.stringify(...))` for cloning in production code or tests.
 - [x] No direct `crypto` usage (used `hashing.ts` instead).
 - [x] No `Date.now` or `randomUUID`.
 
 ## Conclusion
 
-The implementation follows all requirements and constraints defined in the prompt. The functions are pure, deterministic, and correctly handle the exclusion of the top-level `hashes` field while preserving all other data.
+The implementation follows all requirements and constraints. The functions are pure, deterministic, and correctly handle the exclusion of the top-level `hashes` field. The test suite has been strengthened to ensure deep immutability and correct reference behavior without relying on placeholder tests or weak cloning methods.

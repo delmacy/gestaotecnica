@@ -1,38 +1,37 @@
-# Package Report: PKG-TRACE-RECEIPT-LINKING-001 (Robustness Correction)
+# Package Report: PKG-TRACE-RECEIPT-LINKING-001 (Advanced Robustness)
 
 ## Identificação
 - **ID:** `PKG-TRACE-RECEIPT-LINKING-001`
 - **Módulo:** `document-traceability`
-- **Status:** Concluído com correções de robustez
+- **Status:** Concluído com defesa recursiva contra accessores
 
 ## Objetivos Alcançados
 1. Implementação de funções puras para localização e verificação de self-hash de Trace Receipts.
 2. Implementação de lógica de vinculação direta entre receipts via `previousReceiptId`.
-3. Implementação de verificação de cadeia completa com coleta de erros estruturados e **proteção contra entradas malformadas**.
+3. Implementação de verificação de cadeia completa com coleta de erros estruturados e **defesa contra accessores hostis em qualquer profundidade**.
 4. Exportação das novas funcionalidades através do index do módulo.
 
-## Implementação e Robustez
+## Implementação e Robustez Avançada
 
 ### Arquivos Criados/Alterados
-- `src/platform/documents/traceability/linking.ts`: Lógica principal com `safeParse` e isolamento de entradas inválidas.
+- `src/platform/documents/traceability/linking.ts`: Lógica de vinculação com `recursivelySanitize`.
 - `src/platform/documents/traceability/index.ts`: Exportação do novo módulo.
-- `tests/unit/trace-receipt-linking.test.ts`: Suite de testes com cobertura para casos hostis e malformados.
-- `docs/documents/TRACE_RECEIPT_LINKING.md`: Documentação técnica atualizada com políticas de robustez.
+- `tests/unit/trace-receipt-linking.test.ts`: Suite de testes com cobertura para accessores aninhados, proxies revogados e ciclos.
+- `docs/documents/TRACE_RECEIPT_LINKING.md`: Documentação técnica atualizada.
 
-### Políticas de Robustez Aplicadas
-- **Malformed-input policy:** Utiliza `TraceReceiptSchema.safeParse` uma única vez por item. Se falhar, o item bruto não é acessado novamente. Erros usam IDs sintéticos `unknown-<index>`.
-- **Previous-invalid-item policy:** Se um item anterior na cadeia for estruturalmente inválido, ele não é acessado pelo item sucessor. O sucessor recebe um erro `INVALID_PREVIOUS_RECEIPT_ID` informando que o predecessor válido está indisponível.
-- **Isolamento:** Falhas em um item não interrompem a inspeção de itens subsequentes ou a coleta de erros independentes (como duplicidade de ID ou hashes ausentes em outros itens).
+### Políticas de Defesa Aplicadas
+- **Recursive Sanitization:** Implementação de `recursivelySanitize` que percorre objetos e arrays copiando apenas descritores de dados próprios (`value`).
+- **Accessor Defense:** Getters não são executados em nenhum nível de profundidade (ex: `actor.id`, `metadata.foo`, itens de `artifacts`).
+- **Proxy/Descriptor Failure:** Catches para falhas de `Object.getOwnPropertyDescriptors` (comum em proxies revogados ou hostis), convertendo em falha de sanitização.
+- **Cycle Detection:** Utiliza um `Set` para rastrear objetos visitados e abortar em caso de referências circulares.
+- **Safe ID policy:** Itens que falham na sanitização ou no parsing recebem o ID `unknown-<index>`.
 
 ## Verificação Realizada
-- **Testes de Robustez:** Cobertura para `null`, `undefined`, objetos vazios, e accessores hostis (getters que não devem ser executados em caso de falha de validação).
+- **Testes de Robustez Avançada:** Cobertura para getters aninhados em `actor`, `source.metadata`, `artifacts` e `hashes`. Testes para proxies revogados (raiz e aninhado) e estruturas cíclicas.
 - **Testes Unitários:** `npx tsx --test tests/unit/trace-receipt-linking.test.ts` (Passou)
 - **Testes de Regressão:** `trace-receipt-hashing.test.ts` e `trace-receipt-signable-payload.test.ts` (Passou)
 - **Build:** `npm run build` (Passou)
 
-## Exemplo de Erro de Cadeia com Robustez
-Input: `[validA, null, validC_pointingToB]`
-Result:
-1. `validA`: OK
-2. `index 1`: `INVALID_RECEIPT`, ID: `unknown-1`
-3. `validC`: `INVALID_PREVIOUS_RECEIPT_ID` (predecessor indisponível)
+## Exemplo de Defesa Recursiva
+Input: `{ actor: { get id() { throw "hostile" } } }`
+Result: `recursivelySanitize` identifica o accessor no nível aninhado e retorna `{ success: false }` sem executar o getter. O módulo reporta `INVALID_RECEIPT`.

@@ -21,22 +21,68 @@ export interface TraceReceiptChainError {
   message: string;
 }
 
+type SanitizationResult = { success: true; data: unknown } | { success: false };
+
 /**
- * Drops property accessors (getters/setters) from an object to prevent execution of hostile code.
- * Only returns properties that have a simple value.
+ * Recursively copies own data properties from an input, avoiding execution of getters.
+ * Detects cycles and catches failures from hostile proxies.
  */
-function dropAccessors(val: unknown): unknown {
-  if (val === null || typeof val !== "object" || Array.isArray(val)) {
-    return val;
+function recursivelySanitize(
+  val: unknown,
+  seen: Set<unknown> = new Set()
+): SanitizationResult {
+  if (val === null || typeof val !== "object") {
+    return { success: true, data: val };
   }
-  const descriptors = Object.getOwnPropertyDescriptors(val);
-  const plain: Record<string, unknown> = {};
-  for (const [key, descriptor] of Object.entries(descriptors)) {
-    if (descriptor.get === undefined && descriptor.set === undefined && "value" in descriptor) {
-      plain[key] = descriptor.value;
+
+  if (seen.has(val)) {
+    return { success: false }; // Cycle detected
+  }
+  seen.add(val);
+
+  try {
+    if (Array.isArray(val)) {
+      const arr: unknown[] = [];
+      const descriptors = Object.getOwnPropertyDescriptors(val);
+
+      // We iterate by index to preserve positions and handle holes
+      for (let i = 0; i < val.length; i++) {
+        const descriptor = descriptors[i.toString()];
+        if (descriptor && descriptor.get === undefined && descriptor.set === undefined && "value" in descriptor) {
+          const itemResult = recursivelySanitize(descriptor.value, seen);
+          if (!itemResult.success) return { success: false };
+          arr[i] = itemResult.data;
+        } else if (!descriptor) {
+          // Hole in array
+          arr[i] = undefined;
+        } else {
+          // Accessor in array
+          return { success: false };
+        }
+      }
+      seen.delete(val);
+      return { success: true, data: arr };
+    } else {
+      const plain: Record<string, unknown> = {};
+      const descriptors = Object.getOwnPropertyDescriptors(val);
+
+      for (const [key, descriptor] of Object.entries(descriptors)) {
+        if (descriptor.get === undefined && descriptor.set === undefined && "value" in descriptor) {
+          const fieldResult = recursivelySanitize(descriptor.value, seen);
+          if (!fieldResult.success) return { success: false };
+          plain[key] = fieldResult.data;
+        } else {
+          // Accessor detected
+          return { success: false };
+        }
+      }
+      seen.delete(val);
+      return { success: true, data: plain };
     }
+  } catch {
+    // Catches revoked proxies or other property access failures
+    return { success: false };
   }
-  return plain;
 }
 
 /**
@@ -66,16 +112,21 @@ export function findTraceReceiptSelfHash(
  * @returns true if the receipt is structurally valid and has exactly one valid self-hash
  */
 export function verifyTraceReceiptSelfHash(receipt: TraceReceipt): boolean {
-  // 1. Validate the receipt structure using safeParse on a sanitized input
-  const safeInput = dropAccessors(receipt);
-  const parsed = TraceReceiptSchema.safeParse(safeInput);
+  // 1. Sanitize the input recursively to avoid hostile accessors
+  const sanitization = recursivelySanitize(receipt);
+  if (!sanitization.success) {
+    return false;
+  }
+
+  // 2. Validate the receipt structure using safeParse
+  const parsed = TraceReceiptSchema.safeParse(sanitization.data);
   if (!parsed.success) {
     return false;
   }
 
   const validated = parsed.data;
 
-  // 2. Require exactly one receipt hash
+  // 3. Require exactly one receipt hash
   const receiptHashes = validated.hashes.filter((h) => h.scope === "receipt");
   if (receiptHashes.length !== 1) {
     return false;
@@ -83,7 +134,7 @@ export function verifyTraceReceiptSelfHash(receipt: TraceReceipt): boolean {
 
   const selfHash = receiptHashes[0];
 
-  // 3. Recalculate and verify
+  // 4. Recalculate and verify
   const payload = createSignableTraceReceiptPayload(validated);
   return verifyTraceHash(payload, selfHash);
 }
@@ -127,10 +178,21 @@ export function verifyTraceReceiptChain(
   const parsedReceipts: Array<TraceReceipt | undefined> = [];
 
   receipts.forEach((rawReceipt, index) => {
-    // 1. Structural Validation
-    // We drop accessors to avoid executing hostile getters during validation
-    const safeInput = dropAccessors(rawReceipt);
-    const parsed = TraceReceiptSchema.safeParse(safeInput);
+    // 1. Recursive Sanitization
+    const sanitization = recursivelySanitize(rawReceipt);
+    if (!sanitization.success) {
+      errors.push({
+        index,
+        id: `unknown-${index}`,
+        code: "INVALID_RECEIPT",
+        message: "Receipt contains hostile or cyclic structure",
+      });
+      parsedReceipts.push(undefined);
+      return;
+    }
+
+    // 2. Structural Validation
+    const parsed = TraceReceiptSchema.safeParse(sanitization.data);
 
     if (!parsed.success) {
       errors.push({
@@ -140,14 +202,14 @@ export function verifyTraceReceiptChain(
         message: "Receipt is structurally invalid",
       });
       parsedReceipts.push(undefined);
-      return; // Do not access rawReceipt again
+      return;
     }
 
     const receipt = parsed.data;
     const { id } = receipt;
     parsedReceipts.push(receipt);
 
-    // 2. Self-Hash Integrity
+    // 3. Self-Hash Integrity
     const receiptHashes = receipt.hashes.filter((h) => h.scope === "receipt");
     if (receiptHashes.length === 0) {
       errors.push({
@@ -172,7 +234,7 @@ export function verifyTraceReceiptChain(
       });
     }
 
-    // 3. Uniqueness
+    // 4. Uniqueness
     if (seenIds.has(id)) {
       errors.push({
         index,
@@ -183,7 +245,7 @@ export function verifyTraceReceiptChain(
     }
     seenIds.add(id);
 
-    // 4. Chain Linking
+    // 5. Chain Linking
     if (index === 0) {
       // Root receipt should not have a previousReceiptId
       if (receipt.previousReceiptId !== undefined) {

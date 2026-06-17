@@ -150,11 +150,29 @@ export function verifyTraceReceiptLink(
   previous: TraceReceipt,
   current: TraceReceipt
 ): boolean {
-  if (current.previousReceiptId !== previous.id) {
+  // 1. Sanitize and safe-parse both inputs first
+  const prevSanitization = recursivelySanitize(previous);
+  const currSanitization = recursivelySanitize(current);
+  if (!prevSanitization.success || !currSanitization.success) {
     return false;
   }
 
-  return verifyTraceReceiptSelfHash(previous) && verifyTraceReceiptSelfHash(current);
+  const prevParsed = TraceReceiptSchema.safeParse(prevSanitization.data);
+  const currParsed = TraceReceiptSchema.safeParse(currSanitization.data);
+  if (!prevParsed.success || !currParsed.success) {
+    return false;
+  }
+
+  // 2. Compare only parsed data
+  const prevData = prevParsed.data;
+  const currData = currParsed.data;
+
+  if (currData.previousReceiptId !== prevData.id) {
+    return false;
+  }
+
+  // 3. Verify self-hashes using validated receipts
+  return verifyTraceReceiptSelfHash(prevData) && verifyTraceReceiptSelfHash(currData);
 }
 
 /**

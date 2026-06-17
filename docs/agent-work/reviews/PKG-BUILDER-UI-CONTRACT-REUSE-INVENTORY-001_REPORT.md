@@ -3,34 +3,29 @@
 ## Identificação
 - **Package ID**: PKG-BUILDER-UI-CONTRACT-REUSE-INVENTORY-001
 - **Module**: builder-ui
-- **Status**: Documentation-only inventory complete
 - **Base SHA**: d747fff7398c6be62bf5f347410934d940695368
 
-## Ativos Encontrados
+## Ativos Encontrados (Recalculado)
 
-Mapeamos um total de 18 ativos principais entre contratos, componentes e runtimes.
+| Categoria | Quantidade | Descrição |
+| :--- | :--- | :--- |
+| **CONTRACT** | 7 | Schemas Zod de Form e Interfaces de View |
+| **UI_COMPONENT** | 2 | Studios (Autoria) |
+| **RUNTIME** | 3 | Renderers parciais e Engines de lógica |
+| **MOCK** | 2 | Dados estáticos |
+| **PREVIEW_ONLY** | 2 | Visualizadores baseados em mock |
+| **EXPERIMENTAL** | 1 | Persistência experimental em memória |
+| **Total** | **17** | |
 
-### Quantidade por Classificação
-- **CONTRACT**: 8 (Primitivos de campo, Definições de formulário, Blueprints de View)
-- **UI_COMPONENT**: 4 (Studios, Palettes, Canvas)
-- **RUNTIME**: 3 (DynamicFormRenderer, FormEngine, ViewEngine)
-- **MOCK**: 2 (Dados estáticos de demonstração)
-- **PREVIEW_ONLY**: 1 (Preview de formulários focado em mock)
+## Observações Críticas de Reuso
 
-## Acoplamentos Identificados
-
-1. **Contratos em Pastas de UI**: Os schemas Zod para formulários estão localizados em `src/components/builder/form-builder/schema`, o que impede sua utilização em ambientes puramente backend ou por Utility Apps sem arrastar dependências de componentes.
-2. **Lógica de Mock no Canvas**: O `ViewCanvas.tsx` mistura a visualização estrutural com a geração de dados "falsos" (pulse animation), dificultando a evolução para um renderer real.
-3. **Engine Desconectada**: Existe um `DynamicFormRenderer` na `platform`, mas o Form Builder ainda utiliza seu próprio `FormPreviewPanel` baseado em mocks estáticos.
-
-## Riscos
-
-- **Inconsistência de Tipos**: Existem definições de `FormFieldType` ligeiramente diferentes entre o Builder (`form-builder-types.ts`) e o Schema Zod (`field-schema.ts`).
-- **Bloqueio de Utility Apps**: Enquanto os contratos de campo não forem movidos para a `platform`, o desenvolvimento de Utility Apps (como calculadoras dinâmicas) ficará redundante ou acoplado à UI.
+1. **Escopo de Utility Apps**: Contratos de formulário são reutilizáveis apenas para inputs humanos. Outputs de Utility Apps requerem modelos de dados específicos (payloads de máquina) que não devem ser forçados para o schema de formulário.
+2. **Diferenciação de Engines**: O `ViewEngine` atual provê descoberta de ações, não sendo um motor de renderização ou query.
+3. **Maturidade do Renderer**: O `DynamicFormRenderer` suporta apenas tipos primitivos (`text`, `number`, `textarea`), faltando paridade com as capacidades do Builder UI.
 
 ## Sequência Recomendada
 
-1. **Extração Imediata**: Mover `src/components/builder/form-builder/schema/` para `src/platform/forms/contracts/`.
-2. **Zodificação de Views**: Criar schemas Zod para `ViewBlueprint` em `src/platform/views/contracts/`.
-3. **Unificação de Renderers**: Migrar o Preview do Builder para utilizar o `DynamicFormRenderer` da plataforma.
-4. **Binding Real**: Implementar a camada de `DataSource` que ligue os Blueprints a dados reais do banco/kernel.
+1. Inventário de dependências e extração de contratos de Form com estratégia de re-export.
+2. Extração de interfaces TypeScript de View (Behavior-preserving).
+3. Design de schemas Zod para Views (Fase distinta).
+4. Expansão do `DynamicFormRenderer` para suporte completo a tipos e visibilidade.

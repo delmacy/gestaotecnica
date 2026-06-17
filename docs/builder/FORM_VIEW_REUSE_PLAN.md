@@ -1,56 +1,30 @@
 # Plano de Reutilização: Form Builder e View Builder
 
-Este plano detalha a estratégia para extração de contratos e desenvolvimento de runtimes para os módulos de Builder UI.
+## 1. Estratégia de Extração de Contratos
 
-## 1. Proposta de Movimentação de Arquivos
+Para evitar quebras de compatibilidade e garantir uma transição suave, a extração deve seguir estas diretrizes:
+- **Inventário de Dependências**: Antes da movimentação, realizar um mapeamento exaustivo de todos os arquivos que importam os contratos atuais.
+- **Adaptadores de Compatibilidade**: Manter re-exports nos caminhos originais (`src/components/builder/...`) apontando para os novos locais na `platform`.
+- **Preservação de Escopo**: A extração deve ser puramente estrutural, sem redesenho de schemas na mesma fase.
 
-Identificamos que diversos contratos residem atualmente em diretórios de componentes de UI. Propomos a seguinte migração:
+## 2. Roadmap Sugerido
 
-### Forms
-- **De**: `src/components/builder/form-builder/schema/*.ts`
-- **Para**: `src/platform/forms/contracts/*.ts`
-- **Justificativa**: Estes schemas definem a estrutura de dados de formulários que devem ser validados no servidor e por runtimes de execução, independentemente da UI do Builder.
+### PKG-FORM-CONTRACT-EXTRACTION
+- **Objetivo**: Mover schemas Zod de formulários para `src/platform/forms/contracts/`.
+- **Estratégia**: Implementar re-exports para compatibilidade.
 
-### Views
-- **De**: `src/components/builder/view-builder/view-builder-types.ts`
-- **Para**: `src/platform/views/contracts/view-blueprint.ts`
-- **Justificativa**: O blueprint de uma view é o contrato entre a definição visual e a engine de query que recupera os dados.
+### VIEW-CONTRACT-INVENTORY/EXTRACTION
+- **Objetivo**: Mover as interfaces TypeScript de Views para `src/platform/views/contracts/`.
+- **Nota**: Preservar a natureza TypeScript das interfaces para garantir comportamento idêntico ao atual.
 
-## 2. Pacotes Recomendados (Roadmap)
+### VIEW-ZOD-SCHEMA-DESIGN
+- **Objetivo**: Criar validadores Zod para blueprints de Views.
+- **Nota**: Tratado como fase separada da extração para evitar efeitos colaterais em runtimes que esperam tipos puros.
 
-### PKG-FORM-CONTRACT-EXTRACTION-001
-- **Objetivo**: Mover schemas Zod de formulários para `platform`.
-- **Escopo**: `FormFieldTypeSchema`, `FieldDefinitionSchema`, `ValidationRuleSchema`, `FormDefinitionSchema`.
-- **Dependências**: Nenhuma.
+### PKG-DATA-BINDING-CONTRACT
+- **Objetivo**: Unificação dos contratos de binding entre formulários, views e capacidades.
 
-### PKG-VIEW-CONTRACT-EXTRACTION-001
-- **Objetivo**: Converter tipos de View em schemas Zod e mover para `platform`.
-- **Escopo**: `ViewBlueprintSchema`, `ViewFieldSchema`, `ViewActionSchema`.
-- **Dependências**: Nenhuma.
+## 3. Avaliação de Runtimes
 
-### PKG-FORM-RUNTIME-RENDERER-001
-- **Objetivo**: Estabilizar o `DynamicFormRenderer` e integrá-lo com os novos contratos da `platform`.
-- **Escopo**: Implementar suporte completo a todos os `FormFieldType` no renderer.
-- **Dependências**: PKG-FORM-CONTRACT-EXTRACTION-001.
-
-### PKG-VIEW-RUNTIME-RENDERER-001
-- **Objetivo**: Criar um renderer de views real que substitua o `ViewCanvas` (mock).
-- **Escopo**: Criar `DynamicViewRenderer` capaz de interpretar um `ViewBlueprint` e renderizar tabelas/grids reais.
-- **Dependências**: PKG-VIEW-CONTRACT-EXTRACTION-001.
-
-### PKG-DATA-BINDING-CONTRACT-001
-- **Objetivo**: Formalizar como campos de formulários e colunas de views se ligam a entidades e capacidades.
-- **Escopo**: Unificar `FormBinding` e `ViewBinding` em um contrato de plataforma único.
-- **Dependências**: PKG-FORM-CONTRACT-EXTRACTION-001, PKG-VIEW-CONTRACT-EXTRACTION-001.
-
-## 3. Avaliação de Acoplamento
-
-- **Acoplamento Adequado**: A separação entre `FormBuilderStudio` (UI) e os schemas em `schema/` (Dados) está bem encaminhada, facilitando a extração.
-- **Acoplamento Inadequado**: O `ViewCanvas.tsx` contém lógica de "mock" misturada com o que deveria ser um renderer. A interface `ViewBlueprint` está em um arquivo de "types" dentro da pasta de componentes, dificultando o uso por Utility Apps que não querem importar componentes de UI.
-
-## 4. Reutilização por Utility Apps
-
-Utility Apps podem reutilizar imediatamente:
-1. `FieldDefinitionSchema` para definir parâmetros de entrada de calculadoras.
-2. `ValidationRuleSchema` para validar inputs de regras de decisão.
-3. Futuro: `DynamicFormRenderer` para gerar interfaces de configuração de Utility Apps automaticamente.
+- **Form Runtime**: O `DynamicFormRenderer` deve ser expandido para cobrir tipos de campo avançados (file, multiselect) e interpretar regras de visibilidade definidas no schema.
+- **View Runtime**: Necessita da criação de um `QueryEngine` que interprete o `ViewBlueprint` para buscar dados reais, substituindo a lógica de mock atual do `ViewCanvas`.

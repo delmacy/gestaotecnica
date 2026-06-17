@@ -2,88 +2,74 @@
 
 Este documento mapeia os ativos atuais do Form Builder e View Builder, classificando sua maturidade, dependências e potencial de reutilização.
 
-## 1. Ativos do Form Builder
+## 1. Tabela de Ativos
 
 | Ativo | Classificação | Caminho | Símbolo | Dependências | Maturidade |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **FormFieldTypeSchema** | CONTRACT | `src/components/builder/form-builder/schema/field-schema.ts` | `FormFieldTypeSchema` | Zod | Alta |
-| **FieldDefinitionSchema** | CONTRACT | `src/components/builder/form-builder/schema/field-schema.ts` | `FieldDefinitionSchema` | Zod, `FormFieldTypeSchema`, `ValidationRuleSchema` | Alta |
-| **ValidationRuleSchema** | CONTRACT | `src/components/builder/form-builder/schema/field-schema.ts` | `ValidationRuleSchema` | Zod | Alta |
-| **FormDefinitionSchema** | CONTRACT | `src/components/builder/form-builder/schema/form-schema.ts` | `FormDefinitionSchema` | Zod, `FieldDefinitionSchema`, `FormLayoutSchema` | Alta |
-| **FormBuilderStudio** | UI_COMPONENT | `src/components/builder/form-builder/FormBuilderStudio.tsx` | `FormBuilderStudio` | React, Lucide, Tailwind, UI Components | Experimental (MVP) |
-| **FormCanvas** | UI_COMPONENT | `src/components/builder/form-builder/FormCanvas.tsx` | `FormCanvas` | React | Preview-focused |
-| **FormPreviewPanel** | PREVIEW_ONLY | `src/components/builder/form-builder/FormPreviewPanel.tsx` | `FormPreviewPanel` | React | Mock-focused |
-| **DynamicFormRenderer** | RUNTIME | `src/platform/forms/components/DynamicFormRenderer.tsx` | `DynamicFormRenderer` | React, react-hook-form | Inicial |
-| **Form Engine** | RUNTIME | `src/features/builder/forms/form.engine.ts` | `validateFormDefinition` | Zod, `form.types.ts` | Estável (Lógica Pura) |
-| **MOCK_FORM_BUILDER_DATA** | MOCK | `src/components/builder/form-builder/form-builder-data.ts` | `MOCK_FORM_BUILDER_DATA` | Nenhum | Estático |
+| **FormFieldTypeSchema** | CONTRACT | `src/.../form-builder/schema/field-schema.ts` | `FormFieldTypeSchema` | Zod | Alta |
+| **FieldDefinitionSchema** | CONTRACT | `src/.../form-builder/schema/field-schema.ts` | `FieldDefinitionSchema` | Zod | Alta |
+| **ValidationRuleSchema** | CONTRACT | `src/.../form-builder/schema/field-schema.ts` | `ValidationRuleSchema` | Zod | Alta |
+| **FormDefinitionSchema** | CONTRACT | `src/.../form-builder/schema/form-schema.ts` | `FormDefinitionSchema` | Zod | Alta |
+| **FormLayoutSchema** | CONTRACT | `src/.../form-builder/schema/layout-schema.ts` | `FormLayoutSchema` | Zod | Alta |
+| **ViewType** | CONTRACT | `src/.../view-builder/view-builder-types.ts` | `ViewType` | N/A | Média |
+| **ViewBlueprint** | CONTRACT | `src/.../view-builder/view-builder-types.ts` | `ViewBlueprint` | TypeScript | Média |
+| **FormBuilderStudio** | UI_COMPONENT | `src/.../form-builder/FormBuilderStudio.tsx` | `FormBuilderStudio` | React, Lucide | Experimental |
+| **ViewBuilderStudio** | UI_COMPONENT | `src/.../view-builder/ViewBuilderStudio.tsx` | `ViewBuilderStudio` | React, Lucide | Experimental |
+| **DynamicFormRenderer** | RUNTIME | `src/platform/forms/components/DynamicFormRenderer.tsx` | `DynamicFormRenderer` | react-hook-form | Parcial |
+| **FormEngine** | RUNTIME | `src/features/builder/forms/form.engine.ts` | `validateFormDefinition` | Zod | Estável |
+| **ViewEngine** | RUNTIME | `src/platform/views/view-engine.ts` | `getAvailableActions...` | N/A | Inicial |
+| **MOCK_FORM_BUILDER_DATA** | MOCK | `src/.../form-builder/form-builder-data.ts` | `MOCK_FORM_BUILDER_DATA` | N/A | Estático |
+| **VIEW_BLUEPRINTS** | MOCK | `src/.../view-builder/view-builder-data.ts` | `VIEW_BLUEPRINTS` | N/A | Estático |
+| **FormPreviewPanel** | PREVIEW_ONLY | `src/.../form-builder/FormPreviewPanel.tsx` | `FormPreviewPanel` | React | Mock-only |
+| **ViewCanvas** | PREVIEW_ONLY | `src/.../view-builder/ViewCanvas.tsx` | `ViewCanvas` | React | Mock-only |
+| **FormPersistence** | EXPERIMENTAL | `src/.../form-builder/persistence/` | `FormPersistencePort` | N/A | Inicial |
 
-## 2. Ativos do View Builder
+## 2. Detalhamento de Consumo e Reuso
 
-| Ativo | Classificação | Caminho | Símbolo | Dependências | Maturidade |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **ViewType** | CONTRACT | `src/components/builder/view-builder/view-builder-types.ts` | `ViewType` | Nenhum (Typescript) | Média |
-| **ViewBlueprint** | CONTRACT | `src/components/builder/view-builder/view-builder-types.ts` | `ViewBlueprint` | `ViewField`, `ViewColumn`, `ViewBinding` | Média |
-| **ViewBinding** | CONTRACT | `src/components/builder/view-builder/view-builder-types.ts` | `ViewBinding` | Nenhum (Typescript) | Inicial |
-| **DataSourceMode** | CONTRACT | `src/components/builder/view-builder/view-builder-types.ts` | `DataSourceMode` | Nenhum (Typescript) | Média |
-| **ViewBuilderStudio** | UI_COMPONENT | `src/components/builder/view-builder/ViewBuilderStudio.tsx` | `ViewBuilderStudio` | React, Lucide, Tailwind | Experimental (MVP) |
-| **ViewCanvas** | PREVIEW_ONLY | `src/components/builder/view-builder/ViewCanvas.tsx` | `ViewCanvas` | React | Mock-only |
-| **ViewEngine** | RUNTIME | `src/platform/views/view-engine.ts` | `getAvailableActionsForEntity` | Kernel Actions | Inicial |
-| **VIEW_BLUEPRINTS** | MOCK | `src/components/builder/view-builder/view-builder-data.ts` | `VIEW_BLUEPRINTS` | Nenhum | Estático |
+| Ativo | Consumidores Atuais | Reuso PROPOSED |
+| :--- | :--- | :--- |
+| **FieldDefinitionSchema** | `FormDefinitionSchema`, `FormBuilderStudio` | `DynamicFormRenderer` (runtime completo), Utility Apps (human-facing input) |
+| **FormDefinitionSchema** | `FormBuilderStudio`, `FormEngine` | Server-side form validation, Process Instance execution |
+| **ViewBlueprint** | `ViewBuilderStudio`, `ViewCanvas` | `DynamicViewRenderer` (a ser criado), Data Query Engine |
 
-## 3. Classificações de Dados e Modos
-
-- **Synthetic**: Utilizado em `FormBlueprint.synthetic` e `ViewBlueprint.synthetic`. Indica dados gerados artificialmente para demonstração de interface sem backend real.
-- **Mock**: Presente em `DataSourceMode` e `FormReadinessStatus`. Representa estados onde a UI está pronta mas os dados são estáticos.
-- **Real_pending**: Estado onde o contrato espera integração real, mas a infraestrutura ainda não está disponível.
-
-## 4. Perguntas Obrigatórias
+## 3. Perguntas Obrigatórias
 
 1. **Quais schemas são independentes de React?**
-   - Os schemas Zod em `src/components/builder/form-builder/schema/` (`field-schema.ts`, `form-schema.ts`, `layout-schema.ts`) e os tipos em `view-builder-types.ts`. A engine em `src/features/builder/forms/form.engine.ts` também é independente.
+   - Todos os schemas Zod em `form-builder/schema/` e a lógica de engine em `form.engine.ts`.
 
 2. **Quais tipos estão acoplados à UI?**
-   - Tipos de componentes props (ex: `FormCanvasProps`), tipos de estado de UI em `studio-state.ts` e tipos que incluem referências a ícones do Lucide ou componentes React (embora a maioria dos contratos de dados esteja limpa).
+   - Tipos de props de componentes e estados internos do Studio (ex: `StudioState`).
 
 3. **Existe renderer real de formulários?**
-   - Sim, `src/platform/forms/components/DynamicFormRenderer.tsx`. Ele utiliza `react-hook-form` e é capaz de renderizar campos dinamicamente com base em definições de campo.
+   - O `DynamicFormRenderer.tsx` na plataforma é um runtime parcial. Suporta campos de texto, textarea e número com validação Zod e `react-hook-form`. **Não suporta**: upload de arquivos, multi-seleção, regras de visibilidade condicional complexas ou lógica de submissão persistente.
 
 4. **Existe renderer real de views?**
-   - Não. O `ViewCanvas.tsx` é um mock visual que renderiza tabelas e kanbans "pulsantes" (animate-pulse) com dados sintéticos. Não existe um `DynamicViewRenderer` funcional.
+   - Não. O `ViewCanvas` é um mock visual. O `ViewEngine` na plataforma implementa apenas descoberta de ações (`getAvailableActionsForEntity`), não sendo um motor de renderização ou consulta de dados.
 
 5. **Existe binding real com dados?**
-   - No Form Builder, existe o conceito de `FormBinding` nos contratos, mas a implementação no `FormBuilderStudio` é apenas visual. No View Builder, `ViewBinding` está definido mas não funcional.
+   - Não. Os contratos de binding existem nos Blueprints, mas não há implementação de runtime que resolva esses caminhos para dados reais de banco.
 
 6. **Quais partes usam dados sintéticos?**
-   - O `FormCanvas`, `FormPreviewPanel` e `ViewCanvas` utilizam predominantemente `MOCK_FORM_BUILDER_DATA` e `VIEW_BLUEPRINTS`.
+   - `FormCanvas`, `FormPreviewPanel` e `ViewCanvas`.
 
 7. **Existe persistência de blueprint?**
-   - Existe uma porta de persistência experimental: `src/components/builder/form-builder/persistence/form-persistence-port.ts`, com uma implementação `in-memory`. Não há persistência em banco de dados SQL implementada para blueprints de builder ainda.
+   - Apenas uma implementação experimental `in-memory`. Não há persistência SQL para definições de builder.
 
-8. **Utility Apps poderiar reutilizar quais contratos?**
-   - `FieldDefinitionSchema`, `ValidationRuleSchema` e `FormFieldTypeSchema`. Utility Apps (como calculadoras) precisam de definições de entrada/saída que são idênticas às de formulários.
+8. **Utility Apps poderiam reutilizar quais contratos?**
+   - Form field contracts may be reused for human-facing input schemas where appropriate; they are not the universal Utility App I/O contract. Utility App outputs may be structured objects, collections, diagnostics, comparison diffs or machine-oriented payloads not covered by form schemas.
 
 9. **Quais contratos precisam migrar de components para platform?**
-   - Todos os arquivos de `src/components/builder/form-builder/schema/` e os tipos base de `src/components/builder/view-builder/view-builder-types.ts`. Eles são contratos de domínio, não componentes de UI.
+   - Schemas Zod de formulários e definições de blueprint de views.
 
 10. **Quais mudanças quebrariam compatibilidade?**
-    - Mudar o `id` ou `key` dos campos nos Blueprints existentes. Alterar a estrutura de `ValidationRuleSchema` sem prover migração para os dados JSONB armazenados (caso existissem).
+    - Alteração de chaves obrigatórias nos schemas sem migração de dados legados ou adaptadores de compatibilidade.
 
-## 5. Detalhamento de Ativos Críticos
-
-### FieldDefinitionSchema
-- **Caminho**: `src/components/builder/form-builder/schema/field-schema.ts`
-- **Símbolo**: `FieldDefinitionSchema`
-- **Entrada**: Objeto JSON puro.
-- **Saída**: Objeto validado pelo Zod.
-- **Consumidores**: `FormDefinitionSchema`, `FormBuilderStudio`, `DynamicFormRenderer` (futuro).
-- **Maturidade**: Alta.
-- **Limitações**: Focado em tipos primitivos, referências complexas ainda são "placeholders".
-
-### ViewBlueprint
-- **Caminho**: `src/components/builder/view-builder/view-builder-types.ts`
-- **Símbolo**: `ViewBlueprint`
-- **Entrada**: Interface TypeScript.
-- **Saída**: N/A (Tipo apenas).
-- **Consumidores**: `ViewBuilderStudio`, `ViewCanvas`, `VIEW_BLUEPRINTS`.
-- **Maturidade**: Média (Falta validação Zod).
-- **Limitações**: Muito acoplado a conceitos visuais (colunas, ordenação) sem uma engine de query correspondente no runtime.
+## 4. Classificação e Totais de Ativos
+- **CONTRACT**: 7
+- **UI_COMPONENT**: 2
+- **RUNTIME**: 3
+- **MOCK**: 2
+- **PREVIEW_ONLY**: 2
+- **EXPERIMENTAL**: 1
+- **PROPOSED**: 0 (Relações de reuso futuro marcadas separadamente)
+- **Total**: 17

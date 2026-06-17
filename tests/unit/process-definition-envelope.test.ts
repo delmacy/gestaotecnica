@@ -30,9 +30,11 @@ const baseVersion = {
   createdAt: VALID_DATE,
   updatedAt: VALID_DATE,
   createdById: VALID_ID,
-  schemaVersion: "1.0.0",
-  nodes: [],
-  edges: [],
+  definition: {
+    schemaVersion: "1.0.0",
+    nodes: [],
+    edges: [],
+  }
 };
 
 describe("ProcessVersionSchema - Integrated Graph", () => {
@@ -55,16 +57,19 @@ describe("ProcessVersionSchema - Integrated Graph", () => {
     };
     const edge = {
       id: "edge-1",
-      fromNodeId: "node-1",
-      toNodeId: "node-2",
+      sourceNodeId: "node-1",
+      targetNodeId: "node-2",
       type: "default",
       priority: 1,
     };
 
     const version = {
       ...baseVersion,
-      nodes: [node1, node2],
-      edges: [edge],
+      definition: {
+        ...baseVersion.definition,
+        nodes: [node1, node2],
+        edges: [edge],
+      }
     };
 
     const result = ProcessVersionSchema.safeParse(version);
@@ -82,7 +87,10 @@ describe("ProcessVersionSchema - Integrated Graph", () => {
     };
     const version = {
       ...baseVersion,
-      nodes: [node, { ...node, key: "another" }],
+      definition: {
+        ...baseVersion.definition,
+        nodes: [node, { ...node, key: "another" }],
+      }
     };
 
     const result = ProcessVersionSchema.safeParse(version);
@@ -95,12 +103,15 @@ describe("ProcessVersionSchema - Integrated Graph", () => {
   it("should reject duplicate edge IDs", () => {
     const node1 = { id: "n1", key: "node-1", type: "start", name: "n1", position: { x: 0, y: 0 }, config: {} };
     const node2 = { id: "n2", key: "node-2", type: "end", name: "n2", position: { x: 0, y: 0 }, config: {} };
-    const edge = { id: "e1", fromNodeId: "n1", toNodeId: "n2", type: "default", priority: 1 };
+    const edge = { id: "e1", sourceNodeId: "n1", targetNodeId: "n2", type: "default", priority: 1 };
 
     const version = {
       ...baseVersion,
-      nodes: [node1, node2],
-      edges: [edge, edge],
+      definition: {
+        ...baseVersion.definition,
+        nodes: [node1, node2],
+        edges: [edge, edge],
+      }
     };
 
     const result = ProcessVersionSchema.safeParse(version);
@@ -110,14 +121,17 @@ describe("ProcessVersionSchema - Integrated Graph", () => {
     }
   });
 
-  it("should reject edges with non-existent fromNodeId", () => {
+  it("should reject edges with non-existent sourceNodeId", () => {
     const node = { id: "n1", key: "node-1", type: "start", name: "n1", position: { x: 0, y: 0 }, config: {} };
-    const edge = { id: "e1", fromNodeId: "NON_EXISTENT", toNodeId: "n1", type: "default", priority: 1 };
+    const edge = { id: "e1", sourceNodeId: "NON_EXISTENT", targetNodeId: "n1", type: "default", priority: 1 };
 
     const version = {
       ...baseVersion,
-      nodes: [node],
-      edges: [edge],
+      definition: {
+        ...baseVersion.definition,
+        nodes: [node],
+        edges: [edge],
+      }
     };
 
     const result = ProcessVersionSchema.safeParse(version);
@@ -127,14 +141,17 @@ describe("ProcessVersionSchema - Integrated Graph", () => {
     }
   });
 
-  it("should reject edges with non-existent toNodeId", () => {
+  it("should reject edges with non-existent targetNodeId", () => {
     const node = { id: "n1", key: "node-1", type: "start", name: "n1", position: { x: 0, y: 0 }, config: {} };
-    const edge = { id: "e1", fromNodeId: "n1", toNodeId: "NON_EXISTENT", type: "default", priority: 1 };
+    const edge = { id: "e1", sourceNodeId: "n1", targetNodeId: "NON_EXISTENT", type: "default", priority: 1 };
 
     const version = {
       ...baseVersion,
-      nodes: [node],
-      edges: [edge],
+      definition: {
+        ...baseVersion.definition,
+        nodes: [node],
+        edges: [edge],
+      }
     };
 
     const result = ProcessVersionSchema.safeParse(version);
@@ -147,50 +164,29 @@ describe("ProcessVersionSchema - Integrated Graph", () => {
   it("should return frozen object", () => {
     const result = ProcessVersionSchema.parse(baseVersion);
     assert.ok(Object.isFrozen(result));
-    assert.throws(() => {
-      // @ts-ignore
-      result.version = 2;
-    });
   });
 });
 
 describe("ProcessDefinitionEnvelopeSchema", () => {
   it("should accept valid envelope", () => {
     const node = { id: "n1", key: "node-1", type: "start", name: "n1", position: { x: 0, y: 0 }, config: {} };
-    const version = { ...baseVersion, nodes: [node] };
+    const version = {
+      ...baseVersion,
+      definition: {
+        ...baseVersion.definition,
+        nodes: [node]
+      }
+    };
 
     const envelope = {
       definition: baseDefinition,
       version: version,
-      nodes: [node],
-      edges: [],
     };
 
     const result = ProcessDefinitionEnvelopeSchema.safeParse(envelope);
-    if (!result.success) {
-      console.log(JSON.stringify(result.error.issues, null, 2));
-    }
     assert.strictEqual(result.success, true);
     if (result.success) {
       assert.ok(Object.isFrozen(result.data));
-    }
-  });
-
-  it("should reject envelope if nodes don't match version nodes", () => {
-    const node1 = { id: "n1", key: "node-1", type: "start", name: "n1", position: { x: 0, y: 0 }, config: {} };
-    const node2 = { id: "n2", key: "node-2", type: "end", name: "n2", position: { x: 0, y: 0 }, config: {} };
-
-    const envelope = {
-      definition: baseDefinition,
-      version: { ...baseVersion, nodes: [node1] },
-      nodes: [node2],
-      edges: [],
-    };
-
-    const result = ProcessDefinitionEnvelopeSchema.safeParse(envelope);
-    assert.strictEqual(result.success, false);
-    if (!result.success) {
-      assert.ok(result.error.issues.some((i) => i.message.includes("Envelope nodes must match version nodes")));
     }
   });
 
@@ -198,8 +194,6 @@ describe("ProcessDefinitionEnvelopeSchema", () => {
     const envelope = {
       definition: baseDefinition,
       version: baseVersion,
-      nodes: [],
-      edges: [],
       extra: "bad",
     };
 

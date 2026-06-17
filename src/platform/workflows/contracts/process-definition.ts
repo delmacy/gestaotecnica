@@ -55,47 +55,16 @@ export const ProcessDefinitionSchema = z
 export type ProcessDefinition = z.infer<typeof ProcessDefinitionSchema>;
 
 /**
- * Process Version Schema
+ * Internal Process Definition Graph Schema
  */
-export const ProcessVersionSchema = z
+const ProcessGraphSchema = z
   .object({
-    id: EntityIdSchema,
-    workspaceId: WorkspaceIdSchema,
-    processDefinitionId: EntityIdSchema,
-    version: ProcessVersionNumberSchema,
-    status: ProcessVersionStatusSchema,
-    createdAt: ISODateTimeSchema,
-    updatedAt: ISODateTimeSchema,
-    createdById: EntityIdSchema,
     schemaVersion: z.string().min(1),
     nodes: z.array(ProcessNodeSchema),
     edges: z.array(ProcessEdgeSchema),
-    publishedAt: ISODateTimeSchema.optional(),
-    publishedById: EntityIdSchema.optional(),
-    changeSummary: z.string().optional(),
-    metadata: UnknownRecordSchema.optional(),
   })
   .strict()
   .superRefine((data, ctx) => {
-    // Basic fields validation
-    if (data.status === "published") {
-      if (!data.publishedAt) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "publishedAt is required when status is published",
-          path: ["publishedAt"],
-        });
-      }
-      if (!data.publishedById) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "publishedById is required when status is published",
-          path: ["publishedById"],
-        });
-      }
-    }
-
-    // Graph integrity validation
     const nodeIds = new Set<string>();
     data.nodes.forEach((node, index) => {
       if (nodeIds.has(node.id)) {
@@ -119,22 +88,61 @@ export const ProcessVersionSchema = z
       }
       edgeIds.add(edge.id);
 
-      if (!nodeIds.has(edge.fromNodeId)) {
+      if (!nodeIds.has(edge.sourceNodeId)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Edge source node not found: ${edge.fromNodeId}`,
-          path: ["edges", index, "fromNodeId"],
+          message: `Edge source node not found: ${edge.sourceNodeId}`,
+          path: ["edges", index, "sourceNodeId"],
         });
       }
 
-      if (!nodeIds.has(edge.toNodeId)) {
+      if (!nodeIds.has(edge.targetNodeId)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Edge target node not found: ${edge.toNodeId}`,
-          path: ["edges", index, "toNodeId"],
+          message: `Edge target node not found: ${edge.targetNodeId}`,
+          path: ["edges", index, "targetNodeId"],
         });
       }
     });
+  });
+
+/**
+ * Process Version Schema
+ */
+export const ProcessVersionSchema = z
+  .object({
+    id: EntityIdSchema,
+    workspaceId: WorkspaceIdSchema,
+    processDefinitionId: EntityIdSchema,
+    version: ProcessVersionNumberSchema,
+    status: ProcessVersionStatusSchema,
+    createdAt: ISODateTimeSchema,
+    updatedAt: ISODateTimeSchema,
+    createdById: EntityIdSchema,
+    definition: ProcessGraphSchema,
+    publishedAt: ISODateTimeSchema.optional(),
+    publishedById: EntityIdSchema.optional(),
+    changeSummary: z.string().optional(),
+    metadata: UnknownRecordSchema.optional(),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    if (data.status === "published") {
+      if (!data.publishedAt) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "publishedAt is required when status is published",
+          path: ["publishedAt"],
+        });
+      }
+      if (!data.publishedById) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "publishedById is required when status is published",
+          path: ["publishedById"],
+        });
+      }
+    }
   })
   .transform((data) => Object.freeze(data));
 
@@ -142,33 +150,15 @@ export type ProcessVersion = z.infer<typeof ProcessVersionSchema>;
 
 /**
  * Process Definition Envelope Schema
- * Composes Definition, Version and direct access to Graph
+ * Composes Definition and Version (which owns the Graph)
+ * Option A: ProcessVersion owns nodes/edges
  */
 export const ProcessDefinitionEnvelopeSchema = z
   .object({
     definition: ProcessDefinitionSchema,
     version: ProcessVersionSchema,
-    nodes: z.array(ProcessNodeSchema),
-    edges: z.array(ProcessEdgeSchema),
   })
   .strict()
-  .superRefine((data, ctx) => {
-    // Ensure nodes and edges are consistent with the version
-    if (JSON.stringify(data.nodes) !== JSON.stringify(data.version.nodes)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Envelope nodes must match version nodes",
-        path: ["nodes"],
-      });
-    }
-    if (JSON.stringify(data.edges) !== JSON.stringify(data.version.edges)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Envelope edges must match version edges",
-        path: ["edges"],
-      });
-    }
-  })
   .transform((data) => Object.freeze(data));
 
 export type ProcessDefinitionEnvelope = z.infer<typeof ProcessDefinitionEnvelopeSchema>;

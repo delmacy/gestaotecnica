@@ -152,8 +152,8 @@ describe("ProcessEdgeConditionSchema", () => {
 describe("ProcessEdgeSchema", () => {
   const baseEdge = {
     id: VALID_ID,
-    fromNodeId: VALID_ID,
-    toNodeId: VALID_ID,
+    sourceNodeId: VALID_ID,
+    targetNodeId: VALID_ID,
     priority: 1
   };
 
@@ -192,8 +192,8 @@ describe("ProcessEdgeSchema", () => {
   });
 
   it("should reject invalid IDs", () => {
-    assert.throws(() => ProcessEdgeSchema.parse({ ...baseEdge, type: "default", fromNodeId: "" }));
-    assert.throws(() => ProcessEdgeSchema.parse({ ...baseEdge, type: "default", toNodeId: "" }));
+    assert.throws(() => ProcessEdgeSchema.parse({ ...baseEdge, type: "default", sourceNodeId: "" }));
+    assert.throws(() => ProcessEdgeSchema.parse({ ...baseEdge, type: "default", targetNodeId: "" }));
   });
 
   it("should accept metadata", () => {
@@ -208,8 +208,8 @@ describe("ProcessEdgeSchema", () => {
     assert.doesNotThrow(() => ProcessEdgeSchema.parse({
       ...baseEdge,
       type: "default",
-      fromNodeId: VALID_ID,
-      toNodeId: VALID_ID
+      sourceNodeId: VALID_ID,
+      targetNodeId: VALID_ID
     }));
   });
 });

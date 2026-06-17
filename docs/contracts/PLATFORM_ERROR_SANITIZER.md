@@ -53,8 +53,8 @@ As chaves abaixo são omitidas em todos os níveis por serem consideradas ruído
 
 ## Segurança (Getters e Proxies)
 - **Arrays e Objetos:** Não executa getters. Usa `Object.getOwnPropertyDescriptor` para ler apenas propriedades de dados.
-- **Marcadores:** Buracos em arrays, assessores (getters) ou falhas de Proxy resultam em `"[UNREADABLE]"` ou `"undefined"`.
-- **Errors:** `name` e `message` são lidos com proteção contra assessores hostis.
+- **Marcadores:** Buracos em arrays, assessores (getters) ou falhas de Proxy resultam em `"[UNREADABLE]"`.
+- **Errors:** `name` e `message` são lidos via descriptors de propriedades próprias. Assessores em protótipos não são executados. Apenas valores string são aceitos diretamente; outros tipos ou falhas usam fallbacks seguros (`"Error"` ou `"Unknown error"`).
 - **Proteção:** Uso extensivo de `try-catch` para garantir que a função nunca lance exceções.
 
 ## Exemplos
@@ -64,13 +64,6 @@ As chaves abaixo são omitidas em todos os níveis por serem consideradas ruído
 const err = new Error("falha");
 sanitizeUnknownError(err);
 // { name: "Error", message: "falha" }
-```
-
-### Objeto com Segredo
-```typescript
-const obj = { message: "op", password: "123" };
-sanitizeUnknownError(obj);
-// { message: "op" } // password omitido por não estar na allowlist da raiz (e redigido se estivesse aninhado)
 ```
 
 ### Truncamento por Profundidade

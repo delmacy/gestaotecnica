@@ -68,7 +68,7 @@ function safeToString(value: unknown): string {
     if (typeof value === "number" || typeof value === "boolean") return String(value);
     if (typeof value === "bigint") return value.toString();
     if (typeof value === "symbol") return value.description || "symbol";
-    if (typeof value === "function") return value.name || "function";
+    if (typeof value === "function") return (value as Function).name || "function";
 
     if (value instanceof Date) {
       return isNaN(value.getTime()) ? "Invalid Date" : value.toISOString();
@@ -137,20 +137,16 @@ function internalSanitize(
           try {
             const descriptor = Object.getOwnPropertyDescriptor(value, String(i));
             if (!descriptor) {
-              // Hole or missing descriptor
-              result.push("undefined");
+              result.push("[UNREADABLE]");
               continue;
             }
 
             if (typeof descriptor.get !== "undefined") {
-              // Accessor property - do not execute
               result.push("[UNREADABLE]");
             } else {
-              // Data property
               result.push(internalSanitize(descriptor.value, depth + 1, stack));
             }
           } catch {
-            // Descriptor lookup failure (e.g. Proxy trap throws)
             result.push("[UNREADABLE]");
           }
         }
@@ -166,21 +162,18 @@ function internalSanitize(
     stack.add(value);
 
     try {
-      // getOwnPropertyNames can throw on revoked Proxy
       const props = Object.getOwnPropertyNames(value);
       const len = Math.min(props.length, MAX_PROPS);
 
       for (let i = 0; i < len; i++) {
         const key = props[i];
 
-        // Redaction and Forbidden key check
         if (isSensitive(key)) {
           result[key] = "[REDACTED]";
           continue;
         }
 
         if (FORBIDDEN_KEYS.has(key.toLowerCase())) {
-          // Omit forbidden technical keys
           continue;
         }
 
@@ -188,12 +181,9 @@ function internalSanitize(
           const descriptor = Object.getOwnPropertyDescriptor(value, key);
           if (descriptor && typeof descriptor.get === "undefined") {
             result[key] = internalSanitize(descriptor.value, depth + 1, stack);
-          } else if (descriptor && typeof descriptor.get !== "undefined") {
-            // Accessor on object - omit or mark as unreadable?
-            // Contract says skip or emit marker. Omission is safer for objects.
           }
         } catch {
-          // Ignore hostile properties
+          // Ignore
         }
       }
     } finally {
@@ -234,24 +224,40 @@ export function sanitizeUnknownError(value: unknown): Record<string, unknown> {
       }
     }
 
-    // Secondary safety issue correction: Read name/message through internalSanitize result or descriptors
+    // Strictly safe reading of Error properties
     if (value instanceof Error) {
-      if (!result.name) {
+      // Logic for 'name': must be a string
+      if (typeof result.name !== "string") {
         try {
           const d = Object.getOwnPropertyDescriptor(value, "name");
-          if (d && typeof d.get === "undefined") result.name = String(d.value);
-          else if (!d) result.name = value.name; // Fallback to prototype name if no own property
+          if (d && "value" in d && typeof d.value === "string") {
+            result.name = d.value;
+          } else {
+            const proto = Object.getPrototypeOf(value);
+            const pd = proto ? Object.getOwnPropertyDescriptor(proto, "name") : undefined;
+            if (pd && "value" in pd && typeof pd.value === "string") {
+              result.name = pd.value;
+            } else {
+              result.name = "Error";
+            }
+          }
         } catch {
           result.name = "Error";
         }
       }
-      if (!result.message) {
+
+      // Logic for 'message': must be a string
+      if (typeof result.message !== "string") {
         try {
           const d = Object.getOwnPropertyDescriptor(value, "message");
-          if (d && typeof d.get === "undefined") result.message = String(d.value);
-          // If message is a getter on own property or prototype, we rely on safeToString or skip
+          if (d && "value" in d && typeof d.value === "string") {
+            result.message = d.value;
+          } else {
+            // If it was some non-string object, safe-string it
+            result.message = safeToString(root.message);
+          }
         } catch {
-          // Ignore
+          result.message = "";
         }
       }
     }

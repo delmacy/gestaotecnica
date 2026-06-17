@@ -21,9 +21,10 @@ Uma sequência ordenada de receipts onde:
 
 ### `findTraceReceiptSelfHash`
 Localiza o hash com `scope = "receipt"`. Retorna `undefined` se não houver exatamente um.
+**Nota:** Espera um receipt já validado estruturalmente.
 
 ### `verifyTraceReceiptSelfHash`
-Valida a estrutura do receipt e verifica se o seu self-hash corresponde ao conteúdo recalculado.
+Valida a estrutura do receipt (via `safeParse`) e verifica se o seu self-hash corresponde ao conteúdo recalculado.
 
 ### `verifyTraceReceiptLink`
 Verifica se o receipt `current` aponta corretamente para `previous` e se ambos possuem integridade válida.
@@ -31,12 +32,17 @@ Verifica se o receipt `current` aponta corretamente para `previous` e se ambos p
 ### `verifyTraceReceiptChain`
 Valida uma cadeia completa de receipts, coletando todos os erros identificados (IDs duplicados, links quebrados, hashes inválidos, etc.).
 
-## Regras de Validação
+## Regras de Validação e Robustez
 
 - **Integridade:** Exige exatamente um hash com `scope = "receipt"`.
 - **Identidade:** O vínculo é feito estritamente pelo campo `previousReceiptId`.
 - **Imutabilidade:** As funções de verificação não modificam os objetos de entrada.
 - **Ordem:** A cadeia é validada na ordem em que é recebida no array.
+- **Robustez:**
+  - Utiliza `safeParse` para validação estrutural.
+  - Se um item for inválido, ele não é acessado novamente e recebe um ID sintético (`unknown-<index>`) para fins de relatório de erro.
+  - A validação continua para os itens subsequentes mesmo após falhas estruturais em itens anteriores.
+  - Vínculos com predecessores inválidos são marcados como `INVALID_PREVIOUS_RECEIPT_ID`.
 
 ## Futuras Expansões
 - Validação de consistência de `workspaceId` ao longo da cadeia.

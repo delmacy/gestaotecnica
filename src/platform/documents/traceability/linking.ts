@@ -22,9 +22,29 @@ export interface TraceReceiptChainError {
 }
 
 /**
+ * Drops property accessors (getters/setters) from an object to prevent execution of hostile code.
+ * Only returns properties that have a simple value.
+ */
+function dropAccessors(val: unknown): unknown {
+  if (val === null || typeof val !== "object" || Array.isArray(val)) {
+    return val;
+  }
+  const descriptors = Object.getOwnPropertyDescriptors(val);
+  const plain: Record<string, unknown> = {};
+  for (const [key, descriptor] of Object.entries(descriptors)) {
+    if (descriptor.get === undefined && descriptor.set === undefined && "value" in descriptor) {
+      plain[key] = descriptor.value;
+    }
+  }
+  return plain;
+}
+
+/**
  * Finds the self-hash of a Trace Receipt.
  * A self-hash is a hash with 'receipt' scope.
  * Returns the hash only if exactly one exists.
+ *
+ * Note: This helper expects a valid TraceReceipt. It does not perform structural validation.
  *
  * @param receipt The Trace Receipt to search
  * @returns The TraceReceiptHash if exactly one is found, undefined otherwise
@@ -46,29 +66,26 @@ export function findTraceReceiptSelfHash(
  * @returns true if the receipt is structurally valid and has exactly one valid self-hash
  */
 export function verifyTraceReceiptSelfHash(receipt: TraceReceipt): boolean {
-  try {
-    // 1. Validate the receipt structure
-    const validated = TraceReceiptSchema.parse(receipt);
-
-    // 2. Require exactly one receipt hash
-    const receiptHashes = validated.hashes.filter((h) => h.scope === "receipt");
-    if (receiptHashes.length !== 1) {
-      return false;
-    }
-
-    const selfHash = receiptHashes[0];
-
-    // 3. Recalculate and verify
-    const payload = createSignableTraceReceiptPayload(validated);
-    return verifyTraceHash(payload, selfHash);
-  } catch (error) {
-    // Structural errors lead to false
-    if (error instanceof Error && error.name === "ZodError") {
-      return false;
-    }
-    // We don't catch other internal programming errors
-    throw error;
+  // 1. Validate the receipt structure using safeParse on a sanitized input
+  const safeInput = dropAccessors(receipt);
+  const parsed = TraceReceiptSchema.safeParse(safeInput);
+  if (!parsed.success) {
+    return false;
   }
+
+  const validated = parsed.data;
+
+  // 2. Require exactly one receipt hash
+  const receiptHashes = validated.hashes.filter((h) => h.scope === "receipt");
+  if (receiptHashes.length !== 1) {
+    return false;
+  }
+
+  const selfHash = receiptHashes[0];
+
+  // 3. Recalculate and verify
+  const payload = createSignableTraceReceiptPayload(validated);
+  return verifyTraceHash(payload, selfHash);
 }
 
 /**
@@ -107,51 +124,55 @@ export function verifyTraceReceiptChain(
 
   const errors: TraceReceiptChainError[] = [];
   const seenIds = new Set<string>();
+  const parsedReceipts: Array<TraceReceipt | undefined> = [];
 
-  receipts.forEach((receipt, index) => {
-    const id = receipt?.id ?? `unknown-${index}`;
+  receipts.forEach((rawReceipt, index) => {
+    // 1. Structural Validation
+    // We drop accessors to avoid executing hostile getters during validation
+    const safeInput = dropAccessors(rawReceipt);
+    const parsed = TraceReceiptSchema.safeParse(safeInput);
 
-    // 1. Structural Validation and Self-Hash Integrity
-    let isStructurallyValid = false;
-    try {
-      TraceReceiptSchema.parse(receipt);
-      isStructurallyValid = true;
-    } catch {
+    if (!parsed.success) {
       errors.push({
         index,
-        id,
+        id: `unknown-${index}`,
         code: "INVALID_RECEIPT",
         message: "Receipt is structurally invalid",
       });
+      parsedReceipts.push(undefined);
+      return; // Do not access rawReceipt again
     }
 
-    if (isStructurallyValid) {
-      const receiptHashes = receipt.hashes.filter((h) => h.scope === "receipt");
-      if (receiptHashes.length === 0) {
-        errors.push({
-          index,
-          id,
-          code: "MISSING_SELF_HASH",
-          message: "Receipt is missing a self-hash (scope='receipt')",
-        });
-      } else if (receiptHashes.length > 1) {
-        errors.push({
-          index,
-          id,
-          code: "INVALID_SELF_HASH",
-          message: "Receipt has multiple self-hashes",
-        });
-      } else if (!verifyTraceReceiptSelfHash(receipt)) {
-        errors.push({
-          index,
-          id,
-          code: "INVALID_SELF_HASH",
-          message: "Receipt self-hash is invalid",
-        });
-      }
+    const receipt = parsed.data;
+    const { id } = receipt;
+    parsedReceipts.push(receipt);
+
+    // 2. Self-Hash Integrity
+    const receiptHashes = receipt.hashes.filter((h) => h.scope === "receipt");
+    if (receiptHashes.length === 0) {
+      errors.push({
+        index,
+        id,
+        code: "MISSING_SELF_HASH",
+        message: "Receipt is missing a self-hash (scope='receipt')",
+      });
+    } else if (receiptHashes.length > 1) {
+      errors.push({
+        index,
+        id,
+        code: "INVALID_SELF_HASH",
+        message: "Receipt has multiple self-hashes",
+      });
+    } else if (!verifyTraceReceiptSelfHash(receipt)) {
+      errors.push({
+        index,
+        id,
+        code: "INVALID_SELF_HASH",
+        message: "Receipt self-hash is invalid",
+      });
     }
 
-    // 2. Uniqueness
+    // 3. Uniqueness
     if (seenIds.has(id)) {
       errors.push({
         index,
@@ -162,7 +183,7 @@ export function verifyTraceReceiptChain(
     }
     seenIds.add(id);
 
-    // 3. Chain Linking
+    // 4. Chain Linking
     if (index === 0) {
       // Root receipt should not have a previousReceiptId
       if (receipt.previousReceiptId !== undefined) {
@@ -174,13 +195,22 @@ export function verifyTraceReceiptChain(
         });
       }
     } else {
-      const previous = receipts[index - 1];
-      if (receipt.previousReceiptId !== previous?.id) {
+      const previous = parsedReceipts[index - 1];
+      if (!previous) {
+        // If the previous raw item was invalid, do not access it.
+        // Record a structured link error because a valid immediate predecessor is unavailable.
         errors.push({
           index,
           id,
           code: "INVALID_PREVIOUS_RECEIPT_ID",
-          message: `Receipt does not point to the previous receipt ID: ${previous?.id}`,
+          message: "A valid immediate predecessor is unavailable",
+        });
+      } else if (receipt.previousReceiptId !== previous.id) {
+        errors.push({
+          index,
+          id,
+          code: "INVALID_PREVIOUS_RECEIPT_ID",
+          message: `Receipt does not point to the previous receipt ID: ${previous.id}`,
         });
       }
     }

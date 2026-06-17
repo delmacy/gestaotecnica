@@ -5,6 +5,7 @@ import {
   ISODateTimeSchema,
   UnknownRecordSchema,
 } from "@/platform/contracts";
+import { ProcessDefinitionKeySchema } from "./process-definition-key";
 
 /**
  * Process Definition Status
@@ -18,21 +19,10 @@ export type ProcessDefinitionStatus = z.infer<typeof ProcessDefinitionStatusSche
 export const ProcessVersionStatusSchema = z.enum(["draft", "published", "archived"]);
 export type ProcessVersionStatus = z.infer<typeof ProcessVersionStatusSchema>;
 
-/**
- * Process Definition Key
- * Rules:
- * - 3 to 100 characters
- * - Starts with lowercase letter
- * - Only a-z, 0-9 and hyphen
- * - No trailing hyphen
- * - No consecutive hyphens
- */
-export const ProcessDefinitionKeySchema = z
-  .string()
-  .min(3)
-  .max(100)
-  .regex(/^[a-z](?:[a-z0-9]|-(?!-))*[a-z0-9]$/);
-export type ProcessDefinitionKey = z.infer<typeof ProcessDefinitionKeySchema>;
+export {
+  ProcessDefinitionKeySchema,
+  type ProcessDefinitionKey,
+} from "./process-definition-key";
 
 /**
  * Process Version Number

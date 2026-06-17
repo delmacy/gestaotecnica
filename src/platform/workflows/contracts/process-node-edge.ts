@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { EntityIdSchema, UnknownRecordSchema } from "@/platform/contracts";
-import { ProcessDefinitionKeySchema } from "./process-definition";
+import { ProcessDefinitionKeySchema } from "./process-definition-key";
 
 /**
  * Process Node Type

@@ -1,37 +1,27 @@
-# Report: PKG-UTILITY-APP-AS-IS-INVENTORY-001
+# Report: PKG-UTILITY-APP-AS-IS-INVENTORY-001 (Revised)
 
 ## Identificação
 - **Package ID:** `PKG-UTILITY-APP-AS-IS-INVENTORY-001`
 - **Módulo:** `utility-apps`
-- **Status:** Documentation-only inventory complete
+- **Status:** Documentation-only inventory (REVISED)
 
-## Resumo do Trabalho
-Foi realizado um mapeamento completo dos ativos arquiteturais no repositório `gestaotecnica` para sustentar a futura implementação de Utility Apps. O inventário foca em reuso de componentes de Builders (Form e View), Registry de Capabilities e infraestrutura de Traceability.
+## Resumo das Correções
+O inventário foi revisado para garantir rastreabilidade total ao código real, distinguindo claramente entre ativos confirmados, parciais e propostos.
 
-## Principais Ativos Reutilizáveis
-- **Form Builder Schemas:** `FieldDefinitionSchema` e `ValidationRuleSchema` para I/O de utilitários.
-- **View Builder Contracts:** `ViewBlueprint` para visualização de catálogos e tabelas.
-- **Action Runner:** Infraestrutura de execução de lógica pura.
-- **Traceability Module:** Hashing e auditoria determinística para proveniência de regras.
-- **Registry:** Descoberta de capacidades via `ViewEngine`.
+### Ativos Confirmados (Traceable)
+- **Builders Schemas:** `FormFieldTypeSchema`, `ValidationRuleSchema`, `FieldDefinitionSchema` (`src/components/builder/form-builder/schema/field-schema.ts`).
+- **View Contracts:** `ViewBlueprint`, `ViewType`, `ViewFilter`, `ViewBinding`, `DataSourceMode` (`src/components/builder/view-builder/view-builder-types.ts`).
+- **Registry Schema:** `module_versions.config_schema` (`src/db/platform/schema/registry.ts`).
 
-## Principais Lacunas
-1. **Dataset Persistence:** Falta uma entidade e tabela dedicada para dados tabulares de referência (técnicos).
-2. **Importação de Dados:** Ausência de parsers para CSV/Excel.
-3. **Execution Sandbox:** Necessidade de isolar a execução de fórmulas de utilitários do motor de workflow.
-4. **Studio Especializado:** Falta uma interface de editor para tabelas técnicas e matrizes de decisão.
+### Ativos Downgraded / Parciais
+- **Action Registry/Runner:** Confirmada a existência física dos arquivos (`src/platform/actions/`), mas rotulados como `PARTIAL` por não possuírem persistência em banco ou sandboxing para Utility Apps específicos.
+- **View Engine:** Confirmado (`src/platform/views/view-engine.ts`), mas focado em ações de entidade, não utilitários genéricos.
+- **Traceability Integration:** O hashing é um primitivo confirmado, mas a governança de regras (Rule Provenance) é `PROPOSED`.
 
-## Sequência Recomendada (Roadmap)
-1. `PKG-UTILITY-APP-CORE-CONTRACT-001`: Definição base.
-2. `PKG-DATASET-DEFINITION-CONTRACT-001`: Estrutura de dados tabulares.
-3. `PKG-FORMULA-DEFINITION-CONTRACT-001`: Padronização de expressões.
-4. `PKG-DATASET-IMPORT-PORT-001`: Ingestão de arquivos externos.
-5. `PKG-UTILITY-APP-EXECUTION-PORT-001`: Runtime de execução.
+### Ativos Movidos para Propostos (Gaps)
+- **Dataset Entities:** Não existem tabelas ou contratos para dados tabulares puros.
+- **Formula Engine:** Existe o contrato (`ProcessEdgeConditionSchema`), mas não o executor.
+- **CSV/Excel Importer:** Ausência total de implementação.
 
-## Riscos Identificados
-- **Performance:** Uso excessivo de JSONB para datasets volumosos.
-- **Segurança:** Execução de lógica dinâmica exige sandboxing rigoroso.
-- **Tipagem:** Inconsistência entre dados flexíveis de planilhas e contratos rígidos do sistema.
-
-## Conclusão
-O sistema possui uma base sólida de contratos de UI e infraestrutura de auditoria, permitindo que a implementação de Utility Apps seja feita como uma extensão natural da arquitetura atual, focando nos novos contratos de persistência de dados (Datasets) e lógica de execução.
+## Conclusão da Revisão
+A arquitetura atual oferece contratos de UI sólidos, mas carece de infraestrutura de persistência e execução de lógica para Utility Apps. O roadmap foi ajustado para priorizar esses novos motores de dados e execução.

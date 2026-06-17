@@ -1,55 +1,39 @@
 # Plano de Implementação Futura: Utility Apps
 
-Este documento descreve a sequência recomendada de pacotes para a implementação do ecossistema de Utility Apps, baseando-se no inventário de ativos e lacunas identificadas.
+Este documento descreve a sequência recomendada de pacotes para a implementação do ecossistema de Utility Apps, baseando-se nas lacunas (`PROPOSED`) e ativos parciais identificados no inventário.
 
 ## Sequência de Pacotes
 
 | Ordem | Pacote | Objetivo | Dependências | Risco | Paralelismo |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | **PKG-UTILITY-APP-CORE-CONTRACT-001** | Definir o envelope canônico de Utility Apps e seus metadados básicos. | Nenhuma | Baixo | Sim |
-| 2 | **PKG-DATASET-DEFINITION-CONTRACT-001** | Definir o esquema para datasets tabulares e seu versionamento. | Core Contract | Médio | Sim |
-| 3 | **PKG-DATASET-ROW-SCHEMA-001** | Contrato para linhas e células, incluindo suporte a tipos complexos. | Dataset Contract | Baixo | Sim |
-| 4 | **PKG-FORMULA-DEFINITION-CONTRACT-001** | Padronizar a definição de expressões matemáticas e lógicas isoladas. | Core Contract | Médio | Não |
-| 5 | **PKG-LOOKUP-DEFINITION-CONTRACT-001** | Contrato específico para utilitários de busca (Key-Value/Search). | Dataset Contract | Baixo | Sim |
-| 6 | **PKG-DECISION-TABLE-CONTRACT-001** | Definir o esquema para tabelas de decisão e matrizes lógicas. | Formula Contract | Médio | Sim |
-| 7 | **PKG-UTILITY-VIEW-CONTRACT-001** | Estender `ViewBlueprint` para suportar visualizações técnicas específicas. | View Builder | Baixo | Sim |
-| 8 | **PKG-DATASET-IMPORT-PORT-001** | Interface (Port) para ingestão de dados via CSV/Planilha. | Dataset Contract | Alto (Parsers) | Não |
-| 9 | **PKG-UTILITY-APP-EXECUTION-PORT-001** | Runner para execução de Utility Apps (Sandbox de lógica). | Action Runner | Alto (Segurança) | Não |
-| 10 | **PKG-UTILITY-APP-PROVENANCE-001** | Integração com `Traceability` para registrar origem de regras e aprovações. | Traceability | Baixo | Sim |
+| 1 | **PKG-UTILITY-APP-CORE-CONTRACT-001** | Definir o envelope canônico de Utility Apps. | Nenhuma | Baixo | Sim |
+| 2 | **PKG-DATASET-DEFINITION-CONTRACT-001** | Definir o esquema para datasets tabulares e versionamento. | Core Contract | Médio | Sim |
+| 3 | **PKG-DATASET-ROW-SCHEMA-001** | Contrato para linhas e células (dados reais). | Dataset Contract | Baixo | Sim |
+| 4 | **PKG-FORMULA-DEFINITION-CONTRACT-001** | Padronizar a definição de expressões (isolado de Workflows). | Core Contract | Médio | Não |
+| 5 | **PKG-LOOKUP-DEFINITION-CONTRACT-001** | Contrato para utilitários de busca Key-Value. | Dataset Contract | Baixo | Sim |
+| 6 | **PKG-DECISION-TABLE-CONTRACT-001** | Esquema para tabelas e matrizes lógicas. | Formula Contract | Médio | Sim |
+| 7 | **PKG-UTILITY-VIEW-CONTRACT-001** | Extensões técnicas para o `ViewBlueprint`. | View Builder | Baixo | Sim |
+| 8 | **PKG-DATASET-IMPORT-PORT-001** | Mecanismo de ingestão (Parser de CSV/Excel). | Dataset Contract | Alto | Não |
+| 9 | **PKG-UTILITY-APP-EXECUTION-PORT-001** | Runtime e Sandbox para execução de fórmulas. | Action Runner | Alto | Não |
+| 10 | **PKG-UTILITY-APP-PROVENANCE-001** | Registro de governança e origem via `Traceability`. | Traceability | Baixo | Sim |
 
 ---
 
-## Detalhamento dos Pacotes
+## Detalhamento da Estratégia
 
-### 1. PKG-UTILITY-APP-CORE-CONTRACT-001
-- **Objetivo:** Criar a estrutura base `UtilityAppDefinition`.
-- **Owned Paths:** `src/platform/utility-apps/contracts/`
-- **Riscos:** Definir um envelope rígido demais que não comporte todos os tipos de utilitários.
+### 1. Separação de Dados
+- **Datasets Tabulares:** Devem ter persistência própria (tabelas de linhas/colunas) para permitir indexação e buscas eficientes, evitando o uso de JSONB de definições para dados volumosos.
+- **Configuração:** O JSONB deve ser restrito a metadados e versões de regras.
 
-### 2. PKG-DATASET-DEFINITION-CONTRACT-001
-- **Objetivo:** Abstrair a persistência de dados de referência (tabelas técnicas).
-- **Owned Paths:** `src/platform/datasets/contracts/`
-- **Riscos:** Ambiguidade entre Dataset e View.
+### 2. Runtime e Sandbox
+- A execução de Utility Apps deve ser isolada do motor de workflow principal para garantir performance e segurança. O pacote `PKG-UTILITY-APP-EXECUTION-PORT-001` deve implementar um executor de `json_logic` ou similar que não exponha o servidor.
 
-### 4. PKG-FORMULA-DEFINITION-CONTRACT-001
-- **Objetivo:** Definir como as fórmulas são armazenadas e quais motores são aceitos.
-- **Owned Paths:** `src/platform/formulas/contracts/`
-- **Riscos:** Fragmentação de linguagens de expressão no sistema.
-
-### 8. PKG-DATASET-IMPORT-PORT-001
-- **Objetivo:** Criar o mecanismo de conversão de arquivos externos para o formato interno de Dataset.
-- **Owned Paths:** `src/platform/datasets/ports/import/`
-- **Riscos:** Inconsistência de dados em arquivos CSV mal formados.
-
-### 9. PKG-UTILITY-APP-EXECUTION-PORT-001
-- **Objetivo:** Garantir que Utility Apps possam ser invocados programaticamente por outras Capabilities ou Process Nodes.
-- **Owned Paths:** `src/platform/utility-apps/execution/`
-- **Riscos:** Segurança na execução de `json_logic` ou scripts dinâmicos.
+### 3. Governança
+- A integração com `Traceability` (`PKG-UTILITY-APP-PROVENANCE-001`) transformará o hashing em uma evidência de aprovação formal de regras técnicas.
 
 ---
 
-## Estratégia de Mitigação de Riscos
-
-1. **Segurança:** Utilizar sandboxes estritas para execução de fórmulas.
-2. **Performance:** Implementar mecanismos de indexação para Datasets em JSONB se o volume crescer.
-3. **Escalabilidade:** Garantir que o versionamento (Immutable Versions) seja aplicado desde o PKG-001.
+## Riscos de Implementação
+1. **Performance:** Ingestão de planilhas gigantes sem estratégia de paginação/indexação em banco.
+2. **Segurança:** Injeção de lógica em expressões dinâmicas.
+3. **Acoplamento:** Dependência excessiva de tipos do Form Builder em utilitários que não requerem UI.

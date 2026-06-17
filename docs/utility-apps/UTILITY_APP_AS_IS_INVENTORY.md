@@ -2,113 +2,85 @@
 
 Este documento mapeia os ativos existentes no repositório `gestaotecnica` que podem sustentar a implementação de Utility Apps (conversores, calculadoras, tabelas técnicas, etc.).
 
-## 1. Mapeamento de Ativos Reutilizáveis
+## 1. Evidência de Ativos Reutilizáveis (AS-IS)
 
-### 1.1 Form Builder (UI & Contracts)
-- **Localização:** `src/components/builder/form-builder/`
-- **Ativos:**
-    - `FormFieldTypeSchema`: Define tipos de campos (text, number, boolean, date, select, reference).
-    - `ValidationRuleSchema`: Regras de validação (required, min, max, pattern, custom).
-    - `FieldDefinitionSchema`: Estrutura canônica de campos reutilizável para Inputs/Outputs de Utility Apps.
-- **Uso em Utility Apps:** Definição da interface de entrada (Inputs) e saída (Outputs) de calculadoras e seletores.
-
-### 1.2 View Builder (UI & Contracts)
-- **Localização:** `src/components/builder/view-builder/`
-- **Ativos:**
-    - `ViewType`: Suporta `table`, `detail`, `kanban`, `dashboard_cards`.
-    - `ViewFilter`: Mecanismo de filtragem configurável.
-    - `ViewBinding`: Permite ligar views a `capability` ou `form`.
-- **Uso em Utility Apps:** Representação visual de catálogos, tabelas técnicas e matrizes de compatibilidade.
-
-### 1.3 Action Registry & Runner
-- **Localização:** `src/platform/actions/`
-- **Ativos:**
-    - `ActionRegistry`: Catálogo central de funções executáveis.
-    - `ActionRunner`: Orquestrador de execução de lógica pura.
-- **Uso em Utility Apps:** Execução das fórmulas e regras de decisão (Pure Functions).
-
-### 1.4 Workflow Expressions
-- **Localização:** `src/platform/workflows/contracts/process-node-edge.ts`
-- **Ativos:**
-    - `ProcessEdgeConditionSchema`: Já prevê linguagens `expression` e `json_logic`.
-- **Uso em Utility Apps:** Motor de regras para árvores de decisão e calculadoras.
-
-### 1.5 Traceability & Hashing
-- **Localização:** `src/platform/documents/traceability/`
-- **Ativos:**
-    - `canonicalizeTraceValue`: Garante determinismo nos dados.
-    - `TraceReceiptHashing`: Hashing seguro para auditoria de regras aplicadas.
-- **Uso em Utility Apps:** Registro de proveniência de regras e aprovações de tabelas técnicas.
-
-### 1.6 Registry & Capabilities
-- **Localização:** `src/db/platform/schema/registry.ts`
-- **Ativos:**
-    - `capabilities`: Catálogo de funções de negócio.
-    - `module_versions`: Versionamento de configurações via JSONB.
-- **Uso em Utility Apps:** Registro do Utility App como uma "Capability" disponível no sistema.
+| Ativo Reivindicado | Caminho no Repositório | Símbolo / Tabela / Coluna | Comportamento Confirmado | Limitações | Confiança |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **FormFieldTypeSchema** | `src/components/builder/form-builder/schema/field-schema.ts` | `FormFieldTypeSchema` | Enum de tipos de campos (text, number, date, etc.). | Focado em UI de formulários. | Confirmed |
+| **ValidationRuleSchema** | `src/components/builder/form-builder/schema/field-schema.ts` | `ValidationRuleSchema` | Esquema Zod para regras (required, min, max, etc.). | Não possui motor de execução associado. | Confirmed |
+| **FieldDefinitionSchema** | `src/components/builder/form-builder/schema/field-schema.ts` | `FieldDefinitionSchema` | Definição canônica de um campo de entrada. | Acoplado ao builder de formulários. | Confirmed |
+| **ViewType** | `src/components/builder/view-builder/view-builder-types.ts` | `ViewType` | Union type de visualizações (table, kanban, etc.). | Apenas definição de tipo. | Confirmed |
+| **ViewFilter** | `src/components/builder/view-builder/view-builder-types.ts` | `ViewFilter` | Interface para filtros de busca. | Apenas definição de contrato. | Confirmed |
+| **ViewBinding** | `src/components/builder/view-builder/view-builder-types.ts` | `ViewBinding` | Interface de ligação entre views e targets. | Targets limitados (form, capability, process_step). | Confirmed |
+| **ViewBlueprint** | `src/components/builder/view-builder/view-builder-types.ts` | `ViewBlueprint` | Interface mestre para definição de views. | Atualmente usado para mocks/blueprints. | Confirmed |
+| **DataSourceMode** | `src/components/builder/view-builder/view-builder-types.ts` | `DataSourceMode` | Enum (synthetic, mock, real_pending, etc.). | Indica maturidade da fonte de dados. | Confirmed |
+| **Config Schema** | `src/db/platform/schema/registry.ts` | `module_versions.config_schema` | Coluna JSONB para configuração de módulos. | Genérica para qualquer módulo. | Confirmed |
+| **View Engine** | `src/platform/views/view-engine.ts` | `getAvailableActionsForEntity` | Lógica de descoberta de ações baseada em contexto. | Focado em ações de entidade. | Partial |
+| **Action Registry** | `src/platform/actions/action-registry.ts` | `registerAction`, `listActions` | Mapa em memória de ações registradas. | Não persiste em banco por padrão. | Partial |
+| **Action Runner** | `src/platform/actions/action-runner.ts` | `runAction` | Executor de handlers de ações com validação. | Não possui sandbox para código dinâmico. | Partial |
+| **Split View** | `src/components/builder/view-builder/view-builder-types.ts` | `split_master_detail` | Membro do tipo `ViewType`. | Implementação de UI é apenas fallback. | Confirmed |
 
 ---
 
 ## 2. Respostas às Perguntas Obrigatórias
 
 1. **Existe algum conceito atual equivalente a dataset?**
-   Não explicitamente como entidade "Dataset". O mais próximo é o `module_versions.configSchema` e o `definitionJson` de processos. A estrutura de `ViewBlueprint` já prevê `DataSourceMode`, mas falta uma abstração de persistência de dados tabulares puros.
+   `PARTIAL`. Não existe a entidade "Dataset" no código. O mais próximo é o uso de `jsonb` em `module_versions` para configurações e a intenção de fontes reais em `DataSourceMode`.
 
 2. **Há contratos reutilizáveis para campos, tipos e validação?**
-   Sim. `src/components/builder/form-builder/schema/field-schema.ts` contém o `FieldDefinitionSchema` que é ideal para esta finalidade.
+   `CONFIRMED`. `src/components/builder/form-builder/schema/field-schema.ts` provê os esquemas Zod necessários.
 
 3. **Há views configuráveis que possam representar tabela, cards ou resultado?**
-   Sim. O `ViewBuilder` já possui suporte para `table`, `dashboard_cards` e `split_master_detail`.
+   `CONFIRMED`. O `ViewBuilder` define `table`, `dashboard_cards` e `split_master_detail`.
 
 4. **Existem mecanismos de fórmula ou expression?**
-   Sim. O contrato de `ProcessEdgeCondition` define suporte a `expression` e `json_logic`, embora o motor de execução (runner) para Utility Apps ainda precise ser isolado.
+   `PARTIAL`. O contrato `ProcessEdgeConditionSchema` em `src/platform/workflows/contracts/process-node-edge.ts` aceita `expression` e `json_logic`, mas não há um motor de execução (engine) de fórmulas implementado no repositório.
 
 5. **Existe importação CSV ou planilha?**
-   Não foi encontrada nenhuma implementação de parser de CSV ou Excel no `src/`. É uma lacuna crítica.
+   `PROPOSED`. Nenhuma implementação de parser de CSV ou Excel encontrada no código atual.
 
 6. **Onde os dados de referência seriam persistidos hoje?**
-   Atualmente, seriam armazenados como `jsonb` em tabelas de definição (como `process_versions` ou uma futura `utility_versions`).
+   `PROPOSED`. Atualmente, a única via seria como metadados JSONB em `process_versions` ou `module_versions`. A persistência de tabelas técnicas reais é uma lacuna.
 
 7. **Como separar dados de referência de dados transacionais?**
-   Seguindo o padrão do projeto: `src/db/platform` para definições e referências (imutáveis por versão) e `src/db/runtime` para execuções (transacionais).
+   `PROPOSED`. Segregação lógica via schemas: `src/db/platform` para definições (referência) e `src/db/runtime` para estados de execução (transacional).
 
 8. **Como versionar tabelas técnicas?**
-   Utilizando o modelo de "Definition" e "Version" já aplicado em Workflows. Cada alteração na tabela gera uma nova `UtilityVersion` com seu próprio `definitionJson`.
+   `PROPOSED`. Reutilizar o padrão de "Definition" e "Version" usado em Workflows, onde cada versão contém o snapshot do dataset.
 
 9. **Como registrar origem e aprovação de regras?**
-   Através do módulo de `traceability`, gerando um `TraceReceipt` no momento da publicação de uma versão, vinculando o autor e o hash do conteúdo.
+   `PARTIAL`. O módulo de `traceability` em `src/platform/documents/traceability/` provê primitivos de integridade (hashing), mas o workflow de aprovação e o registro de proveniência de regras são `PROPOSED`.
 
 10. **Como ligar Utility Apps a capabilities?**
-    Um Utility App deve ser registrado como uma `Capability` no `Registry`, permitindo que seja descoberto pelo `ViewEngine`.
+    `PROPOSED`. Utility Apps podem implementar uma ou mais `Capabilities` registradas no `Registry`. A Capability define a habilidade de negócio, enquanto o Utility App provê a ferramenta executável.
 
 11. **Como uma Utility App poderia futuramente ser usada dentro de um Process Node?**
-    Através de um `ProcessNode` do tipo `action`, onde o `actionKey` aponta para o Utility App, passando o contexto do processo como input.
+    `PROPOSED`. Via `ProcessNode` do tipo `action` onde o `actionKey` aponta para o Utility App. Requer um adaptador de ação que ainda não existe.
 
 12. **Quais componentes atuais devem ser reaproveitados?**
-    - `Zod schemas` do Form Builder.
-    - `ViewEngine` para descoberta.
-    - `Traceability` para hashing e auditoria.
-    - `ActionRegistry` para o catálogo.
+    - `Zod schemas` de formulários.
+    - `Action Registry/Runner` para orquestração de lógica.
+    - `Traceability` para garantir integridade.
 
 13. **Quais componentes estão ausentes?**
-    - Dataset Persistence (tabelas para linhas/colunas).
-    - CSV/Excel Importer.
-    - Formula Engine Runtime (isolado de workflows).
-    - Utility-specific Studio (editor de tabelas/fórmulas).
+    - `Dataset Persistence` (Tabelas para dados tabulares).
+    - `CSV/Excel Importer`.
+    - `Formula Execution Engine`.
+    - `Utility Studio` (UI de edição).
 
 14. **Quais riscos existem em transformar planilhas em regras automaticamente?**
-    - **Tipagem:** Planilhas aceitam dados heterogêneos; o sistema exige tipagem estrita (Zod).
-    - **Injeção:** Fórmulas dinâmicas podem conter código malicioso se não forem sanitizadas.
-    - **Performance:** Tabelas técnicas gigantescas em JSONB podem degradar a performance de busca.
+    - Inconsistência de tipos (Zod vs Planilha).
+    - Riscos de segurança em expressões dinâmicas.
+    - Performance de busca em grandes volumes JSONB sem indexação tabular.
 
 ---
 
-## 3. Classificação de Utility Apps
+## 3. Classificação de Utility Apps (Proposed Categories)
 
 | Categoria | Inputs | Outputs | Persistência | Histórico | Workflow | Exemplo Real |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Lookup Utility** | Chave/ID | Valor/Objeto | Dataset | Não | Sim (Aprovação) | Tabela de NCM/Tarifas |
-| **Calculation Utility** | Parâmetros | Resultado | Fórmula | Sim | Sim (Auditoria) | Calculadora de SLA |
+| **Lookup Utility** | Chave/ID | Valor/Objeto | Dataset | Não | Sim | Tabela de NCM/Tarifas |
+| **Calculation Utility** | Parâmetros | Resultado | Fórmula | Sim | Sim | Calculadora de SLA |
 | **Decision Table Utility** | Contexto | Decisão | Matriz | Sim | Sim | Matriz de Escalonamento |
 | **Mapping Utility** | Origem | Destino | Mapa | Não | Não | De-Para de Conectores |
 | **Reference Catalog** | Filtros | Lista | Dataset | Não | Não | Catálogo de Cabos |
@@ -118,26 +90,26 @@ Este documento mapeia os ativos existentes no repositório `gestaotecnica` que p
 
 ---
 
-## 4. Avaliação do Modelo Conceitual Proposto
+## 4. Avaliação do Modelo Conceitual (Proposed)
 
 | Entidade | Status Atual | Recomendação |
 | :--- | :--- | :--- |
-| **UtilityAppDefinition** | Inexistente | Criar em `src/platform/utility-apps/contracts` |
-| **DatasetDefinition** | Parcial (ViewBlueprint) | Criar abstração própria para dados tabulares |
-| **DatasetVersion** | Inexistente | Seguir padrão `process_versions` |
-| **LookupDefinition** | Inexistente | Implementar como tipo de Utility App |
-| **FormulaDefinition** | Parcial (Expression) | Isolar lógica de cálculo de workflow-engine |
-| **DecisionTableDefinition**| Inexistente | Schema para matrizes JSON |
-| **UtilityViewDefinition** | Parcial (ViewBlueprint) | Especializar views para ferramentas técnicas |
-| **RuleApproval** | Inexistente | Integrar com sistema de governança/workflow |
-| **RuleProvenance** | Parcial (Traceability)| Estender `TraceReceipt` para regras de negócio |
+| **UtilityAppDefinition** | `PROPOSED` | Criar contrato canônico. |
+| **DatasetDefinition** | `PROPOSED` | Abstração para dados tabulares puros. |
+| **DatasetVersion** | `PROPOSED` | Seguir padrão de imutabilidade. |
+| **LookupDefinition** | `PROPOSED` | Especialização para busca Key-Value. |
+| **FormulaDefinition** | `PARTIAL` | Isolar lógica de cálculo de workflows. |
+| **DecisionTableDefinition**| `PROPOSED` | Matrizes de decisão em JSON. |
+| **UtilityViewDefinition** | `PARTIAL` | Estender `ViewBlueprint` para ferramentas. |
+| **RuleApproval** | `PROPOSED` | Workflow de governança para regras. |
+| **RuleProvenance** | `PARTIAL` | Usar `TraceReceipt` como primitivo. |
 
 ---
 
 ## 5. Distinção de Conceitos
 
-- **Process App:** Orquestração de passos (nodes) e estados ao longo do tempo. Focado em fluxo.
-- **Utility App:** Transformação de dados ou consulta pontual. Focado em entrada/saída imediata.
-- **Capability:** Funcionalidade atômica exposta pelo sistema (pode ser um Process ou Utility).
-- **View:** Representação visual de dados (tabelas, cards).
-- **Action:** Execução de lógica pura ou integração externa.
+- **Process App:** Orquestração de passos e estados temporais. Focado em fluxo.
+- **Utility App:** Transformação ou consulta pontual sem estado persistente. Focado em I/O.
+- **Capability:** Conceito de negócio / habilidade no catálogo (ex: "Cálculo de Imposto").
+- **View:** Componente visual de apresentação de dados.
+- **Action:** Unidade de execução lógica registrada no sistema.

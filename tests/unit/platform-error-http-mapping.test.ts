@@ -79,23 +79,38 @@ describe("Platform Error HTTP Mapping", () => {
 
     test("should handle missing correlationId", () => {
       const body = toPlatformErrorHttpBody(baseError);
-      assert.strictEqual(body.error.correlationId, undefined);
+      assert.strictEqual(Object.hasOwn(body.error, "correlationId"), false);
     });
 
     test("should preserve retryable from retry instruction", () => {
       const error = { ...baseError, retry: { retryable: true } };
       const body = toPlatformErrorHttpBody(error);
       assert.strictEqual(body.error.retryable, true);
+      assert.strictEqual(Object.hasOwn(body.error, "retryable"), true);
+    });
+
+    test("should omit retryable when retry instruction is absent", () => {
+      const body = toPlatformErrorHttpBody(baseError);
+      assert.strictEqual(Object.hasOwn(body.error, "retryable"), false);
+    });
+
+    test("should preserve false when retryable is false", () => {
+      const error = { ...baseError, retry: { retryable: false } };
+      const body = toPlatformErrorHttpBody(error);
+      assert.strictEqual(body.error.retryable, false);
+      assert.strictEqual(Object.hasOwn(body.error, "retryable"), true);
     });
 
     test("should not include sensitive fields (details, source, validationIssues)", () => {
-      const error = {
+      // Use unknown and cast to avoid any
+      const errorWithSensitives = {
         ...baseError,
         details: { sql: "SELECT * FROM users" },
         source: { pointer: "/data/id" },
         validationIssues: [{ code: "too_short", message: "too short", path: ["name"] }]
-      } as any;
-      const body = toPlatformErrorHttpBody(error);
+      } as unknown as PlatformErrorEnvelope;
+
+      const body = toPlatformErrorHttpBody(errorWithSensitives);
 
       const keys = Object.keys(body.error);
       assert.ok(!keys.includes("details"));

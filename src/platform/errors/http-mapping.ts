@@ -65,15 +65,23 @@ export function toPlatformErrorHttpBody(error: PlatformErrorEnvelope): PlatformE
     publicMessage = "An error occurred while communicating with an external service.";
   }
 
-  return {
+  const body: PlatformErrorHttpBody = {
     error: {
       code: error.code,
       message: publicMessage,
       category: error.category,
-      correlationId: error.correlationId,
-      retryable: error.retry?.retryable,
     },
   };
+
+  if (error.correlationId) {
+    body.error.correlationId = error.correlationId;
+  }
+
+  if (error.retry !== undefined) {
+    body.error.retryable = error.retry.retryable;
+  }
+
+  return body;
 }
 
 /**

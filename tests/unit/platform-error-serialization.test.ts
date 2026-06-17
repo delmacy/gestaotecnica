@@ -137,42 +137,61 @@ test("deserializePlatformError - reject invalid JSON", () => {
 });
 
 test("deserializePlatformError - reject non-object root", () => {
-  assert.throws(() => deserializePlatformError("null"), /ROOT_NOT_OBJECT/);
-  assert.throws(() => deserializePlatformError("[]"), /ROOT_NOT_OBJECT/);
-  assert.throws(() => deserializePlatformError('"string"'), /ROOT_NOT_OBJECT/);
+  assert.throws(() => deserializePlatformError("null"), /INVALID_ENVELOPE/);
+  assert.throws(() => deserializePlatformError("[]"), /INVALID_ENVELOPE/);
+  assert.throws(() => deserializePlatformError('"string"'), /INVALID_ENVELOPE/);
 });
 
 test("deserializePlatformError - reject missing required fields", () => {
   const incomplete = JSON.stringify({ id: "1" });
-  assert.throws(() => deserializePlatformError(incomplete));
+  assert.throws(() => deserializePlatformError(incomplete), /INVALID_ENVELOPE/);
 });
 
 test("deserializePlatformError - reject unknown fields (strict)", () => {
   const withUnknown = JSON.stringify({ ...minimalEnvelope, extra: "field" });
-  assert.throws(() => deserializePlatformError(withUnknown));
+  assert.throws(() => deserializePlatformError(withUnknown), /INVALID_ENVELOPE/);
 });
 
-test("Prototype Pollution Protection", () => {
-  const hostile = JSON.stringify({
-    ...minimalEnvelope,
-    "__proto__": { "polluted": true },
-    "details": {
-      "constructor": { "prototype": { "polluted": true } }
+test("Explicit Unsafe Key Rejection - Deserialization", () => {
+  const cases = [
+    { name: "__proto__ at root", json: `{"id":"1", "code":"A.B.C", "category":"validation", "severity":"error", "message":"m", "timestamp":"2023-10-27T10:00:00Z", "__proto__":{}}` },
+    { name: "prototype at root", json: `{"id":"1", "code":"A.B.C", "category":"validation", "severity":"error", "message":"m", "timestamp":"2023-10-27T10:00:00Z", "prototype":{}}` },
+    { name: "constructor at root", json: `{"id":"1", "code":"A.B.C", "category":"validation", "severity":"error", "message":"m", "timestamp":"2023-10-27T10:00:00Z", "constructor":{}}` },
+    { name: "__proto__ nested in details", json: `{"id":"err-123","code":"VALIDATION.USER.INVALID_NAME","category":"validation","severity":"error","message":"Invalid name provided","timestamp":"2023-10-27T10:00:00.000Z","details":{"__proto__":{"polluted":true}}}` },
+    { name: "constructor nested in metadata", json: `{"id":"err-123","code":"VALIDATION.USER.INVALID_NAME","category":"validation","severity":"error","message":"Invalid name provided","timestamp":"2023-10-27T10:00:00.000Z","metadata":{"constructor":{"prototype":{"polluted":true}}}}` },
+    { name: "prototype inside array item", json: `{"id":"err-123","code":"VALIDATION.USER.INVALID_NAME","category":"validation","severity":"error","message":"Invalid name provided","timestamp":"2023-10-27T10:00:00.000Z","details":{"list":[{"prototype":"bad"}]}}` },
+    { name: "unsafe key inside validationIssues", json: `{"id":"err-123","code":"VALIDATION.USER.INVALID_NAME","category":"validation","severity":"error","message":"Invalid name provided","timestamp":"2023-10-27T10:00:00.000Z","validationIssues":[{"code":"C","message":"M","path":["p"],"__proto__":{}}]}` }
+  ];
+
+  for (const c of cases) {
+    assert.throws(() => deserializePlatformError(c.json), /UNSAFE_KEY/, `Should reject ${c.name}`);
+    const result = tryDeserializePlatformError(c.json);
+    assert.strictEqual(result.success, false, `tryDeserialize should fail for ${c.name}`);
+    if (!result.success) {
+      assert.strictEqual(result.error, "UNSAFE_KEY", `Error should be UNSAFE_KEY for ${c.name}`);
     }
+  }
+});
+
+test("Explicit Unsafe Key Rejection - Serialization", () => {
+  const hostile = {
+    ...minimalEnvelope,
+    details: {
+      "other": "val"
+    }
+  };
+
+  // Directly set an unsafe property that will be found by getOwnPropertyNames
+  // Literal objects in some JS environments don't have __proto__ as an OWN property by default,
+  // but JSON.parse creates it as an OWN property.
+  // Here we simulate it.
+  Object.defineProperty(hostile.details, "prototype", {
+    value: { polluted: true },
+    enumerable: true
   });
 
-  const deserialized = deserializePlatformError(hostile);
-
-  // Access via bracket notation to bypass TS if needed, but here we want to check if it exists on the object
-  assert.strictEqual(Object.prototype.hasOwnProperty.call(deserialized, "__proto__"), false);
-  assert.strictEqual(Object.prototype.hasOwnProperty.call(deserialized.details, "constructor"), false);
-
-  // @ts-expect-error - polluted should not exist
-  assert.strictEqual(deserialized.polluted, undefined);
-
-  const serialized = serializePlatformError(deserialized);
-  assert.ok(!serialized.includes("__proto__"));
-  assert.ok(!serialized.includes("constructor"));
+  // @ts-expect-error - testing hostile input
+  assert.throws(() => serializePlatformError(hostile), /UNSAFE_KEY/);
 });
 
 test("tryDeserializePlatformError - success", () => {
@@ -230,4 +249,10 @@ test("integration with sanitizeUnknownError", () => {
   assert.equal(deserialized.details?.message, "error");
   assert.equal(deserialized.details?.stack, undefined);
   assert.deepEqual(sanitized, { message: "error" });
+});
+
+test("no field is silently removed during round trip", () => {
+  const serialized = serializePlatformError(fullEnvelope);
+  const deserialized = deserializePlatformError(serialized);
+  assert.deepEqual(deserialized, fullEnvelope);
 });

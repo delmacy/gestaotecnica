@@ -3,45 +3,44 @@
 ## Status
 - Package ID: `PKG-ERROR-SERIALIZATION-001`
 - Module: `platform-errors`
-- Status: Completed
+- Status: Completed (Revision 1)
 
 ## Implementação
 - Implementada serialização determinística com ordenação recursiva de chaves.
 - Implementada desserialização com validação rigorosa via Zod.
-- Implementada proteção contra Prototype Pollution removendo chaves inseguras (`__proto__`, `prototype`, `constructor`).
-- Adicionado wrapper seguro `tryDeserializePlatformError`.
+- **Segurança Crítica**: Implementada rejeição explícita (`UNSAFE_KEY`) para chaves `__proto__`, `prototype` e `constructor` em qualquer profundidade, em vez de remoção silenciosa.
+- Adicionado wrapper seguro `tryDeserializePlatformError` com classificação de erro robusta.
 
 ## Arquivos Criados/Alterados
-- `src/platform/errors/serialization.ts`: Lógica central de serialização.
+- `src/platform/errors/serialization.ts`: Lógica de serialização e scanners de segurança.
 - `src/platform/errors/index.ts`: Exportação das novas funções.
-- `tests/unit/platform-error-serialization.test.ts`: Testes de unidade abrangentes.
-- `docs/contracts/PLATFORM_ERROR_SERIALIZATION.md`: Documentação do contrato.
+- `tests/unit/platform-error-serialization.test.ts`: Testes de unidade abrangentes (incluindo fixtures JSON hostis).
+- `docs/contracts/PLATFORM_ERROR_SERIALIZATION.md`: Documentação do contrato atualizada.
 - `docs/agent-work/reviews/PKG-ERROR-SERIALIZATION-001_REPORT.md`: Este relatório.
 
 ## Verificação
-- **Testes Unitários**: 15 casos de teste cobrindo casos de sucesso, erro, determinismo, imutabilidade e segurança. Todos aprovados.
+- **Testes Unitários**: 17 casos de teste cobrindo casos de sucesso, erro, determinismo, imutabilidade e rejeição de chaves inseguras. Todos aprovados.
 - **Build**: `npm run build` executado com sucesso.
 - **Sanitizer Integration**: Verificada integração com `sanitizeUnknownError`.
 
-## Segurança contra Prototype Pollution
-A estratégia adotada foi a limpeza recursiva de objetos em busca de chaves proibidas.
-- Na serialização: chaves proibidas são ignoradas.
-- Na desserialização: após `JSON.parse`, o objeto resultante passa pela rotina de limpeza antes da validação Zod.
+## Política de Segurança contra Prototype Pollution
+A rotina `assertNoUnsafeKeys` escaneia recursivamente o objeto (incluindo propriedades não-enumeráveis via `getOwnPropertyNames`) e lança `new Error("UNSAFE_KEY")` ao encontrar qualquer chave proibida.
+- **Deserialização**: O escaneamento ocorre imediatamente após `JSON.parse` e antes da validação Zod.
+- **Serialização**: O escaneamento ocorre após a validação Zod para garantir que metadados/detalhes não contenham chaves hostis.
+
+## Classificação de Erros
+Os erros em `tryDeserializePlatformError` são classificados em:
+1. `INVALID_JSON`: Erro de sintaxe JSON.
+2. `UNSAFE_KEY`: Detecção de chave de prototype pollution.
+3. `INVALID_ENVELOPE`: Falha na estrutura do root ou validação do schema Zod.
 
 ## Exemplo de Round Trip Seguro
 ```ts
-const envelope = {
-  id: "err-1",
-  code: "DOMAIN.USER.NOT_FOUND",
-  category: "not_found",
-  severity: "error",
-  message: "User not found",
-  timestamp: "2023-10-27T10:00:00Z"
-};
-
 const serialized = serializePlatformError(envelope);
-const deserialized = deserializePlatformError(serialized);
+const result = tryDeserializePlatformError(serialized);
 
-assert.deepEqual(envelope, deserialized);
-assert.ok(Object.isFrozen(deserialized));
+if (result.success) {
+  const envelope = result.data;
+  // envelope is frozen and validated
+}
 ```

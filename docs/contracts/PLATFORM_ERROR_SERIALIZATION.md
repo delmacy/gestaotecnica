@@ -20,9 +20,9 @@ import {
 Serializa um envelope de erro para uma string JSON determinística.
 
 * Valida o input contra o schema `PlatformErrorEnvelopeSchema`.
+* Rejeita o input se contiver chaves inseguras (`__proto__`, `prototype`, `constructor`) em qualquer profundidade.
 * Ordena as chaves recursivamente de forma alfabética.
-* Filtra chaves proibidas (`__proto__`, `prototype`, `constructor`).
-* Remove `undefined`, funções e symbols.
+* Remove `undefined`, funções e symbols (via JSON.stringify).
 * Garante que instâncias semanticamente iguais gerem a mesma string.
 
 ### `deserializePlatformError(serialized: string): PlatformErrorEnvelope`
@@ -30,10 +30,10 @@ Serializa um envelope de erro para uma string JSON determinística.
 Desserializa uma string JSON para um objeto validado e congelado.
 
 * Exige que o input seja uma string.
-* Rejeita JSON inválido.
-* Rejeita se o root não for um objeto.
-* Neutraliza propriedades de prototype pollution.
-* Valida contra o schema canônico (strict mode).
+* Rejeita JSON inválido (`INVALID_JSON`).
+* Rejeita se o root não for um objeto (`INVALID_ENVELOPE`).
+* Rejeita explicitamente se contiver chaves inseguras (`UNSAFE_KEY`) em qualquer profundidade.
+* Valida contra o schema canônico (strict mode). Rejeita se inválido (`INVALID_ENVELOPE`).
 * Retorna um objeto imutável (`Object.freeze`).
 
 ### `tryDeserializePlatformError(serialized: string)`
@@ -44,13 +44,20 @@ Retorna:
 * `{ success: true, data: PlatformErrorEnvelope }`
 * `{ success: false, error: string }`
 
-Mensagens de erro retornadas são seguras e limitadas (`INVALID_JSON`, `INVALID_ENVELOPE`).
+Mensagens de erro (`error`) possíveis:
+* `INVALID_JSON`
+* `UNSAFE_KEY`
+* `INVALID_ENVELOPE`
 
 ## Segurança
 
-### Proteção contra Prototype Pollution
+### Rejeição de Unsafe Keys (Prototype Pollution)
 
-Tanto na serialização quanto na desserialização, chaves como `__proto__`, `prototype` e `constructor` são explicitamente removidas ou ignoradas em qualquer profundidade.
+Diferente de uma sanitização por remoção, o sistema **rejeita explicitamente** qualquer payload que contenha as chaves `__proto__`, `prototype` ou `constructor`. Esta verificação é recursiva e abrange:
+* Objeto raiz
+* Campos de metadados e detalhes (`metadata`, `details`)
+* Erros causadores (`cause`)
+* Itens de arrays (ex: `validationIssues`)
 
 ### Determinismo
 
@@ -68,3 +75,4 @@ serializePlatformError(env1) === serializePlatformError(env2); // true
 1. **Imutabilidade**: `deserializePlatformError` sempre retorna objetos congelados.
 2. **Pureza**: As funções não dependem de estado global ou efeitos colaterais.
 3. **Não-mutação**: Os objetos de entrada nunca são alterados.
+4. **Rejeição Explícita**: Chaves inseguras causam erro imediato, não são removidas silenciosamente.

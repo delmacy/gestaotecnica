@@ -6,25 +6,7 @@ import {
   ISODateTimeSchema,
   UnknownRecordSchema,
 } from "../../contracts";
-import { TraceReceiptHashSchema } from "../../documents/traceability/contracts";
-
-/**
- * Recursive freeze function to ensure deep immutability.
- */
-function deepFreeze<T extends object>(obj: T): T {
-  Object.freeze(obj);
-  Object.getOwnPropertyNames(obj).forEach((prop) => {
-    const value = (obj as any)[prop];
-    if (
-      value !== null &&
-      (typeof value === "object" || typeof value === "function") &&
-      !Object.isFrozen(value)
-    ) {
-      deepFreeze(value);
-    }
-  });
-  return obj;
-}
+import { TraceReceiptHashAlgorithmSchema } from "../../documents/traceability/contracts";
 
 /**
  * Approval Decision Values
@@ -51,12 +33,13 @@ export type ApprovalSubjectType = z.infer<typeof ApprovalSubjectTypeSchema>;
 /**
  * Approval Subject Reference
  * Points to the exact version of the asset being decided upon.
+ * Version is mandatory to ensure decisions apply to an exact state.
  */
 export const ApprovalSubjectReferenceSchema = z
   .object({
     type: ApprovalSubjectTypeSchema,
     id: EntityIdSchema,
-    version: z.union([z.string().min(1), z.number().int().positive()]).optional(),
+    version: z.union([z.string().min(1), z.number().int().positive()]),
   })
   .strict();
 export type ApprovalSubjectReference = z.infer<typeof ApprovalSubjectReferenceSchema>;
@@ -64,9 +47,25 @@ export type ApprovalSubjectReference = z.infer<typeof ApprovalSubjectReferenceSc
 /**
  * Approved Content Hash
  * Evidence of the exact content evaluated by the decider.
- * Uses TraceReceiptHashSchema for consistency in hashing requirements.
+ * Independent of TraceReceipt scope semantics.
  */
-export const ApprovedContentHashSchema = TraceReceiptHashSchema;
+export const ApprovedContentHashSchema = z
+  .object({
+    algorithm: TraceReceiptHashAlgorithmSchema,
+    value: z.string().regex(/^[a-f0-9]+$/),
+  })
+  .strict()
+  .refine(
+    (data) => {
+      if (data.algorithm === "sha256") return data.value.length === 64;
+      if (data.algorithm === "sha512") return data.value.length === 128;
+      return false;
+    },
+    {
+      message: "Hash value length does not match algorithm requirements",
+      path: ["value"],
+    }
+  );
 export type ApprovedContentHash = z.infer<typeof ApprovedContentHashSchema>;
 
 /**
@@ -103,7 +102,6 @@ export const ApprovalDecisionSchema = z
         path: ["justification"],
       });
     }
-  })
-  .transform((data) => deepFreeze(data));
+  });
 
 export type ApprovalDecision = z.infer<typeof ApprovalDecisionSchema>;

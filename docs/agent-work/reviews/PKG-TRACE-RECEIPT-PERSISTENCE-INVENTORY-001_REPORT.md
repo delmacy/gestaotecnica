@@ -2,30 +2,30 @@
 
 ## Identificação
 - **Package ID**: PKG-TRACE-RECEIPT-PERSISTENCE-INVENTORY-001
-- **Status**: Concluído
+- **Status**: Concluído (Revisado após feedback)
 - **Data**: 2024-05-23
 - **Base SHA**: d747fff7398c6be62bf5f347410934d940695368
 
 ## Resumo Executivo
-O inventário mapeou a infraestrutura atual de persistência e identificou que, embora existam padrões de repositório e isolamento de workspace consolidados, a tabela de `trace_receipts` atual é limitada e acoplada ao domínio de documentos. É necessária a criação de uma infraestrutura genérica para suportar o contrato `TraceReceipt` em toda a plataforma.
+O inventário mapeou a infraestrutura atual de persistência e identificou ativos reutilizáveis para o rastro de evidências. Foram corrigidos conceitos fundamentais sobre a natureza do Trace Receipt (imutável por política e verificável por hash, não necessariamente assinado digitalmente) e a distinção entre armazenamento de recibos e Event Sourcing.
 
-## Evidências Encontradas
+## Evidências Encontradas (CONFIRMED)
 - **Contrato Canônico**: `TraceReceiptSchema` em `src/platform/documents/traceability/contracts.ts`.
-- **Implementação Parcial**: Tabela `trace_receipts` em `src/db/runtime/schema/documents.ts` (limitada).
-- **Padrões de Isolamento**: Uso consistente de `workspace_id` e índices em `src/db/runtime/schema/*.ts`.
-- **Infraestrutura de Workflow**: Event Store (`events`) e Repository Pattern (`WorkflowRepository`) como referências de implementação.
+- **Implementação Parcial**: Tabela `trace_receipts` em `src/db/runtime/schema/documents.ts`.
+- **Padrões de Isolamento**: Uso de `workspace_id` UUID em `src/db/runtime/schema/*.ts`.
+- **Infraestrutura**: `WorkflowRepository` (`src/platform/workflow-engine/infra/workflow.repository.ts`) e suporte a transações ACID via Drizzle.
 
 ## Lacunas Identificadas
-- Falta de campos de rastreabilidade (`correlationId`, `causationId`, `previousReceiptId`) na tabela atual.
-- Necessidade de um schema Drizzle dedicado fora do domínio de documentos.
-- Inexistência de serviço de consulta recursiva para cadeias de recibos.
+- Falta de campos de rastreabilidade transversal na tabela atual de recibos.
+- Necessidade de um schema Drizzle genérico (`traceability`) para desvincular recibos do domínio de documentos.
+- Necessidade de políticas de banco de dados para garantir comportamento append-only real.
 
-## Modelo Proposto
-Proposta de tabela `traceability.receipts` com uso de `jsonb` para o payload completo e colunas normalizadas para indexação de rastro (correlation/causation/previous).
+## Modelo Proposto (PROPOSED)
+Proposta de tabela genérica com suporte a `jsonb` para o rastro canônico e colunas indexadas para navegação em cadeias via `previousReceiptId`.
 
 ## Riscos
-- **Isolamento**: O risco é baixo desde que o padrão de `workspace_id` seja estritamente seguido e verificado em nível de Repository.
-- **Append-only**: Exige disciplina na implementação do Repository e, idealmente, restrições em nível de banco de dados (Trigger ou REVOKE).
+- **Isolamento**: Baixo, seguindo o padrão de multi-tenancy do repositório.
+- **Append-only**: Médio, exige garantias além da camada de aplicação (Triggers/Policies) para evitar violações de integridade do rastro histórico.
 
 ## Próximos Passos
 1. PKG-TRACE-RECEIPT-DB-SCHEMA-001

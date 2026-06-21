@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UUIDSchema, WorkspaceIdSchema, ISODateTimeSchema, SchemaVersionSchema, UnknownRecordSchema } from "../../../contracts";
+import { UUIDSchema, WorkspaceIdSchema, ISODateTimeSchema, SchemaVersionSchema, SafeJsonRecordSchema } from "../../../contracts";
 
 /**
  * ProcessPayload Canonical Schema
@@ -10,7 +10,7 @@ export const ProcessPayloadSchema = z.object({
   instanceId: UUIDSchema,
   workspaceId: WorkspaceIdSchema,
   schemaVersion: SchemaVersionSchema,
-  data: UnknownRecordSchema,
+  data: SafeJsonRecordSchema,
   createdAt: ISODateTimeSchema,
   updatedAt: ISODateTimeSchema,
 });

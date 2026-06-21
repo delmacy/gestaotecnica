@@ -14,8 +14,13 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Optionally log the error to an error reporting service
-    console.error("Global error caught:", error);
+    // We only log a digest or safe identifier here, not the raw error object,
+    // to prevent exposing internal details.
+    if (process.env.NODE_ENV === "development") {
+      console.error("Global error caught:", error);
+    } else {
+      console.error(`Global error caught. Digest: ${error.digest || 'unknown'}`);
+    }
   }, [error]);
 
   return (
@@ -29,8 +34,8 @@ export default function GlobalError({
         </CardHeader>
         <CardContent className="text-center text-sm text-muted-foreground">
           <p>
-            Ocorreu um problema ao tentar carregar esta página. Nossa equipe já
-            foi notificada (caso seja um erro do sistema).
+            Ocorreu um problema ao tentar carregar esta página. Por favor,
+            tente novamente ou retorne ao início.
           </p>
           {process.env.NODE_ENV === "development" && (
             <div className="mt-4 rounded-md bg-secondary/50 p-3 text-left font-mono text-xs text-secondary-foreground overflow-auto max-h-32">

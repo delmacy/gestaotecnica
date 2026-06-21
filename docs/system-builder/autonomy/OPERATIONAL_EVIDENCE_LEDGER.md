@@ -70,8 +70,10 @@ Below is the compact Markdown ledger template that agents and systems must use t
 
 ## 6. Example Ledger Entry
 
+*(Note: The following entry is a completely simulated example. None of these identifiers, branches, or statuses reflect actual operational data.)*
+
 ```markdown
-### 📝 Operational Ledger Entry
+### 📝 Operational Ledger Entry (SIMULATED EXAMPLE)
 
 **Context**
 *   **Task ID:** `TASK-GT-EXAMPLE-001`
@@ -80,13 +82,13 @@ Below is the compact Markdown ledger template that agents and systems must use t
 *   **Timestamp (UTC):** `2024-05-10T14:32:00Z`
 
 **Target**
-*   **Repository:** `delmacy/gestaotecnica`
+*   **Repository:** `owner/example-repo`
 *   **Base Branch:** `main`
 *   **Target Branch:** `feat/example-feature`
 
 **Execution Evidence**
-*   **Commit SHA:** `7647418a90123...`
-*   **PR Number:** `#257`
+*   **Commit SHA:** `EXAMPLE-SHA-7647418a90123`
+*   **PR Number:** `#9999`
 *   **Command Receipt:** `N/A`
 
 **Verification State**

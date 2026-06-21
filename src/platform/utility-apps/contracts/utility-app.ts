@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UtilityAppActionBindingSchema } from "./utility-app-action-binding";
 import {
   EntityIdSchema,
   WorkspaceIdSchema,
@@ -74,6 +75,7 @@ export const UtilityAppDefinitionSchema = z
     inputSchema: UnknownRecordSchema,
     outputSchema: UnknownRecordSchema,
     configuration: UnknownRecordSchema,
+    actionBindings: z.array(UtilityAppActionBindingSchema).optional(),
     capabilityKeys: z
       .array(CapabilityKeySchema)
       .optional()

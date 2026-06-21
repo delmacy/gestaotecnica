@@ -2,92 +2,87 @@
 
 Este documento estabelece o plano de validação por fases (Phased Validation Plan) para o System Builder, com o objetivo de conectar de forma rigorosa a documentação, os contratos, os testes operacionais e a implementação, prevenindo regressões, "alucinações" do agente e perda de dados.
 
-O princípio central é garantir que a prontidão documental seja separada da prontidão de desenvolvimento, e que a progressão entre fases exija evidências reais, não simuladas.
+O princípio central é garantir que o plano seja **condicional ao tipo de entrega**. Nem toda task exige as sete fases. Entregas estritamente documentais podem encerrar na revisão documental; contratos, fixtures, testes e CI/CD são exigidos apenas quando aplicáveis ao escopo. Além disso, a separação de estados de prontidão (Readiness) e aceite é vital para o ciclo.
 
 ---
 
-## Separação de Prontidão (Readiness)
+## Separação de Prontidão e Aceitação
 
-Para garantir a qualidade, o ciclo de vida da feature é dividido em dois estados de prontidão:
+Para garantir a qualidade e a correta transição de estados, o ciclo de vida da feature divide-se em níveis claros de prontidão e aceite:
 
-1. **Prontidão Documental (Document Readiness):** A feature está pronta para iniciar o desenvolvimento apenas quando o contrato (dados e processos) e o modelo/entendimento do problema estiverem claros e formalizados.
-2. **Prontidão de Desenvolvimento (Development Readiness):** A feature está pronta para ser mesclada no código apenas quando todas as fases de testes operacionais e evidências práticas forem aprovadas.
+1. **Document Readiness:** A feature tem o modelo, problema e proposta claros (Documentação Executável). Pode marcar o fim para entregas estritamente documentais.
+2. **Implementation Ready:** Os contratos, testes e código base foram construídos e avaliados com sucesso localmente, prontos para CI/CD e PR.
+3. **ACCEPT_DELIVERY:** O reviewer/tester atesta que a feature atende aos critérios funcionais e operacionais na PR, mesmo que existam bloqueios momentâneos na CI/CD (ex: Actions não configuradas) que permitam o aceite de entrega, mas não o merge imediato.
+4. **MERGE_READY:** A PR foi aprovada, e todos os pipelines de CI/CD (verificações obrigatórias) passaram com sucesso (verde real). Nenhuma flag de `DRY_RUN` ou falha bloqueante existe.
+5. **MERGE_PR:** O momento em que o código é efetivamente incorporado à branch de destino. A fase de merge e os pipelines de pós-merge **não** são critérios prévios de aceitação (pois o aceite ocorre antes da decisão de integrar e promover).
 
 ---
 
 ## Fases de Validação
 
-O ciclo de desenvolvimento passa pelas seguintes fases obrigatórias.
+O ciclo de desenvolvimento passa pelas seguintes fases, **exigidas condicionalmente com base no escopo da tarefa**.
 
 ### Fase 1: Documentação Executável
-
-O primeiro passo é garantir que o que será desenvolvido faz sentido do ponto de vista arquitetural e de negócios, com base no princípio *Markdown first*.
+*Obrigatória para iniciar qualquer modelo arquitetural ou de sistema.*
 
 - **Entrada:** Escopo ou requisito do usuário/tarefa.
 - **Saída:** Documentos no formato Markdown descrevendo claramente o problema, solução e limites (ex: `README.md`, manifesto do projeto).
 - **Evidência:** Revisão aprovada do arquivo Markdown por um membro técnico.
-- **Bloqueios Comuns:** Ambiguidade nos requisitos, escopo não bem definido, documentação desatualizada que induz a erros.
-- **Critério de Passagem:** Aprovação explícita da documentação e definição arquitetural base clara.
+- **Bloqueios Comuns:** Ambiguidade nos requisitos, escopo não bem definido.
+- **Critério de Passagem (Document Readiness):** Aprovação explícita da documentação e definição arquitetural base clara. Entregas puramente documentais podem terminar nesta etapa e seguir direto para validação da PR.
 
 ### Fase 2: Contrato de Dados/Processo
-
-Definição estrita das entradas e saídas que o sistema ou o componente irá aceitar e produzir, garantindo tipagem rigorosa.
+*Condicional: Apenas para tarefas que criam/alteram tipos, esquemas ou APIs.*
 
 - **Entrada:** Documentação Executável (Fase 1).
-- **Saída:** Esquemas de validação (ex: Zod em TS, JSON Schema, esquemas de BD), interfaces ou contratos de processos.
-- **Evidência:** Arquivos `.ts` contendo as definições de schemas exportadas e testáveis (ex: `docs/contracts/...` com referências concretas).
-- **Bloqueios Comuns:** Uso de `any`, validação parcial de payloads, schemas flexíveis demais, proxies maliciosos ou desserialização insegura.
+- **Saída:** Esquemas de validação (ex: Zod, JSON Schema), interfaces ou contratos de processos.
+- **Evidência:** Arquivos TypeScript contendo as definições de schemas (ex: `docs/contracts/...`).
+- **Bloqueios Comuns:** Uso de `any`, validação parcial, esquemas permissivos demais.
 - **Critério de Passagem:** Regras rigorosas de segurança documentadas e aplicadas nas definições de schema (ex: `additionalProperties: false`).
 
 ### Fase 3: Fixtures ou Demo Sintética
-
-Geração e provisão de dados de teste realistas que imitam o comportamento em produção (Demo Sintética).
+*Condicional: Apenas para tarefas de UI, dados sintéticos ou persistência.*
 
 - **Entrada:** Contrato de Dados (Fase 2).
-- **Saída:** Arquivos com mocks, fixtures testáveis ou banco de dados com `seed` inicial validado.
-- **Evidência:** Scripts rodados com sucesso (`npm run db:seed`, `drizzle-kit push`, relatórios de importação de mock).
-- **Bloqueios Comuns:** Dados "alucinados" ou em formato inválido comparado aos contratos. Dependência de dados não reprodutíveis localmente.
-- **Critério de Passagem:** Aplicação sobe e renderiza/consome os fixtures em ambiente local ou mock sem erros de contrato.
+- **Saída:** Arquivos com mocks, fixtures testáveis ou `seed` para o banco de dados.
+- **Evidência:** Execução de scripts (ex: `npm run db:seed`, `drizzle-kit push`, importação de mock) - se existirem e forem aplicáveis.
+- **Bloqueios Comuns:** Dados "alucinados", inválidos ou de difícil reprodutibilidade local.
+- **Critério de Passagem:** Sistema ou mock processam os fixtures com os dados em conformidade com o contrato.
 
 ### Fase 4: Testes Unitários e Integração
+*Condicional: Apenas para tarefas que envolvem lógica de aplicação ou quebra de contratos.*
 
-Desenvolvimento com TDD ou validação com testes exaustivos baseados nas fixtures.
-
-- **Entrada:** Fixtures (Fase 3), Código implementando a lógica em relação aos Contratos (Fase 2).
-- **Saída:** Código dos testes em execução com cobertura das features e tratamento de erros.
-- **Evidência:** Execução de suítes e logs contendo sucesso da execução real dos testes (`npm run test:unit`, `npm run test:e2e`). Resultados fakes são proibidos.
-- **Bloqueios Comuns:** Testes dependentes do ambiente, "flaky tests", testes simulados onde não houve validação autêntica.
-- **Critério de Passagem:** A suíte deve ser executada completamente, retornando sucesso (Exit Code 0), sem uso de asserts falsos.
+- **Entrada:** Fixtures (Fase 3), Código da feature.
+- **Saída:** Código e execução dos testes com cobertura das features e tratamento de erros.
+- **Evidência:** Execução real (`npm run test:unit`, `npm run test:e2e` quando existirem/aplicáveis).
+- **Bloqueios Comuns:** Testes dependentes do ambiente, resultados falsificados ou "flaky".
+- **Critério de Passagem:** Suítes executadas, finalizadas com sucesso (Exit 0) e logs anexados, sem asserts falsos (Implementation Ready).
 
 ### Fase 5: GitHub Actions
+*Condicional: Requerida antes de um PR ser MERGE_READY.*
 
-Validação sistêmica por CI/CD.
-
-- **Entrada:** Código do produto + testes + YAML de Actions configurado ou reaproveitado de `system-builder-operations`.
-- **Saída:** Checks executados via pipelines automatizados e padronizados.
-- **Evidência:** Relatório de logs (GitHub Step Summary), indicando o status (com `NOT_CONFIGURED` ou `DRY_RUN` se aplicável) ou sucesso da run de Action anexado como log real.
-- **Bloqueios Comuns:** Injeção de dependências inseguras, pin de actions inseguros (ex: usar `@main` em vez de SHA), ausência de isolamento em runners.
-- **Critério de Passagem:** Logs reais comprovando a aprovação no build, tests e lint na pipeline automatizada com os SHAs fixos.
+- **Entrada:** PR criada + rotinas do CI (`system-builder-operations`).
+- **Saída:** Pipeline reportando os checks no GitHub Step Summary.
+- **Evidência:** Logs e status real da Action anexados na validação.
+- **Bloqueios Comuns:** Injeção insegura de dependências e falsos-positivos.
+- **Critério de Passagem:** Aprovação (Success real) na automação. Se o status for `NOT_CONFIGURED` ou `DRY_RUN`, deve ser explicitamente registrado como estado parcial ou bloqueio de merge – **jamais inventar ou equivaler isso a sucesso/aprovado**.
 
 ### Fase 6: Validação de PR por Reviewer/Tester
+*Obrigatória: O PR é a unidade de entrega.*
 
-O Pull Request deve ser pequeno, independente, contendo as alterações estritas e aguardando a revisão técnica/humana.
+- **Entrada:** O repositório com o PR em revisão, com "Receipts" locais.
+- **Saída:** PR contendo a thread de aprovação/revisão técnica.
+- **Evidência:** Recibos operacionais e evidência de testes manuais descritos claramente.
+- **Bloqueios Comuns:** PRs monolíticos, falta de evidência registrada ou omitir omissão de testes.
+- **Critério de Passagem (ACCEPT_DELIVERY / MERGE_READY):** O revisor confirma funcionalmente a entrega (ACCEPT_DELIVERY). Para obter o MERGE_READY, a Fase 5 deve estar configurada e verde.
 
-- **Entrada:** O repositório pronto para submissão, checks de fase 5 rodados.
-- **Saída:** PR aberto contendo a thread de review.
-- **Evidência:** "Receipts" (recibos de execução local), evidência de teste prático copiado para a descrição do PR.
-- **Bloqueios Comuns:** PRs grandes mudando arquivos sem relação, falta de evidências registradas (Ex: o agente omite que não rodou os testes).
-- **Critério de Passagem:** Validação manual documentando a execução prática com a matriz de comandos no PR e review aprovada sem intervenções silenciosas.
+### Fase 7: Promoção para Implementação de Código (MERGE_PR)
+*Decisão Final (Não é pré-requisito para o aceite).*
 
-### Fase 7: Promoção para Implementação de Código
-
-Incorporação do artefato na branch principal de forma segura.
-
-- **Entrada:** PR aprovado (Fase 6).
-- **Saída:** O código sendo incorporado à `main` via `merge` assíncrono.
-- **Evidência:** O commit de merge presente no repositório.
-- **Bloqueios Comuns:** Mudanças nos contratos após testes, merge conflict, PR corrompido.
-- **Critério de Passagem:** O pipeline pós-merge executou perfeitamente e o estado final corresponde à evidência previamente registrada.
+- **Entrada:** O repositório em MERGE_READY.
+- **Saída:** O artefato implementado via merge.
+- **Evidência:** Commit de merge e execuções de pipelines de CD/Pós-merge.
+- **Nota:** A promoção, o pós-merge e eventuais deploys são eventos subsequentes que ocorrem **após a aceitação da entrega**. Não são bloqueantes para atestar que o trabalho (PR) atendeu os requisitos estabelecidos.
 
 ---
 

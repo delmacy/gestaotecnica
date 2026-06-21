@@ -17,8 +17,8 @@ Quando o papel de Tester (ou agente que executa validações) atua:
 
 Caso os checks do GitHub (ou a aba de Actions) não estejam acessíveis, estejam inoperantes ou retornem status desconhecidos temporários:
 - O Tester **deve** registrar explicitamente o bloqueio na Issue ou PR correspondente.
-- A task **não pode** prosseguir para o status de conclusão ou ACCEPT_DELIVERY caso não seja possível validar inequivocamente que a CI/CD executou com sucesso.
-- Nenhuma suposição de sucesso pode ser feita. A falta de evidência legível de CI/CD é um bloqueador hard.
+- A indisponibilidade de checks **não é um bloqueador absoluto** de ACCEPT_DELIVERY caso a entrega seja estritamente documental ou de escopo que possa ser verificado de outra forma.
+- No entanto, a existência de CI legível e verde (com sucesso atestado) é um **requisito inegociável para MERGE_READY ou MERGE_PR**, quando aplicável ao tipo de entrega.
 
 ## 4. Campos Mínimos Exigidos no Project
 
@@ -35,14 +35,14 @@ Para qualquer item (Issue/Task/PR) acompanhado no GitHub Projects (v2), os segui
 
 Ao operar as APIs GraphQL do GitHub Projects v2:
 - **Campos Visíveis (UI):** O que o usuário vê (ex: "Status: Done", ou "Status: In Progress").
-- **IDs Técnicos (SingleSelectOptionId / FieldId):** O GraphQL API e a automação do Projects requerem o uso de IDs estritos. Você não define um status enviando a string "Done". É obrigatório resolver o `FieldId` e usar o valor enumerado real ou ID da opção (ex: `SingleSelectOptionId`) associado àquele status.
-Scripts e bots **não devem** tentar injetar valores textuais em campos enumerados.
+- **IDs Técnicos Mínimos:** O GraphQL API e a automação do Projects requerem o uso estrito de metadados técnicos, incluindo `projectId`, `itemId`, `fieldId`. Para a atribuição em si, deve-se usar o formato correto conforme o tipo: `optionId` para campos single-select, ou chaves como `text` / `number` para outros tipos de dados.
+Scripts e bots **não devem** tentar injetar valores textuais diretamente em campos estruturados (enumerados) assumindo que o GitHub os resolverá sozinhos.
 
 ## 6. A Regra do Receipt Real para Updates de Project
 
-Atualizações no GitHub Projects (como transições de estado, mudança para Done ou inserção de EvidenceUrl) **só podem ocorrer** se respaldadas por um receipt real, verificável e existente.
-- É **expressamente proibido** forjar, assumir, "fingir" ou hallucinar um update no Project sem a correspondente geração de receipt.
-- Se o CI/CD (Action) ou teste local não produziu um artefato de recibo, o Project não pode ser atualizado para refletir sucesso.
+Atualizações no GitHub Projects (como transições de estado, mudança para Done ou inserção de EvidenceUrl) requerem comprovação de execução:
+- **Ordem de Execução:** A mutação na API do GitHub Projects ocorre primeiro. No entanto, o **sucesso** da atualização só pode ser declarado *após* a obtenção de um receipt real retornado pela API ou por uma Action que processe o update.
+- É **expressamente proibido** forjar, assumir, "fingir" ou hallucinar o sucesso de um update no Project sem obter o receipt subsequente gerado pelo sistema.
 
 ## 7. Separação de ACCEPT_DELIVERY e MERGE_PR
 

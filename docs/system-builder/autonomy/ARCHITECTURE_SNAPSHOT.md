@@ -1,0 +1,87 @@
+# System Builder - Architecture Snapshot
+
+Este documento fornece um retrato estático (snapshot) da arquitetura atual do **System Builder** no repositório `delmacy/gestaotecnica`. Ele descreve as camadas operacionais, os módulos mapeados, as superfícies de código, as ferramentas de verificação, os limites entre a plataforma e o cliente, além de elencar os riscos de escopo atuais. O projeto rege-se pelos princípios definidos em `docs/PROJECT_MANIFEST.md`, `docs/ARCHITECTURE.md` e `docs/GLOBAL_WORK_BOARD.md`.
+
+**Nota Importante:** Este documento relata a estrutura baseada nas fundações e nas intenções de arquitetura descritas na documentação principal. Nenhuma declaração de prontidão de produto (product readiness) deve ser inferida daqui sem a evidência empírica apropriada por meio de testes automatizados completos e sucesso operacional validado.
+
+---
+
+## 1. Camadas Operacionais
+
+Conforme estabelecido pela decisão central de arquitetura (DEC-SB-001) e o Manifesto do Projeto (`docs/PROJECT_MANIFEST.md`), o escopo divide-se nas seguintes três camadas:
+
+### 1.1 System Builder Platform
+A plataforma estrutural e o **foco imediato do desenvolvimento**.
+Trata-se de uma fundação tecnológica para construir sistemas empresariais a partir do trabalho real sem estar atrelada a uma organização específica ou processos engessados predefinidos. Esta camada inclui fluxos de espelhamento, governança, módulos do núcleo de permissões e as ferramentas de UI.
+
+### 1.2 Demo Sintética
+Trata-se de um facilitador e exemplo interno. A **Demo Sintética** usa dados fictícios ou gerados (SIMULATED_OBSERVATION) com a finalidade primária de permitir que os agentes desenvolvam e demonstrem os módulos da plataforma, eliminando a necessidade de bloquear o desenvolvimento por causa de dependências com fontes de dados reais ou aprovações do cliente em um ambiente de produção.
+
+### 1.3 Cliente Piloto (Gestão Técnica)
+É a aplicação prática da plataforma dentro de uma instância real da Gestão Técnica. Funciona como o futuro **cliente piloto**, mas foi arquitetada com limites estritos para garantir que as especificidades organizacionais deste cliente não afetem os blocos universais (System Builder Platform) que compõem o sistema. O espelhamento será guiado por dados reais, porém isolado em seu próprio domínio de infraestrutura.
+
+---
+
+## 2. Mapeamento de Módulos (docs/ARCHITECTURE.md)
+
+Os blocos estruturais que compõem a solução estão organizados para garantir coesão em seus domínios e independência arquitetônica:
+
+*   **`doc`**: Governança da documentação (padrões e decisões da arquitetura).
+*   **`tasker`**: Coordenador do trabalho de agentes autônomos por meio de tasks executáveis.
+*   **`process_mirroring`**: Responsável pelo espelhamento do trabalho e processo real da organização.
+*   **`capabilities`**: Define as entidades e contratos universais e genéricos, mapeando necessidades e não divisões departamentais.
+*   **`enterprise_architecture`**: Estabelece mapas empresariais, conectando a organização.
+*   **`governance`**: Define os limites da operação por meio de papéis e políticas. (Observado em `src/platform/workflows/governance`)
+*   **`enablement`**: Orienta as ações de operadores humanos com guias e materialização de instrução.
+*   **`registry`**: Indexador que registra capabilities do catálogo e dependências.
+*   **`ui`**: Concentra a superfície visível e os View Contracts.
+*   **`workflow`**: Mantém as regras sobre os Process Contracts. (Observado estruturalmente em `src/platform/workflows`)
+*   **`runtime`**: Motor de execução; só processa contratos de fato aprovados (Execution Contracts). (Diretório stub `src/runtime` localizado, porém implementação ativa não validada).
+*   **`integrations`**: Define a comunicação e as fronteiras via Webhook / Signal Contracts.
+*   **`core`**: Base compartilhada sobre o System Builder, definindo os Contratos Centrais e workspace identity.
+
+*Nota de revisão:* Alguns módulos citados (ex: `process_mirroring`, `enterprise_architecture`, `tasker`) representam categorias lógicas mapeadas na documentação (`ARCHITECTURE.md` e `GLOBAL_WORK_BOARD.md`) e não obrigatoriamente pacotes estruturais materializados em diretórios únicos (`src/*`) no momento atual.
+
+### 2.1 Relação Modular Geral
+O fluxo obedece ao princípio de compreensão e extração estrutural:
+> Observed Work -> Process Mirror -> Capability Match -> Enterprise Map -> Adapted Process -> Builder Contract
+
+---
+
+## 3. Superfícies de Código e Estrutura do Repositório
+
+O repositório principal contém o trabalho fundamental dividido por diretórios essenciais:
+
+*   **`src/app`**: Front-end principal gerido através do Next.js. Nele, encontramos rotas na Gestão Técnica e especializadas (`admin`, `auth`, `(builder)`).
+*   **`src/db`**: Diretório central do banco de dados (Drizzle ORM), declarando os esquemas unificados (`schema.ts`), domínios (`domain`), seeds e serviços.
+*   **`src/agent-work`**: Camada que opera as execuções contínuas, provas de agente, recuperações de evidência (Evidence Recovery) e gateways de agente (Agent Gateway).
+*   **`src/scripts`**: Conjunto de scripts utilitários (ex: `provision-modules.ts`, `verify-gateway.ts`, `setup-unified-test-database.ts`) fundamentais para manter a sanidade dos testes e infraestrutura.
+*   **`src/platform`** e **`src/modules`**: Concentram grande parte da lógica core (contracts, errors, documents) e agregações modulares (auth).
+
+---
+
+## 4. Testes e Workflows de Integração Contínua
+
+As suítes de teste atuais contêm as seguintes camadas de verificação observadas localmente:
+*   **Testes de Unidade (`tests/unit/*`)**: Asseguram lógicas de componentes (como esquemas de Trace Receipt, contratos da plataforma e app definitions) em isolamento.
+*   **Testes de Integração (`tests/integration/*`)**: Testam diretamente peças e serviços locais (e.g., fluxos do agent-work, gateway idempotency).
+*   **Testes E2E (`tests/e2e/*`)**: Scripts em Playwright projetados para validar fluxos de interface reais. Estão sujeitos a configuração completa do ambiente local ou instâncias ativas (bases de dados test-ready).
+
+No que diz respeito aos fluxos de CI/CD, foi detectado e verificado localmente na raiz o arquivo `.github/workflows/agent-work-integration.yml` (configurado para steps como db:migrate, dry-run e provisionamentos). A esteira de governança real ou cruzada depende da articulação com o *Operations Repo*, não existindo arquivos adicionais de workflows de governança no contexto principal validado deste escopo.
+
+---
+
+## 5. Limites e Divisões Repositoriais
+
+Para segregar a governança e autonomia dos fluxos automáticos, aplicam-se separações:
+*   **Plataforma (System Builder)**: Baseada em agnosticismo de regras de negócio específicas. O seu código core reside em `delmacy/gestaotecnica` fornecendo ontologias estruturais.
+*   **Cliente Piloto**: Dados operacionais hospedados localmente (`workspace-scoped`), mas com capacidades e integrações baseadas globalmente na plataforma.
+*   **Operations Repo (`delmacy/system-builder-operations`)**: Funciona como o Centro de Engenharia e Controle da Plataforma, abrigando relatórios de infraestrutura autônoma, versionamento rigoroso de schemas locais e workflows CI/CD isolados (impedindo injection vulnerabilities no produto final). Nenhuma lógica de negócio reside no *Operations*.
+
+---
+
+## 6. Riscos de Escopo e Conclusão
+
+*   **Produto Inacabado**: Módulos como o `runtime` ainda requerem amadurecimento substancial do motor de regra (Capabilities Matching + Policies). Existe risco de sobreposição de regras.
+*   **Prova Operacional Não Terminada**: Muitas partes do sistema são suportadas hoje através do fluxo simulado (Demo Sintética). A migração sem atrito com dados reais exige mais atenção na infraestrutura do Gateway.
+*   **Limitação do Agente Autônomo**: A verificação da prontidão final de Produto requer validações via e2e que em ambientes limpos exigem passos extras de configuração. Qualquer aprovação final requer supervisão explícita.

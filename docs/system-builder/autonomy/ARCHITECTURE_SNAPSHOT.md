@@ -62,19 +62,19 @@ O repositório principal contém o trabalho fundamental dividido por diretórios
 
 ## 4. Testes e Workflows de Integração Contínua
 
-Existem suites rigorosas para validar o ambiente de ponta a ponta:
-*   **Testes de Unidade (`tests/unit/*`)**: Asseguram a solidez técnica de componentes como o "Trace Receipt Schema", contratos da plataforma e "UtilityAppDefinitionSchema" em isolamento estrito sem vazar dados.
-*   **Testes de Integração (`tests/integration/*`)**: Testes executados diretamente sobre as peças modulares (e.g., `agent-work-flow.test.ts`, `agent-gateway-idempotency.integration.test.ts`).
-*   **Testes E2E (`tests/e2e/*`)**: Suite operacional do Playwright validando cenários de usuário real (e.g., o "Builder Interactivity" ou a transição para Login em área autenticada).
+As suítes de teste atuais contêm as seguintes camadas de verificação observadas localmente:
+*   **Testes de Unidade (`tests/unit/*`)**: Asseguram lógicas de componentes (como esquemas de Trace Receipt, contratos da plataforma e app definitions) em isolamento.
+*   **Testes de Integração (`tests/integration/*`)**: Testam diretamente peças e serviços locais (e.g., fluxos do agent-work, gateway idempotency).
+*   **Testes E2E (`tests/e2e/*`)**: Scripts em Playwright projetados para validar fluxos de interface reais. Estão sujeitos a configuração completa do ambiente local ou instâncias ativas (bases de dados test-ready).
 
-O desenvolvimento é validado nos workflows base observados localmente em `.github/workflows/`, como `agent-work-integration.yml` (que executa seed de banco de dados, dry-runs, verificação operacional do Agent Work) e `agent-work-governance.yml` (que avalia checagem de formato e gates lógicos de CI).
+No que diz respeito aos fluxos de CI/CD, foi detectado e verificado localmente na raiz o arquivo `.github/workflows/agent-work-integration.yml` (configurado para steps como db:migrate, dry-run e provisionamentos). A esteira de governança real ou cruzada depende da articulação com o *Operations Repo*, não existindo arquivos adicionais de workflows de governança no contexto principal validado deste escopo.
 
 ---
 
 ## 5. Limites e Divisões Repositoriais
 
 Para segregar a governança e autonomia dos fluxos automáticos, aplicam-se separações:
-*   **Plataforma (System Builder)**: Agnosticismo total. Vive em `delmacy/gestaotecnica` e define a ontologia lógica.
+*   **Plataforma (System Builder)**: Baseada em agnosticismo de regras de negócio específicas. O seu código core reside em `delmacy/gestaotecnica` fornecendo ontologias estruturais.
 *   **Cliente Piloto**: Dados operacionais hospedados localmente (`workspace-scoped`), mas com capacidades e integrações baseadas globalmente na plataforma.
 *   **Operations Repo (`delmacy/system-builder-operations`)**: Funciona como o Centro de Engenharia e Controle da Plataforma, abrigando relatórios de infraestrutura autônoma, versionamento rigoroso de schemas locais e workflows CI/CD isolados (impedindo injection vulnerabilities no produto final). Nenhuma lógica de negócio reside no *Operations*.
 

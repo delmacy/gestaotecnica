@@ -10,7 +10,12 @@ import {
   WorkflowPublicationFailedError,
 } from "./candidate.errors";
 import type { CandidateRepositoryDb } from "./candidates.repository";
+
 import type { ProcessCandidate } from "./candidate.types";
+import { TraceReceiptService } from "@/features/platform/gateway/trace-receipt/trace-receipt.service";
+import { drizzleTraceReceiptRepository } from "@/features/platform/gateway/trace-receipt/trace-receipt.repository";
+import type { DbClient } from "@/db";
+
 
 export type CreatePublishedProcessInput = {
   workspaceId: string;
@@ -58,13 +63,16 @@ function isBuilderDraft(value: Record<string, unknown>): value is Record<string,
   );
 }
 
+
 export async function publishApprovedCandidate(
   db: CandidateRepositoryDb,
   workspaceId: string,
   candidateId: string,
   publishedById: string,
   repository: PublisherRepositoryPort,
+  traceReceiptService?: TraceReceiptService,
 ): Promise<PublishedProcessResult> {
+
   try {
     return await repository.runInTransaction(db, async (tx) => {
       const candidate = await repository.getCandidateById(tx, candidateId);
@@ -111,6 +119,7 @@ export async function publishApprovedCandidate(
         sourceCandidateId: candidateId,
       });
 
+
       const markedPublished = await repository.markCandidatePublished(tx, {
         workspaceId,
         candidateId,
@@ -121,7 +130,36 @@ export async function publishApprovedCandidate(
         throw new CandidatePublicationConflictError();
       }
 
+      // Generate Trace Receipt for publication
+      const traceService = traceReceiptService || new TraceReceiptService(drizzleTraceReceiptRepository);
+
+      await traceService.createAndAppendReceipt(tx as DbClient, {
+        workspaceId,
+        subject: {
+          type: "process",
+          id: result.processDefinitionId,
+        },
+        actor: {
+          type: "user",
+          id: publishedById,
+        },
+        action: {
+          type: "publish",
+          name: "Publish Process Candidate",
+          result: "success",
+        },
+        source: {
+          system: "system-builder",
+          version: "1.0",
+        },
+        metadata: {
+          processVersionId: result.processVersionId,
+          sourceCandidateId: result.sourceCandidateId,
+        }
+      });
+
       return result;
+
     });
   } catch (error) {
     if (

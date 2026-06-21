@@ -12,10 +12,29 @@
 # Error details
 
 ```
-Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/admin
-Call log:
-  - navigating to "http://localhost:3000/admin", waiting until "load"
+Error: expect(locator).toBeVisible() failed
 
+Locator: locator('a[href=\'/admin/gateway/receipts\']').first()
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 5000ms
+  - waiting for locator('a[href=\'/admin/gateway/receipts\']').first()
+
+```
+
+```yaml
+- main:
+  - text: Entrar Acesso Builder, Admin da Organização ou Operador E-mail
+  - textbox "E-mail"
+  - text: Senha
+  - textbox "Senha"
+  - button "Entrar"
+  - link "Primeiro acesso":
+    - /url: /auth/setup
+- alert
 ```
 
 # Test source
@@ -47,11 +66,11 @@ Call log:
   24 |
   25 |   test("can navigate to receipts page from AppShell", async ({ page }) => {
   26 |     await allowAuthenticatedArea(page);
-> 27 |     await page.goto("/admin");
-     |                ^ Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/admin
+  27 |     await page.goto("/admin");
   28 |
   29 |     const link = page.locator("a[href='/admin/gateway/receipts']").first();
-  30 |     await expect(link).toBeVisible();
+> 30 |     await expect(link).toBeVisible();
+     |                        ^ Error: expect(locator).toBeVisible() failed
   31 |     await link.click();
   32 |
   33 |     await expect(page).toHaveURL(/\/admin\/gateway\/receipts/);

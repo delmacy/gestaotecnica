@@ -31,14 +31,16 @@ Os blocos estruturais que compõem a solução estão organizados para garantir 
 *   **`process_mirroring`**: Responsável pelo espelhamento do trabalho e processo real da organização.
 *   **`capabilities`**: Define as entidades e contratos universais e genéricos, mapeando necessidades e não divisões departamentais.
 *   **`enterprise_architecture`**: Estabelece mapas empresariais, conectando a organização.
-*   **`governance`**: Define os limites da operação por meio de papéis e políticas.
+*   **`governance`**: Define os limites da operação por meio de papéis e políticas. (Observado em `src/platform/workflows/governance`)
 *   **`enablement`**: Orienta as ações de operadores humanos com guias e materialização de instrução.
 *   **`registry`**: Indexador que registra capabilities do catálogo e dependências.
 *   **`ui`**: Concentra a superfície visível e os View Contracts.
-*   **`workflow`**: Mantém as regras sobre os Process Contracts.
-*   **`runtime`**: Motor de execução; só processa contratos de fato aprovados (Execution Contracts).
-*   **`integrations`**: Define a comunicação e as fronteiras via Webhook / Signal Contracts (ex.: limites onde a plataforma dialoga com n8n).
+*   **`workflow`**: Mantém as regras sobre os Process Contracts. (Observado estruturalmente em `src/platform/workflows`)
+*   **`runtime`**: Motor de execução; só processa contratos de fato aprovados (Execution Contracts). (Diretório stub `src/runtime` localizado, porém implementação ativa não validada).
+*   **`integrations`**: Define a comunicação e as fronteiras via Webhook / Signal Contracts.
 *   **`core`**: Base compartilhada sobre o System Builder, definindo os Contratos Centrais e workspace identity.
+
+*Nota de revisão:* Alguns módulos citados (ex: `process_mirroring`, `enterprise_architecture`, `tasker`) representam categorias lógicas mapeadas na documentação (`ARCHITECTURE.md` e `GLOBAL_WORK_BOARD.md`) e não obrigatoriamente pacotes estruturais materializados em diretórios únicos (`src/*`) no momento atual.
 
 ### 2.1 Relação Modular Geral
 O fluxo obedece ao princípio de compreensão e extração estrutural:
@@ -50,10 +52,11 @@ O fluxo obedece ao princípio de compreensão e extração estrutural:
 
 O repositório principal contém o trabalho fundamental dividido por diretórios essenciais:
 
-*   **`src/app`**: Front-end principal gerido através do Next.js. Nele, encontramos rotas principais focadas na Gestão Técnica e rotas especializadas para Builder (`admin`, `auth`, `builder`).
-*   **`src/db`**: Diretório central do banco de dados (Drizzle ORM), declarando os esquemas unificados (`schema.ts`), interações de domínio e arquivos de seed para configuração da base. O PostgreSQL continua sendo a principal "Source of Truth".
-*   **`src/agent-work`**: Camada que opera as execuções contínuas, incluindo validação, gateways e integração via agente autônomo e provas operacionais (Operational Proofs).
-*   **`src/scripts`**: Conjunto de scripts utilitários (ex: provisionamento de módulos de banco e verificação de gateways) fundamentais para manter a sanidade dos testes de integração sem exigir ferramentas manuais do usuário.
+*   **`src/app`**: Front-end principal gerido através do Next.js. Nele, encontramos rotas na Gestão Técnica e especializadas (`admin`, `auth`, `(builder)`).
+*   **`src/db`**: Diretório central do banco de dados (Drizzle ORM), declarando os esquemas unificados (`schema.ts`), domínios (`domain`), seeds e serviços.
+*   **`src/agent-work`**: Camada que opera as execuções contínuas, provas de agente, recuperações de evidência (Evidence Recovery) e gateways de agente (Agent Gateway).
+*   **`src/scripts`**: Conjunto de scripts utilitários (ex: `provision-modules.ts`, `verify-gateway.ts`, `setup-unified-test-database.ts`) fundamentais para manter a sanidade dos testes e infraestrutura.
+*   **`src/platform`** e **`src/modules`**: Concentram grande parte da lógica core (contracts, errors, documents) e agregações modulares (auth).
 
 ---
 
@@ -64,7 +67,7 @@ Existem suites rigorosas para validar o ambiente de ponta a ponta:
 *   **Testes de Integração (`tests/integration/*`)**: Testes executados diretamente sobre as peças modulares (e.g., `agent-work-flow.test.ts`, `agent-gateway-idempotency.integration.test.ts`).
 *   **Testes E2E (`tests/e2e/*`)**: Suite operacional do Playwright validando cenários de usuário real (e.g., o "Builder Interactivity" ou a transição para Login em área autenticada).
 
-O desenvolvimento é validado nos workflows `.github/workflows/`, como `agent-work-integration.yml` e `agent-work-governance.yml`, que cobrem e confirmam o estado estrutural das execuções sistêmicas e auditoria perante os repositórios administrativos externos.
+O desenvolvimento é validado nos workflows base observados localmente em `.github/workflows/`, como `agent-work-integration.yml` (que executa seed de banco de dados, dry-runs, verificação operacional do Agent Work) e `agent-work-governance.yml` (que avalia checagem de formato e gates lógicos de CI).
 
 ---
 

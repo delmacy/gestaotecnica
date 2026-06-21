@@ -57,9 +57,9 @@ Below is the compact Markdown ledger template that agents and systems must use t
 *   **Command Receipt:** `[RECEIPT-ID | "N/A"]`
 
 **Verification State**
-*   **Checks Status:** `[OBSERVED: SUCCESS/FAILED | PENDING | MISSING | INACCESSIBLE]`
-*   **Review Status:** `[OBSERVED: APPROVED/REJECTED | PENDING]`
-*   **Merge Status:** `[OBSERVED: MERGED | PROPOSED]`
+*   **Checks Status:** `[OBSERVED | PENDING | FAILED | MISSING | INACCESSIBLE | UNKNOWN]`
+*   **Review Status:** `[OBSERVED | PROPOSED | PENDING | FAILED | MISSING | INACCESSIBLE | UNKNOWN]`
+*   **Merge Status:** `[OBSERVED | PROPOSED | PENDING | FAILED | MISSING | INACCESSIBLE | UNKNOWN]`
 
 **Notes:**
 *   [Record any specific artifacts observed, missing data, or why a state is marked INACCESSIBLE/UNKNOWN]

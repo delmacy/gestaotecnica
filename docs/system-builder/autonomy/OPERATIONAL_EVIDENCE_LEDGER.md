@@ -57,21 +57,57 @@ Below is the compact Markdown ledger template that agents and systems must use t
 *   **Command Receipt:** `[RECEIPT-ID | "N/A"]`
 
 **Verification State**
-*   **Checks Status:** `[OBSERVED | PENDING | FAILED | MISSING | INACCESSIBLE | UNKNOWN]`
-*   **Review Status:** `[OBSERVED | PROPOSED | PENDING | FAILED | MISSING | INACCESSIBLE | UNKNOWN]`
-*   **Merge Status:** `[OBSERVED | PROPOSED | PENDING | FAILED | MISSING | INACCESSIBLE | UNKNOWN]`
+*   **Checks Evidence Status:** `[OBSERVED | PENDING | MISSING | INACCESSIBLE | UNKNOWN]`
+*   **Checks Observed Value:** `[SUCCESS | FAILED | N/A]`
+*   **Review Evidence Status:** `[OBSERVED | PROPOSED | PENDING | MISSING | INACCESSIBLE | UNKNOWN]`
+*   **Review Observed Value:** `[APPROVED | REJECTED | N/A]`
+*   **Merge Evidence Status:** `[OBSERVED | PROPOSED | PENDING | MISSING | INACCESSIBLE | UNKNOWN]`
+*   **Merge Observed Value:** `[MERGED | N/A]`
 
 **Notes:**
 *   [Record any specific artifacts observed, missing data, or why a state is marked INACCESSIBLE/UNKNOWN]
 ```
 
-## 6. Prohibitions
+## 6. Example Ledger Entry
+
+```markdown
+### 📝 Operational Ledger Entry
+
+**Context**
+*   **Task ID:** `TASK-GT-EXAMPLE-001`
+*   **Session ID:** `sess_abc123`
+*   **Event ID:** `evt_xyz789`
+*   **Timestamp (UTC):** `2024-05-10T14:32:00Z`
+
+**Target**
+*   **Repository:** `delmacy/gestaotecnica`
+*   **Base Branch:** `main`
+*   **Target Branch:** `feat/example-feature`
+
+**Execution Evidence**
+*   **Commit SHA:** `7647418a90123...`
+*   **PR Number:** `#257`
+*   **Command Receipt:** `N/A`
+
+**Verification State**
+*   **Checks Evidence Status:** `OBSERVED`
+*   **Checks Observed Value:** `SUCCESS`
+*   **Review Evidence Status:** `OBSERVED`
+*   **Review Observed Value:** `APPROVED`
+*   **Merge Evidence Status:** `PROPOSED`
+*   **Merge Observed Value:** `N/A`
+
+**Notes:**
+*   All checks passed according to GitHub Actions UI. PR is approved and awaiting manual merge.
+```
+
+## 7. Prohibitions
 
 1.  **NO FABRICATION:** Never invent PR numbers, commit SHAs, Event IDs, Session IDs, or Task IDs. If unknown, state `UNKNOWN` or `N/A`.
 2.  **NO HALLUCINATED SUCCESS:** Never claim checks passed, a PR was reviewed, a PR was merged, or a bridge consumed a command without explicit, verifiable artifacts.
 3.  **NEUTRALITY:** This contract remains implementation-neutral. It does not dictate database designs, event stores, or claim unsupported product behaviors.
 
-## 7. Handling Missing or Inaccessible Evidence
+## 8. Handling Missing or Inaccessible Evidence
 
 When evidence cannot be retrieved:
 1.  Do not guess the outcome.

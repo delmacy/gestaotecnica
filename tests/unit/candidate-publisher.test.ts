@@ -1,3 +1,5 @@
+
+import { TraceReceiptService } from "../../src/features/platform/gateway/trace-receipt/trace-receipt.service";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { publishApprovedCandidate, type PublisherRepositoryPort } from "../../src/features/builder/candidates/candidate.publisher";
@@ -99,12 +101,27 @@ function createMockRepository(
   };
 }
 
+
+let traceReceiptsGenerated: any[] = [];
+const mockTraceReceiptService = {
+  createAndAppendReceipt: async (db: any, input: any) => {
+    traceReceiptsGenerated.push(input);
+    return { id: "test-receipt-id" } as any;
+  },
+  getReceiptById: async () => null,
+  getReceiptsByCorrelationId: async () => [],
+} as unknown as TraceReceiptService;
+
+const errorMockService = {
+  createAndAppendReceipt: async () => { throw new Error("DB Error"); }
+} as unknown as TraceReceiptService;
+
 const dummyDb = {} as CandidateRepositoryDb;
 
 test("Candidate aprovado gera definição oficial e atualiza status", async () => {
   const repo = createMockRepository(createBaseCandidate());
 
-  const result = await publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo);
+  const result = await publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService);
 
   assert.equal(result.processVersionId, "new-process-version-id");
   assert.equal(result.sourceCandidateId, validCandidateId);
@@ -113,13 +130,20 @@ test("Candidate aprovado gera definição oficial e atualiza status", async () =
   assert.ok(definition !== null, "definition should not be null");
   assert.equal(definition.name, "Test Process");
   assert.equal(definition.sourceCandidateId, validCandidateId, "A referência ao Candidate de origem deve ser preservada");
+
   assert.equal(definition.workspaceId, validWorkspaceId, "A definição publicada deve pertencer ao mesmo workspace");
+  assert.equal(traceReceiptsGenerated.length, 1);
+  const generatedReceipt = traceReceiptsGenerated[0];
+  assert.equal(generatedReceipt.subject.id, result.processDefinitionId);
+  assert.equal(generatedReceipt.metadata.processVersionId, result.processVersionId);
+  assert.equal(generatedReceipt.metadata.sourceCandidateId, result.sourceCandidateId);
+
 });
 
 test("Candidate inexistente é recusado", async () => {
   const repo = createMockRepository(null);
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     CandidateNotFoundError
   );
 });
@@ -130,7 +154,7 @@ test("Workspace divergente é recusado", async () => {
   const repo = createMockRepository(candidate);
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     CandidateWorkspaceMismatchError
   );
   assert.equal(repo.getCandidateState()?.status, "approved");
@@ -142,7 +166,7 @@ test("Candidate draft é recusado", async () => {
   const repo = createMockRepository(candidate);
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     InvalidCandidateTransitionError
   );
 });
@@ -153,7 +177,7 @@ test("Candidate under_analysis é recusado", async () => {
   const repo = createMockRepository(candidate);
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     InvalidCandidateTransitionError
   );
 });
@@ -164,7 +188,7 @@ test("Candidate waiting_review é recusado", async () => {
   const repo = createMockRepository(candidate);
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     InvalidCandidateTransitionError
   );
 });
@@ -175,7 +199,7 @@ test("Candidate rejected é recusado", async () => {
   const repo = createMockRepository(candidate);
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     InvalidCandidateTransitionError
   );
 });
@@ -186,7 +210,7 @@ test("Candidate published não é publicado novamente", async () => {
   const repo = createMockRepository(candidate);
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     CandidateAlreadyPublishedError
   );
 });
@@ -197,7 +221,7 @@ test("Payload vazio é recusado", async () => {
   const repo = createMockRepository(candidate);
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     InvalidProposedDefinitionError
   );
 });
@@ -208,7 +232,7 @@ test("Payload inválido (ex: sem nós) é recusado", async () => {
   const repo = createMockRepository(candidate);
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     InvalidProposedDefinitionError
   );
 });
@@ -218,7 +242,7 @@ test("Falha ao salvar workflow preserva Candidate como approved", async () => {
   const repo = createMockRepository(candidate, { failPublish: true });
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     WorkflowPublicationFailedError
   );
 
@@ -232,7 +256,7 @@ test("Payload estruturalmente incompleto é recusado sem expor erro interno", as
   const repo = createMockRepository(candidate);
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     InvalidProposedDefinitionError,
   );
 });
@@ -242,7 +266,7 @@ test("Falha ao atualizar status reverte a definição criada", async () => {
   const repo = createMockRepository(candidate, { failStatusUpdate: true });
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     CandidatePublicationConflictError,
   );
 
@@ -254,10 +278,29 @@ test("Violação única concorrente é traduzida para CandidateAlreadyPublishedE
   const repo = createMockRepository(createBaseCandidate(), { uniqueViolation: true });
 
   await assert.rejects(
-    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo),
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService),
     CandidateAlreadyPublishedError,
   );
 
   assert.equal(repo.getCandidateState()?.status, "approved");
   assert.equal(repo.getPublishedDefinition(), null);
+});
+
+
+test("Falha ao salvar trace receipt rejeita a operacao e da throw", async () => {
+  const repo = createMockRepository(createBaseCandidate());
+
+  await assert.rejects(
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, errorMockService),
+    (err: any) => {
+      assert.strictEqual(err.message, "Failed to publish workflow definition");
+      return true;
+    }
+  );
+
+  // Verificacao de Rollback
+  const currentState = repo.getCandidateState();
+  assert.equal(currentState?.status, "approved", "Candidate deveria permanecer 'approved' apos rollback");
+  const definition = repo.getPublishedDefinition();
+  assert.equal(definition, null, "Definicao nao deveria ser persistida apos rollback");
 });

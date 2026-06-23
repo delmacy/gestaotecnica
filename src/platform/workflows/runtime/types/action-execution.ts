@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UUIDSchema, WorkspaceIdSchema, ISODateTimeSchema, UnknownRecordSchema, CorrelationIdSchema, CausationIdSchema } from "../../../contracts";
+import { UUIDSchema, WorkspaceIdSchema, ISODateTimeSchema, SafeJsonRecordSchema, CorrelationIdSchema, CausationIdSchema } from "../../../contracts";
 
 export const ActionExecutionStatusSchema = z.enum([
   "pending",
@@ -24,10 +24,10 @@ export const ActionExecutionSchema = z.object({
    */
   actionKey: z.string().min(1),
   actorId: UUIDSchema.nullable(),
-  inputPayload: UnknownRecordSchema.optional(),
-  outputPayload: UnknownRecordSchema.optional(),
+  inputPayload: SafeJsonRecordSchema.optional(),
+  outputPayload: SafeJsonRecordSchema.optional(),
   status: ActionExecutionStatusSchema,
-  error: z.union([UnknownRecordSchema, z.string()]).nullable().optional(),
+  error: z.union([SafeJsonRecordSchema, z.string()]).nullable().optional(),
   startedAt: ISODateTimeSchema,
   finishedAt: ISODateTimeSchema.nullable().optional(),
   /**

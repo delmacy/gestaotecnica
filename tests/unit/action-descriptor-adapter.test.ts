@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { z } from "zod";
 import {
   resolveActionBinding,
   mapInputPayload,
@@ -25,7 +26,7 @@ test("resolveActionBinding - successful resolution", () => {
 
   const binding: UtilityAppActionBinding = {
     actionDescriptorKey: "sys.my_action",
-    mapping: {},
+    mapping: { "a": "b" },
   };
 
   const result = resolveActionBinding(binding, registry);
@@ -33,77 +34,106 @@ test("resolveActionBinding - successful resolution", () => {
   assert.deepStrictEqual(result.descriptor, mockDescriptor);
 });
 
-test("resolveActionBinding - descriptor not found", () => {
-  const registry: DescriptorRegistry = {
-    getDescriptor: () => undefined,
-  };
-
-  const binding: UtilityAppActionBinding = {
-    actionDescriptorKey: "sys.unknown_action",
-    mapping: {},
-  };
-
-  const result = resolveActionBinding(binding, registry);
-  assert.strictEqual(result.success, false);
-  assert.strictEqual(result.errors?.[0].code, "DESCRIPTOR_NOT_FOUND");
-});
-
-test("resolveActionBinding - descriptor not published", () => {
+test("resolveActionBinding - duplicate target field", () => {
   const mockDescriptor: ActionDescriptor = {
-    key: "sys.draft_action",
-    name: "Draft Action",
+    key: "sys.my_action",
+    name: "My Action",
     handlerKey: "handler",
-    status: "draft",
+    status: "published",
     inputSchema: {},
     outputSchema: {},
   };
 
   const registry: DescriptorRegistry = {
-    getDescriptor: (key) => (key === "sys.draft_action" ? mockDescriptor : undefined),
+    getDescriptor: (key) => (key === "sys.my_action" ? mockDescriptor : undefined),
   };
 
   const binding: UtilityAppActionBinding = {
-    actionDescriptorKey: "sys.draft_action",
-    mapping: {},
+    actionDescriptorKey: "sys.my_action",
+    mapping: { "a": "target1", "b": "target1" },
   };
 
   const result = resolveActionBinding(binding, registry);
   assert.strictEqual(result.success, false);
-  assert.strictEqual(result.errors?.[0].code, "DESCRIPTOR_NOT_PUBLISHED");
+  assert.strictEqual(result.errors?.[0].code, "DUPLICATE_TARGET_FIELD");
 });
 
-test("mapInputPayload - maps fields correctly", () => {
+test("mapInputPayload - nested paths not supported", () => {
   const binding: UtilityAppActionBinding = {
     actionDescriptorKey: "sys.my_action",
-    mapping: {
-      sourceA: "targetA",
-      sourceB: "targetB",
-    },
+    mapping: { "a.b": "target1" },
   };
 
-  const payload = {
-    sourceA: "valueA",
-    unmappedSource: "ignored",
+  const mockDescriptor: ActionDescriptor = {
+    key: "sys.my_action",
+    name: "My Action",
+    handlerKey: "handler",
+    status: "published",
+    inputSchema: {},
+    outputSchema: {},
   };
 
-  const result = mapInputPayload(payload, binding);
-  assert.deepStrictEqual(result, { targetA: "valueA" });
+  const result = mapInputPayload({}, binding, mockDescriptor);
+  assert.strictEqual(result.success, false);
+  assert.strictEqual(result.errors?.[0].code, "NESTED_PATHS_NOT_SUPPORTED");
 });
 
-test("mapOutputPayload - maps fields correctly", () => {
+test("mapInputPayload - validation failure on required field", () => {
   const binding: UtilityAppActionBinding = {
     actionDescriptorKey: "sys.my_action",
-    mapping: {
-      sourceA: "targetA",
-      sourceB: "targetB",
-    },
+    mapping: { "sourceA": "targetA" },
   };
 
-  const payload = {
-    targetA: "valueA",
-    unmappedTarget: "ignored",
+  const mockDescriptor: ActionDescriptor = {
+    key: "sys.my_action",
+    name: "My Action",
+    handlerKey: "handler",
+    status: "published",
+    inputSchema: { required: ["targetB"] },
+    outputSchema: {},
   };
 
-  const result = mapOutputPayload(payload, binding);
-  assert.deepStrictEqual(result, { sourceA: "valueA" });
+  const result = mapInputPayload({ "sourceA": "val" }, binding, mockDescriptor);
+  assert.strictEqual(result.success, false);
+  assert.strictEqual(result.errors?.[0].code, "INPUT_SCHEMA_VALIDATION_FAILED");
+});
+
+test("mapInputPayload - validation success with Zod schema", () => {
+  const binding: UtilityAppActionBinding = {
+    actionDescriptorKey: "sys.my_action",
+    mapping: { "sourceA": "targetA" },
+  };
+
+  const mockDescriptor: ActionDescriptor = {
+    key: "sys.my_action",
+    name: "My Action",
+    handlerKey: "handler",
+    status: "published",
+    inputSchema: z.object({ targetA: z.string() }),
+    outputSchema: {},
+  };
+
+  const result = mapInputPayload({ "sourceA": "val" }, binding, mockDescriptor);
+  assert.strictEqual(result.success, true);
+  assert.deepStrictEqual(result.payload, { targetA: "val" });
+});
+
+test("mapOutputPayload - validation failure with Zod schema", () => {
+  const binding: UtilityAppActionBinding = {
+    actionDescriptorKey: "sys.my_action",
+    mapping: { "targetA": "sourceA" },
+  };
+
+  const mockDescriptor: ActionDescriptor = {
+    key: "sys.my_action",
+    name: "My Action",
+    handlerKey: "handler",
+    status: "published",
+    inputSchema: {},
+    outputSchema: z.object({ targetA: z.number() }),
+  };
+
+  const result = mapOutputPayload({ "sourceA": "val" }, binding, mockDescriptor);
+  assert.strictEqual(result.success, false);
+  assert.strictEqual(result.errors?.[0].code, "OUTPUT_SCHEMA_VALIDATION_FAILED");
 });

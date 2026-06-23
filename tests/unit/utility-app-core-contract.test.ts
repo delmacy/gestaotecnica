@@ -27,6 +27,7 @@ test("UtilityAppDefinitionSchema - valid complete definition", () => {
   const complete = {
     ...validBase,
     description: "A useful utility app",
+    actionBindings: [{ actionDescriptorKey: "sys.my_action", mapping: { "in": "out" } }],
     capabilityKeys: ["cap-1", "cap-2"],
     tags: ["tag1", "tag2"],
   };

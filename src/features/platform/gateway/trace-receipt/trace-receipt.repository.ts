@@ -1,12 +1,21 @@
+
 import { eq } from "drizzle-orm";
 import { traceReceipts } from "@/db/runtime/schema/traceability";
 import type { DbClient } from "@/db";
-import type { TraceReceipt } from "@/platform/documents/traceability/contracts";
+import { TraceReceiptSchema, type TraceReceipt } from "@/platform/documents/traceability/contracts";
+
 
 export interface TraceReceiptRepositoryPort {
   append(db: DbClient, receipt: TraceReceipt): Promise<void>;
   findById(db: DbClient, id: string): Promise<TraceReceipt | null>;
   findByCorrelationId(db: DbClient, correlationId: string): Promise<TraceReceipt[]>;
+}
+
+
+function mapRecordToReceipt(record: { data: unknown }): TraceReceipt | null {
+  if (!record || !record.data) return null;
+  const result = TraceReceiptSchema.safeParse(record.data);
+  return result.success ? result.data : null;
 }
 
 export const drizzleTraceReceiptRepository: TraceReceiptRepositoryPort = {
@@ -30,7 +39,7 @@ export const drizzleTraceReceiptRepository: TraceReceiptRepositoryPort = {
       .where(eq(traceReceipts.id, id))
       .limit(1);
 
-    return record ? (record.data as TraceReceipt) : null;
+    return record ? mapRecordToReceipt(record) : null;
   },
 
   async findByCorrelationId(db: DbClient, correlationId: string): Promise<TraceReceipt[]> {
@@ -39,6 +48,6 @@ export const drizzleTraceReceiptRepository: TraceReceiptRepositoryPort = {
       .from(traceReceipts)
       .where(eq(traceReceipts.correlationId, correlationId));
 
-    return records.map((record: { data: unknown }) => record.data as TraceReceipt);
+    return records.map(mapRecordToReceipt).filter((r: unknown): r is TraceReceipt => r !== null);
   },
 };

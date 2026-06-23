@@ -272,3 +272,21 @@ test("Violação única concorrente é traduzida para CandidateAlreadyPublishedE
   assert.equal(repo.getCandidateState()?.status, "approved");
   assert.equal(repo.getPublishedDefinition(), null);
 });
+
+
+test("Falha ao salvar trace receipt rejeita a operacao e da throw", async () => {
+  const repo = createMockRepository(createBaseCandidate());
+  const errorMockService = {
+    createAndAppendReceipt: async () => { throw new Error("DB Error"); }
+  } as unknown as TraceReceiptService;
+
+
+  await assert.rejects(
+    () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, errorMockService),
+    (err: any) => {
+      assert.strictEqual(err.message, "Failed to publish workflow definition");
+      return true;
+    }
+  );
+
+});

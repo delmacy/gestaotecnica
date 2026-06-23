@@ -102,12 +102,18 @@ function createMockRepository(
 }
 
 
+let traceReceiptsGenerated: any[] = [];
 const mockTraceReceiptService = {
   createAndAppendReceipt: async (db: any, input: any) => {
+    traceReceiptsGenerated.push(input);
     return { id: "test-receipt-id" } as any;
   },
   getReceiptById: async () => null,
   getReceiptsByCorrelationId: async () => [],
+} as unknown as TraceReceiptService;
+
+const errorMockService = {
+  createAndAppendReceipt: async () => { throw new Error("DB Error"); }
 } as unknown as TraceReceiptService;
 
 const dummyDb = {} as CandidateRepositoryDb;
@@ -124,7 +130,14 @@ test("Candidate aprovado gera definição oficial e atualiza status", async () =
   assert.ok(definition !== null, "definition should not be null");
   assert.equal(definition.name, "Test Process");
   assert.equal(definition.sourceCandidateId, validCandidateId, "A referência ao Candidate de origem deve ser preservada");
+
   assert.equal(definition.workspaceId, validWorkspaceId, "A definição publicada deve pertencer ao mesmo workspace");
+  assert.equal(traceReceiptsGenerated.length, 1);
+  const generatedReceipt = traceReceiptsGenerated[0];
+  assert.equal(generatedReceipt.subject.id, result.processDefinitionId);
+  assert.equal(generatedReceipt.metadata.processVersionId, result.processVersionId);
+  assert.equal(generatedReceipt.metadata.sourceCandidateId, result.sourceCandidateId);
+
 });
 
 test("Candidate inexistente é recusado", async () => {
@@ -276,10 +289,6 @@ test("Violação única concorrente é traduzida para CandidateAlreadyPublishedE
 
 test("Falha ao salvar trace receipt rejeita a operacao e da throw", async () => {
   const repo = createMockRepository(createBaseCandidate());
-  const errorMockService = {
-    createAndAppendReceipt: async () => { throw new Error("DB Error"); }
-  } as unknown as TraceReceiptService;
-
 
   await assert.rejects(
     () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, errorMockService),
@@ -289,4 +298,9 @@ test("Falha ao salvar trace receipt rejeita a operacao e da throw", async () => 
     }
   );
 
+  // Verificacao de Rollback
+  const currentState = repo.getCandidateState();
+  assert.equal(currentState?.status, "approved", "Candidate deveria permanecer 'approved' apos rollback");
+  const definition = repo.getPublishedDefinition();
+  assert.equal(definition, null, "Definicao nao deveria ser persistida apos rollback");
 });

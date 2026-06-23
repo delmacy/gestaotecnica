@@ -36,6 +36,7 @@ Process Mirroring
 | `enablement/` | Instruções, checklists e treinamento por papel |
 | `registry/` | Índice oficial de capabilities |
 | `ui/`, `workflow/`, `runtime/`, `integrations/` | Contratos das superfícies e execução futura |
+| `system-builder/` | System Builder autonomy loop and orchestration event lifecycle |
 | `archive/` | Histórico preservado; não é board operacional atual |
 
 Comece por `PROJECT_MANIFEST.md`, `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md` e `GLOBAL_WORK_BOARD.md`.

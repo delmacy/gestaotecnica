@@ -3,7 +3,7 @@ import {
   EntityIdSchema,
   WorkspaceIdSchema,
   ISODateTimeSchema,
-  UnknownRecordSchema,
+  SafeJsonRecordSchema,
 } from "@/platform/contracts";
 import { ProcessDefinitionKeySchema } from "./process-definition-key";
 import { ProcessNodeSchema, ProcessEdgeSchema } from "./process-node-edge";
@@ -48,7 +48,7 @@ export const ProcessDefinitionSchema = z
     publishedVersionId: EntityIdSchema.optional(),
     blueprintKey: z.string().min(1).optional(),
     blueprintVersion: z.number().int().positive().optional(),
-    metadata: UnknownRecordSchema.optional(),
+    metadata: SafeJsonRecordSchema.optional(),
   })
   .strict();
 
@@ -123,7 +123,7 @@ export const ProcessVersionSchema = z
     publishedAt: ISODateTimeSchema.optional(),
     publishedById: EntityIdSchema.optional(),
     changeSummary: z.string().optional(),
-    metadata: UnknownRecordSchema.optional(),
+    metadata: SafeJsonRecordSchema.optional(),
   })
   .strict()
   .superRefine((data, ctx) => {

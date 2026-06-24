@@ -8,16 +8,16 @@ This document explains the current operational semantics of the Builder Registry
 
 The Action Registry is populated via a two-step initialization phase managed by the platform kernel:
 
-1. **Kernel Initialization**: When the application boots, the `PlatformKernel` spins up.
-2. **Registration**: Services explicitly register their `ActionDefinition` entries into the kernel's in-memory registry via `kernel.actions.register()`.
+1. **Kernel Initialization**: When the application boots, it calls `initializePlatformKernel()`.
+2. **Registration**: Services explicitly register their `ActionDefinition` entries into the kernel's in-memory registry via `registerAction()`.
 
-The UI component (Registry View) subsequently fetches these registered descriptors and renders them. The data observed in the view strictly mirrors the `ActionDescriptor` metadata populated during these initial registrations.
+The UI component (Registry View) subsequently consumes `listActions()` to fetch these registered definitions and renders them. The data observed in the view strictly mirrors the metadata populated during these initial registrations.
 
 ## Scope of Verification (What it Proves)
 
 The presence of an action in the Registry View proves:
 
-- An `ActionDescriptor` adhering to the `ActionDescriptorSchema` was successfully parsed.
+- An `ActionDefinition` was successfully parsed.
 - The action was properly registered into the platform kernel at boot time.
 - The UI can successfully query and display the read-only metadata of the registered actions.
 

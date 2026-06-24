@@ -7,14 +7,22 @@ import { RegistryItemCard } from './RegistryItemCard';
 import { RegistryDetailPanel } from './RegistryDetailPanel';
 import { RegistryFilters } from './RegistryFilters';
 
-export function RegistryView() {
+interface RegistryViewProps {
+  realItems?: RegistryItem[];
+}
+
+export function RegistryView({ realItems = [] }: RegistryViewProps) {
   const [selectedItem, setSelectedItem] = useState<RegistryItem | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
 
+  const combinedData = useMemo(() => {
+    return [...realItems, ...mockRegistryData];
+  }, [realItems]);
+
   const filteredData = useMemo(() => {
-    return mockRegistryData.filter((item) => {
+    return combinedData.filter((item) => {
       const matchesSearch =
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.slug.toLowerCase().includes(searchTerm.toLowerCase());
@@ -24,7 +32,9 @@ export function RegistryView() {
 
       return matchesSearch && matchesType && matchesStatus;
     });
-  }, [searchTerm, selectedType, selectedStatus]);
+  }, [combinedData, searchTerm, selectedType, selectedStatus]);
+
+  const isMixedData = realItems.length > 0;
 
   return (
     <div className="flex flex-col h-full bg-background relative overflow-hidden">
@@ -36,9 +46,15 @@ export function RegistryView() {
             <span className="text-xs font-medium bg-muted text-muted-foreground px-2 py-1 rounded-md border">
               Read-Only
             </span>
-            <span className="text-xs font-medium bg-purple-100 text-purple-800 px-2 py-1 rounded-md border border-purple-200">
-              Mock Mode
-            </span>
+            {isMixedData ? (
+              <span className="text-xs font-medium bg-indigo-100 text-indigo-800 px-2 py-1 rounded-md border border-indigo-200">
+                Mixed Data
+              </span>
+            ) : (
+              <span className="text-xs font-medium bg-purple-100 text-purple-800 px-2 py-1 rounded-md border border-purple-200">
+                Mock Mode
+              </span>
+            )}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Catálogo técnico de capabilities, dependências e contratos do System Builder.

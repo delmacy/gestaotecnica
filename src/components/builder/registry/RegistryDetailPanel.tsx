@@ -72,7 +72,7 @@ export function RegistryDetailPanel({ item, onClose }: RegistryDetailPanelProps)
           {item.notes && (
             <div className="bg-muted/50 p-3 rounded-md text-sm">
               <h4 className="font-semibold mb-1 text-xs text-muted-foreground">Notes</h4>
-              <p>{item.notes}</p>
+              <p className="whitespace-pre-line">{item.notes}</p>
             </div>
           )}
         </section>

@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 import { z } from "zod";
-import { createPayloadSchema } from "../../../src/platform/actions/contracts/payload-schema";
+import { createPayloadSchema } from "../../src/platform/actions/contracts/payload-schema";
 
 describe("Action Payload Schema Generator", () => {
   test("accepts valid primitive and nested definitions", () => {

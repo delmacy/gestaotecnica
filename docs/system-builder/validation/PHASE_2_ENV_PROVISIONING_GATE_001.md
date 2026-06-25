@@ -7,7 +7,7 @@ This document defines the strict gate required before Phase 2 Persistence can be
 The objective of this gate is to specify the exact environment variables, service dependencies, and validation commands that the target environment (both local sandbox and CI/CD pipelines) must provision before executing operations that mutate the database or require browser runtimes.
 
 **Task:** TASK-SB-PHASE-2-ENV-PROVISIONING-GATE-001
-**GitHub Issue:** Metadata to be tracked/updated against the environment setup issue.
+**GitHub Issue:** not created in this PR; pending Phase 2 entry-package/task tracking.
 
 ## 2. Environment Variables Requirements
 

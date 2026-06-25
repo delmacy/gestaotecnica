@@ -94,3 +94,13 @@ export const ActionDescriptorSchema = z
   });
 
 export type ActionDescriptor = z.infer<typeof ActionDescriptorSchema>;
+
+/**
+ * Validates an action descriptor against the canonical contract.
+ * @param descriptor The object to validate.
+ * @returns The validated ActionDescriptor.
+ * @throws z.ZodError if the descriptor is invalid according to the schema.
+ */
+export function validateActionDescriptor(descriptor: unknown): ActionDescriptor {
+  return ActionDescriptorSchema.parse(descriptor);
+}

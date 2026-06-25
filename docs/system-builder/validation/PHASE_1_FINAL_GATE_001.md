@@ -8,9 +8,14 @@ This document represents the final gate for Phase 1 Consolidation (TASK-SB-PHASE
 
 The execution of Phase 1 generated several validation and diagnostic reports:
 
-- **#290 / #291 / #292 / #293 (Diagnostics & Baseline):** Produced the State Diagnostic (`PHASE_1_STATE_DIAGNOSTIC_001.md`), Actions Baseline (`PHASE_1_ACTIONS_BASELINE_001.md`), Env Bootstrap Inventory (`PHASE_1_ENV_BOOTSTRAP_INVENTORY_001.md`), and Doc State Reconciliation (`PHASE_1_DOC_STATE_RECONCILIATION_001.md`). These established the real state of the repository, confirming discrepancies between tracking documents (like `WORK_BOARD.md`) and the actual implementation, and set baselines for action descriptors and environment variables.
-- **#294 / #295 / #296 (Build & Test Gate):** Executed and documented the core validation checks (`PHASE_1_BUILD_TEST_GATE_001.md`). Successfully passed linting, typechecking (`tsc --noEmit`), unit tests (except those requiring git history/DB), architecture checks, and build processes. E2E and DB-dependent tests failed purely due to the sandbox environment lacking Playwright and a database.
-- **#297 (Bootstrap Gate):** Attempted database schemas and bootstrap validation (`PHASE_1_BOOTSTRAP_GATE_001.md`). Validated Drizzle migrations safely without data loss, but bootstrap execution (`db:bootstrap`) was blocked (`ECONNREFUSED`) due to the lack of an active Postgres instance in the execution sandbox.
+- **#290:** Plan Master `docs/00-current/PLANO_MESTRE_PROXIMAS_FASES.md`.
+- **#291:** State Diagnostic `PHASE_1_STATE_DIAGNOSTIC_001.md`.
+- **#292:** Actions Baseline `PHASE_1_ACTIONS_BASELINE_001.md`.
+- **#293:** Env Bootstrap Inventory `PHASE_1_ENV_BOOTSTRAP_INVENTORY_001.md`.
+- **#294:** Doc State Reconciliation `PHASE_1_DOC_STATE_RECONCILIATION_001.md`.
+- **#295:** PR/Branch Hygiene Runbook `PR_BRANCH_HYGIENE_RUNBOOK.md`.
+- **#296:** Build and Test Gate `PHASE_1_BUILD_TEST_GATE_001.md`. Successfully passed linting, typechecking, unit tests, and build processes.
+- **#297:** Bootstrap Gate `PHASE_1_BOOTSTRAP_GATE_001.md`. Validated migrations safely.
 
 ## 3. Pull Request Dispositions
 

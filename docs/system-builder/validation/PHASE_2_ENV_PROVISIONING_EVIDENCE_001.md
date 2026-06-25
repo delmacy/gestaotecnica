@@ -14,43 +14,33 @@ RUNTIME_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres"
 ## 3. Playwright Constraint
 Playwright binaries are now provided via the standard workflow command `npx playwright install`. A new CI workflow has been introduced to ensure dependencies are loaded via `npx playwright install --with-deps`.
 
-## 4. Execution Evidence
+## 4. Execution Evidence (GitHub Actions CI)
 
-### 4.1. npx playwright install
+A new CI workflow `.github/workflows/main-tests.yml` was created to provide a completely clean, isolated, and working test environment. It successfully provisions a postgres service and installs playwright.
+
+### 4.1. Postgres Health & Playwright Install
 **Status:** SUCCESS
-**Receipt:**
-```
-Downloading Chrome for Testing 148.0.7778.96
-Downloading Chrome Headless Shell 148.0.7778.96
-Downloading Firefox 150.0.2
-Downloading WebKit 26.4
-```
+The workflow successfully established a healthy Postgres service on port 5432 and executed `npx playwright install` with required dependencies.
 
-### 4.2. npm run db:bootstrap & db:push
-**Status:** BLOCKED (due to lack of test database in sandbox)
-**Receipt:**
-```
-Error creating schemas: AggregateError [ECONNREFUSED]:
-    at internalConnectMultiple (node:net:1134:18)
-    at afterConnectMultiple (node:net:1715:7) {
-  code: 'ECONNREFUSED',
-  [errors]: [
-    Error: connect ECONNREFUSED ::1:5432
-```
+### 4.2. db:bootstrap & db:validate
+**Status:** SUCCESS
+The workflow successfully established the database connection and executed the schema bootstrap and Drizzle validation steps without errors.
 
-### 4.3. npm run test:integration & test:e2e
-**Status:** BLOCKED (due to lack of test database in sandbox)
-**Receipt:**
-```
-Error: Failed query: insert into "builder"."process_candidates" ...
-[cause]: PostgresError: relation "builder.process_candidates" does not exist
-```
+### 4.3. db:push & Schema Application
+**Status:** BLOCKED / PENDING CI RETRY
+Previous test execution runs revealed that `test:integration` failed because tables were not created before tests (`relation "workspace.workspaces" does not exist`). The workflow has been updated to include `npm run db:push` after `db:validate` to ensure schema tables are applied correctly before running tests.
+
+### 4.4. test:integration
+**Status:** BLOCKED / PENDING CI RETRY
+Execution failed previously due to missing relations. A deterministic timeout of 10 minutes has been applied to this step to prevent indefinite hanging, and it awaits the updated schema push fix.
+
+### 4.5. test:e2e
+**Status:** PENDING
+Execution is dependent on the prior steps completing successfully. A deterministic 10-minute timeout has been applied.
 
 ## 5. Known Constraints and Blockers
-- The sandbox does not natively have an active PostgreSQL database out of the box. Attempts to connect resulted in `ECONNREFUSED` connection failures.
-- A new GitHub Actions CI workflow `.github/workflows/main-tests.yml` was created to provide a completely clean, isolated, and working test environment. It will start a postgres service, install playwright, bootstrap schemas, validate db, and run integration + e2e tests.
-- A minimal `docker-compose.yml` was provided for local instances that do not face sandbox constraints.
+- The local sandbox does not natively have an active PostgreSQL database out of the box. Attempts to connect resulted in `ECONNREFUSED` connection failures. A minimal `docker-compose.yml` was provided for local instances that do not face sandbox constraints.
 
 ## 6. Resolution
-**Status:** BLOCKED / PENDING CI EVIDENCE
-Phase 2 environment gating remains blocked locally due to the lack of a fully provisioned database connection (`ECONNREFUSED`). While the workflow and runbook additions establish the required infrastructure for provisioning Postgres and Playwright, full resolution depends on demonstrable CI evidence.
+**Status:** BLOCKED / IN PROGRESS
+Phase 2 environment gating remains blocked. While the infrastructure for provisioning Postgres and Playwright has been established via the CI workflow, the validation cannot be fully accepted until the schema is successfully applied via `db:push` and integration/e2e tests execute conclusively without missing relation errors or hanging.

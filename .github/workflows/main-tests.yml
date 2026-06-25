@@ -52,7 +52,11 @@ jobs:
         run: npm run db:bootstrap
       - name: Validate Migrations
         run: npm run db:validate
+      - name: Push Schema to Database
+        run: npm run db:push
       - name: Run Integration Tests
         run: npm run test:integration
+        timeout-minutes: 10
       - name: Run E2E Tests
         run: npm run test:e2e
+        timeout-minutes: 10

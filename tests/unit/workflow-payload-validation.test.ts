@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { validateWorkflowPayload } from "./payload-validation";
+import { validateWorkflowPayload } from "../../src/platform/workflows/validation/payload-validation";
 import { randomUUID } from "node:crypto";
 
 describe("validateWorkflowPayload", () => {

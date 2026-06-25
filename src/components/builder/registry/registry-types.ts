@@ -1,5 +1,6 @@
 export type RegistryItemType =
   | 'capability'
+  | 'action'
   | 'dependency_rule'
   | 'capability_model'
   | 'entity_model'

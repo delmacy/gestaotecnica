@@ -19,7 +19,7 @@ export function RegistryFilters({
 }: RegistryFiltersProps) {
 
   const itemTypes: RegistryItemType[] = [
-    'capability', 'dependency_rule', 'capability_model',
+    'capability', 'action', 'dependency_rule', 'capability_model',
     'entity_model', 'process_model', 'view_contract',
     'decision', 'document_contract'
   ];

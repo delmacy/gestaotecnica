@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EntityIdSchema, UnknownRecordSchema } from "@/platform/contracts";
+import { EntityIdSchema, SafeJsonRecordSchema } from "@/platform/contracts";
 import { ProcessDefinitionKeySchema } from "./process-definition-key";
 
 /**
@@ -37,12 +37,12 @@ export const ProcessNodeSchema = z
     type: ProcessNodeTypeSchema,
     name: z.string().min(1).max(200),
     position: ProcessNodePositionSchema,
-    config: UnknownRecordSchema,
+    config: SafeJsonRecordSchema,
     description: z.string().max(2000).optional(),
     actionKey: z.string().min(1).optional(),
     formKey: z.string().min(1).optional(),
     subprocessDefinitionKey: ProcessDefinitionKeySchema.optional(),
-    metadata: UnknownRecordSchema.optional(),
+    metadata: SafeJsonRecordSchema.optional(),
   })
   .strict()
   .superRefine((data, ctx) => {
@@ -85,7 +85,7 @@ export const ProcessEdgeConditionSchema = z
     expression: z.string().min(1).max(4000),
     language: z.enum(["expression", "json_logic"]),
     description: z.string().max(1000).optional(),
-    metadata: UnknownRecordSchema.optional(),
+    metadata: SafeJsonRecordSchema.optional(),
   })
   .strict();
 export type ProcessEdgeCondition = z.infer<typeof ProcessEdgeConditionSchema>;
@@ -102,7 +102,7 @@ export const ProcessEdgeSchema = z
     priority: z.number().int().min(0),
     name: z.string().min(1).max(200).optional(),
     condition: ProcessEdgeConditionSchema.optional(),
-    metadata: UnknownRecordSchema.optional(),
+    metadata: SafeJsonRecordSchema.optional(),
   })
   .strict()
   .superRefine((data, ctx) => {

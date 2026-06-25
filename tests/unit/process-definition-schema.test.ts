@@ -187,3 +187,72 @@ test("ProcessVersion - metadata valid", () => {
 test("ProcessVersion - timestamps invalid", () => {
   assert.strictEqual(ProcessVersionSchema.safeParse({ ...validVersionBase, createdAt: "2023-10-27" }).success, false);
 });
+
+test("ProcessVersion - rejects duplicate node IDs", () => {
+  const duplicateNode = {
+    ...validVersionBase,
+    definition: {
+      schemaVersion: "1",
+      nodes: [
+        { id: "1", key: "node-1", type: "start", name: "Start", position: { x: 0, y: 0 }, config: {} },
+        { id: "1", key: "node-2", type: "end", name: "End", position: { x: 10, y: 10 }, config: {} }
+      ],
+      edges: []
+    }
+  };
+  const result = ProcessVersionSchema.safeParse(duplicateNode);
+  assert.strictEqual(result.success, false);
+});
+
+test("ProcessVersion - rejects duplicate edge IDs", () => {
+  const duplicateEdge = {
+    ...validVersionBase,
+    definition: {
+      schemaVersion: "1",
+      nodes: [
+        { id: "1", key: "node-1", type: "start", name: "Start", position: { x: 0, y: 0 }, config: {} },
+        { id: "2", key: "node-2", type: "end", name: "End", position: { x: 10, y: 10 }, config: {} }
+      ],
+      edges: [
+        { id: "e1", sourceNodeId: "1", targetNodeId: "2", type: "default", priority: 0 },
+        { id: "e1", sourceNodeId: "1", targetNodeId: "2", type: "default", priority: 1 }
+      ]
+    }
+  };
+  const result = ProcessVersionSchema.safeParse(duplicateEdge);
+  assert.strictEqual(result.success, false);
+});
+
+test("ProcessVersion - rejects missing source node in edge", () => {
+  const missingSource = {
+    ...validVersionBase,
+    definition: {
+      schemaVersion: "1",
+      nodes: [
+        { id: "2", key: "node-2", type: "end", name: "End", position: { x: 10, y: 10 }, config: {} }
+      ],
+      edges: [
+        { id: "e1", sourceNodeId: "1", targetNodeId: "2", type: "default", priority: 0 }
+      ]
+    }
+  };
+  const result = ProcessVersionSchema.safeParse(missingSource);
+  assert.strictEqual(result.success, false);
+});
+
+test("ProcessVersion - rejects missing target node in edge", () => {
+  const missingTarget = {
+    ...validVersionBase,
+    definition: {
+      schemaVersion: "1",
+      nodes: [
+        { id: "1", key: "node-1", type: "start", name: "Start", position: { x: 0, y: 0 }, config: {} }
+      ],
+      edges: [
+        { id: "e1", sourceNodeId: "1", targetNodeId: "2", type: "default", priority: 0 }
+      ]
+    }
+  };
+  const result = ProcessVersionSchema.safeParse(missingTarget);
+  assert.strictEqual(result.success, false);
+});

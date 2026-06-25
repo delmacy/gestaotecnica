@@ -8,23 +8,23 @@ Este documento define os próximos candidatos de implementação para o System B
 
 ## Candidatos de Implementação (System Builder Platform)
 
-### Candidato 1: Implementação de Contratos de Validação para Workflows
-**Objetivo:** Criar um contrato base de validação em TypeScript para os workflows da plataforma, garantindo que as fronteiras do motor de workflow sejam estritas e tipadas.
-**Arquivos/Módulos Afetados:**
-- `src/platform/workflows/contracts/validation-contract.ts`
-- `src/platform/workflows/contracts/validation-contract.test.ts`
-**Evidência de Aceitação:** Testes unitários cobrindo o contrato base, verificando a rejeição de payloads inválidos e a aceitação de payloads válidos.
-**Comandos de Validação:** `npm run test` (focado no arquivo `validation-contract.test.ts`).
-**Limites Fora de Escopo:** Não implementar o motor de workflow em si. Não criar workflows específicos de negócio.
+### [ENTREGUE] Candidato 1: Implementação de Contratos de Validação para Workflows
+**Status:** Entregue via `d01d4d9 feat(workflow): implement process definition validation boundary` e PRs associados (#283-#287).
+**Objetivo Original:** Criar um contrato base de validação em TypeScript para os workflows da plataforma.
+*Nota: Este candidato não deve mais ser executado, pois as validações em `process-definition.ts` e `process-node-edge.ts` já foram implementadas e aprovadas.*
 
-### Candidato 2: Gerador de Schema de Payload de Ações
-**Objetivo:** Implementar um utilitário para gerar e validar schemas JSON estritos para payloads de Ações da plataforma, prevenindo injecções ou processamento de dados inseguros.
+### [DESCARTADO/DIVERGENTE] Candidato 2: Gerador de Schema de Payload de Ações
+**Status:** Descartado. A arquitetura seguiu um padrão diferente.
+**Motivo do Descarte:** A plataforma adotou o padrão de Registro Explícito de Ações via `initializePlatformKernel()` e `registerAction()` (conforme documentado em `ACTION_REGISTRY_OPERATOR_NOTES.md` e nos commits `f8c4f2d`, `5d25b25`), em vez de geração dinâmica de schemas de payload. O plano original divergiu da realidade técnica adotada.
+
+### [NOVO ESCOPO] Candidato 2.1: Contrato de Execução Base para Action Handlers
+**Objetivo:** Como o Action Registry atualmente exibe apenas metadados (conforme notas de operação), o próximo passo estrutural é definir o contrato de execução estrito (`ActionHandler` base) que essas definições poderão invocar futuramente.
 **Arquivos/Módulos Afetados:**
-- `src/platform/actions/contracts/schema-generator.ts`
-- `src/platform/actions/contracts/schema-generator.test.ts`
-**Evidência de Aceitação:** Testes unitários demonstrando a geração de schemas utilizando `SafeJsonRecordSchema` e a rejeição de definições inseguras.
-**Comandos de Validação:** `npm run test` (focado no arquivo `schema-generator.test.ts`).
-**Limites Fora de Escopo:** Não migrar ações existentes para o novo gerador neste momento. Não modificar o runner de ações.
+- `src/platform/actions/contracts/action-handler.ts`
+- `src/platform/actions/contracts/action-handler.test.ts`
+**Evidência de Aceitação:** Testes unitários garantindo que um handler genérico impõe limites estritos de entrada e saída.
+**Comandos de Validação:** `npm run test`
+**Limites Fora de Escopo:** Não conectar este contrato ao Registry View ainda (apenas garantir a interface core). Não implementar handlers de produto.
 
 ---
 
@@ -32,7 +32,7 @@ Este documento define os próximos candidatos de implementação para o System B
 
 *Aviso: As tarefas nesta seção destinam-se a futuros repositórios de clientes (ex: `delmacy/gestaotecnica-client` se aplicável) ou à área designada para implementações de clientes, caso esta esteja separada arquiteturalmente.*
 
-### Candidato 3 (Future Client): Estratégia de Migração de Schema para Gestão Técnica
+### [PRÓXIMO ESCOPO] Candidato 3 (Future Client): Estratégia de Migração de Schema para Gestão Técnica
 **Objetivo:** Definir e implementar as migrações iniciais de banco de dados (Drizzle ORM) específicas para o modelo de dados da Gestão Técnica, criando o histórico formal de evolução do schema.
 **Arquivos/Módulos Afetados:**
 - `src/db/runtime/schema/` (arquivos de schema de negócio)
@@ -42,7 +42,7 @@ Este documento define os próximos candidatos de implementação para o System B
 **Limites Fora de Escopo:** Não alterar o schema core da plataforma (`src/db/platform/`). Não inserir dados de produção.
 **Nota de Limite de Plataforma:** Esta task DEVE ser executada apenas no escopo do domínio `gestaotecnica` e não afetar a plataforma base.
 
-### Candidato 4 (Future Client): Mirroring Inicial de Processos da Gestão Técnica
+### [PRÓXIMO ESCOPO] Candidato 4 (Future Client): Mirroring Inicial de Processos da Gestão Técnica
 **Objetivo:** Criar os primeiros documentos de Process Mirroring capturando o fluxo de trabalho real da Gestão Técnica, traduzindo as operações manuais em um formato legível antes da automação.
 **Arquivos/Módulos Afetados:**
 - `docs/process_mirroring/gestao_tecnica/fluxo_atendimento_inicial.md`

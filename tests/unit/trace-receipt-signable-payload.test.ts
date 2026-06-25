@@ -163,14 +163,12 @@ describe("Trace Receipt Signable Payload", () => {
 
   it("should reject invalid receipt", () => {
     const invalidReceipt = { ...MINIMAL_RECEIPT, id: "" };
-    // @ts-expect-error - testing invalid input
-    assert.throws(() => createSignableTraceReceiptPayload(invalidReceipt));
+    assert.throws(() => createSignableTraceReceiptPayload(invalidReceipt as unknown as TraceReceipt));
   });
 
   it("should reject unknown fields in input", () => {
     const invalidReceipt = { ...MINIMAL_RECEIPT, unknownField: "bad" };
-    // @ts-expect-error - testing invalid input
-    assert.throws(() => createSignableTraceReceiptPayload(invalidReceipt));
+    assert.throws(() => createSignableTraceReceiptPayload(invalidReceipt as unknown as TraceReceipt));
   });
 
   it("should return a new top-level object", () => {

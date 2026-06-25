@@ -156,6 +156,32 @@ test("ActionDescriptorSchema - missing mandatory fields", () => {
   }
 });
 
+test("ActionDescriptorSchema - deterministic rejection of invalid identifiers", () => {
+  const invalidKeys = [
+    "NoDots",
+    "trailing.dot.",
+    ".leading.dot",
+    "spaces in.key",
+    "UpperCase.Key",
+    "special@chars.key"
+  ];
+  for (const key of invalidKeys) {
+    assert.strictEqual(ActionDescriptorKeySchema.safeParse(key).success, false, `Key should be invalid: ${key}`);
+  }
+});
+
+test("ActionDescriptorSchema - deterministic rejection of invalid versions", () => {
+  const invalidVersions = [
+    -1, // negative
+    0,  // zero
+    1.5 // not an integer
+  ];
+  for (const version of invalidVersions) {
+    const descriptor = { ...validDescriptorBase, version };
+    assert.strictEqual(ActionDescriptorSchema.safeParse(descriptor).success, false, `Version should be invalid: ${version}`);
+  }
+});
+
 test("ActionDescriptorSchema - primitive schemas rejection", () => {
   assert.strictEqual(ActionDescriptorSchema.safeParse({ ...validDescriptorBase, inputSchema: "string" }).success, false, "string schema");
 });
@@ -181,4 +207,20 @@ test("ActionDescriptorSchema - input immutability (not mutated by parse)", () =>
   const input = JSON.parse(JSON.stringify(validDescriptorBase));
   ActionDescriptorSchema.parse(input);
   assert.deepStrictEqual(input, validDescriptorBase);
+});
+
+import { validateActionDescriptor } from "../../src/platform/actions/contracts/action-descriptor";
+import { ZodError } from "zod";
+
+test("validateActionDescriptor - wraps schema parsing correctly", () => {
+  const valid = validateActionDescriptor(validDescriptorBase);
+  assert.deepStrictEqual(valid, validDescriptorBase);
+
+  assert.throws(
+    () => {
+      validateActionDescriptor({ ...validDescriptorBase, key: "invalid" });
+    },
+    (err: unknown) => err instanceof ZodError,
+    "Should throw ZodError on invalid descriptor"
+  );
 });

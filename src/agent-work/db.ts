@@ -35,7 +35,7 @@ export function getAgentWorkDb() {
 
 export async function closeAgentWorkDb() {
   if (clientInstance) {
-    await clientInstance.end();
+    await clientInstance.end({ timeout: 5 });
     clientInstance = null;
   }
   agentWorkDbInstance = null;

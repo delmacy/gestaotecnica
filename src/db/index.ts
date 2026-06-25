@@ -4,6 +4,7 @@ import * as legacySchema from "./legacy/schema";
 import * as registrySchema from "./platform/schema/registry";
 import * as blueprintsSchema from "./platform/schema/blueprints";
 import * as candidatesSchema from "./platform/schema/candidates";
+import * as agentGatewaySchema from "./platform/schema/agent-gateway";
 import * as workflowSchema from "./runtime/schema/workflow";
 import * as workspaceSchema from "./runtime/schema/workspace";
 import * as identitySchema from "./runtime/schema/identity";
@@ -17,6 +18,7 @@ const fullSchema = {
   ...registrySchema,
   ...blueprintsSchema,
   ...candidatesSchema,
+  ...agentGatewaySchema,
   ...workflowSchema,
   ...workspaceSchema,
   ...identitySchema,
@@ -83,8 +85,8 @@ export function getDb() {
 
 export async function closeDatabaseConnections() {
   await Promise.all([
-    platformClient?.end({ timeout: 5 }),
-    runtimeClient?.end({ timeout: 5 }),
+    platformClient ? platformClient.end({ timeout: 5 }) : Promise.resolve(),
+    runtimeClient ? runtimeClient.end({ timeout: 5 }) : Promise.resolve(),
   ]);
   platformClient = null;
   runtimeClient = null;

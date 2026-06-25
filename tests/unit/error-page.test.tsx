@@ -8,12 +8,12 @@ import { renderToString } from "react-dom/server";
 import ErrorPage from "../../src/app/error";
 
 test("ErrorPage - renders generic error message", () => {
-  const error = new Error("Sensitive database credentials leaked");
+  const error = new Error("Sensitive database credentials leaked") as Error & { digest?: string };
   error.digest = "ABC-123-XYZ";
 
   const resetMock = () => {};
 
-  const element = <ErrorPage error={error} reset={resetMock} />;
+  const element = <ErrorPage error={error as Error} reset={resetMock} />;
   const html = renderToString(element);
 
   // Nao deve conter a mensagem sensivel na UI

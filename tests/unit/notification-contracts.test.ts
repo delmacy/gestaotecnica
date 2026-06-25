@@ -157,7 +157,7 @@ describe("Notification Contracts and Pure Functions - PR Feedback", () => {
       const frozenDelivery = Object.freeze({
         ...baseDelivery,
         attempts: Object.freeze([])
-      }) as NotificationDelivery;
+      }) as unknown as NotificationDelivery;
 
       const updated = createNotificationAttempt(frozenDelivery, { attemptedAt: validTimestamp, status: "queued" });
       assert.ok(updated);

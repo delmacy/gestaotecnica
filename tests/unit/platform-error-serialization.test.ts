@@ -117,7 +117,6 @@ test("serializePlatformError - rejects symbols and functions", () => {
       myFunc: () => {},
     },
   };
-  // @ts-expect-error - testing invalid types in details
   const serialized = serializePlatformError(envWithExtras);
   const parsed = JSON.parse(serialized);
   assert.equal(parsed.details.mySym, undefined);
@@ -190,7 +189,6 @@ test("Explicit Unsafe Key Rejection - Serialization", () => {
     enumerable: true
   });
 
-  // @ts-expect-error - testing hostile input
   assert.throws(() => serializePlatformError(hostile), /UNSAFE_KEY/);
 });
 

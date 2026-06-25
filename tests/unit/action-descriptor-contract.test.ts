@@ -150,7 +150,6 @@ test("ActionDescriptorSchema - missing mandatory fields", () => {
   const fields = ["key", "name", "inputSchema", "outputSchema", "handlerKey"];
   for (const field of fields) {
     const descriptor = { ...validDescriptorBase };
-    // @ts-expect-error - testing missing field
     delete descriptor[field as keyof typeof validDescriptorBase];
     assert.strictEqual(ActionDescriptorSchema.safeParse(descriptor).success, false, `Missing mandatory field: ${field}`);
   }

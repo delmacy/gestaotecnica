@@ -41,7 +41,7 @@ test("sanitizeUnknownError: Basics", async (t) => {
   });
 
   await t.test("BigInt", () => {
-    assert.deepEqual(sanitizeUnknownError(123n), { message: "123" });
+    assert.deepEqual(sanitizeUnknownError(BigInt("123")), { message: "123" });
   });
 
   await t.test("Symbol", () => {
@@ -349,7 +349,7 @@ test("sanitizeUnknownError: Structures", async (t) => {
 
   await t.test("array accessor is not executed and position is preserved", () => {
     let executed = false;
-    const arr = [];
+    const arr: unknown[] = [];
     Object.defineProperty(arr, "0", {
       get: () => {
         executed = true;

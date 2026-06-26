@@ -12,7 +12,7 @@ const mockDb = {
   }),
 };
 
-const { createWorkforceMemberKernelAction } = proxyquire("./kernel-actions", {
+const { createWorkforceMemberKernelAction } = proxyquire("../../../../src/modules/workforce/kernel-actions", {
   "@/db": mockDb,
 });
 

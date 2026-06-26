@@ -21,9 +21,9 @@ export function TechnicianForm({
   return (
     <form action={createTechnician} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-[#111510]">Consolidar Membro da Força de Trabalho</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">Novo tecnico</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Perfil unificado de trabalhador, competências e situação.
+          Crie o usuario operacional e o perfil tecnico em uma unica etapa.
         </p>
       </div>
 
@@ -39,21 +39,22 @@ export function TechnicianForm({
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-[#273025]">E-mail (para vínculo com usuário)</span>
+          <span className="text-sm font-medium text-[#273025]">E-mail</span>
           <input
             className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
             name="email"
             placeholder="ana.souza@empresa.com"
+            required
             type="email"
           />
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block">
-            <span className="text-sm font-medium text-[#273025]">Nível Técnico</span>
+            <span className="text-sm font-medium text-[#273025]">Nivel</span>
             <select
               className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
-              defaultValue="trainee"
+              defaultValue="pleno"
               name="level"
             >
               {technicianLevels.map((level: any) => (
@@ -64,17 +65,6 @@ export function TechnicianForm({
             </select>
           </label>
 
-          <label className="block">
-            <span className="text-sm font-medium text-[#273025]">Função Principal</span>
-            <input
-              className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
-              name="function"
-              placeholder="Ex.: Supervisor de Campo"
-            />
-          </label>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
           <label className="block">
             <span className="text-sm font-medium text-[#273025]">Equipe</span>
             <select
@@ -90,25 +80,11 @@ export function TechnicianForm({
               ))}
             </select>
           </label>
-
-          <label className="block">
-            <span className="text-sm font-medium text-[#273025]">Situação</span>
-            <select
-              className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
-              name="status"
-              defaultValue="active"
-            >
-              <option value="active">Ativo</option>
-              <option value="inactive">Inativo</option>
-              <option value="away">Afastado</option>
-              <option value="training">Em Treinamento</option>
-            </select>
-          </label>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block">
-            <span className="text-sm font-medium text-[#273025]">Matrícula</span>
+            <span className="text-sm font-medium text-[#273025]">Matricula</span>
             <input
               className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
               name="registrationCode"
@@ -121,25 +97,16 @@ export function TechnicianForm({
             <input
               className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
               name="specialty"
-              placeholder="Ex.: Elétrica, Redes"
+              placeholder="Ex.: redes, radio, eletrica"
             />
           </label>
         </div>
-
-        <label className="block">
-          <span className="text-sm font-medium text-[#273025]">Competências (separadas por vírgula)</span>
-          <input
-            className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
-            name="competencies"
-            placeholder="Ex.: NR10, Fibra Óptica, Configuração CISCO"
-          />
-        </label>
 
         <button
           className="h-11 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]"
           type="submit"
         >
-          Salvar Membro
+          Criar tecnico
         </button>
       </div>
     </form>

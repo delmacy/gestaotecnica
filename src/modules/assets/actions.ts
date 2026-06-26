@@ -4,21 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
-import {
-  type AssetCriticalityValue,
-  type AssetStatusValue,
-  assetCriticalities,
-  assetStatuses,
-} from "./constants";
-import { getAssetTypeOptions } from "./queries";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
-
-  if (!value) {
-    throw new Error(`Campo obrigatorio ausente: ${field}`);
-  }
-
+  if (!value) throw new Error(`Campo obrigatório ausente: ${field}`);
   return value;
 }
 
@@ -27,55 +16,17 @@ function readOptionalText(formData: FormData, field: string) {
   return value.length > 0 ? value : undefined;
 }
 
-function readEnum<T extends string>(
-  formData: FormData,
-  field: string,
-  allowedValues: readonly { value: T; label: string }[],
-  fallback: T,
-) {
-  const value = String(formData.get(field) ?? fallback);
-  return allowedValues.some((item) => item.value === value) ? (value as T) : fallback;
-}
-
-async function readAssetType(formData: FormData) {
-  const assetTypes = await getAssetTypeOptions();
-  const value = String(formData.get("type") ?? "").trim();
-  const fallback = assetTypes[0]?.value ?? "equipment";
-
-  return assetTypes.some((item) => item.value === value) ? value : fallback;
-}
-
 export async function createAsset(formData: FormData) {
   const code = readRequiredText(formData, "code");
   const name = readRequiredText(formData, "name");
-  const type = await readAssetType(formData);
+  const category = readRequiredText(formData, "category");
+  const status = readOptionalText(formData, "status");
   const location = readOptionalText(formData, "location");
-  const description = readOptionalText(formData, "description");
-  const status = readEnum<AssetStatusValue>(
-    formData,
-    "status",
-    assetStatuses,
-    "active",
-  );
-  const criticality = readEnum<AssetCriticalityValue>(
-    formData,
-    "criticality",
-    assetCriticalities,
-    "medium",
-  );
 
   const context = await resolveWorkspaceContext({ source: "ui" });
   const result = await runAction(
     "assets.create",
-    {
-      code,
-      name,
-      type,
-      location,
-      description,
-      status,
-      criticality,
-    },
+    { code, name, category, status, location },
     context,
   );
 
@@ -83,40 +34,48 @@ export async function createAsset(formData: FormData) {
     throw new Error(result.error?.message ?? "Falha ao criar ativo.");
   }
 
-  const asset = result.data as { id: string };
-
-  revalidatePath("/");
   revalidatePath("/assets");
-  redirect(`/assets/${asset.id}`);
+  redirect("/assets");
+}
+
+export async function updateAsset(formData: FormData) {
+  const id = readRequiredText(formData, "id");
+  const name = readOptionalText(formData, "name");
+  const category = readOptionalText(formData, "category");
+  const location = readOptionalText(formData, "location");
+
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const result = await runAction(
+    "assets.update",
+    { id, name, category, location },
+    context,
+  );
+
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao atualizar ativo.");
+  }
+
+  revalidatePath(`/assets/${id}`);
+  revalidatePath("/assets");
+  redirect(`/assets/${id}`);
 }
 
 export async function updateAssetStatus(formData: FormData) {
   const id = readRequiredText(formData, "id");
-  const status = readEnum<AssetStatusValue>(
-    formData,
-    "status",
-    assetStatuses,
-    "active",
-  );
+  const status = readRequiredText(formData, "status");
   const note = readOptionalText(formData, "note");
 
   const context = await resolveWorkspaceContext({ source: "ui" });
   const result = await runAction(
     "assets.update_status",
-    {
-      assetId: id,
-      status,
-      note,
-    },
+    { id, status, note },
     context,
   );
 
   if (!result.success) {
-    throw new Error(result.error?.message ?? "Falha ao atualizar status do ativo.");
+    throw new Error(result.error?.message ?? "Falha ao atualizar status.");
   }
 
-  revalidatePath("/");
-  revalidatePath("/assets");
   revalidatePath(`/assets/${id}`);
-  redirect(`/assets/${id}`);
+  revalidatePath("/assets");
 }

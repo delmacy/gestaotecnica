@@ -51,6 +51,9 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Database Migrate
+        run: npm run db:migrate-ci
+
       - name: Database Bootstrap
         run: npm run db:bootstrap
 
@@ -65,3 +68,9 @@ jobs:
 
       - name: Build Next.js
         run: npm run build
+
+      - name: Integration Tests
+        run: npm run test:integration
+
+      - name: E2E Tests
+        run: npm run start & sleep 5 && npm run test:e2e

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getDb } from "@/db";
 import { documents, documentLinks } from "@/db/runtime/schema/documents";
 import type { ActionDefinition } from "@/platform/actions";
@@ -29,7 +29,7 @@ export const generateDocumentKernelAction: ActionDefinition<
     {
       title: stringProperty("Título do documento."),
       documentType: stringProperty("Tipo do documento técnico."),
-      content: stringProperty("Conteúdo inicial (armazenado na primeira versão)."),
+      content: stringProperty("Conteúdo inicial (metadado)."),
       serviceOrderId: uuidProperty("OS relacionada."),
       workItemId: uuidProperty("Demanda relacionada."),
       assetId: uuidProperty("Ativo relacionado."),
@@ -61,6 +61,10 @@ export const generateDocumentKernelAction: ActionDefinition<
       };
     }
 
+    // GAP: Validação de workspace para service_orders, work_items e assets
+    // está bloqueada pois as tabelas legacy ainda não possuem a coluna workspace_id.
+    // Registrado como DATABASE_PROVISIONING_LINKED_ENTITIES gap.
+
     const result = await db.transaction(async (tx: any) => {
       // 1. Create Document
       const [doc] = await tx
@@ -77,7 +81,7 @@ export const generateDocumentKernelAction: ActionDefinition<
           status: documents.status,
         });
 
-      // 3. Create Links
+      // 3. Create Links (Assuming caller validated workspace or it will be fixed by platform later)
       if (input.serviceOrderId) {
         await tx.insert(documentLinks).values({
           workspaceId,
@@ -186,11 +190,14 @@ export const transitionDocumentKernelAction: ActionDefinition<
         status: documents.status,
       })
       .from(documents)
-      .where(eq(documents.id, documentId))
+      .where(and(
+        eq(documents.id, documentId),
+        eq(documents.workspaceId, workspaceId)
+      ))
       .limit(1);
 
     if (!previous) {
-      return { success: false, error: { code: "NOT_FOUND", message: "Documento não encontrado." } };
+      return { success: false, error: { code: "NOT_FOUND", message: "Documento não encontrado ou acesso negado." } };
     }
 
     const status = input.status ?? previous.status;
@@ -201,7 +208,10 @@ export const transitionDocumentKernelAction: ActionDefinition<
         status: status,
         updatedAt: new Date(),
       })
-      .where(eq(documents.id, documentId))
+      .where(and(
+        eq(documents.id, documentId),
+        eq(documents.workspaceId, workspaceId)
+      ))
       .returning({
         id: documents.id,
         status: documents.status,

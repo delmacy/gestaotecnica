@@ -157,24 +157,10 @@
       "breakpoints": true
     },
     {
-      "idx": 22,
-      "version": "7",
-      "when": 1780949149883,
-      "tag": "0022_aspiring_nightshade",
-      "breakpoints": true
-    },
-    {
       "idx": 23,
       "version": "7",
       "when": 1780949250566,
       "tag": "0023_glorious_wolfsbane",
-      "breakpoints": true
-    },
-    {
-      "idx": 24,
-      "version": "7",
-      "when": 1780960422500,
-      "tag": "0024_rich_lady_mastermind",
       "breakpoints": true
     },
     {

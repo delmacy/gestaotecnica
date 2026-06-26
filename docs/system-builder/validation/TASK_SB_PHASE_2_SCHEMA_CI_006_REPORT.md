@@ -39,8 +39,14 @@ Create and publish a fresh PR with a minimal deterministic Schema CI Gate that v
   ```
   **Result:** Architecture validation passed.
 
-- **Test suites (Unit & Integration):** All tests passed.
+
 
 ## Pull Request
 A Pull Request candidate was created for Codex review.
 The PR body states: "candidate for Codex review, gate not concluded until Codex review."
+
+- **CI Run Validation & Correction:**
+  - Initial CI Run failed at step `Apply Migrations (Non-interactive)`: `No file ./drizzle/0022_aspiring_nightshade.sql found in ./drizzle folder`.
+  - **Root Cause:** `drizzle/meta/_journal.json` contained references to `0022_aspiring_nightshade` and `0024_rich_lady_mastermind`, but those `.sql` files were absent from the `drizzle/` directory. This is migration-journal drift likely from previously reverted or botched commits.
+  - **Correction:** Cleaned `drizzle/meta/_journal.json` to safely remove orphaned entries that lack a corresponding `.sql` migration file to enforce deterministic CI migration execution from committed state.
+  - Test suites: Unit tests passed successfully. Integration tests failed explicitly due to missing external DB relations, which is expected locally in the sandbox without the CI services spun up. No unsupported test success claims are made.

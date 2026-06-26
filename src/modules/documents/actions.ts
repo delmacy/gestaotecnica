@@ -76,10 +76,9 @@ export async function updateDocumentStatus(formData: FormData) {
   );
   const note = readOptionalText(formData, "note");
 
-  // TODO: Migrar para Kernel Action documents.update_status quando necessário
   const context = await resolveWorkspaceContext({ source: "ui" });
   const result = await runAction(
-    "documents.transition", // Presumindo existência futura ou criando agora
+    "documents.transition",
     {
       documentId: id,
       status,
@@ -89,7 +88,6 @@ export async function updateDocumentStatus(formData: FormData) {
   );
 
   if (!result.success) {
-    // Fallback temporário ou erro
     throw new Error(result.error?.message ?? "Falha ao atualizar documento.");
   }
 

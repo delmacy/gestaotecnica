@@ -7,16 +7,15 @@ type DocumentRow = {
   title: string;
   documentType: string;
   status: string;
-  content: string | null;
   createdAt: Date;
-  serviceOrderId: string | null;
-  serviceOrderCode: string | null;
-  serviceOrderTitle: string | null;
-  workItemId: string | null;
-  workItemTitle: string | null;
-  assetId: string | null;
-  assetCode: string | null;
-  assetName: string | null;
+  serviceOrderId?: string | null;
+  serviceOrderCode?: string | null;
+  serviceOrderTitle?: string | null;
+  workItemId?: string | null;
+  workItemTitle?: string | null;
+  assetId?: string | null;
+  assetCode?: string | null;
+  assetName?: string | null;
 };
 
 function formatDate(date: Date) {
@@ -34,7 +33,9 @@ export function DocumentsTable({ documents }: { documents: DocumentRow[] }) {
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={document.id}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-[#111510]">{document.title}</h2>
+              <Link href={`/documents/${document.id}`} className="text-lg font-semibold text-[#111510] hover:underline">
+                {document.title}
+              </Link>
               <p className="mt-1 font-mono text-xs text-[#7a8474]">{formatDate(document.createdAt)}</p>
               <p className="mt-2 text-sm text-[#5b6655]">{getDocumentTypeLabel(document.documentType)} | {getDocumentStatusLabel(document.status)}</p>
             </div>
@@ -49,7 +50,6 @@ export function DocumentsTable({ documents }: { documents: DocumentRow[] }) {
               <button className="h-10 bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]" type="submit">Atualizar</button>
             </form>
           </div>
-          {document.content ? <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#4d5848]">{document.content}</p> : null}
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
             <div>
               <p className="font-mono text-xs text-[#6e7a66]">OS</p>

@@ -1,48 +1,49 @@
-import { getPlatformDb, getRuntimeDb, closeDatabaseConnections } from "../../db/index";
-import { sql } from "drizzle-orm";
+import postgres from "postgres";
 
 async function verifySchema() {
-  const dbUrl = process.env.DATABASE_URL;
+  const dbUrl = process.env.DATABASE_URL || process.env.PLATFORM_DATABASE_URL || process.env.RUNTIME_DATABASE_URL;
   if (!dbUrl) {
-    console.error("ERRO: DATABASE_URL is not set.");
-    process.exit(1);
+    console.error("ERRO: DATABASE_URL, PLATFORM_DATABASE_URL ou RUNTIME_DATABASE_URL is not set.");
+    process.exitCode = 1;
+    return;
   }
 
+  const client = postgres(dbUrl, { max: 1 });
+  let exitCode = 0;
+
   try {
-    const platformDb = getPlatformDb();
-    const platformResult = await platformDb.execute(sql`
+    const agentGatewayResult = await client`
       SELECT EXISTS (
         SELECT FROM information_schema.tables
         WHERE table_schema = 'builder'
         AND table_name = 'agent_gateway_submissions'
       );
-    `);
-    const isAgentGatewayPresent = platformResult[0]?.exists === true;
+    `;
+    const isAgentGatewayPresent = agentGatewayResult[0]?.exists === true;
 
-    const runtimeDb = getRuntimeDb();
-    const runtimeResult = await runtimeDb.execute(sql`
+    const workspacesResult = await client`
       SELECT EXISTS (
         SELECT FROM information_schema.tables
         WHERE table_schema = 'workspace'
         AND table_name = 'workspaces'
       );
-    `);
-    const isWorkspacesPresent = runtimeResult[0]?.exists === true;
+    `;
+    const isWorkspacesPresent = workspacesResult[0]?.exists === true;
 
     if (!isAgentGatewayPresent || !isWorkspacesPresent) {
       console.error("ERRO: Algumas tabelas obrigatorias estao faltando!");
       console.error(`- builder.agent_gateway_submissions: ${isAgentGatewayPresent}`);
       console.error(`- workspace.workspaces: ${isWorkspacesPresent}`);
-      process.exit(1);
+      exitCode = 1;
+    } else {
+      console.log("SUCESSO: Todas as tabelas obrigatorias estao presentes.");
     }
-
-    console.log("SUCESSO: Todas as tabelas obrigatorias estao presentes.");
-    process.exit(0);
   } catch (error) {
     console.error("ERRO ao verificar schema:", error);
-    process.exit(1);
+    exitCode = 1;
   } finally {
-    await closeDatabaseConnections();
+    await client.end({ timeout: 5 });
+    process.exitCode = exitCode;
   }
 }
 

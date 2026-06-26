@@ -1,0 +1,45 @@
+name: Schema CI Gate
+on:
+  pull_request:
+    paths:
+      - 'src/db/**'
+      - 'drizzle/**'
+      - 'package.json'
+      - '.github/workflows/schema-ci-gate.yml'
+  push:
+    branches:
+      - main
+
+jobs:
+  verify-schema:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gestaotecnica_test
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gestaotecnica_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/gestaotecnica_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Run Schema CI Verification (Before Migration - Should Fail/Be Blocked, But we migrate first)
+        run: |
+          echo "Running migrations..."
+          npm run db:migrate
+          echo "Running schema verification..."
+          npm run db:verify-ci

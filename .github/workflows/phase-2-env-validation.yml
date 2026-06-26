@@ -70,7 +70,7 @@ jobs:
         run: npm run build
 
       - name: Integration Tests
-        run: npm run test:integration
+        run: timeout 600 npm run test:integration || (echo "Integration tests timed out or failed" && exit 1)
 
       - name: E2E Tests
-        run: npm run start & sleep 5 && npm run test:e2e
+        run: timeout 600 sh -c 'npm run start & sleep 5 && npm run test:e2e' || (echo "E2E tests timed out or failed" && exit 1)

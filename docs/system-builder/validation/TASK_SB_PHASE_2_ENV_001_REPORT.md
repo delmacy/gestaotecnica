@@ -3,52 +3,27 @@
 ## Status
 `blocked/review`
 
-## Blocker Details
+## Overview
+The gate `ENV-001` (fresh DB integration proof) remains blocked because of integration test failures and database cleanup sequence violations during the testing pipeline. While partial proof has been established (CI can provision Postgres, run `db:migrate-ci` / `db:bootstrap`, validate architecture, typecheck, and build), the final pipeline steps for `test:integration` and `test:e2e` fail on a fresh CI Postgres database.
 
-The gate `ENV-001` demands honest proof for `test:integration` and `test:e2e` on a fresh CI Postgres database. However, this is currently blocked due to a fundamental issue in the CI script configuration:
+## Details of the Blocker
 
-1. **Drizzle Migration TTY Requirement:**
-   Running `npm run db:migrate-ci` (which relies on `npx drizzle-kit migrate` internally or runs migrations that eventually trigger interactive prompts, though the documentation indicates it might be `drizzle-kit push` failing when triggered from `db:migrate`) fails because it requires an interactive TTY terminal (`Interactive prompts require a TTY terminal`). This breaks the automated migration pipeline in the headless CI/Agent environment.
+1. **Integration Test Assertions Fail After Schema Traceability Updates:**
+   Recent attempts to satisfy missing traceability constraints (from PR #321) introduced `traceability.receipts`, but the updated Agent Gateway flow failed during `test:integration`. Specifically:
+   - In `tests/integration/agent-gateway-idempotency.integration.test.ts`, the assertion for `candidate` persistence (`assert.ok(candidate)` at line 67) returned false.
+   - The assertion for the submission record (`assert.ok(submission)` at line 126) also returned false.
+   This indicates that after traceability is present, the agent gateway initial or invalid submissions do not successfully persist the expected candidates or submission states in the integration environment.
 
-2. **Database Initialization Sequence (Clean State):**
-   When attempting to initialize a fresh database via `npm run db:setup:unified-test`, the script attempts to execute `ALTER TABLE workflow.process_definitions`. Because the migrations have not yet successfully run (due to the point above or incorrect script sequencing), the `workflow.process_definitions` table does not exist, causing a `PostgresError: relation "workflow.process_definitions" does not exist`.
+2. **Database Cleanup Foreign Key Violations:**
+   The integration tests failed during their Postgres cleanup phase. Attempting to delete from `workspace.workspaces` violated the foreign key constraint `receipts_workspace_id_workspaces_id_fk` on `traceability.receipts` because receipts still reference workspace rows. The cleanup strategy needs to be re-ordered to safely drop references in `traceability.receipts` before clearing workspaces.
 
-3. **Missing Drizzle Migration SQL:**
-   The `db:verify-ci` CI validation step explicitly searches for the `builder.agent_gateway_submissions` and `workspace.workspaces` tables. In a fresh, un-migrated database, these are naturally not found, causing the pipeline to fail with `Error: builder.agent_gateway_submissions table not found.`
+3. **E2E Tests Blocked:**
+   Because the integration tests fail (and `test:e2e` relies on a successful preceding `test:integration` step in the workflow), the E2E tests are skipped and the gate cannot be evaluated for final UI/environment proof.
 
-### Evidence
+## Recommended Next Steps / Follow-up Task
 
-**1. `npm run db:setup:unified-test` Failure:**
-```
-> gestaotecnica@0.1.0 db:setup:unified-test
-> npx tsx src/scripts/setup-unified-test-database.ts
+Create a follow-up task to narrowly address the schema integration and cleanup:
+1. **Fix Test Cleanup Sequence:** Update the testing teardown logic to ensure `traceability.receipts` (and any other dependencies) are cleared before attempting to delete `workspace.workspaces`.
+2. **Investigate Agent Gateway Persistence:** Debug `processAgentSubmissionWithMetadata` inside `agent-gateway-idempotency.integration.test.ts` to identify why candidates and submissions are not persisting as expected when evaluated against the real `traceability.receipts` schema in CI.
 
-Failed to prepare unified test database: PostgresError: relation "workflow.process_definitions" does not exist
-    at ErrorResponse (/app/node_modules/postgres/cjs/src/connection.js:815:30)
-```
-
-**2. `npm run db:migrate` (CI TTY failure) via `drizzle-kit push`:**
-```
-Error: Interactive prompts require a TTY terminal (process.stdin.isTTY or process.stdout.isTTY is false). This can happen when running in CI, piped input, or non-interactive shells.
-    at render10 (/app/node_modules/drizzle-kit/bin.cjs:1450:31)
-    at pgPush (/app/node_modules/drizzle-kit/bin.cjs:82737:72)
-```
-
-**3. `npm run db:verify-ci` Failure:**
-```
-> gestaotecnica@0.1.0 db:verify-ci
-> npx tsx src/scripts/db/verify-schema-ci.ts
-
-Connecting to database via lazy client...
-Error: builder.agent_gateway_submissions table not found.
-Error: workspace.workspaces table not found.
-```
-
-## Recommended Next Steps
-
-A separate, explicit task must be created to repair the database bootstrap and migration sequence for headless/CI environments.
-
-1. **Remove or Replace Interactive Commands:** Ensure that CI migration pipelines (like `db:migrate-ci`) strictly use `drizzle-kit migrate` and that all migrations are correctly pre-generated without relying on `drizzle-kit push` which triggers interactive prompts.
-2. **Fix `setup-unified-test-database.ts` Sequencing:** Ensure that any `.ts` script trying to alter tables (like adding columns or constraints) only runs *after* the initial Drizzle SQL migrations have been applied, or check if the table exists first.
-
-Once the CI environment can consistently and safely instantiate the schema from scratch without user interaction, `ENV-001` integration and E2E tests can be properly evaluated.
+Once these integration failures and cleanup violations are safely resolved without neutralizing the tests, `ENV-001` can be re-evaluated.

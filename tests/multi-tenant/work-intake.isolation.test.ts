@@ -49,11 +49,11 @@ test("Work Intake Multi-tenant Isolation", async (t) => {
     const requestsA = await queriesA.getIntakeRequests();
     const requestsB = await queriesB.getIntakeRequests();
 
-    assert.ok(requestsA.some(r => r.id === idA), "WS A listing should contain its own record");
-    assert.ok(!requestsA.some(r => r.id === idB), "WS A listing should NOT contain WS B record");
+    assert.ok(requestsA.some((r: any) => r.id === idA), "WS A listing should contain its own record");
+    assert.ok(!requestsA.some((r: any) => r.id === idB), "WS A listing should NOT contain WS B record");
 
-    assert.ok(requestsB.some(r => r.id === idB), "WS B listing should contain its own record");
-    assert.ok(!requestsB.some(r => r.id === idA), "WS B listing should NOT contain WS A record");
+    assert.ok(requestsB.some((r: any) => r.id === idB), "WS B listing should contain its own record");
+    assert.ok(!requestsB.some((r: any) => r.id === idA), "WS B listing should NOT contain WS A record");
   });
 
   await t.test("detail by ID does not allow cross-tenant access", async () => {

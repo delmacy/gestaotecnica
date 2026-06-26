@@ -3,7 +3,7 @@ import test, { after } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { getRuntimeDb, closeDatabaseConnections } from "@/db";
-import { teams, usersTable as users, technicianProfiles } from "@/db/schema";
+import { teams, users, technicianProfiles } from "@/db/schema";
 import {
   createTestWorkspace,
   createMockContext,

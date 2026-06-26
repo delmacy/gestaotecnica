@@ -1,4 +1,3 @@
-import { evidences } from "@/db/schema";
 import { getEvidenceLinkOptions } from "@/modules/evidences/queries";
 import { createTechnicalDocument } from "./actions";
 import { getDocumentTypeOptions } from "./queries";
@@ -12,9 +11,9 @@ export async function DocumentForm() {
   return (
     <form action={createTechnicalDocument} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-[#111510]">Novo documento</h2>
+        <h2 className="text-lg font-semibold text-[#111510]">Novo documento (Novo Schema)</h2>
         <p className="mt-1 text-sm leading-6 text-[#5b6655]">
-          Prepare relatorios, despachos e resumos para revisao ou legado.
+          Prepare relatorios, despachos e resumos para revisao ou legado usando a persistencia runtime.
         </p>
       </div>
 
@@ -35,6 +34,10 @@ export async function DocumentForm() {
           <span className="text-sm font-medium text-[#273025]">Conteudo</span>
           <textarea className="mt-1 min-h-32 w-full resize-y border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm leading-6 outline-none focus:border-[#6b7d5d]" name="content" />
         </label>
+
+        {/* Note: In the new schema, links are stored in document_links.
+            The current form doesn't support multiple links yet, but we pass these to the action. */}
+
         <label className="block">
           <span className="text-sm font-medium text-[#273025]">OS</span>
           <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="serviceOrderId" defaultValue="">
@@ -44,24 +47,7 @@ export async function DocumentForm() {
             ))}
           </select>
         </label>
-        <label className="block">
-          <span className="text-sm font-medium text-[#273025]">Demanda</span>
-          <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="workItemId" defaultValue="">
-            <option value="">Sem demanda</option>
-            {options.workItems.map((item: any) => (
-              <option key={item.id} value={item.id}>{item.title}</option>
-            ))}
-          </select>
-        </label>
-        <label className="block">
-          <span className="text-sm font-medium text-[#273025]">Ativo</span>
-          <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="assetId" defaultValue="">
-            <option value="">Sem ativo</option>
-            {options.assets.map((asset: any) => (
-              <option key={asset.id} value={asset.id}>{asset.code} - {asset.name}</option>
-            ))}
-          </select>
-        </label>
+
         <button className="h-11 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]" type="submit">
           Criar documento
         </button>

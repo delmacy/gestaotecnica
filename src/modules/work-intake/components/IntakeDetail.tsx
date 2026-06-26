@@ -1,12 +1,12 @@
 import { transitionIntakeAction } from "../actions";
-import { IntakeRequest } from "../contracts/intake.schema";
+import type { IntakeRequest, IntakeHistoryEvent } from "../contracts/intake.schema";
 
 export function IntakeDetail({
   request,
   history
 }: {
   request: IntakeRequest,
-  history: any[]
+  history: IntakeHistoryEvent[]
 }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -62,8 +62,8 @@ export function IntakeDetail({
                         <p className="text-sm text-[#273025]">
                           <span className="font-bold">{event.eventType}</span>
                         </p>
-                        {event.payload?.reason && (
-                          <p className="mt-1 text-xs text-[#6e7a66]">Motivo: {event.payload.reason}</p>
+                        {!!(event.payload as any)?.reason && (
+                          <p className="mt-1 text-xs text-[#6e7a66]">Motivo: {String((event.payload as any).reason)}</p>
                         )}
                       </div>
                       <div className="whitespace-nowrap text-right text-xs text-[#6e7a66]">

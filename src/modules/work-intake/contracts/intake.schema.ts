@@ -33,6 +33,14 @@ export const IntakeRequestSchema = z.object({
 }).strict();
 export type IntakeRequest = z.infer<typeof IntakeRequestSchema>;
 
+export const IntakeHistoryEventSchema = z.object({
+  id: z.string().uuid(),
+  eventType: z.string(),
+  payload: SafeJsonRecordSchema,
+  occurredAt: z.date(),
+}).strict();
+export type IntakeHistoryEvent = z.infer<typeof IntakeHistoryEventSchema>;
+
 export const CreateIntakeInputSchema = IntakeRequestSchema.omit({
   id: true,
   status: true,

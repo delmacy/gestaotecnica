@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IntakeRequest } from "../contracts/intake.schema";
+import type { IntakeRequest } from "../contracts/intake.schema";
 
 export function IntakeTable({ requests }: { requests: IntakeRequest[] }) {
   if (requests.length === 0) {

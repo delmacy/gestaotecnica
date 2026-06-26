@@ -3,12 +3,13 @@ import { getDb } from "@/db";
 import { processCandidates } from "@/db/platform/schema/candidates";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { resolveWorkspaceContext } from "@/platform/workspace";
+import type { IntakeRequest, IntakeHistoryEvent } from "./contracts/intake.schema";
 
-export async function getIntakeRequests(filters?: { status?: string }) {
+export async function getIntakeRequests(filters?: { status?: string }): Promise<IntakeRequest[]> {
   const context = await resolveWorkspaceContext({ source: "ui" });
   const db = getDb();
 
-  const query = db
+  const results = await db
     .select()
     .from(processCandidates)
     .where(
@@ -20,28 +21,26 @@ export async function getIntakeRequests(filters?: { status?: string }) {
     .orderBy(desc(processCandidates.createdAt))
     .limit(50);
 
-  const results = await query;
-
   return results.map((row: any) => {
-    const proposed = (row.proposedDefinition as any) || {};
+    const proposed = (row.proposedDefinition as Record<string, any>) || {};
     return {
       id: row.id,
       workspaceId: row.workspaceId,
       title: row.name,
-      description: row.description,
-      status: row.status,
-      origin: row.origin,
+      description: row.description ?? undefined,
+      status: row.status as any,
+      source: row.origin as any,
       category: proposed.category,
       priority: proposed.priority,
       requester: proposed.requester,
-      metadata: proposed.metadata,
+      metadata: proposed.metadata || {},
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     };
   });
 }
 
-export async function getIntakeRequestById(id: string) {
+export async function getIntakeRequestById(id: string): Promise<IntakeRequest | null> {
   const context = await resolveWorkspaceContext({ source: "ui" });
   const db = getDb();
 
@@ -58,27 +57,29 @@ export async function getIntakeRequestById(id: string) {
 
   if (!row) return null;
 
-  const proposed = (row.proposedDefinition as any) || {};
+  const r = row as any;
+  const proposed = (r.proposedDefinition as Record<string, any>) || {};
   return {
-    id: row.id,
-    workspaceId: row.workspaceId,
-    title: row.name,
-    description: row.description,
-    status: row.status,
-    origin: row.origin,
+    id: r.id,
+    workspaceId: r.workspaceId,
+    title: r.name,
+    description: r.description ?? undefined,
+    status: r.status as any,
+    source: r.origin as any,
     category: proposed.category,
     priority: proposed.priority,
     requester: proposed.requester,
-    metadata: proposed.metadata,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    metadata: proposed.metadata || {},
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
   };
 }
 
-export async function getIntakeHistory(id: string) {
+export async function getIntakeHistory(id: string): Promise<IntakeHistoryEvent[]> {
+  const context = await resolveWorkspaceContext({ source: "ui" });
   const db = getDb();
 
-  return db
+  const results = await db
     .select({
       id: eventLogs.id,
       eventType: eventLogs.eventType,
@@ -86,6 +87,13 @@ export async function getIntakeHistory(id: string) {
       occurredAt: eventLogs.createdAt,
     })
     .from(eventLogs)
-    .where(eq(eventLogs.entityId, id))
+    .where(
+      and(
+        eq(eventLogs.entityId, id),
+        eq(eventLogs.workspaceId, context.workspaceId)
+      )
+    )
     .orderBy(desc(eventLogs.createdAt));
+
+  return results as any[];
 }

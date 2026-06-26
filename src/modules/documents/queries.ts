@@ -1,7 +1,6 @@
 import { count, desc, eq, and } from "drizzle-orm";
 import { getDb } from "@/db";
-import { documents, documentVersions, documentLinks } from "@/db/runtime/schema/documents";
-import { assets, serviceOrders, workItems } from "@/db/schema";
+import { documents, documentVersions } from "@/db/runtime/schema/documents";
 import { getWorkspaceDocumentTemplateOptions } from "@/platform/workspaces/catalogs";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 
@@ -11,7 +10,7 @@ export async function getTechnicalDocuments() {
 
   const db = getDb();
 
-  const baseDocuments = await db
+  return db
     .select({
       id: documents.id,
       title: documents.title,
@@ -23,47 +22,6 @@ export async function getTechnicalDocuments() {
     .where(eq(documents.workspaceId, context.workspaceId))
     .orderBy(desc(documents.createdAt))
     .limit(80);
-
-  // Hydrate with links
-  const results = await Promise.all(baseDocuments.map(async (doc: any) => {
-    const links = await db
-      .select()
-      .from(documentLinks)
-      .where(eq(documentLinks.documentId, doc.id));
-
-    const serviceOrderLink = links.find((l: any) => l.linkedEntityType === "service_order");
-    const workItemLink = links.find((l: any) => l.linkedEntityType === "work_item");
-    const assetLink = links.find((l: any) => l.linkedEntityType === "asset");
-
-    let serviceOrder = null;
-    if (serviceOrderLink) {
-      [serviceOrder] = await db.select().from(serviceOrders).where(eq(serviceOrders.id, serviceOrderLink.linkedEntityId)).limit(1);
-    }
-
-    let workItem = null;
-    if (workItemLink) {
-      [workItem] = await db.select().from(workItems).where(eq(workItems.id, workItemLink.linkedEntityId)).limit(1);
-    }
-
-    let asset = null;
-    if (assetLink) {
-      [asset] = await db.select().from(assets).where(eq(assets.id, assetLink.linkedEntityId)).limit(1);
-    }
-
-    return {
-      ...doc,
-      serviceOrderId: serviceOrder?.id || null,
-      serviceOrderCode: serviceOrder?.code || null,
-      serviceOrderTitle: serviceOrder?.title || null,
-      workItemId: workItem?.id || null,
-      workItemTitle: workItem?.title || null,
-      assetId: asset?.id || null,
-      assetCode: asset?.code || null,
-      assetName: asset?.name || null,
-    };
-  }));
-
-  return results;
 }
 
 export async function getDocumentById(id: string) {
@@ -71,20 +29,13 @@ export async function getDocumentById(id: string) {
   if (!context.workspaceId) return null;
 
   const db = getDb();
-  const [doc] = await db
+  const [doc]: any[] = await db
     .select()
     .from(documents)
     .where(and(eq(documents.id, id), eq(documents.workspaceId, context.workspaceId)))
     .limit(1);
 
-  if (!doc) return null;
-
-  const links = await db
-    .select()
-    .from(documentLinks)
-    .where(eq(documentLinks.documentId, doc.id));
-
-  return { ...doc, links };
+  return doc || null;
 }
 
 export async function getDocumentHistory(documentId: string) {
@@ -104,23 +55,23 @@ export async function getDocumentSummary() {
   if (!context.workspaceId) return [];
 
   const db = getDb();
-  const [draft] = await db
+  const [draft]: any[] = await db
     .select({ value: count() })
     .from(documents)
     .where(and(eq(documents.status, "draft"), eq(documents.workspaceId, context.workspaceId)));
-  const [approval] = await db
+  const [approval]: any[] = await db
     .select({ value: count() })
     .from(documents)
     .where(and(eq(documents.status, "waiting_supervisor_approval"), eq(documents.workspaceId, context.workspaceId)));
-  const [approved] = await db
+  const [approved]: any[] = await db
     .select({ value: count() })
     .from(documents)
     .where(and(eq(documents.status, "approved"), eq(documents.workspaceId, context.workspaceId)));
 
   return [
-    { label: "Rascunhos", value: draft.value },
-    { label: "Aguardando aprovacao", value: approval.value },
-    { label: "Aprovados", value: approved.value },
+    { label: "Rascunhos", value: draft?.value || 0 },
+    { label: "Aguardando aprovacao", value: approval?.value || 0 },
+    { label: "Aprovados", value: approved?.value || 0 },
   ];
 }
 

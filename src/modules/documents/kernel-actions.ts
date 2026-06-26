@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
 import { getDb } from "@/db";
-import { documents, documentLinks } from "@/db/runtime/schema/documents";
+import { documents } from "@/db/runtime/schema/documents";
 import type { ActionDefinition } from "@/platform/actions";
 import {
   actionObjectSchema,
@@ -12,9 +12,10 @@ type GenerateDocumentInput = {
   title?: string;
   documentType?: string;
   content?: string;
-  serviceOrderId?: string;
-  workItemId?: string;
-  assetId?: string;
+  // Omitindo vínculos até que as tabelas produtoras (OS, Ativo, Demanda) suportem isolamento por workspace_id
+  // serviceOrderId?: string;
+  // workItemId?: string;
+  // assetId?: string;
 };
 
 export const generateDocumentKernelAction: ActionDefinition<
@@ -23,16 +24,13 @@ export const generateDocumentKernelAction: ActionDefinition<
 > = {
   key: "documents.generate",
   moduleKey: "documents",
-  description: "Gera um documento tecnico com versao e links no novo schema runtime.",
+  description: "Gera um documento tecnico no novo schema runtime.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
       title: stringProperty("Título do documento."),
       documentType: stringProperty("Tipo do documento técnico."),
       content: stringProperty("Conteúdo inicial (metadado)."),
-      serviceOrderId: uuidProperty("OS relacionada."),
-      workItemId: uuidProperty("Demanda relacionada."),
-      assetId: uuidProperty("Ativo relacionado."),
     },
     ["title"],
   ),
@@ -61,12 +59,11 @@ export const generateDocumentKernelAction: ActionDefinition<
       };
     }
 
-    // GAP: Validação de workspace para service_orders, work_items e assets
-    // está bloqueada pois as tabelas legacy ainda não possuem a coluna workspace_id.
-    // Registrado como DATABASE_PROVISIONING_LINKED_ENTITIES gap.
+    // GAP: Vínculos com service_orders, work_items e assets foram removidos
+    // pois as tabelas legacy ainda não possuem a coluna workspace_id para validação de tenant.
+    // Registrado como ISOLATION_GAP_LINKED_ENTITIES.
 
     const result = await db.transaction(async (tx: any) => {
-      // 1. Create Document
       const [doc] = await tx
         .insert(documents)
         .values({
@@ -80,34 +77,6 @@ export const generateDocumentKernelAction: ActionDefinition<
           title: documents.title,
           status: documents.status,
         });
-
-      // 3. Create Links (Assuming caller validated workspace or it will be fixed by platform later)
-      if (input.serviceOrderId) {
-        await tx.insert(documentLinks).values({
-          workspaceId,
-          documentId: doc.id,
-          linkedEntityType: "service_order",
-          linkedEntityId: input.serviceOrderId,
-        });
-      }
-
-      if (input.workItemId) {
-        await tx.insert(documentLinks).values({
-          workspaceId,
-          documentId: doc.id,
-          linkedEntityType: "work_item",
-          linkedEntityId: input.workItemId,
-        });
-      }
-
-      if (input.assetId) {
-        await tx.insert(documentLinks).values({
-          workspaceId,
-          documentId: doc.id,
-          linkedEntityType: "asset",
-          linkedEntityId: input.assetId,
-        });
-      }
 
       return { doc };
     });
@@ -127,9 +96,6 @@ export const generateDocumentKernelAction: ActionDefinition<
           payload: {
             title: result.doc.title,
             documentType: input.documentType ?? "technical_report",
-            serviceOrderId: input.serviceOrderId,
-            workItemId: input.workItemId,
-            assetId: input.assetId,
           },
         },
       ],
@@ -183,7 +149,7 @@ export const transitionDocumentKernelAction: ActionDefinition<
       };
     }
 
-    const [previous] = await db
+    const [previous]: any[] = await db
       .select({
         id: documents.id,
         title: documents.title,
@@ -202,7 +168,7 @@ export const transitionDocumentKernelAction: ActionDefinition<
 
     const status = input.status ?? previous.status;
 
-    const [updated] = await db
+    const [updated]: any[] = await db
       .update(documents)
       .set({
         status: status,

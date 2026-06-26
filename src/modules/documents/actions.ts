@@ -31,9 +31,6 @@ function readEnum<T extends string>(
 export async function createTechnicalDocument(formData: FormData) {
   const title = readRequiredText(formData, "title");
   const content = readOptionalText(formData, "content");
-  const serviceOrderId = readOptionalText(formData, "serviceOrderId");
-  const workItemId = readOptionalText(formData, "workItemId");
-  const assetId = readOptionalText(formData, "assetId");
   const documentTypes = await getDocumentTypeOptions();
   const documentType = readEnum(
     formData,
@@ -48,9 +45,6 @@ export async function createTechnicalDocument(formData: FormData) {
     {
       title,
       content,
-      serviceOrderId,
-      workItemId,
-      assetId,
       documentType,
     },
     context,

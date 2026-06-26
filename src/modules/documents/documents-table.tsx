@@ -8,14 +8,6 @@ type DocumentRow = {
   documentType: string;
   status: string;
   createdAt: Date;
-  serviceOrderId?: string | null;
-  serviceOrderCode?: string | null;
-  serviceOrderTitle?: string | null;
-  workItemId?: string | null;
-  workItemTitle?: string | null;
-  assetId?: string | null;
-  assetCode?: string | null;
-  assetName?: string | null;
 };
 
 function formatDate(date: Date) {
@@ -49,26 +41,6 @@ export function DocumentsTable({ documents }: { documents: DocumentRow[] }) {
               <input className="h-10 border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="note" placeholder="Nota" />
               <button className="h-10 bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]" type="submit">Atualizar</button>
             </form>
-          </div>
-          <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
-            <div>
-              <p className="font-mono text-xs text-[#6e7a66]">OS</p>
-              {document.serviceOrderId && document.serviceOrderCode ? (
-                <Link className="mt-1 block underline-offset-4 hover:underline" href={`/service-orders/${document.serviceOrderId}`}>{document.serviceOrderCode} - {document.serviceOrderTitle}</Link>
-              ) : <p className="mt-1 text-[#273025]">Nao vinculada</p>}
-            </div>
-            <div>
-              <p className="font-mono text-xs text-[#6e7a66]">Demanda</p>
-              {document.workItemId && document.workItemTitle ? (
-                <Link className="mt-1 block underline-offset-4 hover:underline" href={`/work-items/${document.workItemId}`}>{document.workItemTitle}</Link>
-              ) : <p className="mt-1 text-[#273025]">Nao vinculada</p>}
-            </div>
-            <div>
-              <p className="font-mono text-xs text-[#6e7a66]">Ativo</p>
-              {document.assetId && document.assetName ? (
-                <Link className="mt-1 block underline-offset-4 hover:underline" href={`/assets/${document.assetId}`}>{document.assetCode} - {document.assetName}</Link>
-              ) : <p className="mt-1 text-[#273025]">Nao vinculado</p>}
-            </div>
           </div>
         </article>
       ))}

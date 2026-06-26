@@ -1,56 +1,77 @@
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, and } from "drizzle-orm";
 import { getDb } from "@/db";
-import { workspaces } from "@/db/runtime/schema/workspace";
-import { assets, serviceOrders, technicalDocuments, workItems } from "@/db/schema";
+import { documents, documentVersions } from "@/db/runtime/schema/documents";
 import { getWorkspaceDocumentTemplateOptions } from "@/platform/workspaces/catalogs";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 
 export async function getTechnicalDocuments() {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  if (!context.workspaceId) return [];
+
   const db = getDb();
 
   return db
     .select({
-      id: technicalDocuments.id,
-      title: technicalDocuments.title,
-      documentType: technicalDocuments.documentType,
-      status: technicalDocuments.status,
-      content: technicalDocuments.content,
-      createdAt: technicalDocuments.createdAt,
-      serviceOrderId: technicalDocuments.serviceOrderId,
-      serviceOrderCode: serviceOrders.code,
-      serviceOrderTitle: serviceOrders.title,
-      workItemId: technicalDocuments.workItemId,
-      workItemTitle: workItems.title,
-      assetId: technicalDocuments.assetId,
-      assetCode: assets.code,
-      assetName: assets.name,
+      id: documents.id,
+      title: documents.title,
+      documentType: documents.documentType,
+      status: documents.status,
+      createdAt: documents.createdAt,
     })
-    .from(technicalDocuments)
-    .leftJoin(serviceOrders, eq(technicalDocuments.serviceOrderId, serviceOrders.id))
-    .leftJoin(workItems, eq(technicalDocuments.workItemId, workItems.id))
-    .leftJoin(assets, eq(technicalDocuments.assetId, assets.id))
-    .orderBy(desc(technicalDocuments.createdAt))
+    .from(documents)
+    .where(eq(documents.workspaceId, context.workspaceId))
+    .orderBy(desc(documents.createdAt))
     .limit(80);
 }
 
-export async function getDocumentSummary() {
+export async function getDocumentById(id: string) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  if (!context.workspaceId) return null;
+
   const db = getDb();
-  const [draft] = await db
+  const [doc]: any[] = await db
+    .select()
+    .from(documents)
+    .where(and(eq(documents.id, id), eq(documents.workspaceId, context.workspaceId)))
+    .limit(1);
+
+  return doc || null;
+}
+
+export async function getDocumentHistory(documentId: string) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  if (!context.workspaceId) return [];
+
+  const db = getDb();
+  return db
+    .select()
+    .from(documentVersions)
+    .where(and(eq(documentVersions.documentId, documentId), eq(documentVersions.workspaceId, context.workspaceId)))
+    .orderBy(desc(documentVersions.createdAt));
+}
+
+export async function getDocumentSummary() {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  if (!context.workspaceId) return [];
+
+  const db = getDb();
+  const [draft]: any[] = await db
     .select({ value: count() })
-    .from(technicalDocuments)
-    .where(eq(technicalDocuments.status, "draft"));
-  const [approval] = await db
+    .from(documents)
+    .where(and(eq(documents.status, "draft"), eq(documents.workspaceId, context.workspaceId)));
+  const [approval]: any[] = await db
     .select({ value: count() })
-    .from(technicalDocuments)
-    .where(eq(technicalDocuments.status, "waiting_supervisor_approval"));
-  const [approved] = await db
+    .from(documents)
+    .where(and(eq(documents.status, "waiting_supervisor_approval"), eq(documents.workspaceId, context.workspaceId)));
+  const [approved]: any[] = await db
     .select({ value: count() })
-    .from(technicalDocuments)
-    .where(eq(technicalDocuments.status, "approved"));
+    .from(documents)
+    .where(and(eq(documents.status, "approved"), eq(documents.workspaceId, context.workspaceId)));
 
   return [
-    { label: "Rascunhos", value: draft.value },
-    { label: "Aguardando aprovacao", value: approval.value },
-    { label: "Aprovados", value: approved.value },
+    { label: "Rascunhos", value: draft?.value || 0 },
+    { label: "Aguardando aprovacao", value: approval?.value || 0 },
+    { label: "Aprovados", value: approved?.value || 0 },
   ];
 }
 

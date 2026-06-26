@@ -128,7 +128,7 @@ test("verifyTraceReceiptLink robustness: schema-invalid current returns false", 
     id: "curr-2",
     previousReceiptId: "prev-1",
   });
-  // @ts-expect-error
+  // @ts-expect-error - testing missing actor field
   delete current.actor;
 
   const result = verifyTraceReceiptLink(previous, current);

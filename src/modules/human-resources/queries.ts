@@ -49,7 +49,7 @@ export async function getEmployees(filters?: { status?: string; department?: str
   let employees = results.map(mapRowToEmployee);
 
   if (filters?.department) {
-    employees = employees.filter(e => e.department === filters.department);
+    employees = employees.filter((e: EmployeeProfile) => e.department === filters.department);
   }
 
   return employees;

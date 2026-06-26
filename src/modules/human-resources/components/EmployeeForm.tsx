@@ -15,6 +15,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmi
     department: initialData?.department || '',
     admissionDate: initialData?.admissionDate || '',
     status: initialData?.status || 'active',
+    managerName: initialData?.managerName || '',
     observations: initialData?.observations || '',
   });
 
@@ -92,6 +93,18 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmi
             value={formData.admissionDate}
             onChange={handleChange}
             required
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          />
+        </div>
+
+        <div className="sm:col-span-3">
+          <label htmlFor="managerName" className="block text-sm font-medium text-gray-700">Nome do Gestor</label>
+          <input
+            type="text"
+            name="managerName"
+            id="managerName"
+            value={formData.managerName}
+            onChange={handleChange}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
           />
         </div>

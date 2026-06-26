@@ -1,8 +1,6 @@
 import { eq, and } from "drizzle-orm";
 import { getDb } from "@/db";
 import { processCandidates } from "@/db/platform/schema/candidates";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
-import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   CreateEmployeeInputSchema,
   UpdateEmployeeInputSchema,
@@ -13,14 +11,13 @@ import {
 const HR_ORIGIN = "human-resources";
 
 export async function createEmployee(input: CreateEmployeeInput) {
-  const context = await resolveWorkspaceContext({ source: "ui" });
   const data = CreateEmployeeInputSchema.parse(input);
   const db = getDb();
 
   const [row] = await db
     .insert(processCandidates)
     .values({
-      workspaceId: context.workspaceId,
+      workspaceId: data.workspaceId,
       name: data.name,
       description: data.observations,
       status: data.status,
@@ -38,23 +35,10 @@ export async function createEmployee(input: CreateEmployeeInput) {
     })
     .returning();
 
-  await db.insert(eventLogs).values({
-    workspaceId: context.workspaceId,
-    entityId: row.id,
-    entityType: "employee",
-    eventType: "hr.employee.created",
-    payload: {
-      employeeId: row.id,
-      name: row.name,
-      registrationCode: data.registrationCode,
-    },
-  });
-
   return row;
 }
 
 export async function updateEmployee(input: UpdateEmployeeInput) {
-  const context = await resolveWorkspaceContext({ source: "ui" });
   const data = UpdateEmployeeInputSchema.parse(input);
   const db = getDb();
 
@@ -65,7 +49,7 @@ export async function updateEmployee(input: UpdateEmployeeInput) {
     .where(
       and(
         eq(processCandidates.id, data.id),
-        eq(processCandidates.workspaceId, context.workspaceId),
+        eq(processCandidates.workspaceId, data.workspaceId || ""), // Use provided workspaceId or empty
         eq(processCandidates.origin, HR_ORIGIN)
       )
     )
@@ -104,21 +88,10 @@ export async function updateEmployee(input: UpdateEmployeeInput) {
     .where(
       and(
         eq(processCandidates.id, data.id),
-        eq(processCandidates.workspaceId, context.workspaceId)
+        eq(processCandidates.workspaceId, existing.workspaceId)
       )
     )
     .returning();
-
-  await db.insert(eventLogs).values({
-    workspaceId: context.workspaceId,
-    entityId: row.id,
-    entityType: "employee",
-    eventType: "hr.employee.updated",
-    payload: {
-      employeeId: row.id,
-      changes: data,
-    },
-  });
 
   return row;
 }

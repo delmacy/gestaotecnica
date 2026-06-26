@@ -1,4 +1,4 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { processCandidates } from "@/db/platform/schema/candidates";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
@@ -9,9 +9,6 @@ export async function getCases(filters?: { status?: string; category?: string })
   const context = await resolveWorkspaceContext({ source: "ui" });
   const db = getDb();
 
-  // Note: Drizzle's sql template tag is needed for JSONB filtering if we want it robust,
-  // but following the pattern of simplified filters for Jules Business Modules for now.
-  // The PR feedback requested a correct implementation.
   const results = await db
     .select()
     .from(processCandidates)
@@ -20,7 +17,7 @@ export async function getCases(filters?: { status?: string; category?: string })
         eq(processCandidates.workspaceId, context.workspaceId),
         eq(processCandidates.origin, "case-management"),
         filters?.status ? eq(processCandidates.status, filters.status) : undefined,
-        filters?.category ? eq(processCandidates.description, filters.category) : undefined // Fallback for simple filter
+        filters?.category ? sql`${processCandidates.proposedDefinition}->>'category' = ${filters.category}` : undefined
       )
     )
     .orderBy(desc(processCandidates.createdAt))

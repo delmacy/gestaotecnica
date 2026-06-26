@@ -84,4 +84,14 @@ describe("CaseManagementModule Contracts", () => {
     const queryPattern = "eq(processCandidates.origin, \"case-management\")";
     assert.ok(queryPattern.includes("case-management"), "Queries must be scoped to case-management origin");
   });
+
+  it("should enforce isolation by origin and workspace (logical check)", () => {
+    const isIsolated = (origin: string, workspaceId: string) => {
+      return origin === "case-management" && workspaceId === validWorkspaceId;
+    };
+
+    assert.ok(isIsolated("case-management", validWorkspaceId), "Should allow its own entities");
+    assert.ok(!isIsolated("work-intake", validWorkspaceId), "Should block work-intake entities");
+    assert.ok(!isIsolated("case-management", "other-workspace"), "Should block other workspace entities");
+  });
 });

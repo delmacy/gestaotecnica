@@ -4,7 +4,7 @@ import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb, getRuntimeDb } from "@/db";
+import { getDb } from "@/db";
 import {
   assets,
 
@@ -29,17 +29,6 @@ async function readReportType(formData: FormData) {
   return reportTypes.some((item) => item.value === value) ? value : fallback;
 }
 
-async function countByStatus(
-  status: "open" | "assigned" | "in_progress" | "waiting_review" | "completed" | "approved",
-) {
-  const db = getRuntimeDb();
-  const [row] = await db
-    .select({ value: count() })
-    .from(serviceOrders)
-    .where(eq(serviceOrders.status, status));
-  return row.value;
-}
-
 export async function createOperationalReport(formData: FormData) {
   const title =
     readOptionalText(formData, "title") ??
@@ -52,12 +41,7 @@ export async function createOperationalReport(formData: FormData) {
     assetsRow,
     timeEntriesRow,
     pendingShiftRows,
-    openOrders,
-    assignedOrders,
-    inProgressOrders,
-    waitingReviewOrders,
-    completedOrders,
-    approvedOrders,
+    statusCounts,
   ] = await Promise.all([
     db.select({ value: count() }).from(workItems),
     db.select({ value: count() }).from(assets),
@@ -66,13 +50,17 @@ export async function createOperationalReport(formData: FormData) {
       .select({ value: count() })
       .from(shiftLogEntries)
       .where(eq(shiftLogEntries.isPending, true)),
-    countByStatus("open"),
-    countByStatus("assigned"),
-    countByStatus("in_progress"),
-    countByStatus("waiting_review"),
-    countByStatus("completed"),
-    countByStatus("approved"),
+    db
+      .select({
+        status: serviceOrders.status,
+        count: count(),
+      })
+      .from(serviceOrders)
+      .groupBy(serviceOrders.status),
   ]);
+
+  const getCount = (status: string) =>
+    statusCounts.find((row) => row.status === status)?.count ?? 0;
 
   const payload = {
     generatedAt: new Date().toISOString(),
@@ -83,12 +71,12 @@ export async function createOperationalReport(formData: FormData) {
       pendingShiftEntries: pendingShiftRows[0].value,
     },
     serviceOrders: {
-      open: openOrders,
-      assigned: assignedOrders,
-      inProgress: inProgressOrders,
-      waitingReview: waitingReviewOrders,
-      completed: completedOrders,
-      approved: approvedOrders,
+      open: getCount("open"),
+      assigned: getCount("assigned"),
+      inProgress: getCount("in_progress"),
+      waitingReview: getCount("waiting_review"),
+      completed: getCount("completed"),
+      approved: getCount("approved"),
     },
   };
 

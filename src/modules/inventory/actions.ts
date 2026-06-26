@@ -1,9 +1,7 @@
 "use server";
 
-import { inventoryMovements } from "@/db/schema";
-import { inventoryItems } from "@/db/schema";
-
-import { eq, sql } from "drizzle-orm";
+import { inventoryMovements, inventoryItems } from "@/db/schema";
+import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
@@ -46,6 +44,7 @@ function readEnum<T extends string>(
 }
 
 export async function createInventoryItem(formData: FormData) {
+  const workspaceId = readRequiredText(formData, "workspaceId");
   const sku = readRequiredText(formData, "sku");
   const name = readRequiredText(formData, "name");
   const quantityOnHand = readInteger(formData, "quantityOnHand", 0);
@@ -59,6 +58,7 @@ export async function createInventoryItem(formData: FormData) {
   const db = getRuntimeDb();
 
   const [item] = await db.insert(inventoryItems).values({
+    workspaceId,
     sku,
     name,
     status,
@@ -67,6 +67,7 @@ export async function createInventoryItem(formData: FormData) {
     category: readOptionalText(formData, "category"),
     unit: readOptionalText(formData, "unit") ?? "un",
     location: readOptionalText(formData, "location"),
+    lot: readOptionalText(formData, "lot"),
     supplierId: readOptionalText(formData, "supplierId"),
     assetId: readOptionalText(formData, "assetId"),
     notes: readOptionalText(formData, "notes"),
@@ -78,6 +79,7 @@ export async function createInventoryItem(formData: FormData) {
   });
 
   await db.insert(eventLogs).values({
+    workspaceId,
     eventType: "inventory_item.created",
     entityType: "inventory_item",
     entityId: item.id,
@@ -92,6 +94,7 @@ export async function createInventoryItem(formData: FormData) {
 }
 
 export async function createInventoryMovement(formData: FormData) {
+  const workspaceId = readRequiredText(formData, "workspaceId");
   const itemId = readRequiredText(formData, "itemId");
   const movementType = readEnum<InventoryMovementTypeValue>(
     formData,
@@ -102,11 +105,23 @@ export async function createInventoryMovement(formData: FormData) {
   const quantity = readInteger(formData, "quantity");
   const db = getDb();
 
+  // Validate item belongs to workspace
+  const [item] = await db.select()
+    .from(inventoryItems)
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.workspaceId, workspaceId)))
+    .limit(1);
+
+  if (!item) {
+    throw new Error("Item nao encontrado no workspace selecionado.");
+  }
+
   const delta = movementType === "inbound" || movementType === "release" ? quantity : -quantity;
   const [movement] = await db.insert(inventoryMovements).values({
+    workspaceId,
     itemId,
     movementType,
     quantity,
+    reason: readOptionalText(formData, "reason"),
     serviceOrderId: readOptionalText(formData, "serviceOrderId"),
     acquisitionNeedId: readOptionalText(formData, "acquisitionNeedId"),
     performedById: readOptionalText(formData, "performedById"),
@@ -123,9 +138,10 @@ export async function createInventoryMovement(formData: FormData) {
       quantityOnHand: sql`${inventoryItems.quantityOnHand} + ${delta}`,
       updatedAt: new Date(),
     })
-    .where(eq(inventoryItems.id, itemId));
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.workspaceId, workspaceId)));
 
   await db.insert(eventLogs).values({
+    workspaceId,
     eventType: "inventory_movement.created",
     entityType: "inventory_movement",
     entityId: movement.id,

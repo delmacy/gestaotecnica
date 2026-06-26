@@ -1,4 +1,4 @@
-import { count, desc, eq, lte, sql } from "drizzle-orm";
+import { and, count, desc, eq, lte, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   acquisitionNeeds,
@@ -19,7 +19,7 @@ export type InventoryOptions = {
   users: Array<{ id: string; name: string }>;
 };
 
-export async function getInventoryItems() {
+export async function getInventoryItems(workspaceId: string) {
   const db = getDb();
   return db.select({
     id: inventoryItems.id,
@@ -31,6 +31,7 @@ export async function getInventoryItems() {
     minimumQuantity: inventoryItems.minimumQuantity,
     unit: inventoryItems.unit,
     location: inventoryItems.location,
+    lot: inventoryItems.lot,
     notes: inventoryItems.notes,
     supplierName: suppliers.name,
     assetCode: assets.code,
@@ -38,16 +39,18 @@ export async function getInventoryItems() {
   }).from(inventoryItems)
     .leftJoin(suppliers, eq(inventoryItems.supplierId, suppliers.id))
     .leftJoin(assets, eq(inventoryItems.assetId, assets.id))
+    .where(eq(inventoryItems.workspaceId, workspaceId))
     .orderBy(desc(inventoryItems.createdAt))
     .limit(80);
 }
 
-export async function getInventoryMovements() {
+export async function getInventoryMovements(workspaceId: string) {
   const db = getDb();
   return db.select({
     id: inventoryMovements.id,
     movementType: inventoryMovements.movementType,
     quantity: inventoryMovements.quantity,
+    reason: inventoryMovements.reason,
     notes: inventoryMovements.notes,
     occurredAt: inventoryMovements.occurredAt,
     itemSku: inventoryItems.sku,
@@ -60,15 +63,16 @@ export async function getInventoryMovements() {
     .leftJoin(serviceOrders, eq(inventoryMovements.serviceOrderId, serviceOrders.id))
     .leftJoin(acquisitionNeeds, eq(inventoryMovements.acquisitionNeedId, acquisitionNeeds.id))
     .leftJoin(users, eq(inventoryMovements.performedById, users.id))
+    .where(eq(inventoryMovements.workspaceId, workspaceId))
     .orderBy(desc(inventoryMovements.occurredAt))
     .limit(80);
 }
 
-export async function getInventorySummary() {
+export async function getInventorySummary(workspaceId: string) {
   const db = getDb();
-  const [items] = await db.select({ value: count() }).from(inventoryItems);
-  const [lowStock] = await db.select({ value: count() }).from(inventoryItems).where(lte(inventoryItems.quantityOnHand, inventoryItems.minimumQuantity));
-  const [total] = await db.select({ value: sql<number>`coalesce(sum(${inventoryItems.quantityOnHand}), 0)` }).from(inventoryItems);
+  const [items] = await db.select({ value: count() }).from(inventoryItems).where(eq(inventoryItems.workspaceId, workspaceId));
+  const [lowStock] = await db.select({ value: count() }).from(inventoryItems).where(and(eq(inventoryItems.workspaceId, workspaceId), lte(inventoryItems.quantityOnHand, inventoryItems.minimumQuantity)));
+  const [total] = await db.select({ value: sql<number>`coalesce(sum(${inventoryItems.quantityOnHand}), 0)` }).from(inventoryItems).where(eq(inventoryItems.workspaceId, workspaceId));
   return [
     { label: "Itens", value: items.value },
     { label: "Abaixo do minimo", value: lowStock.value },
@@ -76,10 +80,10 @@ export async function getInventorySummary() {
   ];
 }
 
-export async function getInventoryOptions(): Promise<InventoryOptions> {
+export async function getInventoryOptions(workspaceId: string): Promise<InventoryOptions> {
   const db = getDb();
   const [itemRows, supplierRows, assetRows, orderRows, acquisitionRows, userRows] = await Promise.all([
-    db.select({ id: inventoryItems.id, sku: inventoryItems.sku, name: inventoryItems.name }).from(inventoryItems).orderBy(desc(inventoryItems.createdAt)).limit(80),
+    db.select({ id: inventoryItems.id, sku: inventoryItems.sku, name: inventoryItems.name }).from(inventoryItems).where(eq(inventoryItems.workspaceId, workspaceId)).orderBy(desc(inventoryItems.createdAt)).limit(80),
     db.select({ id: suppliers.id, name: suppliers.name }).from(suppliers).orderBy(desc(suppliers.createdAt)).limit(50),
     db.select({ id: assets.id, code: assets.code, name: assets.name }).from(assets).orderBy(desc(assets.createdAt)).limit(50),
     db.select({ id: serviceOrders.id, code: serviceOrders.code, title: serviceOrders.title }).from(serviceOrders).orderBy(desc(serviceOrders.createdAt)).limit(50),

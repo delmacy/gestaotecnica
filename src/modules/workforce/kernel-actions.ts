@@ -166,6 +166,23 @@ export const createUnavailabilityKernelAction: ActionDefinition<any, any> = {
   async handler(input, context) {
     const db = getDb();
 
+    // Verify member exists and belongs to workspace
+    const [member] = await db
+      .select()
+      .from(processCandidates)
+      .where(
+        and(
+          eq(processCandidates.id, input.memberId),
+          eq(processCandidates.workspaceId, context.workspaceId),
+          eq(processCandidates.origin, WORKFORCE_MEMBER_ORIGIN)
+        )
+      )
+      .limit(1);
+
+    if (!member) {
+      return { success: false, error: { code: "NOT_FOUND", message: "Membro não encontrado neste workspace." } };
+    }
+
     const validated = CreateUnavailabilityInputSchema.parse({
       ...input,
       workspaceId: context.workspaceId,

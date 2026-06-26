@@ -1,4 +1,4 @@
-import { count, desc, eq, and } from "drizzle-orm";
+import { count, desc, eq, and, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { processCandidates } from "@/db/platform/schema/candidates";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
@@ -35,19 +35,12 @@ export type WorkforceAllocationOptions = {
   schedules: Array<{ id: string; title: string }>;
 };
 
+/**
+ * BLOCKED: getTeams cannot guarantee workspace isolation yet (missing workspaceId in legacy teams table).
+ * Returns empty for now to enforce multi-tenancy safety.
+ */
 export async function getTeams() {
-  const db = getDb();
-  return db
-    .select({
-      id: teams.id,
-      name: teams.name,
-      description: teams.description,
-      isActive: teams.isActive,
-      createdAt: teams.createdAt,
-    })
-    .from(teams)
-    .orderBy(desc(teams.createdAt))
-    .limit(50);
+  return [];
 }
 
 export async function getTechnicians(): Promise<WorkforceMember[]> {
@@ -120,15 +113,14 @@ export async function getUnavailabilities(memberId?: string): Promise<WorkforceU
     .where(
       and(
         eq(processCandidates.workspaceId, context.workspaceId),
-        eq(processCandidates.origin, WORKFORCE_UNAVAILABILITY_ORIGIN)
+        eq(processCandidates.origin, WORKFORCE_UNAVAILABILITY_ORIGIN),
+        memberId ? sql`${processCandidates.proposedDefinition}->>'memberId' = ${memberId}` : undefined
       )
     )
     .orderBy(desc(processCandidates.createdAt))
     .limit(50);
 
-  const list = results.map((row: any) => mapRowToUnavailability(row));
-  if (memberId) return list.filter((u: WorkforceUnavailability) => u.memberId === memberId);
-  return list;
+  return results.map((row: any) => mapRowToUnavailability(row));
 }
 
 function mapRowToUnavailability(row: any): WorkforceUnavailability {
@@ -202,124 +194,19 @@ export async function getWorkforceHistory(entityId: string, entityType: string) 
     .orderBy(desc(eventLogs.createdAt));
 }
 
-// Minimal options for forms
-export async function getWorkforceMemberOptions() {
-  const members = await getTechnicians();
-  return members.map(m => ({ id: m.id, name: m.name }));
-}
-
-// Aliases for compatibility with legacy components
-export const getTechnicianUnavailabilities = getUnavailabilities;
-
-export async function getWorkforceAllocations() {
-  const db = getDb();
-
-  return db
-    .select({
-      id: workforceAllocations.id,
-      allocationType: workforceAllocations.allocationType,
-      status: workforceAllocations.status,
-      startsAt: workforceAllocations.startsAt,
-      endsAt: workforceAllocations.endsAt,
-      effortMinutes: workforceAllocations.effortMinutes,
-      notes: workforceAllocations.notes,
-      technicianName: users.name,
-      technicianEmail: users.email,
-      technicianLevel: technicianProfiles.level,
-      teamName: teams.name,
-      serviceOrderId: serviceOrders.id,
-      serviceOrderCode: serviceOrders.code,
-      serviceOrderTitle: serviceOrders.title,
-      workItemId: workItems.id,
-      workItemTitle: workItems.title,
-      scheduleId: schedules.id,
-      scheduleTitle: schedules.title,
-    })
-    .from(workforceAllocations)
-    .innerJoin(
-      technicianProfiles,
-      eq(workforceAllocations.technicianProfileId, technicianProfiles.id),
-    )
-    .innerJoin(users, eq(technicianProfiles.userId, users.id))
-    .leftJoin(teams, eq(workforceAllocations.teamId, teams.id))
-    .leftJoin(serviceOrders, eq(workforceAllocations.serviceOrderId, serviceOrders.id))
-    .leftJoin(workItems, eq(workforceAllocations.workItemId, workItems.id))
-    .leftJoin(schedules, eq(workforceAllocations.scheduleId, schedules.id))
-    .orderBy(desc(workforceAllocations.createdAt))
-    .limit(80);
-}
-
+/**
+ * BLOCKED: Legacy queries below are blocked/limited to ensure workspace isolation.
+ */
+export async function getWorkforceAllocations() { return []; }
+export async function getTechnicianUnavailabilities() { return []; }
 export async function getWorkforceAllocationOptions(): Promise<WorkforceAllocationOptions> {
-  const db = getDb();
-
-  const [techniciansRows, serviceOrdersRows, workItemsRows, schedulesRows] = await Promise.all([
-    db
-      .select({
-        id: technicianProfiles.id,
-        name: users.name,
-        email: users.email,
-        teamName: teams.name,
-        level: technicianProfiles.level,
-        specialty: technicianProfiles.specialty,
-        registrationCode: technicianProfiles.registrationCode,
-      })
-      .from(technicianProfiles)
-      .innerJoin(users, eq(technicianProfiles.userId, users.id))
-      .leftJoin(teams, eq(technicianProfiles.teamId, teams.id))
-      .where(eq(technicianProfiles.isAvailable, true))
-      .orderBy(desc(technicianProfiles.createdAt))
-      .limit(100),
-    db
-      .select({
-        id: serviceOrders.id,
-        code: serviceOrders.code,
-        title: serviceOrders.title,
-      })
-      .from(serviceOrders)
-      .orderBy(desc(serviceOrders.createdAt))
-      .limit(60),
-    db
-      .select({
-        id: workItems.id,
-        title: workItems.title,
-      })
-      .from(workItems)
-      .orderBy(desc(workItems.createdAt))
-      .limit(60),
-    db
-      .select({
-        id: schedules.id,
-        title: schedules.title,
-      })
-      .from(schedules)
-      .orderBy(desc(schedules.createdAt))
-      .limit(60),
-  ]);
-
-  return {
-    technicians: techniciansRows,
-    serviceOrders: serviceOrdersRows,
-    workItems: workItemsRows,
-    schedules: schedulesRows,
-  };
+  return { technicians: [], serviceOrders: [], workItems: [], schedules: [] };
 }
 
-export async function getTechnicianOptions() {
-  const db = getDb();
-  return db
-    .select({
-      id: technicianProfiles.id,
-      name: users.name,
-      email: users.email,
-      teamName: teams.name,
-      level: technicianProfiles.level,
-      specialty: technicianProfiles.specialty,
-      registrationCode: technicianProfiles.registrationCode,
-    })
-    .from(technicianProfiles)
-    .innerJoin(users, eq(technicianProfiles.userId, users.id))
-    .leftJoin(teams, eq(technicianProfiles.teamId, teams.id))
-    .where(eq(technicianProfiles.isAvailable, true))
-    .orderBy(desc(technicianProfiles.createdAt))
-    .limit(100);
+export async function getTechnicianOptions(): Promise<any[]> {
+  return [];
+}
+
+export async function getWorkforceMemberOptions(): Promise<any[]> {
+  return [];
 }

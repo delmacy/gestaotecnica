@@ -62,7 +62,6 @@ import { workforceManifest } from "@/modules/workforce/manifest";
 import {
   createTeamKernelAction,
   createTechnicianKernelAction,
-  createUnavailabilityKernelAction,
 } from "@/modules/workforce/kernel-actions";
 import { globalSearchManifest } from "@/modules/global-search/manifest";
 import { globalSearchKernelAction } from "@/modules/global-search/kernel-actions";
@@ -151,7 +150,6 @@ export function initializePlatformKernel() {
   registerAction(closeShiftKernelAction);
   registerAction(createTechnicianKernelAction);
   registerAction(createTeamKernelAction);
-  registerAction(createUnavailabilityKernelAction);
   registerAction(globalSearchKernelAction);
   registerAction(getDashboardSummaryKernelAction);
   registerAction(toggleModuleKernelAction);

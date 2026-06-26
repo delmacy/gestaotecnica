@@ -22,6 +22,8 @@
     "db:bootstrap": "npx tsx src/scripts/bootstrap-schemas.ts",
     "db:setup:unified-test": "npx tsx src/scripts/setup-unified-test-database.ts",
     "db:validate": "npx tsx src/scripts/db/validate-migrations.ts",
+    "db:verify-ci": "npx tsx src/scripts/db/verify-schema-ci.ts",
+    "db:apply-migrations-ci": "npx tsx src/scripts/db/apply-migrations-ci.ts",
     "db:migrate": "npm run db:bootstrap && npm run db:validate && drizzle-kit push",
     "db:generate": "npm run db:bootstrap && drizzle-kit generate",
     "db:push": "npm run db:bootstrap && drizzle-kit push",

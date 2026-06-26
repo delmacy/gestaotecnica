@@ -60,7 +60,8 @@ export async function createOperationalReport(formData: FormData) {
   ]);
 
   const getCount = (status: string) =>
-    statusCounts.find((row) => row.status === status)?.count ?? 0;
+    statusCounts.find((row: { status: string | null; count: number }) => row.status === status)
+      ?.count ?? 0;
 
   const payload = {
     generatedAt: new Date().toISOString(),

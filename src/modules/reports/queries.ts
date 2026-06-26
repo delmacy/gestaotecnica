@@ -56,7 +56,8 @@ export async function getOperationalReportData() {
   const totalMinutes = Number(totalHoursRow[0].value ?? 0);
 
   const getCount = (status: string) =>
-    statusCounts.find((row) => row.status === status)?.count ?? 0;
+    statusCounts.find((row: { status: string | null; count: number }) => row.status === status)
+      ?.count ?? 0;
 
   return {
     cards: [

@@ -60,20 +60,20 @@ test("getReports handles no options", async () => {
 });
 
 test("getReports applies filters", async () => {
-  let whereCondition: { type: string; args: unknown[] } | null = null;
+  let whereCondition: any = null;
 
   const localMockDb = {
     ...mockDb,
     select: () => localMockDb,
     from: () => localMockDb,
-    where: (cond: { type: string; args: unknown[] }) => {
+    where: (cond: any) => {
       whereCondition = cond;
       return localMockDb;
     },
     orderBy: () => localMockDb,
     limit: () => localMockDb,
     offset: () => localMockDb,
-  } as unknown as typeof mockDb;
+  } as any;
 
   const { getReports: testGetReports } = proxyquire("../../src/modules/reports/queries", {
     "@/db": { getDb: () => localMockDb },
@@ -84,10 +84,10 @@ test("getReports applies filters", async () => {
   await testGetReports({ type: "test-type", startDate });
 
   assert.ok(whereCondition, "whereCondition should be defined");
-  assert.strictEqual(whereCondition.type, "and");
-  assert.strictEqual(whereCondition.args.length, 2);
-  const arg0 = whereCondition.args[0] as { type: string };
-  const arg1 = whereCondition.args[1] as { type: string };
+  assert.strictEqual((whereCondition as any).type, "and");
+  assert.strictEqual((whereCondition as any).args.length, 2);
+  const arg0 = (whereCondition as any).args[0] as { type: string };
+  const arg1 = (whereCondition as any).args[1] as { type: string };
   assert.strictEqual(arg0.type, "eq");
   assert.strictEqual(arg1.type, "gte");
 });

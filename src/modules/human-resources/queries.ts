@@ -1,4 +1,4 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { processCandidates } from "@/db/platform/schema/candidates";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
@@ -32,27 +32,28 @@ export async function getEmployees(filters?: { status?: string; department?: str
   const context = await resolveWorkspaceContext({ source: "ui" });
   const db = getDb();
 
+  const conditions = [
+    eq(processCandidates.workspaceId, context.workspaceId),
+    eq(processCandidates.origin, HR_ORIGIN),
+  ];
+
+  if (filters?.status) {
+    conditions.push(eq(processCandidates.status, filters.status));
+  }
+
+  if (filters?.department) {
+    // Filter department in DB using JSONB operator
+    conditions.push(sql`${processCandidates.proposedDefinition}->>'department' = ${filters.department}`);
+  }
+
   const results = await db
     .select()
     .from(processCandidates)
-    .where(
-      and(
-        eq(processCandidates.workspaceId, context.workspaceId),
-        eq(processCandidates.origin, HR_ORIGIN),
-        filters?.status ? eq(processCandidates.status, filters.status) : undefined
-      )
-    )
+    .where(and(...conditions))
     .orderBy(desc(processCandidates.createdAt))
     .limit(100);
 
-  // Client-side filtering for department since it's in JSONB
-  let employees = results.map(mapRowToEmployee);
-
-  if (filters?.department) {
-    employees = employees.filter((e: EmployeeProfile) => e.department === filters.department);
-  }
-
-  return employees;
+  return results.map(mapRowToEmployee);
 }
 
 export async function getEmployeeById(id: string): Promise<EmployeeProfile | null> {
@@ -80,6 +81,24 @@ export async function getEmployeeHistory(id: string): Promise<EmployeeHistoryEve
   const context = await resolveWorkspaceContext({ source: "ui" });
   const db = getDb();
 
+  // 1. Verify employee existence and ownership before reading history
+  const [employee] = await db
+    .select({ id: processCandidates.id })
+    .from(processCandidates)
+    .where(
+      and(
+        eq(processCandidates.id, id),
+        eq(processCandidates.workspaceId, context.workspaceId),
+        eq(processCandidates.origin, HR_ORIGIN)
+      )
+    )
+    .limit(1);
+
+  if (!employee) {
+    return [];
+  }
+
+  // 2. Query history scoped by entityType
   const results = await db
     .select({
       id: eventLogs.id,
@@ -92,6 +111,7 @@ export async function getEmployeeHistory(id: string): Promise<EmployeeHistoryEve
     .where(
       and(
         eq(eventLogs.entityId, id),
+        eq(eventLogs.entityType, "employee"),
         eq(eventLogs.workspaceId, context.workspaceId)
       )
     )

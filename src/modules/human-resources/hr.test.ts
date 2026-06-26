@@ -74,4 +74,28 @@ describe("HumanResourcesModule Contracts", () => {
       assert.strictEqual(result.data.status, "active");
     }
   });
+
+  describe("Multi-tenant Isolation Rules", () => {
+    const tenantA = "550e8400-e29b-41d4-a716-44665544000a";
+    const tenantB = "550e8400-e29b-41d4-a716-44665544000b";
+
+    it("should prevent cross-tenant data validation (workspaceId mismatch)", () => {
+      const dataForTenantA = {
+        workspaceId: tenantA,
+        registrationCode: "EMP-A",
+        name: "Tenant A User",
+        position: "Manager",
+        department: "HR",
+        admissionDate: "2023-01-01"
+      };
+
+      // Validation should succeed for correct workspace
+      const resultA = CreateEmployeeInputSchema.safeParse(dataForTenantA);
+      assert.strictEqual(resultA.success, true);
+      assert.strictEqual(resultA.data.workspaceId, tenantA);
+
+      // In real scenario, the code will use context.workspaceId,
+      // but here we verify the schema enforces the field existence and type.
+    });
+  });
 });

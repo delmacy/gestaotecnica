@@ -10,8 +10,9 @@ import {
 
 const HR_ORIGIN = "human-resources";
 
-export async function createEmployee(input: CreateEmployeeInput) {
-  const data = CreateEmployeeInputSchema.parse(input);
+export async function createEmployee(workspaceId: string, input: Omit<CreateEmployeeInput, "workspaceId">) {
+  // Validate using schema (omitting workspaceId as it comes from trusted context)
+  const data = CreateEmployeeInputSchema.parse({ ...input, workspaceId });
   const db = getDb();
 
   const [row] = await db
@@ -38,18 +39,19 @@ export async function createEmployee(input: CreateEmployeeInput) {
   return row;
 }
 
-export async function updateEmployee(input: UpdateEmployeeInput) {
-  const data = UpdateEmployeeInputSchema.parse(input);
+export async function updateEmployee(workspaceId: string, input: Omit<UpdateEmployeeInput, "workspaceId">) {
+  // Validate using schema
+  const data = UpdateEmployeeInputSchema.parse({ ...input, workspaceId });
   const db = getDb();
 
-  // First verify ownership
+  // First verify ownership and origin
   const [existing] = await db
     .select()
     .from(processCandidates)
     .where(
       and(
         eq(processCandidates.id, data.id),
-        eq(processCandidates.workspaceId, data.workspaceId || ""), // Use provided workspaceId or empty
+        eq(processCandidates.workspaceId, workspaceId),
         eq(processCandidates.origin, HR_ORIGIN)
       )
     )
@@ -88,7 +90,8 @@ export async function updateEmployee(input: UpdateEmployeeInput) {
     .where(
       and(
         eq(processCandidates.id, data.id),
-        eq(processCandidates.workspaceId, existing.workspaceId)
+        eq(processCandidates.workspaceId, workspaceId),
+        eq(processCandidates.origin, HR_ORIGIN) // Critical: enforce origin in update too
       )
     )
     .returning();

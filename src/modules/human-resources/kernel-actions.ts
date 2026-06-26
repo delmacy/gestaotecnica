@@ -26,10 +26,7 @@ export const createEmployeeKernelAction: ActionDefinition<any, any> = {
   }, ["registrationCode", "name", "position", "department", "admissionDate"]),
   outputSchema: idTitleOutputSchema,
   handler: async (input: any, context) => {
-    const row = await createEmployee({
-      ...input,
-      workspaceId: context.workspaceId,
-    });
+    const row = await createEmployee(context.workspaceId, input);
 
     return {
       success: true,
@@ -69,10 +66,7 @@ export const updateEmployeeKernelAction: ActionDefinition<any, any> = {
   }, ["id"]),
   outputSchema: idTitleOutputSchema,
   handler: async (input: any, context) => {
-    const row = await updateEmployee({
-      ...input,
-      workspaceId: context.workspaceId,
-    });
+    const row = await updateEmployee(context.workspaceId, input);
 
     return {
       success: true,

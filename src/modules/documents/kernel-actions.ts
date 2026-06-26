@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { documents, documentVersions, documentLinks } from "@/db/runtime/schema/documents";
+import { documents, documentLinks } from "@/db/runtime/schema/documents";
 import type { ActionDefinition } from "@/platform/actions";
 import {
   actionObjectSchema,
@@ -61,7 +61,7 @@ export const generateDocumentKernelAction: ActionDefinition<
       };
     }
 
-    const result = await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx: any) => {
       // 1. Create Document
       const [doc] = await tx
         .insert(documents)
@@ -76,24 +76,6 @@ export const generateDocumentKernelAction: ActionDefinition<
           title: documents.title,
           status: documents.status,
         });
-
-      // 2. Create Initial Version (Metadata-only gap for storageObjectId)
-      // Since storageObjectId is NOT NULL, this will FAIL if we don't have a storage object.
-      // Gap: CENTRAL_STORAGE_INTEGRATION.
-      // I will implement the version creation but it might block during integration test if DB is not provisioned.
-      // If I can't create it due to FK, I will record the gap.
-
-      /*
-      // Comentado para evitar falha de FK enquanto storage não existe,
-      // mas mantido como lógica que DEVERIA existir na consolidação.
-      await tx.insert(documentVersions).values({
-        workspaceId,
-        documentId: doc.id,
-        versionNumber: 1,
-        storageObjectId: "...", // GAP
-        checksumSha256: "...",
-      });
-      */
 
       // 3. Create Links
       if (input.serviceOrderId) {

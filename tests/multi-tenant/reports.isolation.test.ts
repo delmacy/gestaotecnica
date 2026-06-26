@@ -31,7 +31,7 @@ test("Reporting Multi-tenant Isolation", async (t) => {
   await t.test("operational report data indicates blocked gaps", async () => {
     const data = await queriesA.getOperationalReportData();
     assert.ok(data.blockedGaps.length > 0, "Should indicate blocked gaps due to isolation requirements");
-    assert.equal(data.cards.find(c => c.label === "Demandas")?.value, 0, "Should return zeroed metrics when blocked");
+    assert.equal(data.cards.find((c: any) => c.label === "Demandas")?.value, 0, "Should return zeroed metrics when blocked");
   });
 });
 

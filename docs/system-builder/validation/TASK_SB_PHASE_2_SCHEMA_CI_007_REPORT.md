@@ -18,8 +18,9 @@ Create a fresh PR from main that explicitly reconciles migration journal/file dr
 
 ## Pull Request Information
 - **PR URL:** https://github.com/delmacy/gestaotecnica/pull/319
-- **Branch:** feat/schema-ci-gate-007
-- **SHA:** e31ea5f9b27b6f9c8321fffb7d3e5ec95d66f3e1
-- **Schema CI Gate Action:** Successful - https://github.com/delmacy/gestaotecnica/actions/runs/28212833798
-- **Architecture Validation:** Successful
+- **Branch:** feat/schema-ci-gate-007-1786190109399207442
+- **SHA:** 1d6003a31f12e5323631647aed23f98471b056f0
+- **Schema CI Gate Action:** Successful - https://github.com/delmacy/gestaotecnica/actions/runs/28213124544
+- **Architecture Validation:** Successful - https://github.com/delmacy/gestaotecnica/actions/runs/28213124531
+- **Agent Work Governance:** Successful - https://github.com/delmacy/gestaotecnica/actions/runs/28213124542
 - **Status:** Candidate for Codex review.

@@ -6,6 +6,10 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'package.json'
+      - 'package-lock.json'
+      - 'playwright.config.ts'
+      - 'tsconfig.json'
+      - 'drizzle.config.ts'
       - '.github/workflows/phase-2-env-validation.yml'
 
 jobs:
@@ -52,6 +56,9 @@ jobs:
 
       - name: Database Validate Migrations
         run: npm run db:validate
+
+      - name: Architecture Check
+        run: npm run check:architecture
 
       - name: Type Check
         run: npx tsc --noEmit

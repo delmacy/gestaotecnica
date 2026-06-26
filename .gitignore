@@ -50,3 +50,5 @@ test_output.txt
 gateway_output.txt
 discovery_output*.txt
 verify_output*.txt
+playwright-report/
+test-results/

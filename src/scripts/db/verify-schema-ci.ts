@@ -1,14 +1,15 @@
 import postgres from 'postgres';
 
 async function verifySchema() {
-  if (!process.env.DATABASE_URL) {
-    console.error('DATABASE_URL is not set. Failing fast.');
+  const dbUrl = process.env.DATABASE_URL || process.env.PLATFORM_DATABASE_URL || process.env.RUNTIME_DATABASE_URL;
+  if (!dbUrl) {
+    console.error('DATABASE_URL, PLATFORM_DATABASE_URL, or RUNTIME_DATABASE_URL must be set. Failing fast.');
     process.exitCode = 1;
     return;
   }
 
   console.log('Connecting to database via lazy client...');
-  const sql = postgres(process.env.DATABASE_URL, { max: 1 });
+  const sql = postgres(dbUrl, { max: 1 });
 
   try {
     const builderRes = await sql`

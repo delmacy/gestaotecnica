@@ -7,8 +7,8 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { workspaces } from "./workspace";
-import { users } from "./identity";
+import { workspaces } from "../workspace";
+import { users } from "../identity";
 
 export const assetsSchema = pgSchema("assets_module");
 
@@ -22,7 +22,7 @@ export const assets = assetsSchema.table(
     code: text("code").notNull(),
     name: text("name").notNull(),
     category: text("category").notNull(),
-    status: text("status").notNull().default("available"),
+    status: text("status").notNull().default("active"),
     location: text("location"),
     responsibleId: uuid("responsible_id").references(() => users.id),
     metadata: jsonb("metadata").notNull().default({}),
@@ -48,9 +48,10 @@ export const assetHistory = assetsSchema.table(
       .notNull()
       .references(() => workspaces.id),
     action: text("action").notNull(),
-    previousData: jsonb("previous_data").notNull().default({}),
-    newData: jsonb("new_data").notNull().default({}),
+    previousStatus: text("previous_status"),
+    newStatus: text("new_status"),
     changedById: uuid("changed_by_id").references(() => users.id),
+    payload: jsonb("payload").notNull().default({}),
     occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [

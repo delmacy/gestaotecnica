@@ -1,118 +1,115 @@
-import { ASSET_STATUSES, ASSET_CATEGORIES } from "./constants";
-import { createAsset, updateAsset } from "./actions";
+import { createAsset } from "./actions";
+import { assetCriticalities, assetStatuses } from "./constants";
 
-type AssetFormProps = {
-  asset?: {
-    id: string;
-    code: string;
-    name: string;
-    category: string;
-    status: string;
-    location: string | null;
-    responsibleId: string | null;
-  };
-  assetTypes?: { value: string; label: string }[];
+type AssetTypeOption = {
+  value: string;
+  label: string;
 };
 
-export function AssetForm({ asset, assetTypes }: AssetFormProps) {
-  const isEditing = !!asset;
-  const categories = assetTypes ?? ASSET_CATEGORIES;
-
+export function AssetForm({ assetTypes }: { assetTypes: AssetTypeOption[] }) {
   return (
-    <form action={isEditing ? updateAsset : createAsset} className="space-y-6">
-      {isEditing && <input type="hidden" name="id" value={asset.id} />}
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div className="space-y-2">
-          <label htmlFor="code" className="text-sm font-medium text-slate-700">
-            Código do Ativo *
-          </label>
-          <input
-            type="text"
-            id="code"
-            name="code"
-            required
-            disabled={isEditing}
-            defaultValue={asset?.code}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500"
-            placeholder="Ex: EQ-001"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium text-slate-700">
-            Nome do Ativo *
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            defaultValue={asset?.name}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            placeholder="Ex: Notebook Dell Latitude"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="category" className="text-sm font-medium text-slate-700">
-            Categoria *
-          </label>
-          <select
-            id="category"
-            name="category"
-            required
-            defaultValue={asset?.category}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">Selecione...</option>
-            {categories.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="status" className="text-sm font-medium text-slate-700">
-            Status
-          </label>
-          <select
-            id="status"
-            name="status"
-            defaultValue={asset?.status ?? "available"}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-          >
-            {ASSET_STATUSES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2 sm:col-span-2">
-          <label htmlFor="location" className="text-sm font-medium text-slate-700">
-            Localização
-          </label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            defaultValue={asset?.location ?? ""}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-            placeholder="Ex: Escritório Central - Sala 202"
-          />
-        </div>
+    <form action={createAsset} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
+      <div className="mb-5">
+        <h2 className="text-lg font-semibold text-[#111510]">Novo ativo</h2>
+        <p className="mt-1 text-sm leading-6 text-[#5b6655]">
+          Cadastre equipamentos, sistemas ou infraestrutura que podem receber demandas e OS.
+        </p>
       </div>
 
-      <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+      <div className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-sm font-medium text-[#273025]">Codigo</span>
+            <input
+              className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
+              name="code"
+              placeholder="Ex.: RAD-001"
+              required
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-[#273025]">Tipo</span>
+            <select
+              className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
+              name="type"
+              defaultValue="equipment"
+              required
+            >
+              {assetTypes.map((type: any) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <label className="block">
+          <span className="text-sm font-medium text-[#273025]">Nome</span>
+          <input
+            className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
+            name="name"
+            placeholder="Ex.: Radio base sala tecnica"
+            required
+          />
+        </label>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-sm font-medium text-[#273025]">Status</span>
+            <select
+              className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
+              defaultValue="active"
+              name="status"
+            >
+              {assetStatuses.map((status: any) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-[#273025]">Criticidade</span>
+            <select
+              className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
+              defaultValue="medium"
+              name="criticality"
+            >
+              {assetCriticalities.map((criticality: any) => (
+                <option key={criticality.value} value={criticality.value}>
+                  {criticality.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <label className="block">
+          <span className="text-sm font-medium text-[#273025]">Localizacao</span>
+          <input
+            className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
+            name="location"
+            placeholder="Ex.: Sala tecnica, torre, rack, setor"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium text-[#273025]">Descricao</span>
+          <textarea
+            className="mt-1 min-h-24 w-full resize-y border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm leading-6 outline-none focus:border-[#6b7d5d]"
+            name="description"
+            placeholder="Observacoes, funcao do ativo, dependencia ou contexto operacional."
+          />
+        </label>
+
         <button
+          className="h-11 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]"
           type="submit"
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus:outline-none"
         >
-          {isEditing ? "Salvar Alterações" : "Cadastrar Ativo"}
+          Criar ativo
         </button>
       </div>
     </form>

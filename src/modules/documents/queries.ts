@@ -25,15 +25,15 @@ export async function getTechnicalDocuments() {
     .limit(80);
 
   // Hydrate with links
-  const results = await Promise.all(baseDocuments.map(async (doc) => {
+  const results = await Promise.all(baseDocuments.map(async (doc: any) => {
     const links = await db
       .select()
       .from(documentLinks)
       .where(eq(documentLinks.documentId, doc.id));
 
-    const serviceOrderLink = links.find(l => l.linkedEntityType === "service_order");
-    const workItemLink = links.find(l => l.linkedEntityType === "work_item");
-    const assetLink = links.find(l => l.linkedEntityType === "asset");
+    const serviceOrderLink = links.find((l: any) => l.linkedEntityType === "service_order");
+    const workItemLink = links.find((l: any) => l.linkedEntityType === "work_item");
+    const assetLink = links.find((l: any) => l.linkedEntityType === "asset");
 
     let serviceOrder = null;
     if (serviceOrderLink) {

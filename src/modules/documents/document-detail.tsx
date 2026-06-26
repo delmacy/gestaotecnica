@@ -43,7 +43,7 @@ export async function DocumentDetail({ id }: { id: string }) {
           <p className="mt-4 text-sm text-[#5b6655]">Nenhuma versão registrada (metadado isolado).</p>
         ) : (
           <ul className="mt-4 divide-y divide-[#ecefe9]">
-            {history.map((version) => (
+            {history.map((version: any) => (
               <li key={version.id} className="py-3 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[#273025]">Versão {version.versionNumber}</p>

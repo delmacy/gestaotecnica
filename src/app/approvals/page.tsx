@@ -23,11 +23,10 @@ export default async function ApprovalsPage() {
                 Governanca operacional
               </p>
               <h1 className="mt-2 text-4xl font-semibold text-[#111510]">
-                Revisao tecnica
+                Fila de aprovacoes
               </h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
-                Fila de OS concluidas ou enviadas para revisao, com aprovacao e
-                retorno para execucao.
+                Modulo universal de aprovacoes. Gerencie solicitacoes de diversos tipos de objetos em um so lugar.
               </p>
             </div>
             <Link

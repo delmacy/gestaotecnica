@@ -20,6 +20,56 @@ function readOptionalText(formData: FormData, field: string) {
   return value.length > 0 ? value : undefined;
 }
 
+export async function submitForApproval(formData: FormData) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const subjectType = readRequiredText(formData, "subjectType");
+  const subjectId = readRequiredText(formData, "subjectId");
+  const comment = readOptionalText(formData, "comment");
+
+  const result = await runAction(
+    "approvals.request",
+    {
+      subjectType,
+      subjectId,
+      comment,
+    },
+    context,
+  );
+
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao enviar para aprovação.");
+  }
+
+  revalidatePath("/approvals");
+  redirect("/approvals");
+}
+
+export async function decideApproval(formData: FormData) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const id = readRequiredText(formData, "id");
+  const decision = readRequiredText(formData, "decision");
+  const comment = readOptionalText(formData, "comment");
+
+  const result = await runAction(
+    "approvals.decide",
+    {
+      id,
+      decision,
+      comment,
+    },
+    context,
+  );
+
+  if (!result.success) {
+    throw new Error(result.error?.message ?? "Falha ao registrar decisão.");
+  }
+
+  revalidatePath("/approvals");
+  revalidatePath(`/approvals/${id}`);
+  redirect("/approvals");
+}
+
+// Backward compatibility actions
 export async function submitServiceOrderForReview(formData: FormData) {
   const id = readRequiredText(formData, "id");
   const note = readOptionalText(formData, "note");

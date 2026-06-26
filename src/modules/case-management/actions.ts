@@ -41,6 +41,7 @@ export async function createCase(input: unknown) {
   await db.insert(eventLogs).values({
     workspaceId: data.workspaceId,
     entityId: inserted.id,
+    entityType: "case",
     eventType: "case_management.created",
     payload: {
       caseId: inserted.id,
@@ -88,12 +89,19 @@ export async function updateCase(input: unknown) {
       proposedDefinition: updatedProposed,
       updatedAt: new Date(),
     })
-    .where(eq(processCandidates.id, data.id))
+    .where(
+      and(
+        eq(processCandidates.id, data.id),
+        eq(processCandidates.workspaceId, context.workspaceId),
+        eq(processCandidates.origin, "case-management")
+      )
+    )
     .returning();
 
   await db.insert(eventLogs).values({
     workspaceId: context.workspaceId,
     entityId: data.id,
+    entityType: "case",
     eventType: "case_management.updated",
     payload: {
       updatedFields: data,
@@ -117,7 +125,8 @@ export async function changeCaseStatus(input: unknown) {
     .where(
       and(
         eq(processCandidates.id, data.id),
-        eq(processCandidates.workspaceId, context.workspaceId)
+        eq(processCandidates.workspaceId, context.workspaceId),
+        eq(processCandidates.origin, "case-management")
       )
     )
     .returning();
@@ -127,6 +136,7 @@ export async function changeCaseStatus(input: unknown) {
   await db.insert(eventLogs).values({
     workspaceId: context.workspaceId,
     entityId: data.id,
+    entityType: "case",
     eventType: "case_management.status_changed",
     payload: {
       newStatus: data.status,
@@ -165,6 +175,7 @@ export async function addCaseComment(input: unknown) {
   await db.insert(eventLogs).values({
     workspaceId: context.workspaceId,
     entityId: data.caseId,
+    entityType: "case",
     eventType: "case_management.comment_added",
     payload: {
       commentId,

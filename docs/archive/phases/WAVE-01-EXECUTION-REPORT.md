@@ -37,7 +37,7 @@ O repositório foi sincronizado com `main` e as dependências foram instaladas v
 O build foi executado com sucesso, confirmando que as alterações (correções em testes) não introduziram regressões de compilação.
 
 ## Ações Realizadas
-- Correção de `tests/unit/form-contract-extraction.test.ts` (Substituição de `@ts-ignore` por `@ts-expect-error` com descrição).
+- Correção de `tests/unit/form-contract-extraction.test.ts` (Substituição de `@ts-ignore` por guarda de tipo `if` para resolver erro de lint/tsc).
 - Correção de `tests/unit/process-definition-schema.test.ts` (Substituição de `@ts-ignore` por `@ts-expect-error` com descrição).
 - Correção de `tests/unit/trace-receipt-hashing.test.ts` (Adição de descrições em `@ts-expect-error`).
 - Correção de `tests/unit/trace-receipt-linking.test.ts` (Substituição de `@ts-ignore` por `@ts-expect-error` com descrição).

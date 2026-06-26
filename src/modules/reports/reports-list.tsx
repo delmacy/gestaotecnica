@@ -12,36 +12,14 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-import Link from "next/link";
-
-export function ReportsList({
-  reports,
-  currentPage = 0,
-  hasMore = false,
-  filters = {},
-}: {
-  reports: ReportRow[];
-  currentPage?: number;
-  hasMore?: boolean;
-  filters?: Record<string, string | undefined>;
-}) {
+export function ReportsList({ reports }: { reports: ReportRow[] }) {
   if (reports.length === 0) {
     return (
       <div className="border border-[#d7dccf] bg-white p-5 text-sm text-[#5b6655] shadow-sm">
-        Nenhum snapshot encontrado.
+        Nenhum snapshot gerado.
       </div>
     );
   }
-
-  const buildHref = (page: number) => {
-    const params = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.set(key, value);
-    });
-    if (page > 0) params.set("page", page.toString());
-    const query = params.toString();
-    return query ? `?${query}` : "/reports";
-  };
 
   return (
     <div className="space-y-3">
@@ -60,30 +38,6 @@ export function ReportsList({
           </div>
         </article>
       ))}
-
-      {(currentPage > 0 || hasMore) && (
-        <div className="mt-4 flex items-center justify-between">
-          {currentPage > 0 ? (
-            <Link
-              href={buildHref(currentPage - 1)}
-              className="text-xs font-semibold text-[#506247] hover:underline"
-            >
-              ← Anterior
-            </Link>
-          ) : (
-            <div />
-          )}
-
-          {hasMore && (
-            <Link
-              href={buildHref(currentPage + 1)}
-              className="text-xs font-semibold text-[#506247] hover:underline"
-            >
-              Proxima →
-            </Link>
-          )}
-        </div>
-      )}
     </div>
   );
 }

@@ -31,6 +31,9 @@ function readEnum<T extends string>(
 export async function createTechnicalDocument(formData: FormData) {
   const title = readRequiredText(formData, "title");
   const content = readOptionalText(formData, "content");
+  const serviceOrderId = readOptionalText(formData, "serviceOrderId");
+  const workItemId = readOptionalText(formData, "workItemId");
+  const assetId = readOptionalText(formData, "assetId");
   const documentTypes = await getDocumentTypeOptions();
   const documentType = readEnum(
     formData,
@@ -45,6 +48,9 @@ export async function createTechnicalDocument(formData: FormData) {
     {
       title,
       content,
+      serviceOrderId,
+      workItemId,
+      assetId,
       documentType,
     },
     context,
@@ -70,9 +76,10 @@ export async function updateDocumentStatus(formData: FormData) {
   );
   const note = readOptionalText(formData, "note");
 
+  // TODO: Migrar para Kernel Action documents.update_status quando necessário
   const context = await resolveWorkspaceContext({ source: "ui" });
   const result = await runAction(
-    "documents.transition",
+    "documents.transition", // Presumindo existência futura ou criando agora
     {
       documentId: id,
       status,
@@ -82,6 +89,7 @@ export async function updateDocumentStatus(formData: FormData) {
   );
 
   if (!result.success) {
+    // Fallback temporário ou erro
     throw new Error(result.error?.message ?? "Falha ao atualizar documento.");
   }
 

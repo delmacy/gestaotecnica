@@ -1,6 +1,6 @@
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { documents } from "@/db/runtime/schema/documents";
+import { technicalDocuments } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
 import {
   actionObjectSchema,
@@ -12,10 +12,9 @@ type GenerateDocumentInput = {
   title?: string;
   documentType?: string;
   content?: string;
-  // Omitindo vínculos até que as tabelas produtoras (OS, Ativo, Demanda) suportem isolamento por workspace_id
-  // serviceOrderId?: string;
-  // workItemId?: string;
-  // assetId?: string;
+  serviceOrderId?: string;
+  workItemId?: string;
+  assetId?: string;
 };
 
 export const generateDocumentKernelAction: ActionDefinition<
@@ -24,13 +23,16 @@ export const generateDocumentKernelAction: ActionDefinition<
 > = {
   key: "documents.generate",
   moduleKey: "documents",
-  description: "Gera um documento tecnico no novo schema runtime.",
+  description: "Gera um documento técnico em rascunho.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
       title: stringProperty("Título do documento."),
       documentType: stringProperty("Tipo do documento técnico."),
-      content: stringProperty("Conteúdo inicial (metadado)."),
+      content: stringProperty("Conteúdo inicial."),
+      serviceOrderId: uuidProperty("OS relacionada."),
+      workItemId: uuidProperty("Demanda relacionada."),
+      assetId: uuidProperty("Ativo relacionado."),
     },
     ["title"],
   ),
@@ -40,7 +42,7 @@ export const generateDocumentKernelAction: ActionDefinition<
     status: stringProperty("Status inicial."),
   }),
   emits: ["document.generated"],
-  async handler(input, context) {
+  async handler(input) {
     const title = String(input.title ?? "").trim();
     if (!title) {
       return {
@@ -50,52 +52,37 @@ export const generateDocumentKernelAction: ActionDefinition<
     }
 
     const db = getDb();
-    const workspaceId = context.workspaceId;
-
-    if (!workspaceId) {
-      return {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: "workspace_id e obrigatório." },
-      };
-    }
-
-    // GAP: Vínculos com service_orders, work_items e assets foram removidos
-    // pois as tabelas legacy ainda não possuem a coluna workspace_id para validação de tenant.
-    // Registrado como ISOLATION_GAP_LINKED_ENTITIES.
-
-    const result = await db.transaction(async (tx: any) => {
-      const [doc] = await tx
-        .insert(documents)
-        .values({
-          workspaceId,
-          title,
-          documentType: input.documentType ?? "technical_report",
-          status: "draft",
-        })
-        .returning({
-          id: documents.id,
-          title: documents.title,
-          status: documents.status,
-        });
-
-      return { doc };
-    });
+    const [document] = await db
+      .insert(technicalDocuments)
+      .values({
+        title,
+        documentType: input.documentType ?? "technical_report",
+        content: input.content,
+        serviceOrderId: input.serviceOrderId,
+        workItemId: input.workItemId,
+        assetId: input.assetId,
+        status: "draft",
+      })
+      .returning({
+        id: technicalDocuments.id,
+        title: technicalDocuments.title,
+        status: technicalDocuments.status,
+      });
 
     return {
       success: true,
-      data: {
-        id: result.doc.id,
-        title: result.doc.title,
-        status: result.doc.status,
-      },
+      data: document,
       events: [
         {
           eventType: "document.generated",
-          entityType: "document",
-          entityId: result.doc.id,
+          entityType: "technical_document",
+          entityId: document.id,
           payload: {
-            title: result.doc.title,
+            title: document.title,
             documentType: input.documentType ?? "technical_report",
+            serviceOrderId: input.serviceOrderId,
+            workItemId: input.workItemId,
+            assetId: input.assetId,
           },
         },
       ],
@@ -115,7 +102,7 @@ export const transitionDocumentKernelAction: ActionDefinition<
 > = {
   key: "documents.transition",
   moduleKey: "documents",
-  description: "Transiciona o status de um documento técnico no novo schema runtime.",
+  description: "Transiciona o status de um documento técnico.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
@@ -130,7 +117,7 @@ export const transitionDocumentKernelAction: ActionDefinition<
     status: stringProperty("Status final."),
   }),
   emits: ["document.status_changed"],
-  async handler(input, context) {
+  async handler(input) {
     const documentId = String(input.documentId ?? "").trim();
     if (!documentId) {
       return {
@@ -140,47 +127,35 @@ export const transitionDocumentKernelAction: ActionDefinition<
     }
 
     const db = getDb();
-    const workspaceId = context.workspaceId;
-
-    if (!workspaceId) {
-      return {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: "workspace_id e obrigatório." },
-      };
-    }
-
-    const [previous]: any[] = await db
+    const [previous] = await db
       .select({
-        id: documents.id,
-        title: documents.title,
-        status: documents.status,
+        id: technicalDocuments.id,
+        title: technicalDocuments.title,
+        status: technicalDocuments.status,
+        serviceOrderId: technicalDocuments.serviceOrderId,
+        workItemId: technicalDocuments.workItemId,
+        assetId: technicalDocuments.assetId,
       })
-      .from(documents)
-      .where(and(
-        eq(documents.id, documentId),
-        eq(documents.workspaceId, workspaceId)
-      ))
+      .from(technicalDocuments)
+      .where(eq(technicalDocuments.id, documentId))
       .limit(1);
 
     if (!previous) {
-      return { success: false, error: { code: "NOT_FOUND", message: "Documento não encontrado ou acesso negado." } };
+      return { success: false, error: { code: "NOT_FOUND", message: "Documento não encontrado." } };
     }
 
     const status = input.status ?? previous.status;
 
-    const [updated]: any[] = await db
-      .update(documents)
+    const [updated] = await db
+      .update(technicalDocuments)
       .set({
-        status: status,
+        status: status as "draft",
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(documents.id, documentId),
-        eq(documents.workspaceId, workspaceId)
-      ))
+      .where(eq(technicalDocuments.id, documentId))
       .returning({
-        id: documents.id,
-        status: documents.status,
+        id: technicalDocuments.id,
+        status: technicalDocuments.status,
       });
 
     return {
@@ -189,12 +164,15 @@ export const transitionDocumentKernelAction: ActionDefinition<
       events: [
         {
           eventType: "document.status_changed",
-          entityType: "document",
+          entityType: "technical_document",
           entityId: updated.id,
           payload: {
             title: previous.title,
             from: previous.status,
             to: updated.status,
+            serviceOrderId: previous.serviceOrderId,
+            workItemId: previous.workItemId,
+            assetId: previous.assetId,
             note: input.note,
           },
         },

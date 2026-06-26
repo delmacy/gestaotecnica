@@ -2,7 +2,6 @@ import Link from "next/link";
 import { RecentOrdersTable } from "@/modules/reports/recent-orders-table";
 import { ReportForm } from "@/modules/reports/report-form";
 import { ReportsList } from "@/modules/reports/reports-list";
-import { ReportFilter } from "@/modules/reports/report-filter";
 import {
   getOperationalReportData,
   getReports,
@@ -10,34 +9,11 @@ import {
 
 export const dynamic = "force-dynamic";
 
-interface PageProps {
-  searchParams: Promise<{
-    type?: string;
-    page?: string;
-    start?: string;
-    end?: string;
-  }>;
-}
-
-export default async function ReportsPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const page = Number(params.page || "0");
-  const limit = 20;
-  const offset = page * limit;
-
+export default async function ReportsPage() {
   const [data, reports] = await Promise.all([
     getOperationalReportData(),
-    getReports({
-      type: params.type,
-      startDate: params.start ? new Date(params.start) : undefined,
-      endDate: params.end ? new Date(params.end) : undefined,
-      limit: limit + 1,
-      offset,
-    }),
+    getReports(),
   ]);
-
-  const hasMore = reports.length > limit;
-  const reportsToDisplay = reports.slice(0, limit);
 
   return (
     <main className="min-h-screen bg-[#f6f7f4] text-[#1c211b]">
@@ -130,13 +106,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
                 Relatorios gerados e persistidos.
               </p>
             </div>
-            <ReportFilter currentType={params.type} />
-            <ReportsList
-              reports={reportsToDisplay}
-              currentPage={page}
-              hasMore={hasMore}
-              filters={{ type: params.type, start: params.start, end: params.end }}
-            />
+            <ReportsList reports={reports} />
           </div>
         </aside>
       </section>

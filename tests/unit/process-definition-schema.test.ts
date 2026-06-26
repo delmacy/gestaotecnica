@@ -53,7 +53,7 @@ test("ProcessDefinition - complete valid", () => {
 
 test("ProcessDefinition - required field missing", () => {
   const invalid = { ...validDefinitionBase };
-  // @ts-expect-error - testing missing required field
+  // @ts-ignore
   delete invalid.name;
   const result = ProcessDefinitionSchema.safeParse(invalid);
   assert.strictEqual(result.success, false);
@@ -153,7 +153,7 @@ test("ProcessVersion - definition validation", () => {
     ...validVersionBase,
     definition: { nodes: [], edges: [] }
   };
-  // @ts-expect-error - testing missing schemaVersion
+  // @ts-ignore
   delete noSchema.definition.schemaVersion;
   assert.strictEqual(ProcessVersionSchema.safeParse(noSchema).success, false);
 

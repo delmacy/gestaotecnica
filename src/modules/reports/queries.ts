@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { count, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   assets,
@@ -8,53 +8,111 @@ import {
   timeEntries,
   workItems,
 } from "@/db/schema";
+import { workspaces } from "@/db/runtime/schema/workspace";
 import { getWorkspaceReportTemplateOptions } from "@/platform/workspaces/catalogs";
-import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
+
+type ServiceOrderStatus =
+  | "draft"
+  | "open"
+  | "assigned"
+  | "in_progress"
+  | "waiting_review"
+  | "completed"
+  | "approved"
+  | "cancelled";
+
+async function countServiceOrdersByStatus(status: ServiceOrderStatus) {
+  const db = getDb();
+  const [row] = await db
+    .select({ value: count() })
+    .from(serviceOrders)
+    .where(eq(serviceOrders.status, status));
+
+  return row.value;
+}
 
 export async function getOperationalReportData() {
-  // REQUIREMENT: Strict workspace scoping.
-  // Legacy tables lack workspace_id. Blocking data to prevent cross-tenant leaks.
-  // Gap documented in docs/modules/reports-gaps.md
+  const db = getDb();
+
+  const [
+    workItemsRow,
+    assetsRow,
+    pendingShiftRow,
+    totalHoursRow,
+    openOrders,
+    assignedOrders,
+    inProgressOrders,
+    waitingReviewOrders,
+    completedOrders,
+    approvedOrders,
+    recentOrders,
+  ] = await Promise.all([
+    db.select({ value: count() }).from(workItems),
+    db.select({ value: count() }).from(assets),
+    db
+      .select({ value: count() })
+      .from(shiftLogEntries)
+      .where(eq(shiftLogEntries.isPending, true)),
+    db
+      .select({
+        value: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)`,
+      })
+      .from(timeEntries),
+    countServiceOrdersByStatus("open"),
+    countServiceOrdersByStatus("assigned"),
+    countServiceOrdersByStatus("in_progress"),
+    countServiceOrdersByStatus("waiting_review"),
+    countServiceOrdersByStatus("completed"),
+    countServiceOrdersByStatus("approved"),
+    db
+      .select({
+        id: serviceOrders.id,
+        code: serviceOrders.code,
+        title: serviceOrders.title,
+        status: serviceOrders.status,
+        priority: serviceOrders.priority,
+        createdAt: serviceOrders.createdAt,
+      })
+      .from(serviceOrders)
+      .orderBy(desc(serviceOrders.createdAt))
+      .limit(8),
+  ]);
+
+  const totalMinutes = Number(totalHoursRow[0].value ?? 0);
 
   return {
     cards: [
-      { label: "Demandas", value: 0 },
-      { label: "Ativos", value: 0 },
-      { label: "Horas apontadas", value: 0 },
-      { label: "Pendencias de turno", value: 0 },
+      { label: "Demandas", value: workItemsRow[0].value },
+      { label: "Ativos", value: assetsRow[0].value },
+      { label: "Horas apontadas", value: Math.round(totalMinutes / 60) },
+      { label: "Pendencias de turno", value: pendingShiftRow[0].value },
     ],
     serviceOrders: [
-      { label: "Abertas", value: 0 },
-      { label: "Atribuidas", value: 0 },
-      { label: "Em execucao", value: 0 },
-      { label: "Em revisao", value: 0 },
-      { label: "Concluidas", value: 0 },
-      { label: "Aprovadas", value: 0 },
+      { label: "Abertas", value: openOrders },
+      { label: "Atribuidas", value: assignedOrders },
+      { label: "Em execucao", value: inProgressOrders },
+      { label: "Em revisao", value: waitingReviewOrders },
+      { label: "Concluidas", value: completedOrders },
+      { label: "Aprovadas", value: approvedOrders },
     ],
-    recentOrders: [],
-    blockedGaps: [
-      "work_items",
-      "assets",
-      "time_entries",
-      "shift_log_entries",
-      "service_orders",
-    ],
+    recentOrders,
   };
 }
 
-export type GetReportsOptions = {
-  type?: string;
-  startDate?: Date;
-  endDate?: Date;
-  limit?: number;
-  offset?: number;
-};
+export async function getReports() {
+  const db = getDb();
 
-export async function getReports(options: GetReportsOptions = {}) {
-  // REQUIREMENT: Strict workspace scoping.
-  // Legacy reports table lacks workspace_id.
-  // Currently returning empty list to ensure isolation until schema is updated.
-  return [];
+  return db
+    .select({
+      id: reports.id,
+      title: reports.title,
+      type: reports.type,
+      payload: reports.payload,
+      createdAt: reports.createdAt,
+    })
+    .from(reports)
+    .orderBy(desc(reports.createdAt))
+    .limit(20);
 }
 
 export async function getReportTypeOptions() {

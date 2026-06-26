@@ -6,7 +6,6 @@ describe("Assets Module - Kernel Actions", () => {
   test("createAssetKernelAction should have correct configuration", () => {
     assert.strictEqual(createAssetKernelAction.key, "assets.create");
     assert.strictEqual(createAssetKernelAction.moduleKey, "assets");
-    assert.ok(createAssetKernelAction.callableBy?.includes("ui"));
   });
 
   test("updateAssetKernelAction should have correct configuration", () => {

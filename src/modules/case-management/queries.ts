@@ -1,7 +1,7 @@
 import { eq, desc, and } from "drizzle-orm";
 import { getDb } from "@/db";
-import { processCandidates } from "@/db/schema";
-import { events as eventLogs } from "@/db/schema";
+import { processCandidates } from "@/db/platform/schema/candidates";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import type { Case, CaseHistoryEvent, CaseComment } from "./contracts/case.schema";
 

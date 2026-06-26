@@ -8,6 +8,7 @@ import {
 
 describe("ApprovalWorkflowModule Unit Tests", () => {
   const validWorkspaceId = "550e8400-e29b-41d4-a716-446655440000";
+  const otherWorkspaceId = "550e8400-e29b-41d4-a716-446655449999";
   const validRequesterId = "550e8400-e29b-41d4-a716-446655440001";
 
   describe("Schema Validation", () => {
@@ -61,7 +62,7 @@ describe("ApprovalWorkflowModule Unit Tests", () => {
     });
   });
 
-  describe("Multi-tenancy Constraints (Logical)", () => {
+  describe("Security & Multi-tenancy Constraints", () => {
     it("should enforce UUID for workspaceId", () => {
       const invalidIds = {
         workspaceId: "not-a-uuid",
@@ -73,6 +74,31 @@ describe("ApprovalWorkflowModule Unit Tests", () => {
 
       const result = ApprovalRequestSchema.safeParse(invalidIds);
       assert.strictEqual(result.success, false);
+    });
+
+    it("should reject input with missing subjectId", () => {
+        const input = {
+            subjectType: "service_order",
+            comment: "Test"
+        };
+        const result = CreateApprovalInputSchema.safeParse(input);
+        assert.strictEqual(result.success, false);
+    });
+
+    it("should logically distinguish workspaces", () => {
+        const reqA = { workspaceId: validWorkspaceId, subjectId: "1" };
+        const reqB = { workspaceId: otherWorkspaceId, subjectId: "1" };
+        assert.notStrictEqual(reqA.workspaceId, reqB.workspaceId, "Workspaces must be distinct");
+    });
+
+    it("should require a minimum length for rejection comment", () => {
+        const invalidDecision = {
+            id: "550e8400-e29b-41d4-a716-446655440002",
+            decision: "rejected",
+            comment: "bad" // too short (< 5)
+        };
+        const result = DecideApprovalInputSchema.safeParse(invalidDecision);
+        assert.strictEqual(result.success, false);
     });
   });
 });

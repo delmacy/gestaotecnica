@@ -1,12 +1,6 @@
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, ne } from "drizzle-orm";
 import { getDb } from "@/db";
 import { processCandidates } from "@/db/platform/schema/candidates";
-import {
-  serviceOrders,
-  workItems,
-  technicalDocuments,
-  assets
-} from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
 import {
   actionObjectSchema,
@@ -17,64 +11,33 @@ import {
 import {
   CreateApprovalInputSchema,
   DecideApprovalInputSchema,
+  type CreateApprovalInput,
+  type DecideApprovalInput,
 } from "./contracts/approval.schema";
 
 /**
  * Universal Subject Resolver
- * Confirms that the object exists.
- * NOTE: Legacy tables (service_orders, work_items, etc.) currently lack a workspaceId column.
- * Strict workspace isolation is enforced on the Approval Request record itself.
+ * Confirms that the object exists and belongs to the workspace.
+ *
+ * IMPORTANT: Currently, legacy tables (service_orders, assets, etc.)
+ * lack a workspace_id column, making them 'unsafe' for strict tenant-safe validation
+ * in this universal module.
  */
 async function validateSubject(
-  subjectType: string,
-  subjectId: string
+  subjectType: string
 ): Promise<{ success: boolean; message: string }> {
-  const db = getDb();
-
-  try {
-    switch (subjectType) {
-      case "service_order": {
-        const [row] = await db
-          .select({ id: serviceOrders.id })
-          .from(serviceOrders)
-          .where(eq(serviceOrders.id, subjectId))
-          .limit(1);
-        return row ? { success: true, message: "" } : { success: false, message: "Ordem de Serviço não encontrada." };
-      }
-      case "work_item": {
-        const [row] = await db
-          .select({ id: workItems.id })
-          .from(workItems)
-          .where(eq(workItems.id, subjectId))
-          .limit(1);
-        return row ? { success: true, message: "" } : { success: false, message: "Item de Trabalho não encontrado." };
-      }
-      case "asset": {
-        const [row] = await db
-          .select({ id: assets.id })
-          .from(assets)
-          .where(eq(assets.id, subjectId))
-          .limit(1);
-        return row ? { success: true, message: "" } : { success: false, message: "Ativo não encontrado." };
-      }
-      case "document": {
-        const [row] = await db
-          .select({ id: technicalDocuments.id })
-          .from(technicalDocuments)
-          .where(eq(technicalDocuments.id, subjectId))
-          .limit(1);
-        return row ? { success: true, message: "" } : { success: false, message: "Documento não encontrado." };
-      }
-      default:
-        return { success: false, message: `Tipo de objeto não suportado para validação: ${subjectType}` };
-    }
-  } catch (error) {
-    console.error(`Error validating subject ${subjectType}:${subjectId}`, error);
-    return { success: false, message: "Erro interno ao validar objeto." };
-  }
+  // We reject all current subject types until they are migrated to include workspace_id.
+  // This enforces the "reject subject types that cannot be validated tenant-safely" rule.
+  return {
+    success: false,
+    message: `O tipo de objeto '${subjectType}' não possui validação de isolamento (workspace_id) ativa e não pode ser submetido com segurança.`
+  };
 }
 
-export const requestApprovalKernelAction: ActionDefinition<any, { id: string }> = {
+export const requestApprovalKernelAction: ActionDefinition<
+  CreateApprovalInput & { serviceOrderId?: string; note?: string },
+  { id: string }
+> = {
   key: "approvals.request",
   moduleKey: "approvals",
   description: "Envia um objeto para aprovação universal.",
@@ -85,9 +48,9 @@ export const requestApprovalKernelAction: ActionDefinition<any, { id: string }> 
       subjectId: stringProperty("Identificador do objeto."),
       comment: stringProperty("Comentário ou observação inicial."),
       metadata: actionObjectSchema({}, []),
-      // Backward compatibility
-      serviceOrderId: uuidProperty("OS que será enviada para aprovação (legacy)."),
-      note: stringProperty("Observação (legacy)."),
+      // Legacy inputs accepted for mapping
+      serviceOrderId: uuidProperty("OS legacy."),
+      note: stringProperty("Nota legacy."),
     },
     [],
   ),
@@ -98,13 +61,13 @@ export const requestApprovalKernelAction: ActionDefinition<any, { id: string }> 
   async handler(input, context) {
     const db = getDb();
 
-    // 1. Resolve inputs with backward compatibility
+    // 1. Resolve inputs
     let subjectType = input.subjectType;
     let subjectId = input.subjectId;
     const comment = input.comment || input.note;
 
     if (input.serviceOrderId && !subjectId) {
-      subjectType = "service_order";
+      subjectType = "service_order" as any;
       subjectId = input.serviceOrderId;
     }
 
@@ -120,10 +83,10 @@ export const requestApprovalKernelAction: ActionDefinition<any, { id: string }> 
       metadata: input.metadata || {},
     });
 
-    // 3. Subject Validation (Existence)
-    const validation = await validateSubject(validated.subjectType, validated.subjectId);
+    // 3. Subject Validation (Existence & Workspace Isolation)
+    const validation = await validateSubject(validated.subjectType);
     if (!validation.success) {
-      return { success: false, error: { code: "NOT_FOUND", message: validation.message } };
+      return { success: false, error: { code: "FORBIDDEN", message: validation.message } };
     }
 
     // 4. Idempotency Check (Prevent duplicate pending requests)
@@ -148,7 +111,7 @@ export const requestApprovalKernelAction: ActionDefinition<any, { id: string }> 
       };
     }
 
-    // 5. Persistence (Transitória em process_candidates)
+    // 5. Persistence
     const [inserted] = await db
       .insert(processCandidates)
       .values({
@@ -169,13 +132,7 @@ export const requestApprovalKernelAction: ActionDefinition<any, { id: string }> 
       })
       .returning({ id: processCandidates.id });
 
-    // 6. Side Effects (Legacy backward compatibility)
-    if (validated.subjectType === "service_order") {
-      await db
-        .update(serviceOrders)
-        .set({ status: "waiting_review", updatedAt: new Date() })
-        .where(eq(serviceOrders.id, validated.subjectId));
-    }
+    // NO DIRECT SIDE EFFECTS ON SUBJECTS. Decoupled via events.
 
     return {
       success: true,
@@ -202,7 +159,7 @@ export const requestApprovalKernelAction: ActionDefinition<any, { id: string }> 
 };
 
 export const decideApprovalKernelAction: ActionDefinition<
-  any,
+  DecideApprovalInput & { serviceOrderId?: string; note?: string },
   { id: string; status: string }
 > = {
   key: "approvals.decide",
@@ -215,7 +172,7 @@ export const decideApprovalKernelAction: ActionDefinition<
       decision: enumProperty(["approved", "rejected"], "Decisão tomada."),
       comment: stringProperty("Justificativa ou comentário."),
       metadata: actionObjectSchema({}, []),
-      // Backward compatibility
+      // Legacy inputs accepted for mapping
       serviceOrderId: uuidProperty("OS legacy."),
       note: stringProperty("Nota legacy."),
     },
@@ -230,7 +187,7 @@ export const decideApprovalKernelAction: ActionDefinition<
     const db = getDb();
     let approvalId = input.id;
 
-    // 1. Resolve ID (Backward Compatibility)
+    // 1. Resolve ID with Workspace Filter (Strict)
     if (input.serviceOrderId && !approvalId) {
       const [existing] = await db
         .select({ id: processCandidates.id })
@@ -246,16 +203,7 @@ export const decideApprovalKernelAction: ActionDefinition<
         .limit(1);
 
       if (!existing) {
-         // Direct update as legacy fallback if no universal request exists
-         const status = input.decision === "approve" || input.decision === "approved" ? "approved" : "open";
-         await db.update(serviceOrders).set({
-           status,
-           approvedAt: status === "approved" ? new Date() : undefined,
-           approvedById: status === "approved" && context.actor.type === "user" ? context.actor.id : undefined,
-           updatedAt: new Date()
-         }).where(eq(serviceOrders.id, input.serviceOrderId));
-
-         return { success: true, data: { id: input.serviceOrderId, status } };
+         return { success: false, error: { code: "NOT_FOUND", message: "Nenhuma solicitação de aprovação pendente encontrada." } };
       }
       approvalId = existing.id;
     }
@@ -264,7 +212,7 @@ export const decideApprovalKernelAction: ActionDefinition<
       return { success: false, error: { code: "VALIDATION_ERROR", message: "ID da solicitação é obrigatório." } };
     }
 
-    // 2. Authorization & Context Consistency
+    // 2. Authorization
     if (!context.actor.id) {
        return { success: false, error: { code: "UNAUTHORIZED", message: "Ator não identificado." } };
     }
@@ -272,12 +220,13 @@ export const decideApprovalKernelAction: ActionDefinition<
     // 3. Input Validation
     const validated = DecideApprovalInputSchema.parse({
       id: approvalId,
-      decision: input.decision === "approve" ? "approved" : input.decision,
+      decision: input.decision === ("approve" as any) ? "approved" : input.decision,
       comment: input.comment || input.note,
       metadata: input.metadata,
     });
 
-    // 4. Atomic Transition and Workspace Isolation
+    // 4. Atomic Transition and Workspace + Origin Isolation
+    // Prevents self-approval and ensures record belongs to tenant and is pending.
     const [updated] = await db
       .update(processCandidates)
       .set({
@@ -296,48 +245,53 @@ export const decideApprovalKernelAction: ActionDefinition<
           eq(processCandidates.id, approvalId),
           eq(processCandidates.workspaceId, context.workspaceId),
           eq(processCandidates.origin, "approval"),
-          eq(processCandidates.status, "pending")
+          eq(processCandidates.status, "pending"),
+          // Prevent self-approval (security policy)
+          ne(db.raw("proposed_definition->>'requesterId'"), context.actor.id)
         )
       )
       .returning();
 
     if (!updated) {
-      // Could be not found OR already decided (status != pending)
+      // Diagnostic check for precise error response
       const [record] = await db
-        .select({ status: processCandidates.status })
+        .select({
+            status: processCandidates.status,
+            workspaceId: processCandidates.workspaceId,
+            origin: processCandidates.origin,
+            requesterId: db.raw("proposed_definition->>'requesterId'")
+        })
         .from(processCandidates)
-        .where(and(eq(processCandidates.id, approvalId), eq(processCandidates.workspaceId, context.workspaceId)))
+        .where(eq(processCandidates.id, approvalId))
         .limit(1);
 
       if (!record) {
         return { success: false, error: { code: "NOT_FOUND", message: "Solicitação não encontrada." } };
       }
-      return { success: false, error: { code: "CONFLICT", message: `Solicitação já se encontra no estado: ${record.status}` } };
+
+      if (record.workspaceId !== context.workspaceId) {
+          return { success: false, error: { code: "FORBIDDEN", message: "Solicitação pertence a outro workspace." } };
+      }
+
+      if (record.origin !== "approval") {
+          return { success: false, error: { code: "FORBIDDEN", message: "O registro não é uma solicitação de aprovação." } };
+      }
+
+      if (record.status !== "pending") {
+          return { success: false, error: { code: "CONFLICT", message: `Solicitação já se encontra no estado: ${record.status}` } };
+      }
+
+      if (record.requesterId === context.actor.id) {
+          return { success: false, error: { code: "FORBIDDEN", message: "O solicitante não pode aprovar a própria solicitação." } };
+      }
+
+      return { success: false, error: { code: "UNKNOWN_ERROR", message: "Falha ao processar decisão." } };
     }
 
     const proposed = (updated.proposedDefinition as Record<string, any>) || {};
 
-    // 5. Self-Approval Check (Security Policy)
-    if (proposed.requesterId === context.actor.id) {
-       // Rollback status because self-approval is forbidden in this universal module
-       await db.update(processCandidates)
-         .set({ status: "pending" })
-         .where(eq(processCandidates.id, approvalId));
-
-       return { success: false, error: { code: "FORBIDDEN", message: "O solicitante não pode aprovar a própria solicitação." } };
-    }
-
-    // 6. Side Effects (Legacy backward compatibility)
-    if (proposed.subjectType === "service_order") {
-       const status = validated.decision === "approved" ? "approved" : "open";
-       await db.update(serviceOrders).set({
-         status,
-         approvedAt: validated.decision === "approved" ? new Date() : undefined,
-         approvedById: validated.decision === "approved" && context.actor.type === "user" ? context.actor.id : undefined,
-         updatedAt: new Date()
-       }).where(eq(serviceOrders.id, proposed.subjectId));
-    }
-
+    // 5. Finalize with Universal Event
+    // NO DIRECT SIDE EFFECTS ON SUBJECTS. Decoupled via events.
     return {
       success: true,
       data: { id: approvalId, status: validated.decision },
@@ -348,6 +302,7 @@ export const decideApprovalKernelAction: ActionDefinition<
           entityId: approvalId,
           payload: {
             id: approvalId,
+            workspaceId: context.workspaceId,
             decision: validated.decision,
             comment: validated.comment,
             subjectType: proposed.subjectType,

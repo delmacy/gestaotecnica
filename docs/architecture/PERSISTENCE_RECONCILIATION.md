@@ -17,66 +17,79 @@
 
 ---
 
-## 2. Mapa Alvo (To-Be)
+## 2. Decisão Operacional: Arquitetura de Dados
 
-O objetivo é alinhar a estrutura física com a arquitetura lógica definida no Drizzle.
-
-| Domínio | Schema Alvo | Persistência Principal | workspace_id | Observação |
-|---------|-------------|-------------------------|--------------|------------|
-| Platform | `builder` | `process_candidates` | Sim | Usado para isolamento de novos módulos. |
-| Identity | `identity` | `users`, `auth_accounts` | Não (Global) | Atualmente no `public`. |
-| Workspace| `workspace` | `workspaces` | Sim (PK) | Atualmente no `public`. |
-| Workflow | `workflow` | `process_instances`, `events` | Sim | Atualmente no `public`. |
-| Traceability| `traceability`| `audit_logs` | Sim | Atualmente no `public`. |
-| Legacy | `public` | `service_orders`, `assets` | **Faltante** | Necessita migração para adicionar `workspace_id`. |
+**Decisão:** Unificado Database com Multi-Schema Logicamente Isolados.
+- **Justificativa:** Facilita a governança de schemas compartilhados (blueprints/registry) e reduz a sobrecarga de gerenciamento de centenas de instâncias RDS, mantendo isolamento via PostgreSQL Schemas e `workspace_id` obrigatório em todas as tabelas operacionais.
 
 ---
 
-## 3. Estratégia por Domínio
+## 3. Estratégia por Domínio (Wave 02)
 
-### 3.1. Approval Workflow (Clean Rebuild)
-- **Persistência:** `builder.process_candidates`
-- **Origin:** `approval`
-- **Isolamento:** Filtragem obrigatória por `workspace_id`.
-- **Histórico:** Gravação em `workflow.events` (fisicamente `public.events`).
-
-### 3.2. Reconciliação de Schemas Arquiteturais
-- **Estratégia:** Migration de movimentação de tabelas do `public` para seus schemas proprietários.
-- **Ordem:** `identity` -> `workspace` -> `workflow` -> `traceability`.
-
-### 3.3. Gap de Multi-tenancy (Legacy)
-- **Estratégia:** Adição de coluna `workspace_id` UUID (nullable inicialmente, depois not null após backfill).
-- **Tabelas Afetadas:** `reports`, `work_items`, `assets`, `service_orders`, `teams`, `technician_profiles`, `shifts`, `shift_log_entries`, `time_entries`, `users`, `auth_accounts`, `auth_sessions`.
+| Domínio | Schema Proprietário | Persistência Principal | Estratégia de Isolamento |
+|---------|---------------------|-------------------------|--------------------------|
+| **Approval Workflow** | `workflow` | `process_candidates` (Origin: approval) | Workspace ID + Origin Filter |
+| **Work Intake** | `workflow` | `work_items` | Workspace ID |
+| **Reporting** | `analytics` | `reports` | Workspace ID |
+| **Universal Assets**| `assets_module` | `assets` | Workspace ID |
+| **Documents** | `documents` | `technical_documents` | Workspace ID |
+| **Inventory** | `inventory` | `inventory_items` | Workspace ID |
 
 ---
 
-## 4. Estratégia de Migração e Rollback
+## 4. Identidade e Propriedade (Identity Ownership)
 
-### Migração
-1. **Fase 1: Preparação:** Criar schemas faltantes (`identity`, `workspace`, `workflow`, etc).
-2. **Fase 2: Movimentação:** `ALTER TABLE public.x SET SCHEMA y`.
-3. **Fase 3: Enriquecimento:** Adição de `workspace_id` em tabelas legacy.
-4. **Fase 4: Validação:** Execução de `db:verify-ci`.
-
-### Rollback
-- Scripts reversos de `ALTER TABLE y.x SET SCHEMA public`.
-- Remoção de colunas adicionadas (com cautela para não perder dados).
+**Modelo:** Identidade Global com Membresia por Tenant.
+- **Global Identity (`identity` schema):** Usuários (`users`) e Contas (`auth_accounts`) são globais.
+- **Tenant Membership (`workspace` schema):** A relação entre usuários e workspaces é mediada por `user_role_assignments`, garantindo que um usuário possa pertencer a múltiplos tenants com permissões distintas.
 
 ---
 
-## 5. Riscos e Mitigação
+## 5. Estratégia de Eventos (Event Store)
 
-| Risco | Impacto | Mitigação |
-|-------|---------|-----------|
-| Quebra de Queries Hardcoded | Alto | Uso exclusivo do Drizzle ORM que mapeia os schemas corretamente. |
-| Perda de Isolamento (Leak) | Crítico | Auditoria de queries para garantir que `workspace_id` está em todos os `where`. |
-| Falha em Migração de Schema | Médio | Execução de migrações em transações atômicas. |
-| Incompatibilidade com Legacy | Médio | Manter o schema `public` como fallback temporário via views se necessário. |
+**Loja Canônica:** `workflow.events`
+- **Migração:** O conteúdo de `public.event_logs` será migrado para `workflow.events`.
+- **Evolução:** Módulos novos devem emitir eventos diretamente para o schema `workflow`.
+- **Imutabilidade:** Nenhuma linha no schema de eventos pode ser alterada após a inserção.
 
 ---
 
-## 6. Módulos Dependentes
-- `ApprovalWorkflowModule` (em reconstrução)
-- `WorkIntakeModule`
-- `CaseManagementModule`
-- `ReportingModule`
+## 6. Exit Strategy: `process_candidates`
+
+`process_candidates` é uma área de "staging" e isolamento para módulos em incubação.
+- **Critério de Saída:** Quando um domínio atinge maturidade de esquema (estabilidade de campos > 1 sprint), os dados devem ser migrados para tabelas tipadas no schema proprietário.
+- **Mecanismo:** Pipeline de migração de dados (Insert Select) e atualização de referências de ID no `event_store`.
+
+---
+
+## 7. Políticas de Integridade e Performance
+
+- **Primary Keys (PK):** UUID v4 obrigatório em todas as tabelas.
+- **Foreign Keys (FK):** Todas as tabelas operacionais devem ter FK para `workspace.workspaces(id)`.
+- **Índices:**
+  - B-Tree em `workspace_id` para filtragem de tenant.
+  - GIN em campos `jsonb` de payloads/configurações.
+  - Índices compostos `(workspace_id, key/code)` para buscas de negócio.
+- **Políticas de Deleção:** `ON DELETE RESTRICT` para evitar órfãos em cascata indesejada; Soft delete recomendado para entidades principais.
+
+---
+
+## 8. Migração de Schema e Backfill
+
+### 8.1. Movimentação de Schemas (Dependency-Safe)
+1. Criar schemas alvo.
+2. `ALTER TABLE public.table SET SCHEMA new_schema`.
+3. Re-garantir permissões de usuário de aplicação nos novos schemas.
+4. **Rejeição de Fallback:** Views de compatibilidade no schema `public` são expressamente proibidas a longo prazo. O código deve ser atualizado para referenciar schemas explícitos.
+
+### 8.2. Backfill de `workspace_id`
+1. **Pre-validação:** Contagem de registros nulos em tabelas operacionais.
+2. **Backfill:** Script de atualização baseado no `owner` ou `creator` original.
+3. **Pós-validação:** Check constraints `NOT NULL` aplicadas após verificação de zero nulos.
+
+---
+
+## 9. Riscos e Mitigação
+
+- **Risco de Performance em Join Cross-Schema:** Mitigado por índices de workspace em ambos os lados do join.
+- **Drift de Migração:** Uso de `db:verify-ci` em cada PR para garantir que o banco real reflete o Drizzle.

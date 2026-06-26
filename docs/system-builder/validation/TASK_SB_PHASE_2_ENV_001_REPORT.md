@@ -20,7 +20,7 @@ The objective was to resolve Phase 1 constraints and provide verifiable evidence
 
 ## Blockers & Limitations
 
-Currently, the CI pipeline is failing integration tests. While running `npm run db:migrate-ci` correctly initialized Drizzle tables like `builder.process_candidates`, there is an ongoing issue with missing relations for `traceability.receipts`, as this schema is currently unmapped in the `drizzle/` migrations folder. An attempt was made to add this schema to `src/scripts/bootstrap-schemas.ts` and ensure full Drizzle mapping in `src/db/index.ts`, but these tests continue to face assertion failures (e.g. `assert.ok(submission)` failing in `agent-gateway-idempotency.integration.test.ts` and `WORKFLOW_PUBLICATION_FAILED` in `candidate-publisher.integration.test.ts`).
+Currently, the CI pipeline is failing integration tests. While running `npm run db:migrate-ci` correctly initialized Drizzle tables like `builder.process_candidates`, there is an ongoing issue with missing relations for `traceability.receipts`, as this schema is currently unmapped in the `drizzle/` migrations folder. The schema was missing in `drizzle/` migrations causing failures. I've explicitly added a Drizzle migration (0026) to create it and updated `src/scripts/bootstrap-schemas.ts` and `src/db/index.ts` to fully map `agentGatewaySchema` and `traceability` schema. Awaiting new CI run to verify integration test stability. (e.g. `assert.ok(submission)` failing in `agent-gateway-idempotency.integration.test.ts` and `WORKFLOW_PUBLICATION_FAILED` in `candidate-publisher.integration.test.ts`).
 
 ## Proposed Next Steps
 To fully unblock `ENV-001`:

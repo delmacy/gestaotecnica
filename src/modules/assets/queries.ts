@@ -1,126 +1,85 @@
-import { serviceOrders } from "@/db/schema";
-import { workItems } from "@/db/schema";
-import { assets } from "@/db/schema";
-import { count, desc, eq } from "drizzle-orm";
-import { getDb, getRuntimeDb } from "@/db";
-import { workspaces } from "@/db/runtime/schema/workspace";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
-import { getWorkspaceAssetTypeOptions } from "@/platform/workspaces/catalogs";
+import { eq, and, desc } from "drizzle-orm";
+import { getDb } from "@/db";
+import { assets, assetHistory } from "@/db/runtime/schema/assets";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 
 export async function getAssets() {
-  const db = getRuntimeDb();
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
 
-  return db
-    .select({
-      id: assets.id,
-      code: assets.code,
-      name: assets.name,
-      type: assets.type,
-      status: assets.status,
-      criticality: assets.criticality,
-      location: assets.location,
-      createdAt: assets.createdAt,
-    })
-    .from(assets)
-    .orderBy(desc(assets.createdAt))
-    .limit(50);
-}
+  if (!workspaceId) return [];
 
-export async function getAssetOptions() {
   const db = getDb();
-
   return db
-    .select({
-      id: assets.id,
-      code: assets.code,
-      name: assets.name,
-      status: assets.status,
-    })
+    .select()
     .from(assets)
-    .orderBy(desc(assets.createdAt))
-    .limit(100);
+    .where(eq(assets.workspaceId, workspaceId))
+    .orderBy(desc(assets.createdAt));
 }
 
 export async function getAssetById(id: string) {
-  const db = getDb();
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
 
+  if (!workspaceId) return null;
+
+  const db = getDb();
   const [asset] = await db
-    .select({
-      id: assets.id,
-      code: assets.code,
-      name: assets.name,
-      type: assets.type,
-      status: assets.status,
-      criticality: assets.criticality,
-      location: assets.location,
-      description: assets.description,
-      createdAt: assets.createdAt,
-      updatedAt: assets.updatedAt,
-    })
+    .select()
     .from(assets)
-    .where(eq(assets.id, id))
+    .where(and(eq(assets.id, id), eq(assets.workspaceId, workspaceId)))
     .limit(1);
 
   return asset ?? null;
 }
 
-export async function getAssetEvents(id: string) {
-  const db = getDb();
+export async function getAssetHistory(assetId: string) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
 
+  if (!workspaceId) return [];
+
+  const db = getDb();
   return db
-    .select({
-      id: eventLogs.id,
-      eventType: eventLogs.eventType,
-      payload: eventLogs.payload,
-      occurredAt: eventLogs.createdAt,
-    })
-    .from(eventLogs)
-    .where(eq(eventLogs.entityId, id))
-    .orderBy(desc(eventLogs.createdAt));
+    .select()
+    .from(assetHistory)
+    .where(
+      and(
+        eq(assetHistory.assetId, assetId),
+        eq(assetHistory.workspaceId, workspaceId),
+      ),
+    )
+    .orderBy(desc(assetHistory.occurredAt));
 }
 
-export async function getAssetRelationsSummary(id: string) {
-  const db = getDb();
-  const [workItemsRow] = await db
-    .select({ value: count() })
-    .from(workItems)
-    .where(eq(workItems.assetId, id));
-  const [serviceOrdersRow] = await db
-    .select({ value: count() })
-    .from(serviceOrders)
-    .where(eq(serviceOrders.assetId, id));
+// Aliases for backward compatibility
+export async function getAssetOptions() {
+  const assetsList = await getAssets();
+  return assetsList.map((a: any) => ({ id: a.id, code: a.code, name: a.name, status: a.status }));
+}
 
+export async function getAssetTypeOptions() {
   return [
-    { label: "Demandas vinculadas", value: workItemsRow.value },
-    { label: "OS vinculadas", value: serviceOrdersRow.value },
+    { value: "equipment", label: "Equipamento" },
+    { value: "vehicle", label: "Veículo" },
+    { value: "tool", label: "Ferramenta" },
   ];
 }
 
 export async function getAssetSummary() {
-  const db = getDb();
-
-  const [totalRow] = await db.select({ value: count() }).from(assets);
-  const [activeRow] = await db
-    .select({ value: count() })
-    .from(assets)
-    .where(eq(assets.status, "active"));
-  const [maintenanceRow] = await db
-    .select({ value: count() })
-    .from(assets)
-    .where(eq(assets.status, "maintenance"));
-  const [criticalRow] = await db
-    .select({ value: count() })
-    .from(assets)
-    .where(eq(assets.criticality, "critical"));
-
+  const assetsList = await getAssets();
   return [
-    { label: "Ativos", value: totalRow.value },
-    { label: "Ativos operacionais", value: activeRow.value },
-    { label: "Em manutencao", value: maintenanceRow.value },
-    { label: "Criticos", value: criticalRow.value },
+    { label: "Total de Ativos", value: assetsList.length },
+    { label: "Ativos Disponíveis", value: assetsList.filter((a: any) => a.status === 'available').length },
+    { label: "Em Manutenção", value: assetsList.filter((a: any) => a.status === 'maintenance').length },
+    { label: "Avariados", value: assetsList.filter((a: any) => a.status === 'broken').length },
   ];
 }
 
-export async function getAssetTypeOptions() {
-  return getWorkspaceAssetTypeOptions();
+export async function getAssetEvents(id: string) {
+  return getAssetHistory(id);
+}
+
+export async function getAssetRelationsSummary(_id: string) {
+  return [];
 }

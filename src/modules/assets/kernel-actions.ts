@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getDb } from "@/db";
-import { assets } from "@/db/schema";
+import { assets, assetHistory } from "@/db/runtime/schema/assets";
 import type { ActionDefinition } from "@/platform/actions";
 import {
   actionObjectSchema,
@@ -8,88 +8,59 @@ import {
   stringProperty,
   uuidProperty,
 } from "@/platform/actions/schema-presets";
-import {
-  assetCriticalities,
-  assetStatuses,
-  assetTypeSuggestions,
-} from "./constants";
+import { ASSET_STATUSES, ASSET_CATEGORIES } from "./constants";
 
-type CreateAssetInput = {
-  code?: string;
-  name?: string;
-  type?: string;
-  status?: string;
-  criticality?: string;
-  location?: string;
-  description?: string;
-};
-
-function pickAllowed<T extends string>(
-  value: string | undefined,
-  allowedValues: readonly { value: T }[],
-  fallback: T,
-) {
-  return allowedValues.some((item) => item.value === value) ? (value as T) : fallback;
-}
-
-export const createAssetKernelAction: ActionDefinition<
-  CreateAssetInput,
-  { id: string; code: string; name: string }
-> = {
+export const createAssetKernelAction: ActionDefinition<any, any> = {
   key: "assets.create",
   moduleKey: "assets",
-  description: "Cria um ativo operacional.",
+  description: "Cria um novo ativo universal.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
-      code: stringProperty("Código único do ativo."),
-      name: stringProperty("Nome do ativo."),
-      type: enumProperty(assetTypeSuggestions.map((type) => type.value), "Tipo do ativo."),
-      status: enumProperty(assetStatuses.map((status) => status.value), "Status inicial."),
-      criticality: enumProperty(assetCriticalities.map((criticality) => criticality.value), "Criticidade."),
-      location: stringProperty("Localização ou referência operacional."),
-      description: stringProperty("Descrição livre do ativo."),
+      code: stringProperty("Código identificador único do ativo."),
+      name: stringProperty("Nome ou descrição curta do ativo."),
+      category: enumProperty(
+        ASSET_CATEGORIES.map((c: any) => c.value),
+        "Categoria do ativo.",
+      ),
+      status: enumProperty(
+        ASSET_STATUSES.map((s: any) => s.value),
+        "Status inicial do ativo.",
+      ),
+      location: stringProperty("Localização física do ativo."),
+      responsibleId: uuidProperty("ID do usuário responsável pelo ativo."),
     },
-    ["code", "name"],
+    ["code", "name", "category"],
   ),
-  outputSchema: actionObjectSchema({
-    id: uuidProperty("Identificador do ativo."),
-    code: stringProperty("Código do ativo."),
-    name: stringProperty("Nome do ativo."),
-  }),
-  emits: ["asset.created"],
-  async handler(input) {
-    const code = String(input.code ?? "").trim();
-    const name = String(input.name ?? "").trim();
-
-    if (!code || !name) {
+  async handler(input, context) {
+    const { workspaceId } = context;
+    if (!workspaceId) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "code e name sao obrigatórios." },
+        error: { code: "MISSING_WORKSPACE", message: "Workspace ID é obrigatório." },
       };
     }
 
-    const type = pickAllowed(input.type, assetTypeSuggestions, assetTypeSuggestions[0]?.value ?? "equipment");
-    const status = pickAllowed(input.status, assetStatuses, "active");
-    const criticality = pickAllowed(input.criticality, assetCriticalities, "medium");
     const db = getDb();
     const [asset] = await db
       .insert(assets)
       .values({
-        code,
-        name,
-        type,
-        status,
-        criticality,
+        workspaceId,
+        code: input.code,
+        name: input.name,
+        category: input.category,
+        status: input.status ?? "available",
         location: input.location,
-        description: input.description,
-        metadata: { createdByKernelAction: true },
+        responsibleId: input.responsibleId,
       })
-      .returning({
-        id: assets.id,
-        code: assets.code,
-        name: assets.name,
-      });
+      .returning();
+
+    await db.insert(assetHistory).values({
+      assetId: asset.id,
+      workspaceId,
+      action: "create",
+      newData: asset,
+    });
 
     return {
       success: true,
@@ -99,64 +70,45 @@ export const createAssetKernelAction: ActionDefinition<
           eventType: "asset.created",
           entityType: "asset",
           entityId: asset.id,
-          payload: { code, name, type, status, criticality },
+          payload: asset,
         },
       ],
     };
   },
 };
 
-type UpdateAssetStatusInput = {
-  assetId?: string;
-  status?: string;
-  note?: string;
-};
-
-export const updateAssetStatusKernelAction: ActionDefinition<
-  UpdateAssetStatusInput,
-  { id: string; code: string; status: string }
-> = {
-  key: "assets.update_status",
+export const updateAssetKernelAction: ActionDefinition<any, any> = {
+  key: "assets.update",
   moduleKey: "assets",
-  targetEntity: "asset",
-  uiLabel: "Alterar Status",
-  showInActionBar: true,
-  description: "Atualiza o status de um ativo.",
+  description: "Atualiza os dados de um ativo.",
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
-      assetId: uuidProperty("Identificador do ativo."),
-      status: enumProperty(assetStatuses.map((s) => s.value), "Novo status do ativo."),
-      note: stringProperty("Observação sobre a mudança de status."),
+      id: uuidProperty("ID do ativo."),
+      name: stringProperty("Novo nome do ativo."),
+      category: enumProperty(
+        ASSET_CATEGORIES.map((c: any) => c.value),
+        "Nova categoria.",
+      ),
+      location: stringProperty("Nova localização."),
+      responsibleId: uuidProperty("Novo responsável."),
     },
-    ["assetId", "status"],
+    ["id"],
   ),
-  outputSchema: actionObjectSchema({
-    id: uuidProperty("Identificador do ativo."),
-    code: stringProperty("Código do ativo."),
-    status: stringProperty("Novo status."),
-  }),
-  emits: ["asset.status_changed"],
-  async handler(input) {
-    const assetId = String(input.assetId ?? "").trim();
-    if (!assetId) {
+  async handler(input, context) {
+    const { workspaceId } = context;
+    if (!workspaceId) {
       return {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "assetId é obrigatório." },
+        error: { code: "MISSING_WORKSPACE", message: "Workspace ID é obrigatório." },
       };
     }
 
-    const status = pickAllowed(input.status, assetStatuses, "active");
     const db = getDb();
-
     const [previous] = await db
-      .select({
-        id: assets.id,
-        code: assets.code,
-        status: assets.status,
-      })
+      .select()
       .from(assets)
-      .where(eq(assets.id, assetId))
+      .where(and(eq(assets.id, input.id), eq(assets.workspaceId, workspaceId)))
       .limit(1);
 
     if (!previous) {
@@ -169,15 +121,85 @@ export const updateAssetStatusKernelAction: ActionDefinition<
     const [updated] = await db
       .update(assets)
       .set({
-        status,
+        name: input.name ?? previous.name,
+        category: input.category ?? previous.category,
+        location: input.location ?? previous.location,
+        responsibleId: input.responsibleId ?? previous.responsibleId,
         updatedAt: new Date(),
       })
-      .where(eq(assets.id, assetId))
-      .returning({
-        id: assets.id,
-        code: assets.code,
-        status: assets.status,
-      });
+      .where(and(eq(assets.id, input.id), eq(assets.workspaceId, workspaceId)))
+      .returning();
+
+    await db.insert(assetHistory).values({
+      assetId: updated.id,
+      workspaceId,
+      action: "update",
+      previousData: previous,
+      newData: updated,
+    });
+
+    return {
+      success: true,
+      data: updated,
+    };
+  },
+};
+
+export const updateAssetStatusKernelAction: ActionDefinition<any, any> = {
+  key: "assets.update_status",
+  moduleKey: "assets",
+  description: "Atualiza o status de um ativo.",
+  callableBy: ["ui", "integration", "automation", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      id: uuidProperty("ID do ativo."),
+      status: enumProperty(
+        ASSET_STATUSES.map((s: any) => s.value),
+        "Novo status.",
+      ),
+      note: stringProperty("Observação sobre a mudança de status."),
+    },
+    ["id", "status"],
+  ),
+  async handler(input, context) {
+    const { workspaceId } = context;
+    if (!workspaceId) {
+      return {
+        success: false,
+        error: { code: "MISSING_WORKSPACE", message: "Workspace ID é obrigatório." },
+      };
+    }
+
+    const db = getDb();
+    const [previous] = await db
+      .select()
+      .from(assets)
+      .where(and(eq(assets.id, input.id), eq(assets.workspaceId, workspaceId)))
+      .limit(1);
+
+    if (!previous) {
+      return {
+        success: false,
+        error: { code: "NOT_FOUND", message: "Ativo não encontrado." },
+      };
+    }
+
+    const [updated] = await db
+      .update(assets)
+      .set({
+        status: input.status,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(assets.id, input.id), eq(assets.workspaceId, workspaceId)))
+      .returning();
+
+    await db.insert(assetHistory).values({
+      assetId: updated.id,
+      workspaceId,
+      action: "update_status",
+      previousData: { status: previous.status },
+      newData: { status: updated.status, note: input.note },
+    });
 
     return {
       success: true,
@@ -187,12 +209,7 @@ export const updateAssetStatusKernelAction: ActionDefinition<
           eventType: "asset.status_changed",
           entityType: "asset",
           entityId: updated.id,
-          payload: {
-            code: updated.code,
-            from: previous.status,
-            to: updated.status,
-            note: input.note,
-          },
+          payload: { from: previous.status, to: updated.status, note: input.note },
         },
       ],
     };

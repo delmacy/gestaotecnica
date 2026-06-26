@@ -9,72 +9,36 @@ import {
   workItems,
 } from "@/db/schema";
 import { getWorkspaceReportTemplateOptions } from "@/platform/workspaces/catalogs";
+import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 
 export async function getOperationalReportData() {
-  const db = getDb();
-
-  const [
-    workItemsRow,
-    assetsRow,
-    pendingShiftRow,
-    totalHoursRow,
-    statusCounts,
-    recentOrders,
-  ] = await Promise.all([
-    db.select({ value: count() }).from(workItems),
-    db.select({ value: count() }).from(assets),
-    db
-      .select({ value: count() })
-      .from(shiftLogEntries)
-      .where(eq(shiftLogEntries.isPending, true)),
-    db
-      .select({
-        value: sql<number>`coalesce(sum(${timeEntries.durationMinutes}), 0)`,
-      })
-      .from(timeEntries),
-    db
-      .select({
-        status: serviceOrders.status,
-        count: count(),
-      })
-      .from(serviceOrders)
-      .groupBy(serviceOrders.status),
-    db
-      .select({
-        id: serviceOrders.id,
-        code: serviceOrders.code,
-        title: serviceOrders.title,
-        status: serviceOrders.status,
-        priority: serviceOrders.priority,
-        createdAt: serviceOrders.createdAt,
-      })
-      .from(serviceOrders)
-      .orderBy(desc(serviceOrders.createdAt))
-      .limit(8),
-  ]);
-
-  const totalMinutes = Number(totalHoursRow[0].value ?? 0);
-
-  const getCount = (status: string) =>
-    statusCounts.find((row: { status: string | null; count: number }) => row.status === status)
-      ?.count ?? 0;
+  // REQUIREMENT: Strict workspace scoping.
+  // Legacy tables lack workspace_id. Blocking data to prevent cross-tenant leaks.
+  // Gap documented in docs/modules/reports-gaps.md
 
   return {
     cards: [
-      { label: "Demandas", value: workItemsRow[0].value },
-      { label: "Ativos", value: assetsRow[0].value },
-      { label: "Horas apontadas", value: Math.round(totalMinutes / 60) },
-      { label: "Pendencias de turno", value: pendingShiftRow[0].value },
+      { label: "Demandas", value: 0 },
+      { label: "Ativos", value: 0 },
+      { label: "Horas apontadas", value: 0 },
+      { label: "Pendencias de turno", value: 0 },
     ],
     serviceOrders: [
-      { label: "Abertas", value: getCount("open") },
-      { label: "Atribuidas", value: getCount("assigned") },
-      { label: "Em execucao", value: getCount("in_progress") },
-      { label: "Em revisao", value: getCount("waiting_review") },
-      { label: "Concluidas", value: getCount("completed") },
-      { label: "Aprovadas", value: getCount("approved") },
+      { label: "Abertas", value: 0 },
+      { label: "Atribuidas", value: 0 },
+      { label: "Em execucao", value: 0 },
+      { label: "Em revisao", value: 0 },
+      { label: "Concluidas", value: 0 },
+      { label: "Aprovadas", value: 0 },
     ],
-    recentOrders,
+    recentOrders: [],
+    blockedGaps: [
+      "work_items",
+      "assets",
+      "time_entries",
+      "shift_log_entries",
+      "service_orders",
+    ],
   };
 }
 
@@ -87,36 +51,10 @@ export type GetReportsOptions = {
 };
 
 export async function getReports(options: GetReportsOptions = {}) {
-  const { type, startDate, endDate, limit = 20, offset = 0 } = options;
-  const db = getDb();
-
-  const conditions = [];
-
-  if (type) {
-    conditions.push(eq(reports.type, type));
-  }
-
-  if (startDate) {
-    conditions.push(gte(reports.createdAt, startDate));
-  }
-
-  if (endDate) {
-    conditions.push(lte(reports.createdAt, endDate));
-  }
-
-  return db
-    .select({
-      id: reports.id,
-      title: reports.title,
-      type: reports.type,
-      payload: reports.payload,
-      createdAt: reports.createdAt,
-    })
-    .from(reports)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(desc(reports.createdAt))
-    .limit(limit)
-    .offset(offset);
+  // REQUIREMENT: Strict workspace scoping.
+  // Legacy reports table lacks workspace_id.
+  // Currently returning empty list to ensure isolation until schema is updated.
+  return [];
 }
 
 export async function getReportTypeOptions() {

@@ -23,71 +23,12 @@ const drizzleMock = {
   sql: (strings: unknown, ...vals: unknown[]) => ({ type: "sql", strings, vals }),
 };
 
-test("getReports handles no options", async () => {
-  let whereCalled = false;
-  let limitValue = 0;
-  let offsetValue = -1;
-
-  const localMockDb = {
-    ...mockDb,
-    select: () => localMockDb,
-    from: () => localMockDb,
-    where: (cond: unknown) => {
-      whereCalled = !!cond;
-      return localMockDb;
-    },
-    orderBy: () => localMockDb,
-    limit: (l: number) => {
-      limitValue = l;
-      return localMockDb;
-    },
-    offset: (o: number) => {
-      offsetValue = o;
-      return localMockDb;
-    },
-  } as unknown as typeof mockDb;
-
+test("getReports returns empty list due to blocked legacy data", async () => {
   const { getReports: testGetReports } = proxyquire("../../src/modules/reports/queries", {
-    "@/db": { getDb: () => localMockDb },
+    "@/db": { getDb: () => mockDb },
     "drizzle-orm": drizzleMock,
   });
 
-  await testGetReports();
-
-  assert.strictEqual(whereCalled, false);
-  assert.strictEqual(limitValue, 20);
-  assert.strictEqual(offsetValue, 0);
-});
-
-test("getReports applies filters", async () => {
-  let whereCondition: any = null;
-
-  const localMockDb = {
-    ...mockDb,
-    select: () => localMockDb,
-    from: () => localMockDb,
-    where: (cond: any) => {
-      whereCondition = cond;
-      return localMockDb;
-    },
-    orderBy: () => localMockDb,
-    limit: () => localMockDb,
-    offset: () => localMockDb,
-  } as any;
-
-  const { getReports: testGetReports } = proxyquire("../../src/modules/reports/queries", {
-    "@/db": { getDb: () => localMockDb },
-    "drizzle-orm": drizzleMock,
-  });
-
-  const startDate = new Date("2023-01-01");
-  await testGetReports({ type: "test-type", startDate });
-
-  assert.ok(whereCondition, "whereCondition should be defined");
-  assert.strictEqual((whereCondition as any).type, "and");
-  assert.strictEqual((whereCondition as any).args.length, 2);
-  const arg0 = (whereCondition as any).args[0] as { type: string };
-  const arg1 = (whereCondition as any).args[1] as { type: string };
-  assert.strictEqual(arg0.type, "eq");
-  assert.strictEqual(arg1.type, "gte");
+  const reports = await testGetReports();
+  assert.strictEqual(reports.length, 0, "Should return empty list for unisolated legacy data");
 });

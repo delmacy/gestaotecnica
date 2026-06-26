@@ -12,7 +12,7 @@ Este documento registra contratos, dados ou comportamentos ausentes identificado
 - `shift_log_entries`
 - `time_entries`
 
-**Gap:** Atualmente, as consultas de reporting em `src/modules/reports/queries.ts` e as ações em `src/modules/reports/actions.ts` retornam dados globais, violando a diretriz de isolamento por workspace.
+**Gap:** Atualmente, as consultas de reporting em `src/modules/reports/queries.ts` e as ações em `src/modules/reports/actions.ts` **bloqueiam** o retorno de dados destas tabelas para evitar vazamento entre tenants (cross-tenant leaks). O Reporting retornará 0 ou listas vazias até que a coluna `workspace_id` seja adicionada e populada nestas entidades.
 
 ## 2. Prevenção de N+1 em Agregações
 **Impacto:** Performance.

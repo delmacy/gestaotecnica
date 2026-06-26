@@ -139,6 +139,6 @@ test("Contract Extraction: Should reject layout with non-existent field referenc
 
   const result = FormDefinitionSchema.safeParse(invalidForm);
   assert.strictEqual(result.success, false);
-  // @ts-ignore
+  // @ts-expect-error - testing invalid layout reference
   assert.ok(result.error.message.includes("Layout references non-existent field ID"));
 });

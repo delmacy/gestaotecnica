@@ -135,12 +135,12 @@ test("createTraceHash: creates valid sha512 hash", () => {
 });
 
 test("createTraceHash: rejects invalid algorithm", () => {
-  // @ts-expect-error
+  // @ts-expect-error - testing invalid algorithm
   assert.throws(() => createTraceHash({ a: 1 }, "invalid", "receipt"));
 });
 
 test("createTraceHash: rejects invalid scope", () => {
-  // @ts-expect-error
+  // @ts-expect-error - testing invalid scope
   assert.throws(() => createTraceHash({ a: 1 }, "sha256", "invalid"));
 });
 
@@ -183,6 +183,6 @@ test("verifyTraceHash: rejects structurally invalid hash", () => {
     scope: "receipt",
     value: "too-short",
   };
-  // @ts-expect-error
+  // @ts-expect-error - testing structurally invalid hash
   assert.throws(() => verifyTraceHash(val, invalidHash));
 });

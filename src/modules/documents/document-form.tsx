@@ -1,12 +1,8 @@
-import { getEvidenceLinkOptions } from "@/modules/evidences/queries";
 import { createTechnicalDocument } from "./actions";
 import { getDocumentTypeOptions } from "./queries";
 
 export async function DocumentForm() {
-  const [options, documentTypes] = await Promise.all([
-    getEvidenceLinkOptions(),
-    getDocumentTypeOptions(),
-  ]);
+  const documentTypes = await getDocumentTypeOptions();
 
   return (
     <form action={createTechnicalDocument} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
@@ -35,18 +31,7 @@ export async function DocumentForm() {
           <textarea className="mt-1 min-h-32 w-full resize-y border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm leading-6 outline-none focus:border-[#6b7d5d]" name="content" />
         </label>
 
-        {/* Note: In the new schema, links are stored in document_links.
-            The current form doesn't support multiple links yet, but we pass these to the action. */}
-
-        <label className="block">
-          <span className="text-sm font-medium text-[#273025]">OS</span>
-          <select className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]" name="serviceOrderId" defaultValue="">
-            <option value="">Sem OS</option>
-            {options.serviceOrders.map((order: any) => (
-              <option key={order.id} value={order.id}>{order.code} - {order.title}</option>
-            ))}
-          </select>
-        </label>
+        {/* GAP: Vínculos com OS/Ativo/Demanda omitidos até suporte a isolamento nas tabelas de origem */}
 
         <button className="h-11 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]" type="submit">
           Criar documento

@@ -6,7 +6,7 @@ import { getDb } from "@/db";
 import { processCandidates } from "@/db/platform/schema/candidates";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { and, eq } from "drizzle-orm";
-import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   inventoryMovementTypes,
   type InventoryMovementTypeValue,
@@ -42,9 +42,54 @@ function readEnum<T extends string>(
   return allowedValues.some((item) => item.value === value) ? (value as T) : fallback;
 }
 
+async function calculateCurrentBalance(db: any, workspaceId: string, itemId: string): Promise<number> {
+  const itemRecord = await db.select()
+    .from(processCandidates)
+    .where(
+      and(
+        eq(processCandidates.id, itemId),
+        eq(processCandidates.workspaceId, workspaceId),
+        eq(processCandidates.origin, "inventory-item")
+      )
+    )
+    .limit(1);
+
+  if (!itemRecord[0]) {
+    throw new Error("Item não encontrado ou acesso negado.");
+  }
+
+  const def = itemRecord[0].proposedDefinition;
+  const initial = Number(def.initialQuantity) || 0;
+
+  const movements = await db.select()
+    .from(processCandidates)
+    .where(
+      and(
+        eq(processCandidates.workspaceId, workspaceId),
+        eq(processCandidates.origin, "inventory-movement")
+      )
+    );
+
+  const itemMovements = movements.filter((m: any) => m.proposedDefinition.itemId === itemId);
+
+  return itemMovements.reduce((acc: number, m: any) => {
+    const mDef = m.proposedDefinition;
+    const qty = Number(mDef.quantity) || 0;
+    if (mDef.movementType === 'inbound' || mDef.movementType === 'release') {
+      return acc + qty;
+    } else if (mDef.movementType === 'outbound' || mDef.movementType === 'reservation') {
+      return acc - qty;
+    } else if (mDef.movementType === 'adjustment') {
+      return acc + qty; // Adjustment quantity is the delta
+    }
+    return acc;
+  }, initial);
+}
+
 export async function createInventoryItem(formData: FormData) {
-  const workspace = await ensureActiveWorkspaceConfig();
-  const workspaceId = workspace.id;
+  // Resolve workspaceId from trusted server context
+  const context = await resolveWorkspaceContext();
+  const workspaceId = context.workspaceId;
 
   const sku = readRequiredText(formData, "sku");
   const name = readRequiredText(formData, "name");
@@ -90,8 +135,9 @@ export async function createInventoryItem(formData: FormData) {
 }
 
 export async function createInventoryMovement(formData: FormData) {
-  const workspace = await ensureActiveWorkspaceConfig();
-  const workspaceId = workspace.id;
+  // Resolve workspaceId from trusted server context
+  const context = await resolveWorkspaceContext();
+  const workspaceId = context.workspaceId;
 
   const itemId = readRequiredText(formData, "itemId");
   const movementType = readEnum<InventoryMovementTypeValue>(
@@ -102,26 +148,31 @@ export async function createInventoryMovement(formData: FormData) {
   );
   const quantity = readInteger(formData, "quantity");
 
-  if (quantity <= 0) {
-    throw new Error("Quantidade de movimentação deve ser maior que zero.");
+  // Validation for adjustment: quantity can be negative, for others must be positive
+  if (movementType !== 'adjustment' && quantity <= 0) {
+    throw new Error("Quantidade de movimentação deve ser maior que zero para este tipo.");
+  }
+  if (movementType === 'adjustment' && quantity === 0) {
+    throw new Error("Ajuste deve ter valor diferente de zero.");
   }
 
   const db = getDb();
 
-  // Validate item existence and ownership
-  const [itemRecord] = await db.select()
-    .from(processCandidates)
-    .where(
-      and(
-        eq(processCandidates.id, itemId),
-        eq(processCandidates.workspaceId, workspaceId),
-        eq(processCandidates.origin, "inventory-item")
-      )
-    )
-    .limit(1);
+  // Calculate current balance before reductions
+  const currentBalance = await calculateCurrentBalance(db, workspaceId, itemId);
 
-  if (!itemRecord) {
-    throw new Error("Item não encontrado ou acesso negado (Cross-tenant attempt blocked).");
+  // Semantics: outbound/reservation reduce balance. adjustment reduces if quantity is negative.
+  let delta = 0;
+  if (movementType === 'inbound' || movementType === 'release') {
+    delta = quantity;
+  } else if (movementType === 'outbound' || movementType === 'reservation') {
+    delta = -quantity;
+  } else if (movementType === 'adjustment') {
+    delta = quantity;
+  }
+
+  if (currentBalance + delta < 0) {
+    throw new Error(`Saldo insuficiente. Saldo atual: ${currentBalance}, Tentativa de alteração: ${delta}`);
   }
 
   const [movement] = await db.insert(processCandidates).values({

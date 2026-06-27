@@ -2,53 +2,53 @@ import Link from "next/link";
 import { AssetForm } from "@/modules/assets/asset-form";
 import { AssetsTable } from "@/modules/assets/assets-table";
 import {
+  getAssetSummary,
+  getAssetTypeOptions,
   getAssets,
 } from "@/modules/assets/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function AssetsPage() {
-  const assets = await getAssets();
-
-  const summary = [
-    { label: "Total de Ativos", value: assets.length },
-    { label: "Ativos Disponíveis", value: assets.filter((a: any) => a.status === 'available').length },
-    { label: "Em Manutenção", value: assets.filter((a: any) => a.status === 'maintenance').length },
-    { label: "Avariados", value: assets.filter((a: any) => a.status === 'broken').length },
-  ];
+  const [assets, summary, assetTypeOptions] = await Promise.all([
+    getAssets(),
+    getAssetSummary(),
+    getAssetTypeOptions(),
+  ]);
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
-      <section className="border-b border-slate-200 bg-white shadow-sm">
+    <main className="min-h-screen bg-[#f6f7f4] text-[#1c211b]">
+      <section className="border-b border-[#d7dccf] bg-[#fbfcf8]">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-8 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="font-mono text-xs uppercase text-slate-500 tracking-wider">
-                Módulo Universal
+              <p className="font-mono text-xs uppercase text-[#65705f]">
+                Modulo operacional
               </p>
-              <h1 className="mt-2 text-4xl font-bold text-slate-900 tracking-tight">
+              <h1 className="mt-2 text-4xl font-semibold text-[#111510]">
                 Ativos
               </h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                Gerencie todos os ativos da organização de forma centralizada e universal.
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#4d5848]">
+                Ativos representam equipamentos, sistemas e infraestrutura que
+                sustentam demandas, OS, evidencias e historico operacional.
               </p>
             </div>
             <Link
-              className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+              className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
               href="/"
             >
               Voltar ao painel
             </Link>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {summary.map((item) => (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {summary.map((item: any) => (
               <div
-                className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+                className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}
               >
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{item.label}</p>
-                <p className="mt-2 text-3xl font-bold text-slate-900">
+                <p className="font-mono text-xs text-[#6e7a66]">{item.label}</p>
+                <p className="mt-2 text-3xl font-semibold text-[#111510]">
                   {item.value}
                 </p>
               </div>
@@ -57,24 +57,21 @@ export default async function AssetsPage() {
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-7xl gap-8 px-6 py-10 lg:grid-cols-[1fr_400px] lg:px-8">
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Inventário de Ativos
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-6 py-8 lg:grid-cols-[1fr_420px] lg:px-8">
+        <div>
+          <div className="mb-4">
+            <h2 className="text-2xl font-semibold text-[#111510]">
+              Ativos cadastrados
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Visualize e gerencie todos os ativos cadastrados.
+            <p className="mt-1 text-sm leading-6 text-[#5b6655]">
+              Listagem dos ultimos 50 ativos cadastrados no sistema.
             </p>
           </div>
           <AssetsTable assets={assets} />
         </div>
 
-        <aside className="space-y-6">
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-md">
-            <h3 className="mb-6 text-lg font-bold text-slate-900">Novo Ativo</h3>
-            <AssetForm />
-          </div>
+        <aside>
+          <AssetForm assetTypes={assetTypeOptions} />
         </aside>
       </section>
     </main>

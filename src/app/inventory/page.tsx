@@ -6,13 +6,14 @@ import {
   getInventoryOptions,
   getInventorySummary,
 } from "@/modules/inventory/queries";
-import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 
 export const dynamic = "force-dynamic";
 
 export default async function InventoryPage() {
-  const workspace = await ensureActiveWorkspaceConfig();
-  const workspaceId = workspace.id;
+  // Resolve workspaceId from trusted server context
+  const context = await resolveWorkspaceContext();
+  const workspaceId = context.workspaceId;
 
   const [items, movements, summary, options] = await Promise.all([
     getInventoryItems(workspaceId),

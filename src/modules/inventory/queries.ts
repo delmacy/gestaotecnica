@@ -14,7 +14,6 @@ export type InventoryOptions = {
 export async function getInventoryItems(workspaceId: string) {
   const db = getDb();
 
-  // Single-pass balance calculation: Get all candidates for this workspace and origin in one query
   const candidates = await db.select({
     id: processCandidates.id,
     origin: processCandidates.origin,
@@ -25,7 +24,6 @@ export async function getInventoryItems(workspaceId: string) {
   .where(
     and(
       eq(processCandidates.workspaceId, workspaceId),
-      // origin is IN ('inventory-item', 'inventory-movement') logic via separate results for clarity or single fetch
     )
   )
   .orderBy(desc(processCandidates.createdAt));
@@ -33,7 +31,6 @@ export async function getInventoryItems(workspaceId: string) {
   const items = candidates.filter((c: any) => c.origin === "inventory-item");
   const movements = candidates.filter((c: any) => c.origin === "inventory-movement");
 
-  // Create movement map for faster lookup
   const movementMap = new Map<string, any[]>();
   movements.forEach((m: any) => {
     const itemId = (m.proposedDefinition as any).itemId;
@@ -44,17 +41,20 @@ export async function getInventoryItems(workspaceId: string) {
   return items.map((item: any) => {
     const def = item.proposedDefinition as any;
 
-    // Calculate balance using the optimized map
     const itemMovements = movementMap.get(item.id) || [];
     const balance = itemMovements.reduce((acc: number, m: any) => {
       const mDef = m.proposedDefinition as any;
       const qty = Number(mDef.quantity) || 0;
-      // Define outbound/adjustment balance policy: outbound and adjustment are treated as reductions unless specified
+
+      // Semantics of adjustment: If movementType is 'adjustment', quantity is delta (positive or negative)
       if (mDef.movementType === 'inbound' || mDef.movementType === 'release') {
         return acc + qty;
-      } else {
+      } else if (mDef.movementType === 'outbound' || mDef.movementType === 'reservation') {
         return acc - qty;
+      } else if (mDef.movementType === 'adjustment') {
+        return acc + qty; // For adjustments, quantity is the relative change
       }
+      return acc;
     }, Number(def.initialQuantity) || 0);
 
     return {

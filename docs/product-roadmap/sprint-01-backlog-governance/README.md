@@ -1,37 +1,72 @@
 # Sprint 01 — Organização do backlog e governança
 
-Objetivo: converter issues, PRs e planos existentes no novo modelo determinístico de tasks.
+## Objetivo
 
-## SB-S01-T01 — Inventariar backlog e PRs existentes
+Converter issues, PRs, planos e documentos existentes no novo modelo determinístico de tasks, eliminando ambiguidades antes do desenvolvimento das demais sprints.
+
+## Leitura obrigatória
+
+1. `docs/product-roadmap/README.md`
+2. `docs/product-roadmap/ARCHITECTURE_CONTEXT.md`
+3. `docs/product-roadmap/EXECUTION_RULES.md`
+4. `docs/product-roadmap/TASK_INDEX.md`
+5. `docs/product-roadmap/sprint-01-backlog-governance/CONTEXT.md`
+6. arquivo individual da task selecionada
+
+## Fluxo da sprint
+
+```text
+SB-S01-T01
+   ├── SB-S01-T02 ──┐
+   └── SB-S01-T03 ──┤
+                    ▼
+               SB-S01-T04
+                    ▼
+               SB-S01-T05
+```
+
+T02 e T03 podem ser executadas em paralelo após T01, desde que não editem o mesmo arquivo simultaneamente.
+
+## Tasks
+
+### SB-S01-T01 — Inventariar backlog e PRs existentes
+- Tipo: planejamento/auditoria
+- Estado inicial: ready
+- Arquivo: [`01-inventariar-backlog-e-prs.md`](./01-inventariar-backlog-e-prs.md)
+
+### SB-S01-T02 — Normalizar IDs, estados e dependências
 - Tipo: planejamento
-- Modo: sequencial
-- Escopo: issues abertas, PRs abertos/fechados recentes, roadmaps e documentos ativos.
-- Entrega: `BACKLOG_INVENTORY.md` com item, fonte, estado real, duplicidade, substituto e risco.
-- Aceite: nenhuma task existente relevante fica sem classificação; estado deriva do GitHub real.
+- Estado inicial: blocked por T01
+- Arquivo: [`02-normalizar-ids-estados-dependencias.md`](./02-normalizar-ids-estados-dependencias.md)
 
-## SB-S01-T02 — Normalizar IDs, estados e dependências
-- Tipo: planejamento
-- Modo: paralelo após T01
-- Entrega: mapa entre issues existentes e IDs `SB-*`; dependências e ordem de execução.
-- Aceite: cada item tem um único ID, owner lógico, estado permitido e predecessor explícito.
+### SB-S01-T03 — Criar validador do catálogo de tasks
+- Tipo: desenvolvimento interno
+- Estado inicial: blocked por T01
+- Arquivo: [`03-criar-validador-catalogo-tasks.md`](./03-criar-validador-catalogo-tasks.md)
 
-## SB-S01-T03 — Criar validador do catálogo de tasks
-- Tipo: desenvolvimento
-- Modo: paralelo após T01
-- Entrega: script read-only que valida IDs duplicados, referências inexistentes, ciclos e campos obrigatórios.
-- Aceite: execução determinística e falha não-zero diante de catálogo inválido.
+### SB-S01-T04 — Auditar escopo, duplicidades e consistência
+- Tipo: review independente
+- Estado inicial: blocked por T02 e T03
+- Arquivo: [`04-auditar-escopo-duplicidades.md`](./04-auditar-escopo-duplicidades.md)
 
-## SB-S01-T04 — Auditar escopo e duplicidades
-- Tipo: review
-- Depende: T02, T03
-- Entrega: `SPRINT_REVIEW.md` com duplicidades, tasks obsoletas e correções.
-- Aceite: não alterar código funcional; apontar evidência por caminho/issue/PR.
+### SB-S01-T05 — Provar descoberta e execução pelo Jules
+- Tipo: teste operacional
+- Estado inicial: blocked por T04
+- Arquivo: [`05-provar-descoberta-pelo-jules.md`](./05-provar-descoberta-pelo-jules.md)
 
-## SB-S01-T05 — Provar descoberta pelo Jules
-- Tipo: teste
-- Depende: T04
-- Entrega: teste operacional com três IDs, verificando localização, leitura, branch isolada e PR correto.
-- Aceite: Jules executa sem prompt extenso e sem confundir sprint, task ou escopo.
+## Critério de conclusão da sprint
 
-## Prompt Jules
-`Busque a task <ID> em docs/product-roadmap/sprint-01-backlog-governance/README.md, execute somente o escopo descrito, publique branch e PR isolados e apresente evidências dos critérios de aceite.`
+- inventário aprovado;
+- mapeamento canônico aprovado;
+- validador passando;
+- review sem blocker aberto;
+- prova de descoberta com três execuções corretas;
+- nenhuma alteração funcional do produto misturada à sprint.
+
+## Prompt mínimo para o Jules
+
+```text
+Busque a task <TASK_ID> no arquivo individual indicado em docs/product-roadmap/sprint-01-backlog-governance/README.md.
+Leia os documentos obrigatórios da sprint.
+Execute somente o contrato da task, publique branch e PR isolados e não faça merge automático.
+```

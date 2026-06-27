@@ -1,84 +1,46 @@
-import { getTechnicianLevelLabel } from "./constants";
+import React from 'react';
+import type { WorkforceMember } from './contracts/workforce.schema';
+import Link from 'next/link';
 
-type TechnicianRow = {
-  id: string;
-  name: string;
-  email: string;
-  teamName: string | null;
-  level: string;
-  registrationCode: string | null;
-  specialty: string | null;
-  isAvailable: boolean;
-  createdAt: Date;
-};
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(date);
-}
-
-export function TechniciansTable({ technicians }: { technicians: TechnicianRow[] }) {
-  if (technicians.length === 0) {
-    return (
-      <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">
-          Nenhum tecnico cadastrado
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Cadastre tecnicos para atribuir responsaveis as OS.
-        </p>
-      </div>
-    );
-  }
-
+export function TechniciansTable({ technicians }: { technicians: WorkforceMember[] }) {
   return (
-    <div className="overflow-hidden border border-[#d7dccf] bg-white shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[820px] border-collapse text-left">
-          <thead className="bg-[#f1f3ed] text-xs uppercase text-[#65705f]">
+    <div className="overflow-x-auto border border-[#d7dccf] bg-white shadow-sm">
+      <table className="min-w-full divide-y divide-[#d7dccf]">
+        <thead className="bg-[#fbfcf8]">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-[#65705f] uppercase tracking-wider">Nome</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-[#65705f] uppercase tracking-wider">Nível</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-[#65705f] uppercase tracking-wider">Função</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-[#65705f] uppercase tracking-wider">Status</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-[#65705f] uppercase tracking-wider">Ações</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-[#d7dccf]">
+          {technicians.length === 0 ? (
             <tr>
-              <th className="px-4 py-3 font-semibold">Tecnico</th>
-              <th className="px-4 py-3 font-semibold">Nivel</th>
-              <th className="px-4 py-3 font-semibold">Equipe</th>
-              <th className="px-4 py-3 font-semibold">Especialidade</th>
-              <th className="px-4 py-3 font-semibold">Disponibilidade</th>
-              <th className="px-4 py-3 font-semibold">Criado em</th>
+              <td colSpan={5} className="px-6 py-10 text-center text-sm text-[#8a9684] italic">Nenhum técnico consolidado encontrado.</td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-[#e0e5d9] text-sm">
-            {technicians.map((technician: any) => (
-              <tr key={technician.id}>
-                <td className="px-4 py-4 align-top">
-                  <p className="font-semibold text-[#182017]">{technician.name}</p>
-                  <p className="mt-1 text-[#5b6655]">{technician.email}</p>
-                  {technician.registrationCode ? (
-                    <p className="mt-2 font-mono text-xs text-[#7a8474]">
-                      {technician.registrationCode}
-                    </p>
-                  ) : null}
+          ) : (
+            technicians.map((t) => (
+              <tr key={t.id} className="hover:bg-[#fbfcf8] transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#111510]">{t.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-[#4d5848]">{t.level}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-[#4d5848]">{t.function || '-'}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    t.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {t.status}
+                  </span>
                 </td>
-                <td className="px-4 py-4 align-top">
-                  {getTechnicianLevelLabel(technician.level)}
-                </td>
-                <td className="px-4 py-4 align-top">
-                  {technician.teamName ?? "Sem equipe"}
-                </td>
-                <td className="px-4 py-4 align-top">
-                  {technician.specialty ?? "Nao informada"}
-                </td>
-                <td className="px-4 py-4 align-top">
-                  {technician.isAvailable ? "Disponivel" : "Indisponivel"}
-                </td>
-                <td className="px-4 py-4 align-top font-mono text-xs">
-                  {formatDate(technician.createdAt)}
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <Link href={`/workforce/${t.id}`} className="text-[#31402d] hover:text-[#111510] underline">Ver Detalhes</Link>
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }

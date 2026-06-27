@@ -8,7 +8,6 @@ import { getDb, getRuntimeDb } from "@/db";
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
-
   technicianProfiles,
   technicianUnavailabilities,
   users,
@@ -96,10 +95,15 @@ export async function createTeam(formData: FormData) {
 
 export async function createTechnician(formData: FormData) {
   const name = readRequiredText(formData, "name");
-  const email = readRequiredText(formData, "email").toLowerCase();
+  const email = readOptionalText(formData, "email")?.toLowerCase();
   const registrationCode = readOptionalText(formData, "registrationCode");
   const specialty = readOptionalText(formData, "specialty");
   const teamId = readOptionalText(formData, "teamId");
+  const func = readOptionalText(formData, "function");
+  const competenciesStr = readOptionalText(formData, "competencies");
+  const competencies = competenciesStr ? competenciesStr.split(",").map(c => c.trim()) : [];
+  const status = readOptionalText(formData, "status") || "active";
+
   const technicianLevels = await getTechnicianLevelOptions();
   const level = readEnum<TechnicianLevelValue>(
     formData,
@@ -108,32 +112,39 @@ export async function createTechnician(formData: FormData) {
     "trainee",
   );
 
-  const db = getRuntimeDb();
-  // Criação de usuário ainda é direta por enquanto, até termos auth kernel actions
-  const [user] = await db
-    .insert(users)
-    .values({
-      name,
-      email,
-      status: "active",
-    })
-    .onConflictDoUpdate({
-      target: users.email,
-      set: { updatedAt: new Date() },
-    })
-    .returning({
-      id: users.id,
-    });
+  let userId: string | undefined;
+  if (email) {
+    const db = getRuntimeDb();
+    const [user] = await db
+      .insert(users)
+      .values({
+        name,
+        email,
+        status: "active",
+      })
+      .onConflictDoUpdate({
+        target: users.email,
+        set: { updatedAt: new Date() },
+      })
+      .returning({
+        id: users.id,
+      });
+    userId = user.id;
+  }
 
   const context = await resolveWorkspaceContext({ source: "ui" });
   const result = await runAction(
     "workforce.create_technician",
     {
-      userId: user.id,
+      userId,
+      name,
       teamId,
       level,
+      function: func,
+      competencies,
       registrationCode,
       specialty,
+      status,
     },
     context,
   );
@@ -144,7 +155,6 @@ export async function createTechnician(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/workforce");
-  revalidatePath("/service-orders");
   redirect("/workforce");
 }
 

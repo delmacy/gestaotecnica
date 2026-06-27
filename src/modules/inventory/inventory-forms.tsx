@@ -1,4 +1,3 @@
-import { suppliers } from "@/db/schema";
 import { createInventoryItem, createInventoryMovement } from "./actions";
 import { inventoryItemStatuses, inventoryMovementTypes } from "./constants";
 import type { InventoryOptions } from "./queries";
@@ -7,6 +6,7 @@ export function InventoryItemForm({ options }: { options: InventoryOptions }) {
   return (
     <form action={createInventoryItem} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Novo item</h2>
+      {/* workspaceId removed from public form as per PR feedback - now resolved from server context */}
       <div className="mt-4 space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <input className="h-11 border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="sku" placeholder="SKU" required />
@@ -37,6 +37,7 @@ export function InventoryMovementForm({ options }: { options: InventoryOptions }
   return (
     <form action={createInventoryMovement} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Nova movimentacao</h2>
+      {/* workspaceId removed from public form as per PR feedback - now resolved from server context */}
       <div className="mt-4 space-y-4">
         <select className="h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm" name="itemId" required defaultValue=""><option value="">Selecione o item</option>{options.items.map((i) => <option key={i.id} value={i.id}>{i.sku} - {i.name}</option>)}</select>
         <div className="grid gap-3 sm:grid-cols-2">

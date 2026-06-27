@@ -6,15 +6,19 @@ import {
   getInventoryOptions,
   getInventorySummary,
 } from "@/modules/inventory/queries";
+import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 
 export const dynamic = "force-dynamic";
 
 export default async function InventoryPage() {
+  const workspace = await ensureActiveWorkspaceConfig();
+  const workspaceId = workspace.id;
+
   const [items, movements, summary, options] = await Promise.all([
-    getInventoryItems(),
-    getInventoryMovements(),
-    getInventorySummary(),
-    getInventoryOptions(),
+    getInventoryItems(workspaceId),
+    getInventoryMovements(workspaceId),
+    getInventorySummary(workspaceId),
+    getInventoryOptions(workspaceId),
   ]);
 
   return (
@@ -22,8 +26,12 @@ export default async function InventoryPage() {
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
         <header>
           <p className="font-mono text-xs uppercase text-[#65705f]">Materiais e ferramentas</p>
-          <h1 className="mt-2 text-3xl font-semibold text-[#111510]">Estoque tecnico</h1>
+          <h1 className="mt-2 text-3xl font-semibold text-[#111510]">Estoque tecnico (Isolated)</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5b6655]">Controle de itens, saldos, minimo operacional e movimentacoes conectadas a OS e aquisicoes.</p>
+          <p className="mt-1 text-xs text-amber-700 bg-amber-50 p-2 border border-amber-200">
+            Aviso: Este módulo está operando em modo isolado via Process Candidates.
+            Algumas integrações com tabelas legadas (Ativos, Fornecedores, OS) estão desabilitadas por segurança (gap de isolamento).
+          </p>
         </header>
         <section className="grid gap-3 sm:grid-cols-3">
           {summary.map((metric: any) => (

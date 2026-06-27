@@ -1,14 +1,6 @@
-import { count, desc, eq, lte, sql } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import {
-  acquisitionNeeds,
-  assets,
-  inventoryItems,
-  inventoryMovements,
-  serviceOrders,
-  suppliers,
-  users,
-} from "@/db/schema";
+import { processCandidates } from "@/db/platform/schema/candidates";
 
 export type InventoryOptions = {
   items: Array<{ id: string; sku: string; name: string }>;
@@ -19,72 +11,149 @@ export type InventoryOptions = {
   users: Array<{ id: string; name: string }>;
 };
 
-export async function getInventoryItems() {
+export async function getInventoryItems(workspaceId: string) {
   const db = getDb();
-  return db.select({
-    id: inventoryItems.id,
-    sku: inventoryItems.sku,
-    name: inventoryItems.name,
-    category: inventoryItems.category,
-    status: inventoryItems.status,
-    quantityOnHand: inventoryItems.quantityOnHand,
-    minimumQuantity: inventoryItems.minimumQuantity,
-    unit: inventoryItems.unit,
-    location: inventoryItems.location,
-    notes: inventoryItems.notes,
-    supplierName: suppliers.name,
-    assetCode: assets.code,
-    assetName: assets.name,
-  }).from(inventoryItems)
-    .leftJoin(suppliers, eq(inventoryItems.supplierId, suppliers.id))
-    .leftJoin(assets, eq(inventoryItems.assetId, assets.id))
-    .orderBy(desc(inventoryItems.createdAt))
-    .limit(80);
+
+  // Single-pass balance calculation: Get all candidates for this workspace and origin in one query
+  const candidates = await db.select({
+    id: processCandidates.id,
+    origin: processCandidates.origin,
+    proposedDefinition: processCandidates.proposedDefinition,
+    createdAt: processCandidates.createdAt,
+  })
+  .from(processCandidates)
+  .where(
+    and(
+      eq(processCandidates.workspaceId, workspaceId),
+      // origin is IN ('inventory-item', 'inventory-movement') logic via separate results for clarity or single fetch
+    )
+  )
+  .orderBy(desc(processCandidates.createdAt));
+
+  const items = candidates.filter((c: any) => c.origin === "inventory-item");
+  const movements = candidates.filter((c: any) => c.origin === "inventory-movement");
+
+  // Create movement map for faster lookup
+  const movementMap = new Map<string, any[]>();
+  movements.forEach((m: any) => {
+    const itemId = (m.proposedDefinition as any).itemId;
+    if (!movementMap.has(itemId)) movementMap.set(itemId, []);
+    movementMap.get(itemId)?.push(m);
+  });
+
+  return items.map((item: any) => {
+    const def = item.proposedDefinition as any;
+
+    // Calculate balance using the optimized map
+    const itemMovements = movementMap.get(item.id) || [];
+    const balance = itemMovements.reduce((acc: number, m: any) => {
+      const mDef = m.proposedDefinition as any;
+      const qty = Number(mDef.quantity) || 0;
+      // Define outbound/adjustment balance policy: outbound and adjustment are treated as reductions unless specified
+      if (mDef.movementType === 'inbound' || mDef.movementType === 'release') {
+        return acc + qty;
+      } else {
+        return acc - qty;
+      }
+    }, Number(def.initialQuantity) || 0);
+
+    return {
+      id: item.id,
+      sku: def.sku,
+      name: def.name,
+      category: def.category,
+      status: balance <= (Number(def.minimumQuantity) || 0) ? "low_stock" : "available",
+      quantityOnHand: balance,
+      minimumQuantity: def.minimumQuantity,
+      unit: def.unit,
+      location: def.location,
+      notes: def.notes,
+      supplierName: "N/A (Gap: Legacy Supplier Isolation)",
+      assetCode: "N/A (Gap: Legacy Asset Isolation)",
+      assetName: "",
+    };
+  });
 }
 
-export async function getInventoryMovements() {
+export async function getInventoryMovements(workspaceId: string) {
   const db = getDb();
-  return db.select({
-    id: inventoryMovements.id,
-    movementType: inventoryMovements.movementType,
-    quantity: inventoryMovements.quantity,
-    notes: inventoryMovements.notes,
-    occurredAt: inventoryMovements.occurredAt,
-    itemSku: inventoryItems.sku,
-    itemName: inventoryItems.name,
-    serviceOrderCode: serviceOrders.code,
-    acquisitionTitle: acquisitionNeeds.title,
-    performedByName: users.name,
-  }).from(inventoryMovements)
-    .innerJoin(inventoryItems, eq(inventoryMovements.itemId, inventoryItems.id))
-    .leftJoin(serviceOrders, eq(inventoryMovements.serviceOrderId, serviceOrders.id))
-    .leftJoin(acquisitionNeeds, eq(inventoryMovements.acquisitionNeedId, acquisitionNeeds.id))
-    .leftJoin(users, eq(inventoryMovements.performedById, users.id))
-    .orderBy(desc(inventoryMovements.occurredAt))
-    .limit(80);
+
+  const candidates = await db.select({
+    id: processCandidates.id,
+    origin: processCandidates.origin,
+    proposedDefinition: processCandidates.proposedDefinition,
+    createdAt: processCandidates.createdAt,
+  })
+  .from(processCandidates)
+  .where(eq(processCandidates.workspaceId, workspaceId))
+  .orderBy(desc(processCandidates.createdAt));
+
+  const movementRows = candidates.filter((c: any) => c.origin === "inventory-movement").slice(0, 80);
+  const itemRows = candidates.filter((c: any) => c.origin === "inventory-item");
+
+  const itemMap = new Map(itemRows.map((i: any) => [i.id, (i.proposedDefinition as any).name]));
+  const skuMap = new Map(itemRows.map((i: any) => [i.id, (i.proposedDefinition as any).sku]));
+
+  return movementRows.map((m: any) => {
+    const def = m.proposedDefinition as any;
+    return {
+      id: m.id,
+      movementType: def.movementType,
+      quantity: def.quantity,
+      notes: def.notes,
+      occurredAt: m.createdAt,
+      itemSku: skuMap.get(def.itemId) || "Unknown",
+      itemName: itemMap.get(def.itemId) || "Unknown Item",
+      serviceOrderCode: "N/A (Gap: Legacy SO Isolation)",
+      acquisitionTitle: "N/A (Gap: Legacy Acquisition Isolation)",
+      performedByName: "N/A (Gap: Legacy User Isolation)",
+    };
+  });
 }
 
-export async function getInventorySummary() {
-  const db = getDb();
-  const [items] = await db.select({ value: count() }).from(inventoryItems);
-  const [lowStock] = await db.select({ value: count() }).from(inventoryItems).where(lte(inventoryItems.quantityOnHand, inventoryItems.minimumQuantity));
-  const [total] = await db.select({ value: sql<number>`coalesce(sum(${inventoryItems.quantityOnHand}), 0)` }).from(inventoryItems);
+export async function getInventorySummary(workspaceId: string) {
+  const items = await getInventoryItems(workspaceId);
+
+  const totalItems = items.length;
+  const lowStockCount = items.filter((i: any) => i.quantityOnHand <= (Number(i.minimumQuantity) || 0)).length;
+  const totalBalance = items.reduce((acc: number, i: any) => acc + i.quantityOnHand, 0);
+
   return [
-    { label: "Itens", value: items.value },
-    { label: "Abaixo do minimo", value: lowStock.value },
-    { label: "Saldo total", value: total.value },
+    { label: "Itens", value: totalItems },
+    { label: "Abaixo do minimo", value: lowStockCount },
+    { label: "Saldo total", value: totalBalance },
   ];
 }
 
-export async function getInventoryOptions(): Promise<InventoryOptions> {
+export async function getInventoryOptions(workspaceId: string): Promise<InventoryOptions> {
   const db = getDb();
-  const [itemRows, supplierRows, assetRows, orderRows, acquisitionRows, userRows] = await Promise.all([
-    db.select({ id: inventoryItems.id, sku: inventoryItems.sku, name: inventoryItems.name }).from(inventoryItems).orderBy(desc(inventoryItems.createdAt)).limit(80),
-    db.select({ id: suppliers.id, name: suppliers.name }).from(suppliers).orderBy(desc(suppliers.createdAt)).limit(50),
-    db.select({ id: assets.id, code: assets.code, name: assets.name }).from(assets).orderBy(desc(assets.createdAt)).limit(50),
-    db.select({ id: serviceOrders.id, code: serviceOrders.code, title: serviceOrders.title }).from(serviceOrders).orderBy(desc(serviceOrders.createdAt)).limit(50),
-    db.select({ id: acquisitionNeeds.id, title: acquisitionNeeds.title }).from(acquisitionNeeds).orderBy(desc(acquisitionNeeds.createdAt)).limit(50),
-    db.select({ id: users.id, name: users.name }).from(users).orderBy(desc(users.createdAt)).limit(50),
-  ]);
-  return { items: itemRows, suppliers: supplierRows, assets: assetRows, serviceOrders: orderRows, acquisitions: acquisitionRows, users: userRows };
+
+  const itemRows = await db.select({
+    id: processCandidates.id,
+    proposedDefinition: processCandidates.proposedDefinition,
+  })
+  .from(processCandidates)
+  .where(
+    and(
+      eq(processCandidates.workspaceId, workspaceId),
+      eq(processCandidates.origin, "inventory-item")
+    )
+  )
+  .orderBy(desc(processCandidates.createdAt))
+  .limit(80);
+
+  const items = itemRows.map((i: any) => ({
+    id: i.id,
+    sku: (i.proposedDefinition as any).sku,
+    name: (i.proposedDefinition as any).name,
+  }));
+
+  return {
+    items,
+    suppliers: [],
+    assets: [],
+    serviceOrders: [],
+    acquisitions: [],
+    users: [],
+  };
 }

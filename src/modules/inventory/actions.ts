@@ -1,17 +1,14 @@
 "use server";
 
-import { inventoryMovements } from "@/db/schema";
-import { inventoryItems } from "@/db/schema";
-
-import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb, getRuntimeDb } from "@/db";
+import { getDb } from "@/db";
+import { processCandidates } from "@/db/platform/schema/candidates";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
+import { and, eq } from "drizzle-orm";
+import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 import {
-  inventoryItemStatuses,
   inventoryMovementTypes,
-  type InventoryItemStatusValue,
   type InventoryMovementTypeValue,
 } from "./constants";
 
@@ -46,52 +43,56 @@ function readEnum<T extends string>(
 }
 
 export async function createInventoryItem(formData: FormData) {
+  const workspace = await ensureActiveWorkspaceConfig();
+  const workspaceId = workspace.id;
+
   const sku = readRequiredText(formData, "sku");
   const name = readRequiredText(formData, "name");
-  const quantityOnHand = readInteger(formData, "quantityOnHand", 0);
+  const initialQuantity = readInteger(formData, "quantityOnHand", 0);
   const minimumQuantity = readInteger(formData, "minimumQuantity", 0);
-  const status = readEnum<InventoryItemStatusValue>(
-    formData,
-    "status",
-    inventoryItemStatuses,
-    quantityOnHand <= minimumQuantity ? "low_stock" : "available",
-  );
-  const db = getRuntimeDb();
 
-  const [item] = await db.insert(inventoryItems).values({
-    sku,
-    name,
-    status,
-    quantityOnHand,
-    minimumQuantity,
-    category: readOptionalText(formData, "category"),
-    unit: readOptionalText(formData, "unit") ?? "un",
-    location: readOptionalText(formData, "location"),
-    supplierId: readOptionalText(formData, "supplierId"),
-    assetId: readOptionalText(formData, "assetId"),
-    notes: readOptionalText(formData, "notes"),
+  if (initialQuantity < 0 || minimumQuantity < 0) {
+    throw new Error("Quantidades não podem ser negativas.");
+  }
+
+  const db = getDb();
+
+  const [item] = await db.insert(processCandidates).values({
+    workspaceId,
+    name: `Item: ${name} (${sku})`,
+    origin: "inventory-item",
+    proposedDefinition: {
+      sku,
+      name,
+      initialQuantity,
+      minimumQuantity,
+      category: readOptionalText(formData, "category"),
+      unit: readOptionalText(formData, "unit") ?? "un",
+      location: readOptionalText(formData, "location"),
+      supplierId: readOptionalText(formData, "supplierId"),
+      assetId: readOptionalText(formData, "assetId"),
+      notes: readOptionalText(formData, "notes"),
+    },
   }).returning({
-    id: inventoryItems.id,
-    sku: inventoryItems.sku,
-    name: inventoryItems.name,
-    status: inventoryItems.status,
+    id: processCandidates.id,
   });
 
   await db.insert(eventLogs).values({
+    workspaceId,
     eventType: "inventory_item.created",
     entityType: "inventory_item",
     entityId: item.id,
-    assetId: readOptionalText(formData, "assetId"),
-    payload: item,
+    payload: { id: item.id, sku, name },
   });
 
-  revalidatePath("/");
   revalidatePath("/inventory");
-  revalidatePath("/events");
   redirect("/inventory");
 }
 
 export async function createInventoryMovement(formData: FormData) {
+  const workspace = await ensureActiveWorkspaceConfig();
+  const workspaceId = workspace.id;
+
   const itemId = readRequiredText(formData, "itemId");
   const movementType = readEnum<InventoryMovementTypeValue>(
     formData,
@@ -100,41 +101,54 @@ export async function createInventoryMovement(formData: FormData) {
     "adjustment",
   );
   const quantity = readInteger(formData, "quantity");
+
+  if (quantity <= 0) {
+    throw new Error("Quantidade de movimentação deve ser maior que zero.");
+  }
+
   const db = getDb();
 
-  const delta = movementType === "inbound" || movementType === "release" ? quantity : -quantity;
-  const [movement] = await db.insert(inventoryMovements).values({
-    itemId,
-    movementType,
-    quantity,
-    serviceOrderId: readOptionalText(formData, "serviceOrderId"),
-    acquisitionNeedId: readOptionalText(formData, "acquisitionNeedId"),
-    performedById: readOptionalText(formData, "performedById"),
-    notes: readOptionalText(formData, "notes"),
+  // Validate item existence and ownership
+  const [itemRecord] = await db.select()
+    .from(processCandidates)
+    .where(
+      and(
+        eq(processCandidates.id, itemId),
+        eq(processCandidates.workspaceId, workspaceId),
+        eq(processCandidates.origin, "inventory-item")
+      )
+    )
+    .limit(1);
+
+  if (!itemRecord) {
+    throw new Error("Item não encontrado ou acesso negado (Cross-tenant attempt blocked).");
+  }
+
+  const [movement] = await db.insert(processCandidates).values({
+    workspaceId,
+    name: `Movimentação: ${movementType} - ${quantity}`,
+    origin: "inventory-movement",
+    proposedDefinition: {
+      itemId,
+      movementType,
+      quantity,
+      serviceOrderId: readOptionalText(formData, "serviceOrderId"),
+      acquisitionNeedId: readOptionalText(formData, "acquisitionNeedId"),
+      performedById: readOptionalText(formData, "performedById"),
+      notes: readOptionalText(formData, "notes"),
+    },
   }).returning({
-    id: inventoryMovements.id,
-    itemId: inventoryMovements.itemId,
-    movementType: inventoryMovements.movementType,
-    quantity: inventoryMovements.quantity,
+    id: processCandidates.id,
   });
 
-  await db.update(inventoryItems)
-    .set({
-      quantityOnHand: sql`${inventoryItems.quantityOnHand} + ${delta}`,
-      updatedAt: new Date(),
-    })
-    .where(eq(inventoryItems.id, itemId));
-
   await db.insert(eventLogs).values({
+    workspaceId,
     eventType: "inventory_movement.created",
     entityType: "inventory_movement",
     entityId: movement.id,
-    serviceOrderId: readOptionalText(formData, "serviceOrderId"),
-    payload: movement,
+    payload: { id: movement.id, itemId, movementType, quantity },
   });
 
-  revalidatePath("/");
   revalidatePath("/inventory");
-  revalidatePath("/events");
   redirect("/inventory");
 }

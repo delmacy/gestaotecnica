@@ -2,11 +2,19 @@
 
 Objetivo: converter issues, PRs e planos existentes no novo modelo determinístico de tasks.
 
+## SB-S01-T00 — Preparar fontes e modelo verificável do inventário
+- Tipo: planejamento preparatório
+- Modo: sequencial
+- Escopo: definir fontes, critérios de verificação e template obrigatório para a T01.
+- Entrega: `INVENTORY_SOURCE_PLAN.md` e `BACKLOG_INVENTORY_TEMPLATE.md`.
+- Aceite: a futura T01 pode ser executada sem inferir estados por nomes de branches ou omitir evidências.
+- Arquivo: `00-preparar-fontes-e-modelo-do-inventario.md`
+
 ## SB-S01-T01 — Inventariar backlog e PRs existentes
 - Tipo: planejamento
-- Modo: sequencial
+- Modo: sequencial após T00
 - Escopo: issues abertas, PRs abertos/fechados recentes, roadmaps e documentos ativos.
-- Entrega: `BACKLOG_INVENTORY.md` com item, fonte, estado real, duplicidade, substituto e risco.
+- Entrega: `BACKLOG_INVENTORY.md` conforme o plano e template aprovados na T00.
 - Aceite: nenhuma task existente relevante fica sem classificação; estado deriva do GitHub real.
 
 ## SB-S01-T02 — Normalizar IDs, estados e dependências
@@ -33,5 +41,9 @@ Objetivo: converter issues, PRs e planos existentes no novo modelo determinísti
 - Entrega: teste operacional com três IDs, verificando localização, leitura, branch isolada e PR correto.
 - Aceite: Jules executa sem prompt extenso e sem confundir sprint, task ou escopo.
 
+## Fluxo
+
+`T00 → T01 → (T02 || T03) → T04 → T05`
+
 ## Prompt Jules
-`Busque a task <ID> em docs/product-roadmap/sprint-01-backlog-governance/README.md, execute somente o escopo descrito, publique branch e PR isolados e apresente evidências dos critérios de aceite.`
+`Busque a task <ID> no arquivo correspondente desta sprint, execute somente o escopo descrito, publique branch e PR isolados e apresente evidências dos critérios de aceite.`

@@ -19,4 +19,3 @@ Este relatório reflete o estado atual dos módulos e PRs após a atividade de l
 3.  **PR #341 e #342:** São substitutos limpos para PRs contaminados. Foram validados localmente contra a `main` atual.
 4.  **PR #335:** O documento foi atualizado na branch, mas o PR foi fechado. O conteúdo atualizado permanece disponível na branch `docs/persistence-schema-reconciliation-11482281141067751096`.
 5.  **Limpeza:** Todos os artefatos de execução (`dev_server.log`, etc.) e arquivos de módulos alheios foram removidos das branches `ready`.
-

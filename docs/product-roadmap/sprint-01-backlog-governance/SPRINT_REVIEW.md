@@ -2,12 +2,12 @@
 
 ## 1. Resumo executivo
 
-O resultado geral da auditoria da Sprint 01 é positivo, com as fundações de governança e o catálogo de 50 tasks devidamente estabelecidos e verificáveis. Os processos de inventário (T01), normalização (T02) e validação (T03) foram executados com rigor técnico, resultando em um roadmap determinístico que elimina as ambiguidades pré-existentes.
+O resultado geral da auditoria da Sprint 01 é positivo quanto à organização dos artefatos, mas a sprint permanece bloqueada devido a uma inconsistência crítica no catálogo mestre de tarefas. Os processos de inventário (T01), normalização (T02) e validação (T03) foram executados, mas o validador automático aponta falhas que impedem a transição segura para a T05.
 
-**Prontidão da Sprint 01:** Elevada. Os artefatos centrais existem e estão integrados na `main`.
-**Blockers:** Um blocker crítico identificado (Ausência da T00 no índice), que impede a validação automática passar sem erros, mas de fácil resolução.
-**Riscos:** Baixo. As inconsistências encontradas são predominantemente documentais ou de metadados em PRs já mergeados.
-**Recomendação para T05:** Execução condicionada à inclusão da T00 no `TASK_INDEX.md` para estabilizar o validador.
+**Prontidão da Sprint 01:** Parcial. Artefatos integrados, mas catálogo inválido.
+**Blockers:** Um blocker de alta severidade identificado (Ausência da T00 no índice), que impede a validação automática e a descoberta determinística.
+**Riscos:** Médio. Iniciar a T05 com o catálogo em estado de falha pode induzir o agente a erros de contexto ou dependência.
+**Recomendação para T05:** Bloquear até que o catálogo passe integralmente no validador.
 
 ## 2. Escopo revisado
 
@@ -129,6 +129,9 @@ Os erros confirmam o finding **S01-R-001**. O validador está funcionando corret
 
 ## 13. Decisão final
 
-**APPROVED_FOR_T05_WITH_DEBT**
+**BLOCKED_FOR_T05**
 
-A Sprint 01 atingiu seus objetivos de organizar o backlog e criar ferramentas de validação. O blocker identificado (T00 no índice) é puramente formal e não impede a execução técnica da T05 (Prova de descoberta), desde que o executor da T05 esteja ciente da inconsistência ou que um PR corretivo rápido seja aplicado antes. A estrutura de dados do catálogo é robusta e confiável para as próximas sprints.
+A Sprint 01 permanece bloqueada devido ao finding **S01-R-001**. A T05 só poderá ser iniciada após a execução de um PR corretivo separado que atenda aos seguintes critérios:
+- Inclua `SB-S01-T00` no `TASK_INDEX.md` ou formalize uma regra equivalente para tasks preparatórias;
+- Garanta que o comando `node scripts/validate-task-catalog.mjs` retorne **exit code 0**;
+- Preserve integralmente o fluxo técnico e cronológico: `T00 → T01 → (T02 || T03) → T04 → T05`.

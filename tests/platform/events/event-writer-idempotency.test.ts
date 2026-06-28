@@ -20,14 +20,14 @@ async function createTestWorkspace(key: string) {
     return { id, key };
 }
 
-function createMockContext(workspace: { id: string, key: string }): WorkspaceContext {
+function createMockContext(workspace: { id: string, key: string }, actorId: string = randomUUID()): WorkspaceContext {
   return {
     workspaceId: workspace.id,
     workspaceKey: workspace.key,
     adaptationKey: "secao-tecnica",
     actor: {
       type: "user",
-      id: randomUUID(),
+      id: actorId,
       name: "Test User",
     },
     source: "ui",
@@ -329,9 +329,12 @@ describe("EventWriter - Concurrent Idempotency", () => {
     const invalidLongString = "this-is-exactly-36-chars-long-string";
     const shortString = "short-id";
 
+    const db = getRuntimeDb();
+    const initialCount = await db.select({ count: sql`count(*)` }).from(events);
+
     // Case 1: Valid UUID
     const event1 = {
-      eventType: "test.uuid",
+      eventType: "test.uuid.valid",
       entityType: "ent",
       entityId: validUuid,
       payload: {},
@@ -339,27 +342,75 @@ describe("EventWriter - Concurrent Idempotency", () => {
     const res1 = await EventWriter.appendDomainEvent(event1, ctx1);
     assert.strictEqual(res1.entityId, validUuid);
 
-    // Case 2: 36 chars but invalid format -> Should be persisted as NULL (safe)
+    // DB Check
+    const dbRow1 = await db.select().from(events).where(eq(events.id, res1.id)).limit(1);
+    assert.strictEqual(dbRow1[0].entityId, validUuid);
+
+    // Case 2: 36 chars but invalid format -> Should throw INVALID_ENTITY_ID
     const event2 = {
-      ...event1,
+      eventType: "test.uuid.invalid36",
+      entityType: "ent",
       entityId: invalidLongString,
+      payload: {},
     };
-    const res2 = await EventWriter.appendDomainEvent(event2, ctx1);
-    // When we fetch it back, mapRowToCanonical returns entityId from row
-    const history = await EventWriter.getEntityHistory("ent", "null", ctx1);
-    // Since we can't easily query by NULL entityId with current getEntityHistory,
-    // let's just check the returned object from append.
-    // Note: the contract might fail if entityId is required.
-    // In our implementation, we nullify it before DB insert to avoid DB crash.
+    try {
+        await EventWriter.appendDomainEvent(event2, ctx1);
+        assert.fail("Should have rejected invalid 36-char string");
+    } catch (e: any) {
+        assert.ok(e instanceof EventStoreError);
+        assert.strictEqual(e.code, "INVALID_ENTITY_ID");
+    }
+
+    // Case 3: Short invalid string -> Should throw INVALID_ENTITY_ID
+    const event3 = {
+        eventType: "test.uuid.invalidShort",
+        entityType: "ent",
+        entityId: shortString,
+        payload: {},
+    };
+    try {
+        await EventWriter.appendDomainEvent(event3, ctx1);
+        assert.fail("Should have rejected short string");
+    } catch (e: any) {
+        assert.ok(e instanceof EventStoreError);
+        assert.strictEqual(e.code, "INVALID_ENTITY_ID");
+    }
+
+    // Case 4: Invalid Actor ID in context
+    const badActorCtx = createMockContext(workspace1, "not-a-uuid");
+    const event4 = {
+        eventType: "test.uuid.actor",
+        entityType: "ent",
+        entityId: validUuid,
+        payload: {},
+    };
+    try {
+        await EventWriter.appendDomainEvent(event4, badActorCtx);
+        assert.fail("Should have rejected invalid actorId in context");
+    } catch (e: any) {
+        assert.ok(e instanceof EventStoreError);
+        assert.strictEqual(e.code, "INVALID_ACTOR_ID");
+    }
+
+    // Verify zero lines persisted for failures
+    const finalCount = await db.select({ count: sql`count(*)` }).from(events);
+    assert.strictEqual(Number(finalCount[0].count), Number(initialCount[0].count) + 1, "Only one row should have been added (the valid one)");
   });
 
-  it("should not expose originalError in public properties of EventStoreError", async () => {
+  it("should not expose cause in public properties or JSON of EventStoreError", async () => {
     const error = new EventStoreError("PERSISTENCE_FAILURE", "message", { secret: "db_detail" });
+
+    // 1. Check enumerable keys (Object.keys)
     const keys = Object.keys(error);
-    assert.ok(!keys.includes("originalError"), "originalError should not be an enumerable property");
     assert.ok(!keys.includes("cause"), "cause should not be an enumerable property");
 
-    // But it should be accessible programmatically for internal debugging
+    // 2. Check JSON representation (JSON.stringify)
+    const json = JSON.parse(JSON.stringify(error));
+    assert.strictEqual(json.code, "PERSISTENCE_FAILURE");
+    assert.strictEqual(json.message, "message");
+    assert.ok(!json.cause, "JSON representation should not include cause");
+
+    // 3. Ensure it is accessible programmatically for internal debugging
     assert.deepStrictEqual((error as any).cause, { secret: "db_detail" });
   });
 });

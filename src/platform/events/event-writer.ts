@@ -65,19 +65,35 @@ export class EventWriter {
         idempotencyKey = undefined;
     }
 
+    // Strict UUID validation for entityId
+    if (event.entityId !== undefined && event.entityId !== null && !isValidUuid(event.entityId)) {
+        throw new EventStoreError("INVALID_ENTITY_ID", `Invalid UUID for entityId: ${event.entityId}`);
+    }
+
+    // Actor ID from context
+    const contextActorId = context.actor.id;
+    if (contextActorId && contextActorId !== "system" && !isValidUuid(contextActorId)) {
+        throw new EventStoreError("INVALID_ACTOR_ID", `Invalid UUID for actorId in context: ${contextActorId}`);
+    }
+
     const canonical: CanonicalEvent = {
       ...event,
       idempotencyKey,
       id: crypto.randomUUID(),
       workspaceId: context.workspaceId,
-      actorId: context.actor.id || "system",
+      actorId: contextActorId || "system",
       occurredAt: new Date().toISOString(),
       schemaVersion: "1.0.0",
       correlationId: context.correlationId || event.correlationId,
     };
 
-    // Validate against contract
-    CanonicalEventSchema.parse(canonical);
+    // Validate against contract (Zod)
+    try {
+        CanonicalEventSchema.parse(canonical);
+    } catch (e: any) {
+        // Map common validation errors to typed errors if needed, or keep Zod error
+        throw e;
+    }
 
     try {
       const payloadWithMeta = {
@@ -90,9 +106,8 @@ export class EventWriter {
         },
       };
 
-      // Ensure entityId and actorId are null if not valid UUIDs to satisfy Postgres uuid type
-      const entityId = isValidUuid(canonical.entityId) ? canonical.entityId : null;
-      const actorId = isValidUuid(canonical.actorId) ? canonical.actorId : null;
+      // Actor ID must be NULL in DB if 'system' to satisfy Postgres UUID type
+      const dbActorId = isValidUuid(canonical.actorId) ? canonical.actorId : null;
 
       // Use raw SQL to ensure atomic idempotency and handle environment-specific Drizzle issues
       await db.execute(sql`
@@ -105,8 +120,8 @@ export class EventWriter {
           ${canonical.workspaceId},
           ${canonical.eventType},
           ${canonical.entityType},
-          ${entityId},
-          ${actorId},
+          ${canonical.entityId || null},
+          ${dbActorId},
           ${context.source || null},
           ${canonical.correlationId || null},
           ${canonical.causationId || null},
@@ -144,6 +159,7 @@ export class EventWriter {
       };
 
     } catch (error) {
+      if (error instanceof EventStoreError) throw error;
       throw new EventStoreError("PERSISTENCE_FAILURE", "Failed to persist event due to unexpected error.", error);
     }
   }
@@ -217,8 +233,8 @@ export class EventWriter {
       workspaceId: row.workspaceId,
       eventType: row.eventType,
       entityType: row.entityType,
-      entityId: row.entityId,
-      actorId: row.actorId,
+      entityId: row.entityId || undefined,
+      actorId: row.actorId || "system",
       occurredAt: canonicalMeta.occurredAt || (row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt),
       schemaVersion: canonicalMeta.schemaVersion || "1.0.0",
       correlationId: row.correlationId,

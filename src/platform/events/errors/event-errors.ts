@@ -3,7 +3,9 @@ export type EventErrorCodes =
   | "INVALID_IDEMPOTENCY_KEY_TYPE"
   | "EMPTY_IDEMPOTENCY_KEY"
   | "IDEMPOTENCY_KEY_TOO_LONG"
-  | "PERSISTENCE_FAILURE";
+  | "PERSISTENCE_FAILURE"
+  | "INVALID_ENTITY_ID"
+  | "INVALID_ACTOR_ID";
 
 export class EventStoreError extends Error {
   constructor(
@@ -15,5 +17,14 @@ export class EventStoreError extends Error {
     // It remains accessible via .cause but is not included in standard JSON/string representations
     super(message, { cause });
     this.name = "EventStoreError";
+  }
+
+  // Ensure JSON.stringify doesn't include internal details by default
+  toJSON() {
+    return {
+      name: this.name,
+      code: this.code,
+      message: this.message,
+    };
   }
 }

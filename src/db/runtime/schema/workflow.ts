@@ -8,6 +8,7 @@ import {
   uniqueIndex,
   index,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { workspaces } from "./workspace";
 import { usersTable as users } from "./identity";
 
@@ -125,21 +126,30 @@ export const processPayloads = workflowSchema.table("process_payloads", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const events = workflowSchema.table("events", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
-  instanceId: uuid("instance_id").references(() => processInstances.id),
-  eventType: text("event_type").notNull(),
-  entityType: text("entity_type").notNull(),
-  entityId: uuid("entity_id"),
-  actorType: text("actor_type"),
-  actorId: uuid("actor_id"),
-  source: text("source"),
-  correlationId: text("correlation_id"),
-  causationId: text("causation_id"),
-  payload: jsonb("payload").notNull().default({}),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const events = workflowSchema.table(
+  "events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id),
+    instanceId: uuid("instance_id").references(() => processInstances.id),
+    eventType: text("event_type").notNull(),
+    entityType: text("entity_type").notNull(),
+    entityId: uuid("entity_id"),
+    actorType: text("actor_type"),
+    actorId: uuid("actor_id"),
+    source: text("source"),
+    correlationId: text("correlation_id"),
+    causationId: text("causation_id"),
+    idempotencyKey: text("idempotency_key"),
+    payload: jsonb("payload").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("events_workspace_idempotency_uidx")
+      .on(table.workspaceId, table.idempotencyKey)
+      .where(sql`${table.idempotencyKey} IS NOT NULL`),
+  ],
+);
 
 // Form and Field Definitions
 export const fieldDefinitions = workflowSchema.table("field_definitions", {

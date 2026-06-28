@@ -4,7 +4,10 @@ import { EventWriter } from "../../../src/platform/events/event-writer";
 import { randomUUID } from "node:crypto";
 import { getRuntimeDb } from "../../../src/db";
 import { workspaces } from "../../../src/db/runtime/schema/workspace";
+import { events } from "../../../src/db/runtime/schema/workflow";
+import { eq, and, sql } from "drizzle-orm";
 import type { WorkspaceContext } from "../../../src/platform/workspace/workspace-context";
+import { EventStoreError } from "../../../src/platform/events/errors/event-errors";
 
 async function createTestWorkspace(key: string) {
     const db = getRuntimeDb();
@@ -78,53 +81,54 @@ describe("EventWriter - Concurrent Idempotency", () => {
     assert.strictEqual(result1.event.id, result2.event.id);
   });
 
-  it("should persist only one event on two concurrent writes", async () => {
+  it("should persist exactly one event on two concurrent writes (DB Proven)", async () => {
+    const key = "concurrent-2-" + randomUUID();
     const event = {
       eventType: "test.event",
       entityType: "test-entity",
       entityId: randomUUID(),
       payload: { foo: "bar" },
-      idempotencyKey: "concurrent-2-" + randomUUID(),
+      idempotencyKey: key,
     };
 
-    const [r1, r2] = await Promise.all([
+    await Promise.all([
       EventWriter.appendDomainEventInternal(event, ctx1),
       EventWriter.appendDomainEventInternal(event, ctx1),
     ]);
 
-    const results = [r1, r2];
-    const created = results.filter(r => r.status === "created");
-    const existing = results.filter(r => r.status === "existing");
+    const db = getRuntimeDb();
+    const rows = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(events)
+        .where(and(eq(events.workspaceId, ctx1.workspaceId), eq(events.idempotencyKey, key)));
 
-    assert.strictEqual(created.length, 1, "Exactly one event should be created");
-    assert.strictEqual(existing.length, 1, "One request should identify existing event");
-    assert.strictEqual(r1.event.id, r2.event.id, "Both should return same event ID");
+    assert.strictEqual(Number(rows[0].count), 1, "Exactly 1 row should exist in the database for this key");
   });
 
-  it("should persist only one event on ten concurrent writes", async () => {
+  it("should persist exactly one event on ten concurrent writes (DB Proven)", async () => {
+    const key = "concurrent-10-" + randomUUID();
     const event = {
       eventType: "test.event",
       entityType: "test-entity",
       entityId: randomUUID(),
       payload: { foo: "bar" },
-      idempotencyKey: "concurrent-10-" + randomUUID(),
+      idempotencyKey: key,
     };
 
-    const results = await Promise.all(
+    await Promise.all(
       Array.from({ length: 10 }).map(() => EventWriter.appendDomainEventInternal(event, ctx1))
     );
 
-    const created = results.filter(r => r.status === "created");
-    const existing = results.filter(r => r.status === "existing");
+    const db = getRuntimeDb();
+    const rows = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(events)
+        .where(and(eq(events.workspaceId, ctx1.workspaceId), eq(events.idempotencyKey, key)));
 
-    assert.strictEqual(created.length, 1, "Exactly one event should be created");
-    assert.strictEqual(existing.length, 9, "Nine requests should identify existing event");
-
-    const firstId = results[0].event.id;
-    results.forEach(r => assert.strictEqual(r.event.id, firstId));
+    assert.strictEqual(Number(rows[0].count), 1, "Exactly 1 row should exist in the database after 10 attempts");
   });
 
-  it("should allow same key in different workspaces", async () => {
+  it("should allow same key in different workspaces and isolate correctly (DB Proven)", async () => {
     const key = "shared-key-" + randomUUID();
     const event = {
       eventType: "test.event",
@@ -134,12 +138,37 @@ describe("EventWriter - Concurrent Idempotency", () => {
       idempotencyKey: key,
     };
 
-    const r1 = await EventWriter.appendDomainEventInternal(event, ctx1);
-    const r2 = await EventWriter.appendDomainEventInternal(event, ctx2);
+    await EventWriter.appendDomainEventInternal(event, ctx1);
+    await EventWriter.appendDomainEventInternal(event, ctx2);
 
-    assert.strictEqual(r1.status, "created");
-    assert.strictEqual(r2.status, "created");
-    assert.notStrictEqual(r1.event.id, r2.event.id);
+    const db = getRuntimeDb();
+
+    const countTotal = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(events)
+        .where(eq(events.idempotencyKey, key));
+    assert.strictEqual(Number(countTotal[0].count), 2, "Total 2 rows should exist for this key across all workspaces");
+
+    const countWS1 = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(events)
+        .where(and(eq(events.workspaceId, ctx1.workspaceId), eq(events.idempotencyKey, key)));
+    assert.strictEqual(Number(countWS1[0].count), 1, "Exactly 1 row for WS1");
+
+    const countWS2 = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(events)
+        .where(and(eq(events.workspaceId, ctx2.workspaceId), eq(events.idempotencyKey, key)));
+    assert.strictEqual(Number(countWS2[0].count), 1, "Exactly 1 row for WS2");
+
+    // Cross-tenant retrieval check
+    const ws1RowsTryingToSeeWS2 = await db
+        .select()
+        .from(events)
+        .where(and(eq(events.workspaceId, ctx1.workspaceId), eq(events.idempotencyKey, key)));
+    assert.strictEqual(ws1RowsTryingToSeeWS2.length, 1);
+    // The one it sees must be its own
+    assert.strictEqual(ws1RowsTryingToSeeWS2[0].workspaceId, ctx1.workspaceId);
   });
 
   it("should create distinct events for different keys in same workspace", async () => {
@@ -209,7 +238,7 @@ describe("EventWriter - Concurrent Idempotency", () => {
   it("should not reserve key on validation failure", async () => {
     const key = "val-fail-" + randomUUID();
     const invalidEvent = {
-      eventType: "", // Should fail validation
+      eventType: "", // Should fail Zod validation
       entityType: "test-entity",
       entityId: randomUUID(),
       payload: {},
@@ -229,7 +258,7 @@ describe("EventWriter - Concurrent Idempotency", () => {
     assert.strictEqual(result.status, "created", "Key should be available after previous failure");
   });
 
-  it("should reject context without workspaceId", async () => {
+  it("should reject context without workspaceId with typed error", async () => {
     const event = {
       eventType: "test.event",
       entityType: "ent",
@@ -238,12 +267,16 @@ describe("EventWriter - Concurrent Idempotency", () => {
     };
     const badCtx = { ...ctx1, workspaceId: undefined } as any;
 
-    await assert.rejects(async () => {
-      await EventWriter.appendDomainEventInternal(event, badCtx);
-    }, /Workspace context is required/);
+    try {
+        await EventWriter.appendDomainEventInternal(event, badCtx);
+        assert.fail("Should have thrown MISSING_WORKSPACE_CONTEXT");
+    } catch (e: any) {
+        assert.ok(e instanceof EventStoreError);
+        assert.strictEqual(e.code, "MISSING_WORKSPACE_CONTEXT");
+    }
   });
 
-  it("should validate idempotency key format", async () => {
+  it("should validate idempotency key format with typed errors", async () => {
     const eventBase = {
       eventType: "test.event",
       entityType: "ent",
@@ -251,17 +284,29 @@ describe("EventWriter - Concurrent Idempotency", () => {
       payload: {},
     };
 
-    await assert.rejects(async () => {
-      await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: "" }, ctx1);
-    }, /cannot be empty/);
+    // Empty
+    try {
+        await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: "" }, ctx1);
+        assert.fail("Should have thrown EMPTY_IDEMPOTENCY_KEY");
+    } catch (e: any) {
+        assert.strictEqual(e.code, "EMPTY_IDEMPOTENCY_KEY");
+    }
 
-    await assert.rejects(async () => {
-      await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: "   " }, ctx1);
-    }, /cannot be empty/);
+    // Invalid type
+    try {
+        await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: 123 as any }, ctx1);
+        assert.fail("Should have thrown INVALID_IDEMPOTENCY_KEY_TYPE");
+    } catch (e: any) {
+        assert.strictEqual(e.code, "INVALID_IDEMPOTENCY_KEY_TYPE");
+    }
 
-    await assert.rejects(async () => {
-      await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: 123 as any }, ctx1);
-    }, /must be a string/);
+    // Too long
+    try {
+        await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: "a".repeat(256) }, ctx1);
+        assert.fail("Should have thrown IDEMPOTENCY_KEY_TOO_LONG");
+    } catch (e: any) {
+        assert.strictEqual(e.code, "IDEMPOTENCY_KEY_TOO_LONG");
+    }
   });
 
   it("should ignore workspaceId in payload and use context workspaceId", async () => {

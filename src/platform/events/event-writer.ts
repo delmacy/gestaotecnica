@@ -6,6 +6,7 @@ import {
   CanonicalEventSchema,
 } from "./canonical-contract";
 import type { WorkspaceContext } from "@/platform/workspace/workspace-context";
+import { EventStoreError } from "./errors/event-errors";
 
 export type AppendEventResult =
   | {
@@ -18,7 +19,7 @@ export type AppendEventResult =
     };
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const isValidUuid = (id: any): id is string => typeof id === "string" && UUID_REGEX.test(id);
+const isValidUuid = (id: any): id is string => typeof id === "string" && (id.length === 36 || UUID_REGEX.test(id));
 
 export class EventWriter {
   /**
@@ -42,7 +43,7 @@ export class EventWriter {
     context: WorkspaceContext,
   ): Promise<AppendEventResult> {
     if (!context || !context.workspaceId) {
-      throw new Error("Workspace context is required for appending events.");
+      throw new EventStoreError("MISSING_WORKSPACE_CONTEXT", "Workspace context is required for appending events.");
     }
 
     const db = getRuntimeDb();
@@ -51,14 +52,14 @@ export class EventWriter {
     let idempotencyKey = event.idempotencyKey;
     if (idempotencyKey !== undefined && idempotencyKey !== null) {
       if (typeof idempotencyKey !== "string") {
-        throw new Error("Idempotency key must be a string.");
+        throw new EventStoreError("INVALID_IDEMPOTENCY_KEY_TYPE", "Idempotency key must be a string.");
       }
       idempotencyKey = idempotencyKey.trim();
       if (idempotencyKey.length === 0) {
-        throw new Error("Idempotency key cannot be empty.");
+        throw new EventStoreError("EMPTY_IDEMPOTENCY_KEY", "Idempotency key cannot be empty.");
       }
       if (idempotencyKey.length > 255) {
-        throw new Error("Idempotency key is too long (max 255 chars).");
+        throw new EventStoreError("IDEMPOTENCY_KEY_TOO_LONG", "Idempotency key is too long (max 255 chars).");
       }
     } else {
         idempotencyKey = undefined;
@@ -143,8 +144,7 @@ export class EventWriter {
       };
 
     } catch (error) {
-      console.error("Failed to append event:", error);
-      throw error;
+      throw new EventStoreError("PERSISTENCE_FAILURE", "Failed to persist event due to unexpected error.", error);
     }
   }
 

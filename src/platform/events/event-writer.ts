@@ -52,7 +52,7 @@ export class EventWriter {
 
     const db = getRuntimeDb();
 
-    return await db.transaction(async (tx) => {
+    return await db.transaction(async (tx: DbClient) => {
       const results: CanonicalEvent[] = [];
 
       let index = 0;

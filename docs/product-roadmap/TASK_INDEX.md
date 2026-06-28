@@ -2,6 +2,7 @@
 
 | ID | Sprint | Tipo | Título | Modo |
 |---|---:|---|---|---|
+| SB-S01-T00 | 01 | planejamento preparatório | Preparar fontes e modelo verificável do inventário | antes da T01 |
 | SB-S01-T01 | 01 | planejamento | Inventariar backlog e PRs existentes | sequencial |
 | SB-S01-T02 | 01 | planejamento | Normalizar IDs, estados e dependências | paralelo após T01 |
 | SB-S01-T03 | 01 | desenvolvimento | Criar validador do catálogo de tasks | paralelo após T01 |
@@ -52,3 +53,8 @@
 | SB-S10-T48 | 10 | desenvolvimento | Deploy reproduzível e rollback | paralelo após T46 |
 | SB-S10-T49 | 10 | review/teste | Readiness comercial e LGPD | após T47–T48 |
 | SB-S10-T50 | 10 | teste/entrega | Release candidate comercial | após T49 |
+## Observações
+
+- O catálogo possui 50 tasks principais (T01–T50).
+- "SB-S01-T00" é uma task preparatória adicional necessária para a integridade das dependências da Sprint 01.
+- Sua presença não altera a numeração original das 50 tasks.

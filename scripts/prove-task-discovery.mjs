@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 const INDEX_PATH = 'docs/product-roadmap/TASK_INDEX.md';
 const ROADMAP_ROOT = 'docs/product-roadmap';
@@ -43,22 +42,32 @@ function findSprintDir(sprintNum) {
 
 function findContractFile(sprintDir, taskId) {
   if (!sprintDir) return null;
-  // Try README.md
+
+  const files = fs.readdirSync(sprintDir);
+
+  // 1. Look for individual task file (e.g., "00-...", "01-...", "SB-S01-T01.md")
+  // Extract number from ID (SB-S01-T03 -> 03)
+  const taskNumberMatch = taskId.match(/-T(\d{2})$/);
+  const taskNumber = taskNumberMatch ? taskNumberMatch[1] : null;
+
+  const individualFile = files.find(file => {
+    if (!file.endsWith('.md') || file === 'README.md' || file === 'NORMALIZED_TASK_MAP.md') return false;
+    if (file.includes(taskId)) return true;
+    if (taskNumber && file.startsWith(taskNumber)) return true;
+    return false;
+  });
+
+  if (individualFile) return path.join(sprintDir, individualFile);
+
+  // 2. Fallback to README.md only if it contains legitimate contract info, not just a reference
   const readmePath = path.join(sprintDir, 'README.md');
   if (fs.existsSync(readmePath)) {
     const content = fs.readFileSync(readmePath, 'utf8');
-    if (content.includes(taskId)) return readmePath;
+    // Check if it has a header for the task or substantial info beyond a list item
+    const hasHeader = content.includes(`## ${taskId}`) || content.includes(`### ${taskId}`);
+    if (hasHeader) return readmePath;
   }
 
-  // Try all .md files in the sprint dir
-  const files = fs.readdirSync(sprintDir);
-  for (const file of files) {
-    if (file.endsWith('.md')) {
-      const filePath = path.join(sprintDir, file);
-      const content = fs.readFileSync(filePath, 'utf8');
-      if (content.includes(taskId)) return filePath;
-    }
-  }
   return null;
 }
 
@@ -66,7 +75,6 @@ function extractScope(contractFile, taskId) {
   if (!contractFile) return { allowed: 'Unknown', prohibited: 'Unknown' };
   const content = fs.readFileSync(contractFile, 'utf8');
 
-  // Very basic extraction, looking for "Escopo" or "Permitidos"
   const lines = content.split('\n');
   let inTask = false;
   let allowed = [];
@@ -79,7 +87,6 @@ function extractScope(contractFile, taskId) {
       continue;
     }
     if (inTask && line.startsWith('## ')) {
-        // If we hit a new task header, stop
         if (line.match(/SB-S\d{2}-T\d{2}/)) break;
     }
 
@@ -119,19 +126,31 @@ async function main() {
   const indexRows = parseMarkdownTable(indexContent);
 
   const results = [];
-  let allFound = true;
+  let success = true;
 
   for (const id of ids) {
+    if (!id.match(/^SB-S\d{2}-T\d{2}$/)) {
+        console.error(`Invalid ID format: ${id}`);
+        success = false;
+        continue;
+    }
+
     const indexEntry = indexRows.find(r => r.ID === id);
     if (!indexEntry) {
       console.error(`ID ${id} not found in index.`);
-      allFound = false;
+      success = false;
       continue;
     }
 
     const sprintNum = indexEntry.Sprint;
     const sprintDir = findSprintDir(sprintNum);
     const contractFile = findContractFile(sprintDir, id);
+
+    if (!contractFile) {
+        console.error(`Contract file not found for ${id} in ${sprintDir}`);
+        success = false;
+        continue;
+    }
 
     // Check map for more info
     let mapEntry = null;
@@ -149,7 +168,7 @@ async function main() {
     results.push({
       task_id: id,
       index_location: INDEX_PATH,
-      contract_location: contractFile || 'Not found',
+      contract_location: contractFile,
       sprint: sprintNum,
       type: indexEntry.Tipo,
       mode: indexEntry.Modo,
@@ -164,8 +183,11 @@ async function main() {
     });
   }
 
-  console.log(JSON.stringify(results, null, 2));
-  if (!allFound) process.exit(1);
+  if (results.length > 0) {
+      console.log(JSON.stringify(results, null, 2));
+  }
+
+  if (!success) process.exit(1);
 }
 
 main();

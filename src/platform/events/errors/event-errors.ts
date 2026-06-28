@@ -9,9 +9,11 @@ export class EventStoreError extends Error {
   constructor(
     public readonly code: EventErrorCodes,
     message: string,
-    public readonly originalError?: unknown
+    cause?: unknown
   ) {
-    super(message);
+    // Use the native 'cause' feature of Error (Node.js 16.9.0+)
+    // It remains accessible via .cause but is not included in standard JSON/string representations
+    super(message, { cause });
     this.name = "EventStoreError";
   }
 }

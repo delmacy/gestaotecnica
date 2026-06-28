@@ -19,7 +19,7 @@ export type AppendEventResult =
     };
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const isValidUuid = (id: any): id is string => typeof id === "string" && (id.length === 36 || UUID_REGEX.test(id));
+const isValidUuid = (id: unknown): id is string => typeof id === "string" && UUID_REGEX.test(id);
 
 export class EventWriter {
   /**

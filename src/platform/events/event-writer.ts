@@ -6,60 +6,97 @@ import {
   CanonicalEventSchema,
 } from "./canonical-contract";
 import type { WorkspaceContext } from "@/platform/workspace/workspace-context";
+import { EventStoreError } from "./errors/event-errors";
+
+export type AppendEventResult =
+  | {
+      status: "created";
+      event: CanonicalEvent;
+    }
+  | {
+      status: "existing";
+      event: CanonicalEvent;
+    };
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isValidUuid = (id: unknown): id is string => typeof id === "string" && UUID_REGEX.test(id);
 
 export class EventWriter {
   /**
    * Appends a single domain event to the log.
    * Ensuring workspace isolation and canonical structure.
+   * Guarantees idempotency via database constraints.
    */
   static async appendDomainEvent(
     event: Omit<CanonicalEvent, "id" | "workspaceId" | "actorId" | "occurredAt" | "schemaVersion">,
     context: WorkspaceContext,
   ): Promise<CanonicalEvent> {
+    const result = await this.appendDomainEventInternal(event, context);
+    return result.event;
+  }
+
+  /**
+   * Internal version that returns detailed status.
+   */
+  static async appendDomainEventInternal(
+    event: Omit<CanonicalEvent, "id" | "workspaceId" | "actorId" | "occurredAt" | "schemaVersion">,
+    context: WorkspaceContext,
+  ): Promise<AppendEventResult> {
+    if (!context || !context.workspaceId) {
+      throw new EventStoreError("MISSING_WORKSPACE_CONTEXT", "Workspace context is required for appending events.");
+    }
+
     const db = getRuntimeDb();
 
-    // Idempotency check if key provided
-    if (event.idempotencyKey) {
-      const existingRows = await db
-        .select()
-        .from(events)
-        .where(
-          and(
-            eq(events.workspaceId, context.workspaceId),
-            sql`${events.payload}->'_canonical'->>'idempotencyKey' = ${event.idempotencyKey}`
-          )
-        )
-        .limit(1);
-
-      if (existingRows.length > 0) {
-        return this.mapRowToCanonical(existingRows[0]);
+    // Validate and normalize idempotency key if provided
+    let idempotencyKey = event.idempotencyKey;
+    if (idempotencyKey !== undefined && idempotencyKey !== null) {
+      if (typeof idempotencyKey !== "string") {
+        throw new EventStoreError("INVALID_IDEMPOTENCY_KEY_TYPE", "Idempotency key must be a string.");
       }
+      idempotencyKey = idempotencyKey.trim();
+      if (idempotencyKey.length === 0) {
+        throw new EventStoreError("EMPTY_IDEMPOTENCY_KEY", "Idempotency key cannot be empty.");
+      }
+      if (idempotencyKey.length > 255) {
+        throw new EventStoreError("IDEMPOTENCY_KEY_TOO_LONG", "Idempotency key is too long (max 255 chars).");
+      }
+    } else {
+        idempotencyKey = undefined;
+    }
+
+    // Strict UUID validation for entityId
+    if (event.entityId !== undefined && event.entityId !== null && !isValidUuid(event.entityId)) {
+        throw new EventStoreError("INVALID_ENTITY_ID", `Invalid UUID for entityId: ${event.entityId}`);
+    }
+
+    // Actor ID from context
+    const contextActorId = context.actor.id;
+    if (contextActorId && contextActorId !== "system" && !isValidUuid(contextActorId)) {
+        throw new EventStoreError("INVALID_ACTOR_ID", `Invalid UUID for actorId in context: ${contextActorId}`);
     }
 
     const canonical: CanonicalEvent = {
       ...event,
+      idempotencyKey,
       id: crypto.randomUUID(),
       workspaceId: context.workspaceId,
-      actorId: context.actor.id || "system",
+      actorId: contextActorId || "system",
       occurredAt: new Date().toISOString(),
       schemaVersion: "1.0.0",
       correlationId: context.correlationId || event.correlationId,
     };
 
-    // Validate against contract
-    CanonicalEventSchema.parse(canonical);
+    // Validate against contract (Zod)
+    try {
+        CanonicalEventSchema.parse(canonical);
+    } catch (e: any) {
+        // Map common validation errors to typed errors if needed, or keep Zod error
+        throw e;
+    }
 
-    await db.insert(events).values({
-      id: canonical.id,
-      workspaceId: canonical.workspaceId,
-      eventType: canonical.eventType,
-      entityType: canonical.entityType,
-      entityId: canonical.entityId,
-      actorId: canonical.actorId,
-      correlationId: canonical.correlationId,
-      causationId: canonical.causationId,
-      source: context.source,
-      payload: {
+    try {
+      const payloadWithMeta = {
         ...canonical.payload,
         _canonical: {
           schemaVersion: canonical.schemaVersion,
@@ -67,10 +104,64 @@ export class EventWriter {
           metadata: canonical.metadata,
           occurredAt: canonical.occurredAt,
         },
-      },
-    });
+      };
 
-    return canonical;
+      // Actor ID must be NULL in DB if 'system' to satisfy Postgres UUID type
+      const dbActorId = isValidUuid(canonical.actorId) ? canonical.actorId : null;
+
+      // Use raw SQL to ensure atomic idempotency and handle environment-specific Drizzle issues
+      await db.execute(sql`
+        INSERT INTO "workflow"."events" (
+          "id", "workspace_id", "event_type", "entity_type", "entity_id",
+          "actor_id", "source", "correlation_id", "causation_id",
+          "idempotency_key", "payload"
+        ) VALUES (
+          ${canonical.id},
+          ${canonical.workspaceId},
+          ${canonical.eventType},
+          ${canonical.entityType},
+          ${canonical.entityId || null},
+          ${dbActorId},
+          ${context.source || null},
+          ${canonical.correlationId || null},
+          ${canonical.causationId || null},
+          ${canonical.idempotencyKey || null},
+          ${sql`${JSON.stringify(payloadWithMeta)}::jsonb`}
+        ) ON CONFLICT ("workspace_id", "idempotency_key") WHERE "idempotency_key" IS NOT NULL DO NOTHING
+      `);
+
+      if (idempotencyKey) {
+        const existingRows = await db
+          .select()
+          .from(events)
+          .where(
+            and(
+              eq(events.workspaceId, context.workspaceId),
+              eq(events.idempotencyKey, idempotencyKey)
+            )
+          )
+          .limit(1);
+
+        if (existingRows.length > 0) {
+          const storedEvent = this.mapRowToCanonical(existingRows[0]);
+          if (storedEvent.id !== canonical.id) {
+            return {
+              status: "existing",
+              event: storedEvent,
+            };
+          }
+        }
+      }
+
+      return {
+        status: "created",
+        event: canonical,
+      };
+
+    } catch (error) {
+      if (error instanceof EventStoreError) throw error;
+      throw new EventStoreError("PERSISTENCE_FAILURE", "Failed to persist event due to unexpected error.", error);
+    }
   }
 
   /**
@@ -103,7 +194,7 @@ export class EventWriter {
         and(
           eq(events.workspaceId, context.workspaceId),
           eq(events.entityType, entityType),
-          eq(events.entityId, entityId),
+          isValidUuid(entityId) ? eq(events.entityId, entityId) : sql`${events.entityId}::text = ${entityId}`
         )
       )
       .orderBy(desc(events.createdAt));
@@ -142,13 +233,13 @@ export class EventWriter {
       workspaceId: row.workspaceId,
       eventType: row.eventType,
       entityType: row.entityType,
-      entityId: row.entityId,
-      actorId: row.actorId,
+      entityId: row.entityId || undefined,
+      actorId: row.actorId || "system",
       occurredAt: canonicalMeta.occurredAt || (row.createdAt instanceof Date ? row.createdAt.toISOString() : row.createdAt),
       schemaVersion: canonicalMeta.schemaVersion || "1.0.0",
       correlationId: row.correlationId,
       causationId: row.causationId,
-      idempotencyKey: canonicalMeta.idempotencyKey,
+      idempotencyKey: row.idempotencyKey || canonicalMeta.idempotencyKey || undefined,
       payload: restPayload,
       metadata: canonicalMeta.metadata,
     };

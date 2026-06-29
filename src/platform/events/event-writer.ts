@@ -119,7 +119,7 @@ export class EventWriter {
           isValidUuid(entityId) ? eq(events.entityId, entityId) : sql`${events.entityId}::text = ${entityId}`
         )
       )
-      .orderBy(sql`${events.createdAt} DESC, ${events.id} DESC`);
+      .orderBy(sql`${events.createdAt} DESC, CAST(${events.payload}->'_canonical'->'metadata'->>'_batchIndex' AS INTEGER) DESC, ${events.id} DESC`);
 
     return rows.map(this.mapRowToCanonical);
   }
@@ -136,9 +136,31 @@ export class EventWriter {
       .select()
       .from(events)
       .where(eq(events.workspaceId, context.workspaceId))
-      .orderBy(sql`${events.createdAt} DESC, ${events.id} DESC`)
+      .orderBy(sql`${events.createdAt} DESC, CAST(${events.payload}->'_canonical'->'metadata'->>'_batchIndex' AS INTEGER) DESC, ${events.id} DESC`)
       .limit(options.limit ?? 50)
       .offset(options.offset ?? 0);
+
+    return rows.map(this.mapRowToCanonical);
+  }
+
+  /**
+   * Retrieves events belonging to a specific batch.
+   */
+  static async getBatchEvents(
+    correlationId: string,
+    context: WorkspaceContext
+  ): Promise<CanonicalEvent[]> {
+    const db = getRuntimeDb();
+    const rows = await db
+      .select()
+      .from(events)
+      .where(
+        and(
+          eq(events.workspaceId, context.workspaceId),
+          eq(events.correlationId, correlationId)
+        )
+      )
+      .orderBy(sql`CAST(${events.payload}->'_canonical'->'metadata'->>'_batchIndex' AS INTEGER) ASC`);
 
     return rows.map(this.mapRowToCanonical);
   }

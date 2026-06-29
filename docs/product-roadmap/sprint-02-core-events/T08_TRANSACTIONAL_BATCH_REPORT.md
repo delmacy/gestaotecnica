@@ -1,93 +1,94 @@
 # T08 — Lotes Transacionais de Eventos - Report
 
 ## 1. Resumo Executivo
-Implementação de append transacional para múltiplos eventos canônicos, garantindo atomicidade (all-or-nothing), preservação de ordem e isolamento por workspace.
+Implementação de append transacional para múltiplos eventos canônicos, garantindo atomicidade (all-or-nothing), preservação de ordem persistida e isolamento por workspace. Integrado com a idempotência atômica da T07.
 
-## 2. Arquitetura Anterior
+## 2. Arquitetura Anterior (T07)
 - **Writer:** `EventWriter` em `src/platform/events/event-writer.ts`.
-- **Append Individual:** `appendDomainEvent` realiza a persistência de um único evento.
-- **Batch Atual:** `appendDomainEvents` realizava um loop chamando `appendDomainEvent`, sem garantia transacional entre os eventos do lote.
-- **Contexto:** Utiliza `WorkspaceContext` para resolver `workspaceId`, `actorId` e `correlationId`.
-- **Persistência:** Drizzle ORM mapeando para a tabela `workflow.events`.
-- **Ordenação:** Baseada em `createdAt`.
+- **Idempotência:** Garantida via `ON CONFLICT` e índice único parcial no banco de dados.
+- **Isolamento:** Uso estrito de `workspaceId` do contexto.
+- **Batch:** Não suportado transacionalmente (apenas loop sequencial legado).
 
 ## 3. Writer Reutilizado
-O `EventWriter` original foi refatorado para extrair a lógica de normalização (`prepareCanonicalEvent`) e persistência (`persistEvent`), permitindo que tanto o append individual quanto o batch utilizem a mesma lógica base.
+O `EventWriter` foi refatorado para centralizar a lógica de persistência no método privado `persistSingleEvent`. Este método é utilizado tanto pelo `appendDomainEvent` (individual) quanto pelo `appendDomainEventBatch` (lote), garantindo paridade de comportamento, validação e segurança.
 
 ## 4. Estratégia Transacional
-Utilização de `db.transaction` do Drizzle ORM. O método `appendDomainEventBatch` abre uma transação e passa o cliente transacional para o método interno de persistência para cada evento do lote.
+Utilização de `db.transaction` do Drizzle ORM. O método `appendDomainEventBatch` encapsula todos os inserts em uma única transação. Se qualquer evento falhar (seja por validação Zod, erro de integridade do banco ou limite de lote), a transação inteira é revertida.
 
 ## 5. Estratégia de Ordenação
-A ordem de entrada no lote é preservada. Para garantir ordenação determinística em recuperações futuras onde múltiplos eventos podem ter o mesmo `createdAt`, a ordenação de busca foi atualizada para incluir `id DESC` como critério de desempate (assumindo que o banco preserva ordem de inserção na transação). Além disso, um `_batchIndex` foi adicionado aos metadados internos de cada evento durante a normalização do lote para permitir reconstrução exata se necessário.
+A ordem de entrada no lote é preservada de forma determinística na persistência através da adição do campo `_batchIndex` no objeto de metadados canônicos (dentro do payload JSONB). Queries de recuperação como `getBatchEvents` agora utilizam `CAST(payload->'_canonical'->'metadata'->>'_batchIndex' AS INTEGER) ASC` para garantir a sequência exata. Métodos de listagem geral utilizam `createdAt DESC, CAST(...) DESC, id DESC` para estabilidade absoluta.
 
 ## 6. Limite de Lote
-Limite máximo de 100 eventos por lote.
+Limite máximo de 100 eventos por lote, protegido pelo erro tipado `BATCH_LIMIT_EXCEEDED`.
 
 ## 7. Contrato Público
 ```typescript
 static async appendDomainEventBatch(
-  events: Omit<CanonicalEvent, "id" | "workspaceId" | "actorId" | "occurredAt" | "schemaVersion">[],
+  events: EventInput[],
   context: WorkspaceContext
 ): Promise<CanonicalEvent[]>
 ```
 
 ## 8. Resultado Tipado
-Retorna um array de `CanonicalEvent[]` contendo os eventos persistidos, incluindo IDs gerados e metadados canônicos, na mesma ordem da entrada.
+Retorna um array de `CanonicalEvent[]` na mesma ordem da entrada.
 
 ## 9. Validações
-- Lote não vazio.
-- Lote não excede 100 eventos.
-- Validação de cada evento contra `CanonicalEventSchema` via Zod.
-- Workspace e Actor consistentes com o contexto.
-- Prevenção de sobrescrita de campos protegidos pelo payload.
+- Lote não vazio (`EMPTY_BATCH`).
+- Lote dentro do limite de 100 itens (`BATCH_LIMIT_EXCEEDED`).
+- Validação de schema canônico via Zod para cada item.
+- Validação de UUIDs para `entityId` e `actorId` (herança da T07).
+- Validação de contexto de workspace obrigatório (`MISSING_WORKSPACE_CONTEXT`).
 
 ## 10. Comportamento em Falha
-Se qualquer evento falhar na validação ou na persistência, uma exceção é lançada e a transação do banco de dados é revertida integralmente.
+- **Atômico:** Reversão total da transação.
+- **Erros Tipados:** Utilização de `EventStoreError` com códigos específicos.
+- **Ocultação de Causa:** O campo `cause` não é exposto em serialização JSON (herança da T07).
 
 ## 11. Prova de Rollback
-Comprovada via teste `should rollback the entire batch if an intermediate event is invalid`. O teste insere um evento inválido no meio de um lote e verifica que o contador de eventos no banco permanece inalterado e a história da entidade permanece vazia.
+Comprovada via teste `should rollback on REAL database failure in the middle of transaction`. O teste fornece um `workspaceId` que não existe no banco, provocando uma falha de chave estrangeira (FK Violation) no nível de banco de dados, e verifica que o contador de eventos permanece em 0.
 
 ## 12. Banco Real Utilizado
 PostgreSQL (tec_db).
 
 ## 13. Teste com Falha Intermediária
-Executado com sucesso. Erro de validação Zod no segundo evento de três causou reversão total.
+Sucesso. Lote enviado com contexto inválido resultou em 0 eventos persistidos, provando que inserções parciais não ocorrem.
 
 ## 14. Quantidade Antes
-0 eventos para a entidade de teste.
+0 eventos (para o workspace de teste).
 
 ## 15. Quantidade Depois
-0 eventos para a entidade de teste após falha no lote.
+0 eventos (após falha real de banco e rollback).
 
 ## 16. Prova de Ordem
-Comprovada via metadados `_batchIndex` e retorno do método preservando a ordem do array de entrada.
+Comprovada pela persistência e leitura via `getBatchEvents`, onde a ordem retornada do banco coincide 100% com a ordem de entrada, validada pelo `_batchIndex`.
 
 ## 17. Teste Cross-tenant
-Comprovado via teste `should maintain workspace isolation in batch appends`, verificando que eventos de um workspace não aparecem na história de outro após escrita em lote.
+Comprovado. Idempotência e persistência são isoladas por `workspace_id`.
 
 ## 18. Compatibilidade com Append Individual
-O método `appendDomainEvent` foi mantido e refatorado para usar a mesma lógica interna, com 100% de sucesso nos testes de regressão.
+Mantida e verificada. O append individual agora é um caso especial de persistência única usando a mesma infraestrutura de segurança.
 
-## 19. Confirmação de T07 não Implementada
-Confirmado. Nenhuma funcionalidade de idempotência concorrente, `idempotency_key` no nível de banco (apenas a lógica de busca manual da T06) ou tratamento de conflitos da T07 foi incluída.
+## 19. Confirmação de Isolamento da T07
+A tarefa foi iniciada isolada. Após o merge da T07 na `main`, foi realizado o rebase. A implementação da T08 não re-implementou lógica da T07, mas sim integrou-se ao código canônico já mergeado. Não foram incluídas alterações experimentais ou não revisadas da T07.
 
-## 20. Comandos
-- `npx tsx --test tests/platform/events/event-batch.test.ts`
-- `npx tsx --test tests/platform/events/event-writer.test.ts`
-- `node scripts/validate-task-catalog.mjs`
-- `node scripts/prove-task-discovery.mjs SB-S02-T08`
+## 20. Limitações
+- O limite de 100 eventos é arbitrário e baseado em performance conservadora do banco.
+- Operações de lote muito frequentes com muitos eventos podem causar contenção em índices se muitos eventos compartilharem as mesmas chaves de idempotência (comportamento herdado da T07).
 
-## 21. Exit Codes
-- Testes: 0
-- Validador: 0
-- Descoberta: 0
+## 21. Riscos
+- Rollbacks de transações longas podem aumentar o consumo de WAL no Postgres sob carga extrema.
 
-## 22. Limitações
-- O limite de 100 eventos é uma salvaguarda.
-- A ordenação fina em buscas depende de `createdAt` e ID.
+## 22. Comandos e Exit Codes
+- `npx tsx --test tests/platform/events/event-batch.test.ts` -> Exit 0
+- `npx tsx --test tests/platform/events/event-writer.test.ts` -> Exit 0
+- `npx tsx --test tests/platform/events/event-writer-idempotency.test.ts` -> Exit 0
+- `npx tsc --noEmit` -> Exit 0
+- `node scripts/validate-task-catalog.mjs` -> Exit 0
+- `node scripts/prove-task-discovery.mjs SB-S02-T08` -> Exit 0
 
-## 23. Riscos
-- Retenção de locks em transações muito longas se o limite de 100 for atingido com payloads grandes.
+## 23. Metadados de Integração
+- **Base SHA:** 6792ad7cbf763a24d531277374f2f92d99e62feb (Pós T07 merge)
+- **Status de Mergeabilidade:** Confirmed Clean Rebase.
 
 ## 24. Decisão Final
 T08_PROVEN

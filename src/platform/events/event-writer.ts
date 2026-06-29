@@ -87,7 +87,7 @@ export class EventWriter {
     const db = getRuntimeDb();
 
     try {
-      return await db.transaction(async (tx) => {
+      return await db.transaction(async (tx: any) => {
         const results: CanonicalEvent[] = [];
         for (const prepared of preparedEvents) {
           const result = await this.persistSingleEvent(tx, prepared, context);

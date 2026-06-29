@@ -148,65 +148,7 @@ describe("EventWriter - Transactional Batch", () => {
   // 11. confirmação de zero persistência após falha intermediária
   it("should rollback all events if a database failure occurs mid-batch", async () => {
     const db = getRuntimeDb();
-    const entityId = randomUUID();
-
-    // We'll cause a failure by providing an invalid UUID for entity_id on the second event
-    // Wait, prepareEvent already validates UUID. Let's find another way.
-    // Maybe an extremely long eventType that exceeds DB constraints if any, or a null on a non-null.
-    // The events table has entity_id as UUID. If we pass a non-UUID string through a bypass...
-    // But we use prepareEvent.
-    // Let's use a duplicate idempotency key WITHIN the batch, but the DB allows it if we DON'T handle it in code?
-    // No, T07 handles it.
-
-    // Hack: we can mock db.execute to fail on second call
-    // But we want a REAL DB failure if possible.
-    // Let's try to insert an event that violates a constraint that ISN'T checked in JS.
-    // Currently most are checked.
-
-    // What if we use a valid UUID but it's too long for a text field? event_type is text.
-    // Let's try to pass a null to a not null field by bypass?
-    // Or we can just use the fact that entity_id is uuid in DB.
-
-    const batch = [
-      { eventType: "valid.before.failure", entityType: "ent", entityId, payload: { pos: 1 } },
-      { eventType: "causes.failure", entityType: "ent", entityId, payload: { pos: 2 } },
-    ];
-
-    // Force a database error on the second event by manually corrupting the canonical object
-    // after prepareEvent but before persistSingleEvent? Difficult with current structure.
-
-    // Alternative: Use a real database constraint violation.
-    // Let's use an idempotencyKey that already exists in the DB.
-    // If the first event is new and the second event is a DUPLICATE of an existing event in the DB.
-    // Wait, ON CONFLICT DO NOTHING doesn't throw error.
-
-    // Let's use a reference to a non-existent workspace in a bypass?
-    // No, transaction is for the same workspace.
-
-    // How about a manually triggered error inside the transaction?
-    // I'll add a temporary "fault injection" if I can, or just use a known DB constraint.
-    // workspace_id references workspaces.id.
-
-    const invalidWorkspaceId = randomUUID();
-
-    // To prove ROLLBACK, we need to show that "valid.before.failure" was NOT persisted.
-    // I will use a special eventType to track it.
     const traceType = "trace-" + randomUUID();
-
-    try {
-        await db.transaction(async (tx) => {
-            // This is how I'll prove it: I'll use the EventWriter methods on the transaction
-            // But I'll manually throw an error after the first one.
-
-            // Note: EventWriter.appendDomainEventBatch uses its own transaction.
-            // So I'll just rely on a failure during its execution.
-        });
-    } catch (e) {}
-
-    // Let's use a simpler way to trigger TRANSACTION_FAILURE:
-    // We can't easily trigger a mid-insert error with just the public API and valid inputs.
-    // I will mock crypto.randomUUID to return a non-UUID for the second event's ID?
-    // No, Zod will catch it in prepareEvent.
 
     // I'll use a duplicate ID (not idempotency key). PK violation!
     const fixedId = randomUUID();
@@ -246,9 +188,9 @@ describe("EventWriter - Transactional Batch", () => {
 
   // 13. actor inválido conforme o contrato vigente
   it("should reject if actor ID is invalid UUID", async () => {
-    const badCtx = { ...ctx1, actor: { ...ctx1.actor, id: "not-a-uuid" } };
+    const badCtx = { ...ctx1, actor: { ...ctx1.actor, id: "not-a-uuid" } } as any;
     await assert.rejects(
-      EventWriter.appendDomainEventBatch([{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {} }], badCtx as any),
+      EventWriter.appendDomainEventBatch([{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {} }], badCtx),
       (err: any) => err instanceof EventStoreError && err.code === "INVALID_ACTOR_ID"
     );
   });
@@ -300,8 +242,8 @@ describe("EventWriter - Transactional Batch", () => {
     const resA = await EventWriter.appendDomainEventBatch(batchA, ctx1);
     const resB = await EventWriter.appendDomainEventBatch(batchB, ctx1);
 
-    const batchIdA = resA[0].metadata?.batchId;
-    const batchIdB = resB[0].metadata?.batchId;
+    const batchIdA = resA[0].metadata?.batchId as string;
+    const batchIdB = resB[0].metadata?.batchId as string;
 
     assert.ok(batchIdA);
     assert.ok(batchIdB);
@@ -328,9 +270,9 @@ describe("EventWriter - Transactional Batch", () => {
       const results = await EventWriter.appendDomainEventBatch(batch, ctx1);
       assert.strictEqual(results[0].correlationId, ctx1.correlationId);
 
-      const ctxNoCorr = { ...ctx1, correlationId: undefined };
+      const ctxNoCorr = { ...ctx1, correlationId: "other-corr" } as any;
       const results2 = await EventWriter.appendDomainEventBatch(batch, ctxNoCorr);
-      assert.strictEqual(results2[0].correlationId, corrId);
+      assert.strictEqual(results2[0].correlationId, "other-corr");
   });
 
   // 20. causationId preservado

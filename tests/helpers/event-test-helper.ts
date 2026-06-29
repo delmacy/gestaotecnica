@@ -3,37 +3,15 @@ import { getRuntimeDb } from "@/db";
 import { workspaces } from "@/db/runtime/schema/workspace";
 
 /**
- * Helper to create a test workspace using the runtime schema.
+ * Creates a valid workspace for testing.
  */
-export async function createTestWorkspace(keySuffix: string) {
+export async function createTestWorkspace(name: string = "Test Workspace") {
   const db = getRuntimeDb();
   const id = randomUUID();
-  const key = `test-ws-${keySuffix}-${randomUUID().slice(0, 8)}`;
-
   await db.insert(workspaces).values({
     id,
-    key,
-    name: `Test Workspace ${keySuffix}`,
-    adaptationKey: "secao-tecnica",
-    status: "active",
+    name,
+    key: `test-${id.slice(0, 8)}`, // Use 'key' instead of 'slug'
   });
-
-  return { id, key };
-}
-
-export function createMockContext(workspace: { id: string, key: string }, user?: { id: string, name: string }) {
-  return {
-    workspaceId: workspace.id,
-    workspaceKey: workspace.key,
-    adaptationKey: "secao-tecnica",
-    actor: {
-      type: "user",
-      id: user?.id ?? randomUUID(),
-      name: user?.name ?? "Test User",
-    },
-    source: "ui",
-    enabledModules: ["events"],
-    scopes: ["*"],
-    correlationId: `test-corr-${randomUUID()}`,
-  };
+  return id;
 }

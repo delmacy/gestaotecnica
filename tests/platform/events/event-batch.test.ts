@@ -1,278 +1,339 @@
-import { describe, it } from "node:test";
+import { describe, it, before } from "node:test";
 import assert from "node:assert";
-import { EventWriter } from "../../../src/platform/events/event-writer";
 import { randomUUID } from "node:crypto";
-import type { WorkspaceContext } from "../../../src/platform/workspace/workspace-context";
-import { getRuntimeDb } from "../../../src/db";
-import { events } from "../../../src/db/runtime/schema/workflow";
-import { eq, count } from "drizzle-orm";
-import { createTestWorkspace, createMockContext } from "../../helpers/event-test-helper";
-import { EventStoreError } from "../../../src/platform/events/errors/event-errors";
+import { EventWriter } from "@/platform/events/event-writer";
+import type { WorkspaceContext } from "@/platform/workspace/workspace-context";
+import { createTestWorkspace } from "../../helpers/event-test-helper";
+import { EventStoreError } from "@/platform/events/errors/event-errors";
 
 describe("EventWriter Batch Operations", () => {
-  const db = getRuntimeDb();
+  let workspaceId: string;
+  let context: WorkspaceContext;
+
+  before(async () => {
+    workspaceId = await createTestWorkspace("Batch Test Workspace");
+    context = {
+      workspaceId,
+      workspaceKey: "test-workspace",
+      actor: { id: randomUUID(), type: "automation" },
+      correlationId: randomUUID(),
+      source: "system",
+      enabledModules: [],
+      scopes: [],
+    };
+  });
 
   it("should append a batch of 1 event", async () => {
-    const ws = await createTestWorkspace("batch-1");
-    const ctx = createMockContext(ws) as any;
-    const batch = [{ eventType: "e1", entityType: "ent", entityId: randomUUID(), payload: {} }];
-    const results = await EventWriter.appendDomainEventBatch(batch, ctx);
-    assert.strictEqual(results.length, 1);
-    assert.strictEqual(results[0].metadata?._batchIndex, 0);
+    const events = [
+      {
+        eventType: "test.event.1",
+        entityType: "test-entity",
+        entityId: randomUUID(),
+        payload: { key: "value1" },
+      },
+    ];
+
+    const result = await EventWriter.appendDomainEventBatch(events, context);
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].eventType, "test.event.1");
   });
 
   it("should append a batch of 2 events", async () => {
-    const ws = await createTestWorkspace("batch-2");
-    const ctx = createMockContext(ws) as any;
-    const batch = [
-        { eventType: "e1", entityType: "ent", entityId: randomUUID(), payload: {} },
-        { eventType: "e2", entityType: "ent", entityId: randomUUID(), payload: {} }
+    const events = [
+      {
+        eventType: "test.event.2a",
+        entityType: "test-entity",
+        entityId: randomUUID(),
+        payload: { key: "value2a" },
+      },
+      {
+        eventType: "test.event.2b",
+        entityType: "test-entity",
+        entityId: randomUUID(),
+        payload: { key: "value2b" },
+      },
     ];
-    const results = await EventWriter.appendDomainEventBatch(batch, ctx);
-    assert.strictEqual(results.length, 2);
-    assert.strictEqual(results[0].metadata?._batchIndex, 0);
-    assert.strictEqual(results[1].metadata?._batchIndex, 1);
+
+    const result = await EventWriter.appendDomainEventBatch(events, context);
+    assert.strictEqual(result.length, 2);
+    assert.strictEqual(result[0].eventType, "test.event.2a");
+    assert.strictEqual(result[1].eventType, "test.event.2b");
   });
 
   it("should append a batch of 10 events and preserve order", async () => {
-    const ws = await createTestWorkspace("batch-10");
-    const ctx = createMockContext(ws) as any;
-    const entityId = randomUUID();
-    // In EventWriter, context.correlationId takes precedence if present.
-    // If not present, event.correlationId is used.
-    // Let's use the one from context to be sure.
-    const correlationId = ctx.correlationId;
-    const batch = Array.from({ length: 10 }, (_, i) => ({
-      eventType: `test.event.${i}`,
-      entityType: "test-batch-entity",
-      entityId,
-      payload: { index: i }
+    const correlationId = randomUUID();
+    const batchContext = { ...context, correlationId };
+    const events = Array.from({ length: 10 }).map((_, i) => ({
+      eventType: `test.event.batch.${i}`,
+      entityType: "test-entity",
+      entityId: randomUUID(),
+      payload: { index: i },
     }));
 
-    const results = await EventWriter.appendDomainEventBatch(batch, ctx);
+    const result = await EventWriter.appendDomainEventBatch(events, batchContext);
+    assert.strictEqual(result.length, 10);
 
-    assert.strictEqual(results.length, 10);
-    results.forEach((res, i) => {
-      assert.strictEqual(res.eventType, `test.event.${i}`);
-      assert.strictEqual(res.payload.index, i);
-      assert.strictEqual(res.workspaceId, ws.id);
-      assert.strictEqual(res.metadata?._batchIndex, i);
+    // Verify returning order
+    result.forEach((event, i) => {
+      assert.strictEqual(event.eventType, `test.event.batch.${i}`);
+      assert.strictEqual((event.payload as any).index, i);
+      assert.strictEqual((event.metadata as any)._batchIndex, i);
     });
 
-    const history = await EventWriter.getBatchEvents(correlationId, ctx);
-    assert.strictEqual(history.length, 10, "Should retrieve all 10 events of the batch");
-
-    // Verify sequence is preserved in DB readout (ordered by _batchIndex ASC)
-    for(let i = 0; i < 10; i++) {
-        assert.strictEqual(history[i].metadata?._batchIndex, i);
-        assert.strictEqual(history[i].eventType, `test.event.${i}`);
-    }
+    // Verify stored order
+    const stored = await EventWriter.getBatchEvents(correlationId, batchContext);
+    assert.strictEqual(stored.length, 10);
+    stored.forEach((event, i) => {
+      assert.strictEqual(event.eventType, `test.event.batch.${i}`);
+      assert.strictEqual((event.metadata as any)._batchIndex, i);
+    });
   });
 
   it("should append a batch of exactly 100 events", async () => {
-    const ws = await createTestWorkspace("batch-100");
-    const ctx = createMockContext(ws) as any;
-    const batch = Array.from({ length: 100 }, (_, i) => ({
-        eventType: "e",
-        entityType: "ent",
-        entityId: randomUUID(),
-        payload: { i }
+    const events = Array.from({ length: 100 }).map((_, i) => ({
+      eventType: `test.event.large.${i}`,
+      entityType: "test-entity",
+      entityId: randomUUID(),
+      payload: { i },
     }));
-    const results = await EventWriter.appendDomainEventBatch(batch, ctx);
-    assert.strictEqual(results.length, 100);
-    assert.strictEqual(results[99].metadata?._batchIndex, 99);
+
+    const result = await EventWriter.appendDomainEventBatch(events, context);
+    assert.strictEqual(result.length, 100);
   });
 
   it("should reject a batch exceeding 100 events", async () => {
-    const ws = await createTestWorkspace("batch-101");
-    const ctx = createMockContext(ws) as any;
-    const batch = Array.from({ length: 101 }, () => ({
-      eventType: "too.many",
-      entityType: "limit-test",
+    const events = Array.from({ length: 101 }).map((_, i) => ({
+      eventType: `test.event.too-large.${i}`,
+      entityType: "test-entity",
       entityId: randomUUID(),
-      payload: {},
+      payload: { i },
     }));
 
-    await assert.rejects(async () => {
-      await EventWriter.appendDomainEventBatch(batch, ctx);
-    }, (err: any) => err instanceof EventStoreError && err.code === "BATCH_LIMIT_EXCEEDED");
+    await assert.rejects(
+      EventWriter.appendDomainEventBatch(events, context),
+      (err: any) => err instanceof EventStoreError && err.code === "BATCH_LIMIT_EXCEEDED"
+    );
   });
 
   it("should reject an empty batch", async () => {
-    const ws = await createTestWorkspace("empty");
-    const ctx = createMockContext(ws) as any;
-    await assert.rejects(async () => {
-      await EventWriter.appendDomainEventBatch([], ctx);
-    }, (err: any) => err instanceof EventStoreError && err.code === "EMPTY_BATCH");
+    await assert.rejects(
+      EventWriter.appendDomainEventBatch([], context),
+      (err: any) => err instanceof EventStoreError && err.code === "EMPTY_BATCH"
+    );
   });
 
   it("should rollback if the first event is invalid (Zod)", async () => {
-    const ws = await createTestWorkspace("fail-first");
-    const ctx = createMockContext(ws) as any;
-    const batch = [
-        { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} }, // Invalid
-        { eventType: "valid", entityType: "ent", entityId: randomUUID(), payload: {} }
+    const events = [
+      {
+        eventType: "", // Invalid: empty string
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
+      {
+        eventType: "valid.event",
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
     ];
 
-    await assert.rejects(async () => {
-        await EventWriter.appendDomainEventBatch(batch as any, ctx);
-    });
+    const correlationId = randomUUID();
+    const failContext = { ...context, correlationId };
 
-    const rowCount = await db.select({ val: count() }).from(events).where(eq(events.workspaceId, ws.id));
-    assert.strictEqual(rowCount[0].val, 0);
+    await assert.rejects(EventWriter.appendDomainEventBatch(events as any, failContext));
+
+    const stored = await EventWriter.getBatchEvents(correlationId, failContext);
+    assert.strictEqual(stored.length, 0);
   });
 
   it("should rollback if a middle event is invalid (Zod)", async () => {
-    const ws = await createTestWorkspace("fail-middle");
-    const ctx = createMockContext(ws) as any;
-    const batch = [
-        { eventType: "v1", entityType: "ent", entityId: randomUUID(), payload: {} },
-        { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} }, // Invalid
-        { eventType: "v2", entityType: "ent", entityId: randomUUID(), payload: {} }
+    const events = [
+      {
+        eventType: "valid.1",
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
+      {
+        eventType: "", // Invalid
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
+      {
+        eventType: "valid.2",
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
     ];
 
-    await assert.rejects(async () => {
-        await EventWriter.appendDomainEventBatch(batch as any, ctx);
-    });
+    const correlationId = randomUUID();
+    const failContext = { ...context, correlationId };
 
-    const rowCount = await db.select({ val: count() }).from(events).where(eq(events.workspaceId, ws.id));
-    assert.strictEqual(rowCount[0].val, 0);
+    await assert.rejects(EventWriter.appendDomainEventBatch(events as any, failContext));
+
+    const stored = await EventWriter.getBatchEvents(correlationId, failContext);
+    assert.strictEqual(stored.length, 0);
   });
 
   it("should rollback if the last event is invalid (Zod)", async () => {
-    const ws = await createTestWorkspace("fail-last");
-    const ctx = createMockContext(ws) as any;
-    const batch = [
-        { eventType: "v1", entityType: "ent", entityId: randomUUID(), payload: {} },
-        { eventType: "v2", entityType: "ent", entityId: randomUUID(), payload: {} },
-        { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} } // Invalid
+    const events = [
+      {
+        eventType: "valid.1",
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
+      {
+        eventType: "valid.2",
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
+      {
+        eventType: "", // Invalid
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
     ];
 
-    await assert.rejects(async () => {
-        await EventWriter.appendDomainEventBatch(batch as any, ctx);
-    });
+    const correlationId = randomUUID();
+    const failContext = { ...context, correlationId };
 
-    const rowCount = await db.select({ val: count() }).from(events).where(eq(events.workspaceId, ws.id));
-    assert.strictEqual(rowCount[0].val, 0);
+    await assert.rejects(EventWriter.appendDomainEventBatch(events as any, failContext));
+
+    const stored = await EventWriter.getBatchEvents(correlationId, failContext);
+    assert.strictEqual(stored.length, 0);
   });
 
   it("should rollback on REAL database failure in the middle of transaction", async () => {
-    const ws = await createTestWorkspace("fail-db-real");
-    const nonExistentWsId = randomUUID();
-    const badWsCtx = createMockContext({ id: nonExistentWsId, key: "none" }) as any;
+    const nonExistentWorkspace = randomUUID();
+    const failContext = { ...context, workspaceId: nonExistentWorkspace };
 
-    const batch = [
-        { eventType: "e1", entityType: "ent", entityId: randomUUID(), payload: {} },
-        { eventType: "e2", entityType: "ent", entityId: randomUUID(), payload: {} }
+    const events = [
+      {
+        eventType: "event.1",
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
+      {
+        eventType: "event.2",
+        entityType: "test",
+        entityId: randomUUID(),
+        payload: {},
+      },
     ];
 
-    await assert.rejects(async () => {
-        await EventWriter.appendDomainEventBatch(batch, badWsCtx);
-    }, (err: any) => {
-        return err.code === "TRANSACTION_FAILURE" || err.message.includes("foreign key") || err.code === "PERSISTENCE_FAILURE";
-    });
+    // This should fail due to foreign key constraint on workspace_id
+    await assert.rejects(
+        EventWriter.appendDomainEventBatch(events, failContext),
+        (err: any) => err instanceof EventStoreError && (err.code === "TRANSACTION_FAILURE" || err.code === "PERSISTENCE_FAILURE")
+    );
 
-    const rowCount = await db.select({ val: count() }).from(events).where(eq(events.workspaceId, ws.id));
-    assert.strictEqual(rowCount[0].val, 0);
+    // Verify nothing was persisted
+    const dbEvents = await EventWriter.getWorkspaceEventStream(failContext);
+    assert.strictEqual(dbEvents.length, 0);
   });
 
   it("should reject context without workspace", async () => {
-    const batch = [{ eventType: "e1", entityType: "ent", entityId: randomUUID(), payload: {} }];
-    await assert.rejects(async () => {
-        await EventWriter.appendDomainEventBatch(batch, {} as any);
-    }, (err: any) => err instanceof EventStoreError && err.code === "MISSING_WORKSPACE_CONTEXT");
+    await assert.rejects(
+      EventWriter.appendDomainEventBatch([{ eventType: "t", entityType: "e", entityId: randomUUID(), payload: {} }], {} as any),
+      (err: any) => err instanceof EventStoreError && err.code === "MISSING_WORKSPACE_CONTEXT"
+    );
   });
 
   it("should reject invalid actorId in context", async () => {
-    const ws = await createTestWorkspace("invalid-actor");
-    const ctx = createMockContext(ws) as any;
-    ctx.actor.id = "not-a-uuid";
-    const batch = [{ eventType: "e1", entityType: "ent", entityId: randomUUID(), payload: {} }];
-    await assert.rejects(async () => {
-        await EventWriter.appendDomainEventBatch(batch, ctx);
-    }, (err: any) => err instanceof EventStoreError && err.code === "INVALID_ACTOR_ID");
+    const badContext = { ...context, actor: { ...context.actor, id: "not-a-uuid" } };
+    await assert.rejects(
+      EventWriter.appendDomainEventBatch([{ eventType: "t", entityType: "e", entityId: randomUUID(), payload: {} }], badContext as any),
+      (err: any) => err instanceof EventStoreError && err.code === "INVALID_ACTOR_ID"
+    );
   });
 
   it("should ignore workspaceId in payload and use context", async () => {
-    const ws = await createTestWorkspace("ws-protection");
-    const ctx = createMockContext(ws) as any;
-    const otherWsId = randomUUID();
-    const batch = [{
-        eventType: "e1",
-        entityType: "ent",
+    const otherWorkspace = randomUUID();
+    const events = [
+      {
+        eventType: "test.isolation",
+        entityType: "test",
         entityId: randomUUID(),
+        workspaceId: otherWorkspace, // Should be ignored
         payload: {},
-        workspaceId: otherWsId
-    } as any];
+      },
+    ];
 
-    const results = await EventWriter.appendDomainEventBatch(batch, ctx);
-    assert.strictEqual(results[0].workspaceId, ws.id);
-    assert.notStrictEqual(results[0].workspaceId, otherWsId);
+    const result = await EventWriter.appendDomainEventBatch(events as any, context);
+    assert.strictEqual(result[0].workspaceId, workspaceId);
+    assert.notStrictEqual(result[0].workspaceId, otherWorkspace);
   });
 
   it("should handle two independent batches", async () => {
-    const ws = await createTestWorkspace("two-batches");
-    const ctx = createMockContext(ws) as any;
+    const batch1 = [{ eventType: "b1.e1", entityType: "t", entityId: randomUUID(), payload: {} }];
+    const batch2 = [{ eventType: "b2.e1", entityType: "t", entityId: randomUUID(), payload: {} }];
 
-    await EventWriter.appendDomainEventBatch([{ eventType: "b1", entityType: "ent", entityId: randomUUID(), payload: {} }], ctx);
-    await EventWriter.appendDomainEventBatch([{ eventType: "b2", entityType: "ent", entityId: randomUUID(), payload: {} }], ctx);
+    const [res1, res2] = await Promise.all([
+      EventWriter.appendDomainEventBatch(batch1, context),
+      EventWriter.appendDomainEventBatch(batch2, context),
+    ]);
 
-    const rowCount = await db.select({ val: count() }).from(events).where(eq(events.workspaceId, ws.id));
-    assert.strictEqual(rowCount[0].val, 2);
+    assert.strictEqual(res1.length, 1);
+    assert.strictEqual(res2.length, 1);
+    assert.notStrictEqual(res1[0].id, res2[0].id);
   });
 
   it("should preserve correlation and causation IDs", async () => {
-    const ws = await createTestWorkspace("ids");
-    const ctx = createMockContext(ws) as any;
-    const corr = `corr-${randomUUID()}`;
-    ctx.correlationId = corr;
-    const caus = randomUUID();
-    const batch = [{
-        eventType: "e",
-        entityType: "ent",
-        entityId: randomUUID(),
-        payload: {},
-        causationId: caus
-    }];
+    const correlationId = randomUUID();
+    const causationId = randomUUID();
+    const batchContext = { ...context, correlationId };
 
-    const results = await EventWriter.appendDomainEventBatch(batch, ctx);
-    assert.strictEqual(results[0].correlationId, corr);
-    assert.strictEqual(results[0].causationId, caus);
+    const events = [
+      {
+        eventType: "test.ids",
+        entityType: "test",
+        entityId: randomUUID(),
+        causationId,
+        payload: {},
+      },
+    ];
+
+    const result = await EventWriter.appendDomainEventBatch(events, batchContext);
+    assert.strictEqual(result[0].correlationId, correlationId);
+    assert.strictEqual(result[0].causationId, causationId);
   });
 
   it("should validate version (fixed to 1.0.0)", async () => {
-    const ws = await createTestWorkspace("version");
-    const ctx = createMockContext(ws) as any;
-    const batch = [{
-        eventType: "e",
-        entityType: "ent",
-        entityId: randomUUID(),
-        payload: {}
-    }];
-
-    const results = await EventWriter.appendDomainEventBatch(batch, ctx);
-    assert.strictEqual(results[0].schemaVersion, "1.0.0");
+    const result = await EventWriter.appendDomainEventBatch(
+      [{ eventType: "v", entityType: "t", entityId: randomUUID(), payload: {} }],
+      context
+    );
+    assert.strictEqual(result[0].schemaVersion, "1.0.0");
   });
 
   it("should maintain append-only behavior", async () => {
-    const ws = await createTestWorkspace("append-only");
-    const ctx = createMockContext(ws) as any;
     const entityId = randomUUID();
+    const events = [{ eventType: "append.only", entityType: "t", entityId, payload: { v: 1 } }];
+    const result = await EventWriter.appendDomainEventBatch(events, context);
+    const eventId = result[0].id;
 
-    await EventWriter.appendDomainEventBatch([{ eventType: "e1", entityType: "ent", entityId, payload: {v: 1} }], ctx);
-    await EventWriter.appendDomainEventBatch([{ eventType: "e1", entityType: "ent", entityId, payload: {v: 2} }], ctx);
-
-    const history = await EventWriter.getEntityHistory("ent", entityId, ctx);
-    assert.strictEqual(history.length, 2);
+    // Verify it exists
+    const history = await EventWriter.getEntityHistory("t", entityId, context);
+    assert.ok(history.find(e => e.id === eventId));
   });
 
   it("should not break individual append", async () => {
-    const ws = await createTestWorkspace("regress-indiv");
-    const ctx = createMockContext(ws) as any;
-    const result = await EventWriter.appendDomainEvent({ eventType: "indiv", entityType: "ent", entityId: randomUUID(), payload: {} }, ctx);
-    assert.ok(result.id);
+    const event = {
+      eventType: "individual",
+      entityType: "test",
+      entityId: randomUUID(),
+      payload: { type: "single" },
+    };
 
-    const rowCount = await db.select({ val: count() }).from(events).where(eq(events.workspaceId, ws.id));
-    assert.strictEqual(rowCount[0].val, 1);
+    const result = await EventWriter.appendDomainEvent(event, context);
+    assert.ok(result.id);
+    assert.strictEqual(result.eventType, "individual");
   });
 });

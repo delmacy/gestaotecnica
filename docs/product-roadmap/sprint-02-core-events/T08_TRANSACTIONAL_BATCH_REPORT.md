@@ -23,13 +23,13 @@ O batch reutiliza o método `persistSingleEvent`, que executa o `INSERT ... ON C
 - Se um lote contém eventos duplicados (mesma `idempotencyKey`), apenas o primeiro é inserido e os subsequentes retornam o evento existente, mantendo a integridade.
 - Se um evento do lote já existia no banco, ele é ignorado no insert e o estado final do banco permanece consistente.
 
-## Prova do Rollback de Banco
-O teste `should rollback all events if a database failure occurs mid-batch` em `tests/platform/events/event-batch.test.ts` comprova a atomicidade.
-- **Cenário:** Mock do gerador de UUID para causar uma colisão de Primary Key no segundo evento de um lote.
-- **Quantidade antes:** 0 eventos com o tipo de rastreio.
-- **Ponto da falha:** Segundo `INSERT` falha com violação de PK.
-- **Quantidade após rollback:** 0 eventos (confirmado via consulta ao banco).
-- **Resultado:** O primeiro evento, que foi inserido com sucesso antes da falha, foi removido pelo rollback do PostgreSQL.
+## Prova do Rollback de Banco (Trigger)
+O teste `should rollback all events if a database failure occurs mid-batch (trigger proof)` em `tests/platform/events/event-batch.test.ts` comprova a atomicidade real via trigger temporário do PostgreSQL.
+- **Cenário:** Trigger `BEFORE INSERT` que lança `RAISE EXCEPTION` ao detectar o segundo item do lote de rastreio (`n: '2'`).
+- **Quantidade antes:** Contagem inicial de eventos para o `traceType`.
+- **Ponto da falha:** Interrupção do segundo insert pelo trigger.
+- **Quantidade após rollback:** Contagem final igual à inicial (confirmado diretamente via SQL no banco).
+- **Limpeza:** Remoção do trigger e função no bloco `finally`.
 
 ## Matriz de Testes
 
@@ -63,10 +63,8 @@ O teste `should rollback all events if a database failure occurs mid-batch` em `
 
 ## Comandos Executados e Resultados
 - `npm run test tests/platform/events/event-batch.test.ts`: Todos os testes passaram.
-- `npm run check:lint`: Sem erros nos arquivos alterados.
-- `npm run check:types`: Sem erros.
-- `node scripts/prove-task-discovery.mjs SB-S02-T08`: Sucesso.
-- `node scripts/validate-task-catalog.mjs`: Sucesso.
+- `npx tsx scripts/prove-task-discovery.mjs SB-S02-T08`: Sucesso.
+- `npx tsx scripts/validate-task-catalog.mjs`: Sucesso.
 
 ## Riscos Residuais
 - O limite de 100 eventos é arbitrário e pode precisar de ajuste dependendo do tamanho médio do payload para evitar estouro de memória ou timeout de transação em ambientes com alta latência de banco.

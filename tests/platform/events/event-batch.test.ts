@@ -1,13 +1,12 @@
 import { describe, it, before } from "node:test";
 import assert from "node:assert";
-import { EventWriter } from "../../../src/platform/events/event-writer";
 import { randomUUID } from "node:crypto";
+import { EventWriter } from "../../../src/platform/events/event-writer";
 import { getRuntimeDb } from "../../../src/db";
 import { workspaces } from "../../../src/db/runtime/schema/workspace";
-import { events } from "../../../src/db/runtime/schema/workflow";
 import type { WorkspaceContext } from "../../../src/platform/workspace/workspace-context";
 import { EventStoreError } from "../../../src/platform/events/errors/event-errors";
-import { eq, and, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 async function createTestWorkspace(key: string) {
     const db = getRuntimeDb();
@@ -50,7 +49,6 @@ describe("EventWriter - Transactional Batch", () => {
       ctx2 = createMockContext(workspace2);
   });
 
-  // 1. lote com 1 evento
   it("should append a batch with 1 event", async () => {
     const batch = [
       { eventType: "batch.e1", entityType: "ent", entityId: randomUUID(), payload: { step: 1 } },
@@ -60,7 +58,6 @@ describe("EventWriter - Transactional Batch", () => {
     assert.strictEqual(results[0].eventType, "batch.e1");
   });
 
-  // 2. lote com 2 eventos
   it("should append a batch with 2 events", async () => {
     const batch = [
       { eventType: "batch.e1", entityType: "ent", entityId: randomUUID(), payload: { step: 1 } },
@@ -70,7 +67,6 @@ describe("EventWriter - Transactional Batch", () => {
     assert.strictEqual(results.length, 2);
   });
 
-  // 3. lote com 10 eventos
   it("should append a batch with 10 events", async () => {
     const batch = Array.from({ length: 10 }, (_, i) => ({
       eventType: `batch.e${i}`,
@@ -82,7 +78,6 @@ describe("EventWriter - Transactional Batch", () => {
     assert.strictEqual(results.length, 10);
   });
 
-  // 4. lote exatamente no limite (100)
   it("should append a batch exactly at the limit (100)", async () => {
     const batch = Array.from({ length: 100 }, (_, i) => ({
       eventType: `batch.limit.e${i}`,
@@ -94,7 +89,6 @@ describe("EventWriter - Transactional Batch", () => {
     assert.strictEqual(results.length, 100);
   });
 
-  // 5. lote acima do limite
   it("should reject batch above the limit", async () => {
     const batch = Array.from({ length: 101 }, (_, i) => ({
       eventType: `batch.over.e${i}`,
@@ -108,7 +102,6 @@ describe("EventWriter - Transactional Batch", () => {
     );
   });
 
-  // 6. lote vazio
   it("should reject empty batch", async () => {
     await assert.rejects(
       EventWriter.appendDomainEventBatch([], ctx1),
@@ -116,69 +109,94 @@ describe("EventWriter - Transactional Batch", () => {
     );
   });
 
-  // 7. evento inválido no primeiro item
   it("should fail and rollback if first event is invalid", async () => {
     const batch = [
-      { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} }, // Invalid
+      { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} },
       { eventType: "valid", entityType: "ent", entityId: randomUUID(), payload: {} },
     ];
     await assert.rejects(EventWriter.appendDomainEventBatch(batch as any, ctx1));
   });
 
-  // 8. evento inválido no meio
   it("should fail and rollback if middle event is invalid", async () => {
     const batch = [
       { eventType: "valid1", entityType: "ent", entityId: randomUUID(), payload: {} },
-      { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} }, // Invalid
+      { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} },
       { eventType: "valid2", entityType: "ent", entityId: randomUUID(), payload: {} },
     ];
     await assert.rejects(EventWriter.appendDomainEventBatch(batch as any, ctx1));
   });
 
-  // 9. evento inválido no último item
   it("should fail and rollback if last event is invalid", async () => {
     const batch = [
       { eventType: "valid1", entityType: "ent", entityId: randomUUID(), payload: {} },
-      { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} }, // Invalid
+      { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} },
     ];
     await assert.rejects(EventWriter.appendDomainEventBatch(batch as any, ctx1));
   });
 
-  // 10. falha real do banco após pelo menos um insert válido
-  // 11. confirmação de zero persistência após falha intermediária
-  it("should rollback all events if a database failure occurs mid-batch", async () => {
+  it("should rollback all events if a database failure occurs mid-batch (trigger proof)", async () => {
     const db = getRuntimeDb();
-    const traceType = "trace-" + randomUUID();
+    const traceType = "trace-rollback-" + randomUUID();
+    const funcName = "fn_fail_on_trace_" + randomUUID().replace(/-/g, "_");
+    const trigName = "trig_fail_on_trace_" + randomUUID().replace(/-/g, "_");
 
-    // I'll use a duplicate ID (not idempotency key). PK violation!
-    const fixedId = randomUUID();
-    const originalRandomUUID = crypto.randomUUID;
-    let callCount = 0;
-    (crypto as any).randomUUID = () => {
-        callCount++;
-        return fixedId; // Always same ID -> PK violation on second insert
-    };
+    // 2. Consulte a contagem inicial diretamente
+    const initialRows = await db.execute(sql`
+        SELECT count(*)::integer as count FROM "workflow"."events"
+        WHERE "workspace_id" = ${ctx1.workspaceId} AND "event_type" = ${traceType}
+    `);
+    const initialCount = Number(initialRows[0].count);
 
-    const batchForRollback = [
-        { eventType: traceType, entityType: "ent", entityId: randomUUID(), payload: { n: 1 } },
-        { eventType: traceType, entityType: "ent", entityId: randomUUID(), payload: { n: 2 } },
-    ];
+    try {
+        // 3. Crie função PL/pgSQL que execute RAISE EXCEPTION
+        await db.execute(sql`
+            CREATE OR REPLACE FUNCTION ${sql.raw(funcName)}()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                IF NEW.event_type = ${traceType} AND (NEW.payload->>'n') = '2' THEN
+                    RAISE EXCEPTION 'Simulated failure on second item';
+                END IF;
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+        `);
 
-    await assert.rejects(
-        EventWriter.appendDomainEventBatch(batchForRollback, ctx1),
-        (err: any) => err instanceof EventStoreError && err.code === "TRANSACTION_FAILURE"
-    );
+        // 4. Crie trigger BEFORE INSERT
+        await db.execute(sql`
+            CREATE TRIGGER ${sql.raw(trigName)}
+            BEFORE INSERT ON "workflow"."events"
+            FOR EACH ROW
+            EXECUTE FUNCTION ${sql.raw(funcName)}();
+        `);
 
-    // Restore
-    (crypto as any).randomUUID = originalRandomUUID;
+        // 5. Execute appendDomainEventBatch com dois eventos
+        const batch = [
+            { eventType: traceType, entityType: "ent", entityId: randomUUID(), payload: { n: 1 } },
+            { eventType: traceType, entityType: "ent", entityId: randomUUID(), payload: { n: 2 } },
+        ];
 
-    // Verify nothing was persisted
-    const history = await EventWriter.getWorkspaceEventStream(ctx1, { limit: 100 });
-    const traceEvents = history.filter(e => e.eventType === traceType);
-    assert.strictEqual(traceEvents.length, 0, "No events should be persisted after rollback");
+        // 6. Valide EventStoreError.code === "TRANSACTION_FAILURE"
+        await assert.rejects(
+            EventWriter.appendDomainEventBatch(batch, ctx1),
+            (err: any) => err instanceof EventStoreError && err.code === "TRANSACTION_FAILURE"
+        );
+
+    } finally {
+        // 7. Use try/finally para sempre executar DROP
+        await db.execute(sql`DROP TRIGGER IF EXISTS ${sql.raw(trigName)} ON "workflow"."events"`);
+        await db.execute(sql`DROP FUNCTION IF EXISTS ${sql.raw(funcName)}()`);
+    }
+
+    // 8. Consulte a contagem final diretamente e comprove igualdade
+    const finalRows = await db.execute(sql`
+        SELECT count(*)::integer as count FROM "workflow"."events"
+        WHERE "workspace_id" = ${ctx1.workspaceId} AND "event_type" = ${traceType}
+    `);
+    const finalCount = Number(finalRows[0].count);
+
+    assert.strictEqual(finalCount, initialCount, "No events should be persisted after rollback (trigger proof)");
   });
 
-  // 12. contexto sem workspace
   it("should reject if workspace context is missing", async () => {
     await assert.rejects(
       EventWriter.appendDomainEventBatch([{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {} }], {} as any),
@@ -186,7 +204,6 @@ describe("EventWriter - Transactional Batch", () => {
     );
   });
 
-  // 13. actor inválido conforme o contrato vigente
   it("should reject if actor ID is invalid UUID", async () => {
     const badCtx = { ...ctx1, actor: { ...ctx1.actor, id: "not-a-uuid" } } as any;
     await assert.rejects(
@@ -195,7 +212,6 @@ describe("EventWriter - Transactional Batch", () => {
     );
   });
 
-  // 14. tentativa de sobrescrever workspace
   it("should ignore workspaceId in payload and use context instead", async () => {
     const event: any = {
         eventType: "e",
@@ -206,10 +222,8 @@ describe("EventWriter - Transactional Batch", () => {
     };
     const results = await EventWriter.appendDomainEventBatch([event], ctx1);
     assert.strictEqual(results[0].workspaceId, ctx1.workspaceId);
-    assert.notStrictEqual(results[0].workspaceId, "other-id");
   });
 
-  // 15. isolamento entre dois workspaces
   it("should maintain isolation between two workspaces", async () => {
     const batch1 = [{ eventType: "w1.e", entityType: "ent", entityId: randomUUID(), payload: {} }];
     const batch2 = [{ eventType: "w2.e", entityType: "ent", entityId: randomUUID(), payload: {} }];
@@ -226,9 +240,6 @@ describe("EventWriter - Transactional Batch", () => {
     assert.ok(!h2.some(e => e.id === r1.id));
   });
 
-  // 16. dois lotes independentes
-  // 17. recuperação de cada lote separadamente
-  // 18. ordem original após nova leitura do banco
   it("should recover independent batches in original order", async () => {
     const batchA = [
         { eventType: "batch.A", entityType: "ent", entityId: randomUUID(), payload: { i: 0 } },
@@ -242,8 +253,8 @@ describe("EventWriter - Transactional Batch", () => {
     const resA = await EventWriter.appendDomainEventBatch(batchA, ctx1);
     const resB = await EventWriter.appendDomainEventBatch(batchB, ctx1);
 
-    const batchIdA = resA[0].metadata?.batchId as string;
-    const batchIdB = resB[0].metadata?.batchId as string;
+    const batchIdA = (resA[0].metadata as any).batchId;
+    const batchIdB = (resB[0].metadata as any).batchId;
 
     assert.ok(batchIdA);
     assert.ok(batchIdB);
@@ -261,21 +272,18 @@ describe("EventWriter - Transactional Batch", () => {
     assert.strictEqual(recoveredB[1].payload.i, 1);
   });
 
-  // 19. correlationId preservado
   it("should preserve correlationId from context or event", async () => {
       const corrId = "custom-corr-" + randomUUID();
       const batch = [{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {}, correlationId: corrId }];
 
-      // If context has correlationId, it takes precedence in current implementation of prepareEvent
       const results = await EventWriter.appendDomainEventBatch(batch, ctx1);
       assert.strictEqual(results[0].correlationId, ctx1.correlationId);
 
-      const ctxNoCorr = { ...ctx1, correlationId: "other-corr" } as any;
+      const ctxNoCorr = { ...ctx1, correlationId: "" } as any;
       const results2 = await EventWriter.appendDomainEventBatch(batch, ctxNoCorr);
-      assert.strictEqual(results2[0].correlationId, "other-corr");
+      assert.strictEqual(results2[0].correlationId, corrId);
   });
 
-  // 20. causationId preservado
   it("should preserve causationId", async () => {
     const causId = "caus-" + randomUUID();
     const batch = [{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {}, causationId: causId }];
@@ -283,38 +291,29 @@ describe("EventWriter - Transactional Batch", () => {
     assert.strictEqual(results[0].causationId, causId);
   });
 
-  // 21. versão canônica validada
   it("should have schemaVersion 1.0.0", async () => {
     const batch = [{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {} }];
     const results = await EventWriter.appendDomainEventBatch(batch, ctx1);
     assert.strictEqual(results[0].schemaVersion, "1.0.0");
   });
 
-  // 22. idempotência da T07 preservada
   it("should preserve T07 idempotency within and across batches", async () => {
     const ideKey = "key-" + randomUUID();
     const event = { eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {}, idempotencyKey: ideKey };
 
-    // Batch with same event twice (DB allows first, DO NOTHING for second)
     const results = await EventWriter.appendDomainEventBatch([event, event], ctx1);
     assert.strictEqual(results[0].id, results[1].id, "Should return same event ID for duplicate idempotency key in batch");
 
-    // New batch with same event
     const results2 = await EventWriter.appendDomainEventBatch([event], ctx1);
     assert.strictEqual(results2[0].id, results[0].id, "Should return same event ID for duplicate idempotency key across batches");
   });
 
-  // 23. append individual continua funcionando
   it("should keep individual append working", async () => {
     const event = { eventType: "individual", entityType: "ent", entityId: randomUUID(), payload: {} };
     const result = await EventWriter.appendDomainEvent(event, ctx1);
     assert.strictEqual(result.eventType, "individual");
   });
 
-  // 24. ausência de update/delete como parte do fluxo
-  // (Verified by code review and the fact that we use INSERT ... ON CONFLICT DO NOTHING and SELECT)
-
-  // 25. erros validados por tipo e código, não somente por mensagem
   it("should throw EventStoreError with correct codes", async () => {
     try {
         await EventWriter.appendDomainEventBatch([], ctx1);

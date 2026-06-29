@@ -1,6 +1,7 @@
 import { getRuntimeDb } from "@/db";
 import { events } from "@/db/runtime/schema/workflow";
 import { eq, and, desc, sql } from "drizzle-orm";
+import crypto from "node:crypto";
 import {
   CanonicalEvent,
   CanonicalEventSchema,

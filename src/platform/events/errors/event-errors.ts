@@ -5,7 +5,11 @@ export type EventErrorCodes =
   | "IDEMPOTENCY_KEY_TOO_LONG"
   | "PERSISTENCE_FAILURE"
   | "INVALID_ENTITY_ID"
-  | "INVALID_ACTOR_ID";
+  | "INVALID_ACTOR_ID"
+  | "EMPTY_BATCH"
+  | "BATCH_LIMIT_EXCEEDED"
+  | "TRANSACTION_FAILURE"
+  | "BATCH_ITEM_FAILURE";
 
 export class EventStoreError extends Error {
   constructor(

@@ -1,6 +1,7 @@
 import { getRuntimeDb } from "@/db";
 import { events } from "@/db/runtime/schema/workflow";
 import { eq, and, desc, sql } from "drizzle-orm";
+import crypto from "node:crypto";
 import {
   CanonicalEvent,
   CanonicalEventSchema,
@@ -20,6 +21,8 @@ export type AppendEventResult =
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isValidUuid = (id: unknown): id is string => typeof id === "string" && UUID_REGEX.test(id);
+
+const BATCH_LIMIT = 100;
 
 export class EventWriter {
   /**
@@ -47,7 +50,79 @@ export class EventWriter {
     }
 
     const db = getRuntimeDb();
+    const canonical = this.prepareEvent(event, context);
 
+    try {
+      return await this.persistSingleEvent(db, canonical, context);
+    } catch (error) {
+      if (error instanceof EventStoreError) throw error;
+      throw new EventStoreError("PERSISTENCE_FAILURE", "Failed to persist event due to unexpected error.", error);
+    }
+  }
+
+  /**
+   * Appends multiple domain events in a single atomic transaction.
+   * Rejects empty batches or batches exceeding the limit.
+   */
+  static async appendDomainEventBatch(
+    domainEvents: Omit<CanonicalEvent, "id" | "workspaceId" | "actorId" | "occurredAt" | "schemaVersion">[],
+    context: WorkspaceContext,
+  ): Promise<CanonicalEvent[]> {
+    if (!context || !context.workspaceId) {
+      throw new EventStoreError("MISSING_WORKSPACE_CONTEXT", "Workspace context is required for appending events.");
+    }
+
+    if (!domainEvents || domainEvents.length === 0) {
+      throw new EventStoreError("EMPTY_BATCH", "Cannot append an empty batch of events.");
+    }
+
+    if (domainEvents.length > BATCH_LIMIT) {
+      throw new EventStoreError("BATCH_LIMIT_EXCEEDED", `Batch size exceeds limit of ${BATCH_LIMIT} events.`);
+    }
+
+    const batchId = crypto.randomUUID();
+    const preparedEvents = domainEvents.map((e, index) =>
+      this.prepareEvent(e, context, { batchId, batchIndex: index })
+    );
+
+    const db = getRuntimeDb();
+
+    try {
+      return await db.transaction(async (tx: any) => {
+        const results: CanonicalEvent[] = [];
+        for (const prepared of preparedEvents) {
+          const result = await this.persistSingleEvent(tx, prepared, context);
+          results.push(result.event);
+        }
+        return results;
+      });
+    } catch (error) {
+      if (error instanceof EventStoreError) throw error;
+      // Convert unexpected database errors to TRANSACTION_FAILURE
+      throw new EventStoreError("TRANSACTION_FAILURE", "Failed to persist batch due to transaction error.", error);
+    }
+  }
+
+  /**
+   * Appends multiple domain events.
+   * NOTE: This version is NOT atomic. Each event is persisted individually.
+   */
+  static async appendDomainEvents(
+    domainEvents: Omit<CanonicalEvent, "id" | "workspaceId" | "actorId" | "occurredAt" | "schemaVersion">[],
+    context: WorkspaceContext,
+  ): Promise<CanonicalEvent[]> {
+    const results: CanonicalEvent[] = [];
+    for (const event of domainEvents) {
+      results.push(await this.appendDomainEvent(event, context));
+    }
+    return results;
+  }
+
+  private static prepareEvent(
+    event: Omit<CanonicalEvent, "id" | "workspaceId" | "actorId" | "occurredAt" | "schemaVersion">,
+    context: WorkspaceContext,
+    batchMeta?: { batchId: string; batchIndex: number }
+  ): CanonicalEvent {
     // Validate and normalize idempotency key if provided
     let idempotencyKey = event.idempotencyKey;
     if (idempotencyKey !== undefined && idempotencyKey !== null) {
@@ -85,97 +160,106 @@ export class EventWriter {
       occurredAt: new Date().toISOString(),
       schemaVersion: "1.0.0",
       correlationId: context.correlationId || event.correlationId,
+      metadata: {
+        ...event.metadata,
+        ...(batchMeta ? { batchId: batchMeta.batchId, _batchIndex: batchMeta.batchIndex } : {})
+      }
     };
 
     // Validate against contract (Zod)
-    try {
-        CanonicalEventSchema.parse(canonical);
-    } catch (e: any) {
-        // Map common validation errors to typed errors if needed, or keep Zod error
-        throw e;
-    }
+    CanonicalEventSchema.parse(canonical);
 
-    try {
-      const payloadWithMeta = {
-        ...canonical.payload,
-        _canonical: {
-          schemaVersion: canonical.schemaVersion,
-          idempotencyKey: canonical.idempotencyKey,
-          metadata: canonical.metadata,
-          occurredAt: canonical.occurredAt,
-        },
-      };
+    return canonical;
+  }
 
-      // Actor ID must be NULL in DB if 'system' to satisfy Postgres UUID type
-      const dbActorId = isValidUuid(canonical.actorId) ? canonical.actorId : null;
+  private static async persistSingleEvent(
+    db: any,
+    canonical: CanonicalEvent,
+    context: WorkspaceContext,
+  ): Promise<AppendEventResult> {
+    const payloadWithMeta = {
+      ...canonical.payload,
+      _canonical: {
+        schemaVersion: canonical.schemaVersion,
+        idempotencyKey: canonical.idempotencyKey,
+        metadata: canonical.metadata,
+        occurredAt: canonical.occurredAt,
+      },
+    };
 
-      // Use raw SQL to ensure atomic idempotency and handle environment-specific Drizzle issues
-      await db.execute(sql`
-        INSERT INTO "workflow"."events" (
-          "id", "workspace_id", "event_type", "entity_type", "entity_id",
-          "actor_id", "source", "correlation_id", "causation_id",
-          "idempotency_key", "payload"
-        ) VALUES (
-          ${canonical.id},
-          ${canonical.workspaceId},
-          ${canonical.eventType},
-          ${canonical.entityType},
-          ${canonical.entityId || null},
-          ${dbActorId},
-          ${context.source || null},
-          ${canonical.correlationId || null},
-          ${canonical.causationId || null},
-          ${canonical.idempotencyKey || null},
-          ${sql`${JSON.stringify(payloadWithMeta)}::jsonb`}
-        ) ON CONFLICT ("workspace_id", "idempotency_key") WHERE "idempotency_key" IS NOT NULL DO NOTHING
-      `);
+    // Actor ID must be NULL in DB if 'system' to satisfy Postgres UUID type
+    const dbActorId = isValidUuid(canonical.actorId) ? canonical.actorId : null;
 
-      if (idempotencyKey) {
-        const existingRows = await db
-          .select()
-          .from(events)
-          .where(
-            and(
-              eq(events.workspaceId, context.workspaceId),
-              eq(events.idempotencyKey, idempotencyKey)
-            )
+    // Use raw SQL to ensure atomic idempotency and handle environment-specific Drizzle issues
+    await db.execute(sql`
+      INSERT INTO "workflow"."events" (
+        "id", "workspace_id", "event_type", "entity_type", "entity_id",
+        "actor_id", "source", "correlation_id", "causation_id",
+        "idempotency_key", "payload"
+      ) VALUES (
+        ${canonical.id},
+        ${canonical.workspaceId},
+        ${canonical.eventType},
+        ${canonical.entityType},
+        ${canonical.entityId || null},
+        ${dbActorId},
+        ${context.source || null},
+        ${canonical.correlationId || null},
+        ${canonical.causationId || null},
+        ${canonical.idempotencyKey || null},
+        ${sql`${JSON.stringify(payloadWithMeta)}::jsonb`}
+      ) ON CONFLICT ("workspace_id", "idempotency_key") WHERE "idempotency_key" IS NOT NULL DO NOTHING
+    `);
+
+    if (canonical.idempotencyKey) {
+      const existingRows = await db
+        .select()
+        .from(events)
+        .where(
+          and(
+            eq(events.workspaceId, context.workspaceId),
+            eq(events.idempotencyKey, canonical.idempotencyKey)
           )
-          .limit(1);
+        )
+        .limit(1);
 
-        if (existingRows.length > 0) {
-          const storedEvent = this.mapRowToCanonical(existingRows[0]);
-          if (storedEvent.id !== canonical.id) {
-            return {
-              status: "existing",
-              event: storedEvent,
-            };
-          }
+      if (existingRows.length > 0) {
+        const storedEvent = this.mapRowToCanonical(existingRows[0]);
+        if (storedEvent.id !== canonical.id) {
+          return {
+            status: "existing",
+            event: storedEvent,
+          };
         }
       }
-
-      return {
-        status: "created",
-        event: canonical,
-      };
-
-    } catch (error) {
-      if (error instanceof EventStoreError) throw error;
-      throw new EventStoreError("PERSISTENCE_FAILURE", "Failed to persist event due to unexpected error.", error);
     }
+
+    return {
+      status: "created",
+      event: canonical,
+    };
   }
 
   /**
-   * Appends multiple domain events.
+   * Retrieves events from a specific batch.
    */
-  static async appendDomainEvents(
-    domainEvents: Omit<CanonicalEvent, "id" | "workspaceId" | "actorId" | "occurredAt" | "schemaVersion">[],
+  static async getBatch(
+    batchId: string,
     context: WorkspaceContext,
   ): Promise<CanonicalEvent[]> {
-    const results: CanonicalEvent[] = [];
-    for (const event of domainEvents) {
-      results.push(await this.appendDomainEvent(event, context));
-    }
-    return results;
+    const db = getRuntimeDb();
+    const rows = await db
+      .select()
+      .from(events)
+      .where(
+        and(
+          eq(events.workspaceId, context.workspaceId),
+          sql`payload->'_canonical'->'metadata'->>'batchId' = ${batchId}`
+        )
+      )
+      .orderBy(sql`(payload->'_canonical'->'metadata'->>'_batchIndex')::integer ASC`);
+
+    return rows.map(this.mapRowToCanonical);
   }
 
   /**

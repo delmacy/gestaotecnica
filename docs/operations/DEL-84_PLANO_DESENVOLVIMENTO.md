@@ -4,7 +4,12 @@
 **Autor:** Codex Governor
 **Data:** 2026-07-06
 **Revisão:** 1.0
-**Status:** aguardando aprovação humana
+**Status:** aprovado em 2026-07-06
+**Aprovado por:** Humano (comentário "pronto")
+**Issues criadas:**
+- DEL-85 / GitHub #373: F1-T01 Merge GitHub-first model
+- DEL-86 / GitHub #374: F1-T02 CI baseline
+- DEL-87 / GitHub #375: F1-T03 Schema audit
 
 ---
 

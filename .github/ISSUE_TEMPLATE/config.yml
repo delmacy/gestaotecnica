@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Workflow Request
+    url: https://github.com/delmacy/gestaotecnica/discussions
+    about: For process questions, architecture discussion, or operational coordination — use Discussions.

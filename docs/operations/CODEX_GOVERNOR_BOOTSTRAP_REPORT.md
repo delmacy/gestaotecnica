@@ -1,123 +1,74 @@
-# CODEX_GOVERNOR_BOOTSTRAP_REPORT
+# Codex Governor Bootstrap Report — DEL-84
 
-## Scope
+**Data:** 2026-07-06
+**Agente:** Codex Governor
+**Issue:** DEL-84 — planejamento do system builder
+**Status:** Concluído
 
-Bootstrap report for the GitHub-first agent company setup on `gestaotecnica`.
+---
 
-## Repository State
+## 1. Resumo Executivo
 
-- Checked repository: `delmacy/gestaotecnica`
-- Local branch at bootstrap: `main`
-- Remote: `origin https://github.com/delmacy/gestaotecnica.git`
-- Existing root governance file before bootstrap: `AGENTS.md`
+O plano de desenvolvimento do System Builder foi criado, aprovado pelo humano e operacionalizado com a criação de 3 issues para Sprint 1.
 
-## GitHub State Observed
+## 2. Ações Realizadas
 
-- Open draft PR observed: `#371 Add GitHub-first agent company operating model`
-- Additional open PR observed: `#366 SB-S02-T09 — Revisão de isolamento e append-only`
-- Open milestone observed: `SB GitHub-First Pilot`
-- Agent and gate labels already exist in GitHub
-- Actions workflows present in `.github/workflows/`
-- PR template present at `.github/pull_request_template.md`
-- Issue templates were not present on `main` at bootstrap time
-- `CODEOWNERS` present and currently set to `* @delmacy`
+### 2.1 Plano de Desenvolvimento
 
-## Governance Files
+- **Documento:** `docs/operations/DEL-84_PLANO_DESENVOLVIMENTO.md`
+- **Branch:** `task/DEL-84-plano-desenvolvimento`
+- **Conteúdo:** 9 fases, 11 tarefas, mapa de dependências, delegação de agentes, gates de aprovação
+- **Status:** Aprovado pelo humano (comentário "pronto" em 2026-07-06T19:19:54Z)
 
-Created during bootstrap:
+### 2.2 Issues Criadas — Sprint 1
 
-- `COMPANY.md`
-- `TEAM.md`
-- `PROJECT.md`
-- `TASK.md`
-- `SOUL.md`
-- `HEARTBEAT.md`
-- `TOOLS.md`
-- `SKILL.md`
+| Paperclip | GitHub | Tarefa | Responsável | Prioridade | Dependências |
+|-----------|--------|--------|-------------|------------|--------------|
+| DEL-85 | #373 | F1-T01: Merge GitHub-first model | Git Manager | High | Nenhuma |
+| DEL-86 | #374 | F1-T02: CI baseline | DevOps Manager | High | F1-T01 |
+| DEL-87 | #375 | F1-T03: Schema audit | Reviewer | High | F1-T01 |
 
-Verified existing:
+### 2.3 Links
 
-- `AGENTS.md`
+- GitHub #373: https://github.com/delmacy/gestaotecnica/issues/373
+- GitHub #374: https://github.com/delmacy/gestaotecnica/issues/374
+- GitHub #375: https://github.com/delmacy/gestaotecnica/issues/375
+- Plano: https://github.com/delmacy/gestaotecnica/blob/task/DEL-84-plano-desenvolvimento/docs/operations/DEL-84_PLANO_DESENVOLVIMENTO.md
 
-## Worker Agent Target Topology
+## 3. Diagnóstico do Repositório
 
-- PMO Manager
-- Git Manager
-- DevOps Manager
-- Tester
-- Reviewer
-- Jules Executor
-- Docs Operator
-- Unit Test Operator
-- Triage Operator
+### 3.1 Estado Atual
 
-Each worker bundle is required to carry:
+- **Branch main:** Protegida, requer PR para mudanças
+- **Último commit:** de27f4d — docs(plan): plano de desenvolvimento DEL-84
+- **Branches ativas:** 8 branches remotas
+- **Issues abertas:** 370-375 (incluindo as criadas neste heartbeat)
+- **Labels:** 27 labels configurados
 
-- `AGENTS.md`
-- `SOUL.md`
-- `HEARTBEAT.md`
-- `TOOLS.md`
-- role-specific `SKILL.md`
+### 3.2 Gaps Identificados (Resumo)
 
-## Worker Agents Created In Paperclip
+| Gap | Impacto | Prioridade |
+|-----|---------|------------|
+| Modelo GitHub-first não mergeado | Bloqueia operação agent-first | P0 |
+| CI/CD incompleto | Sem pipeline de deploy | P0 |
+| Workflow engine imaturo | Core do produto incompleto | P0 |
+| Builder UI incompleta | Usuário não opera o sistema | P0 |
+| Deploy produção inexistente | Sem caminho para produção | P0 |
 
-- PMO Manager: `fecc53a4-8779-4f1b-896a-b3077b459250`
-- Git Manager: `09aba987-4c7d-4520-8a3b-6e320e9162b9`
-- DevOps Manager: `3263ebb7-346a-4bb7-9061-0ed26a636e6b`
-- Tester: `1fa16367-18de-4deb-bd27-cdeae82c9e2b`
-- Reviewer: `c426905b-f05f-48d2-b757-d01f28605b7c`
-- Jules Executor: `8314e42a-b145-4f60-8ec8-cf860440540b`
-- Docs Operator: `683410d2-04cb-4776-8173-1df53ef0c36d`
-- Unit Test Operator: `0aa47fbb-5fd4-49c5-98c7-3fcb3362e276`
-- Triage Operator: `14317cf7-f187-4b43-97b7-0849d7746e4c`
+## 4. Próximos Passos
 
-All were configured to report to Codex Governor and to use managed instruction bundles carrying `AGENTS.md`, `SOUL.md`, `HEARTBEAT.md`, `TOOLS.md`, and role-specific `SKILL.md`.
+1. **F1-T01** pode iniciar imediatamente (sem dependências)
+2. **F1-T02** e **F1-T03** aguardam conclusão de F1-T01
+3. Sprint 2 (F2-T01, F2-T02) aguarda Sprint 1
+4. Fases 3-9 aguardam aprovação progressiva
 
-## Runtime Correction After Bootstrap
+## 5. Riscos Registrados
 
-Issue `DEL-47` corrected the worker runtime split expected by the operating model:
+1. **Zod v4:** Breaking changes vs v3 — risco de compatibilidade
+2. **Next.js 16:** Versão muito recente — risco de bugs
+3. **Sem CI verde:** Não há evidência de build/teste passando em main
+4. **Token GitHub limitado:** Projects v2 bloqueado
 
-- PMO Manager, Git Manager, DevOps Manager, Tester, Reviewer, Docs Operator, Unit Test Operator, and Triage Operator now use `opencode_local`
-- `Jules Executor` remains on `jules_local`
-- Managed instruction bundles were preserved for every worker agent during the adapter change
+---
 
-## Agent Model Balancing (DEL-50)
-
-After human approval, the `opencode_local` agents were moved away from the single `opencode/gpt-5.4` model to a cost/reasoning-balanced profile:
-
-| Agent | Adapter | Model |
-|-------|---------|-------|
-| Codex Governor | `opencode_local` | `opencode/kimi-k2.7-code` |
-| PMO Manager | `opencode_local` | `opencode/qwen3.6-plus` |
-| Git Manager | `opencode_local` | `opencode/deepseek-v4-pro` |
-| DevOps Manager | `opencode_local` | `opencode/qwen3.6-plus` |
-| Tester | `opencode_local` | `opencode/minimax-m2.5` |
-| Reviewer | `opencode_local` | `opencode/kimi-k2.6` |
-| Docs Operator | `opencode_local` | `opencode/deepseek-v4-flash-free` |
-| Unit Test Operator | `opencode_local` | `opencode/minimax-m2.5` |
-| Triage Operator | `opencode_local` | `opencode/qwen3.5-plus` |
-| Jules Executor | `jules_local` | adapter-managed |
-
-Rationale:
-
-- The governor/task-elaboration agent keeps a high-reasoning model.
-- Manager agents use intermediate models because their work is more deterministic.
-- Operational agents (docs, tests, records) use the cheapest adequate models.
-- `Jules Executor` is unchanged on its own adapter-managed model.
-
-The updated model map is also recorded in `TEAM.md`.
-
-## Initial Gaps Recorded
-
-- `main` does not yet contain issue templates.
-- GitHub Project v2 creation is reported as blocked in draft PR `#371`.
-- Bootstrap artifacts exist locally in this workspace and need normal PR handling before repository acceptance.
-
-## Approval Gate
-
-Bootstrap completion does not authorize broad execution.
-
-Next required action:
-
-- Human approval of the bootstrap state
-- Then execution-task creation and delegation under the GitHub-first contract
+**Documento gerado automaticamente pelo Codex Governor.**

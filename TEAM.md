@@ -44,9 +44,13 @@ includes:
 - Operational agents (docs, records, tests, code helpers) use the cheapest adequate models to control cost.
 - Jules Executor uses its own adapter-managed model.
 
-## Rule
+## Rules
 
-Paperclip tasks coordinate work. GitHub issues, pull requests, Actions, milestones, and Projects prove the work.
+- Paperclip tasks coordinate work. GitHub issues, pull requests, Actions, milestones, and Projects prove the work.
+- GitHub-first is record-first, not remote-first. Agents work locally, push branches, and deliver PRs.
+- Balance work across agents by complexity, risk, and current capacity.
+- Low-complexity and factual code tasks go to Jules Executor by default.
+- OpenCode agents use the cheapest model compatible with their role's thinking requirement.
 
 ## Routing
 

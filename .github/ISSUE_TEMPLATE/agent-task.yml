@@ -5,24 +5,66 @@ labels:
   - type/task
   - status/ready
 body:
+  - type: input
+    id: task-id
+    attributes:
+      label: ID
+      description: Stable task ID.
+    validations:
+      required: true
+  - type: input
+    id: phase
+    attributes:
+      label: Fase
+      description: Phase, sprint, or rollout stage.
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Titulo
+      description: Human-readable task title.
+    validations:
+      required: true
   - type: textarea
     id: objective
     attributes:
-      label: Objective
+      label: Objetivo
       description: What must be delivered.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto
+      description: Why this task exists and what prior decisions apply.
+    validations:
+      required: true
+  - type: input
+    id: github-issue
+    attributes:
+      label: GitHub Issue
+      description: Current GitHub issue URL or number.
     validations:
       required: true
   - type: input
     id: paperclip
     attributes:
-      label: Paperclip task
+      label: Paperclip Task
       description: Paperclip task URL or identifier.
+    validations:
+      required: true
+  - type: input
+    id: branch
+    attributes:
+      label: Branch esperada
+      description: Expected branch name.
     validations:
       required: true
   - type: dropdown
     id: front
     attributes:
-      label: Workstream
+      label: Frente
       options:
         - Quality / CI / Observability
         - Persistence / Multi-Tenancy
@@ -34,30 +76,111 @@ body:
     validations:
       required: true
   - type: textarea
-    id: scope
+    id: allowed-files
     attributes:
-      label: Scope
-      description: Included scope, excluded scope, allowed paths, and prohibited paths.
+      label: Arquivos permitidos
+      description: Files or directories the worker may edit.
     validations:
       required: true
   - type: textarea
-    id: contracts
+    id: prohibited-files
     attributes:
-      label: Contracts
-      description: Shared contracts consumed or changed.
+      label: Arquivos proibidos
+      description: Files or directories the worker must not edit.
+    validations:
+      required: true
+  - type: textarea
+    id: included-scope
+    attributes:
+      label: Escopo incluido
+      description: Work explicitly included.
+    validations:
+      required: true
+  - type: textarea
+    id: excluded-scope
+    attributes:
+      label: Escopo excluido
+      description: Work explicitly excluded.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencias
+      description: Issues, PRs, documents, tasks, credentials, or decisions required.
+    validations:
+      required: true
+  - type: textarea
+    id: consumed-contracts
+    attributes:
+      label: Contratos consumidos
+      description: Existing shared contracts consumed by the task.
+    validations:
+      required: true
+  - type: textarea
+    id: changeable-contracts
+    attributes:
+      label: Contratos alteraveis
+      description: Shared contracts the worker is allowed to change.
     validations:
       required: true
   - type: textarea
     id: acceptance
     attributes:
-      label: Acceptance criteria
+      label: Criterios de aceite
       description: Required behavior and evidence.
     validations:
       required: true
   - type: textarea
     id: checks
     attributes:
-      label: Required checks
+      label: Testes obrigatorios
       description: GitHub Actions, local commands, migrations, tests, build, or blocker evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidencias obrigatorias
+      description: Links, logs, screenshots, Actions runs, PRs, or artifacts required for delivery.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Riscos
+      description: Known technical, product, permission, cost, or schedule risks.
+    validations:
+      required: true
+  - type: dropdown
+    id: review-gate
+    attributes:
+      label: Gate de revisao
+      options:
+        - Codex Governor
+        - PMO Manager
+        - Git Manager
+        - DevOps Manager
+        - Tester
+        - Reviewer
+        - Human
+    validations:
+      required: true
+  - type: dropdown
+    id: next-owner
+    attributes:
+      label: Proximo responsavel
+      options:
+        - Codex Governor
+        - PMO Manager
+        - Git Manager
+        - DevOps Manager
+        - Tester
+        - Reviewer
+        - Jules Executor
+        - Docs Operator
+        - Unit Test Operator
+        - Triage Operator
+        - Human
     validations:
       required: true

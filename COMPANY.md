@@ -12,12 +12,17 @@ goals:
 includes:
   - TEAM.md
   - PROJECT.md
+  - AGENTS.md
+  - SOUL.md
+  - HEARTBEAT.md
+  - TOOLS.md
+  - SKILL.md
   - skills/github-first-system-builder/SKILL.md
 ---
 
 # System Builder / Gestao Tecnica Agent Company
 
-This company operates with GitHub as the technical source of truth and Paperclip as the agent orchestration layer.
+This company operates with GitHub as the technical source of truth and Paperclip as the agent orchestration layer. GitHub-first means canonical issues, branches, PRs, Actions, milestones, and Projects. It does not mean remote-first execution: workers pull locally, work locally, then push branches and PRs.
 
 Codex is the governance interface to the human operator. OpenCode managers coordinate engineering operations. Cheap operational agents handle repeatable work. Jules is the preferred code executor.
 

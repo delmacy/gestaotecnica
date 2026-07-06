@@ -1,45 +1,50 @@
-# CODEX_GOVERNOR_BOOTSTRAP_REPORT
+# Codex Governor Bootstrap Report
+
+Date: 2026-07-06
 
 ## Scope
 
-Bootstrap report for the GitHub-first agent company setup on `gestaotecnica`.
+DEL-89 requested correction of the agent company operating model because agents were not receiving assignments reliably and the prior GitHub-first wording was being treated as remote-first execution.
 
-## Repository State
+This report records the bootstrap state for `delmacy/gestaotecnica` and the current governance gates.
 
-- Checked repository: `delmacy/gestaotecnica`
-- Local branch at bootstrap: `main`
-- Remote: `origin https://github.com/delmacy/gestaotecnica.git`
-- Existing root governance file before bootstrap: `AGENTS.md`
+## GitHub State
 
-## GitHub State Observed
+- Repository: `delmacy/gestaotecnica`
+- Default branch: `main`
+- Operating-model PR: https://github.com/delmacy/gestaotecnica/pull/371
+- Additional open PR observed: https://github.com/delmacy/gestaotecnica/pull/366
+- Pilot milestone: `SB GitHub-First Pilot`
+- Project v2 blocker: https://github.com/delmacy/gestaotecnica/issues/370
+- Pilot issues observed:
+  - https://github.com/delmacy/gestaotecnica/issues/367
+  - https://github.com/delmacy/gestaotecnica/issues/368
+  - https://github.com/delmacy/gestaotecnica/issues/369
+  - https://github.com/delmacy/gestaotecnica/issues/373
 
-- Open draft PR observed: `#371 Add GitHub-first agent company operating model`
-- Additional open PR observed: `#366 SB-S02-T09 — Revisão de isolamento e append-only`
-- Open milestone observed: `SB GitHub-First Pilot`
-- Agent and gate labels already exist in GitHub
-- Actions workflows present in `.github/workflows/`
-- PR template present at `.github/pull_request_template.md`
-- Issue templates were not present on `main` at bootstrap time
-- `CODEOWNERS` present and currently set to `* @delmacy`
+## Repository Governance Files
 
-## Governance Files
-
-Created during bootstrap:
+Verified or added in PR #371:
 
 - `COMPANY.md`
 - `TEAM.md`
+- `AGENTS.md`
 - `PROJECT.md`
 - `TASK.md`
-- `SOUL.md`
-- `HEARTBEAT.md`
-- `TOOLS.md`
 - `SKILL.md`
+- `HEARTBEAT.md`
+- `SOUL.md`
+- `TOOLS.md`
+- `.github/ISSUE_TEMPLATE/agent-task.yml`
+- `.github/ISSUE_TEMPLATE/blocker-report.yml`
+- `.github/pull_request_template.md`
+- `.github/CODEOWNERS`
+- `docs/operations/GITHUB_FIRST_AGENT_COMPANY.md`
+- `docs/operations/GITHUB_FIRST_PILOT.md`
 
-Verified existing:
+## Paperclip Agent State
 
-- `AGENTS.md`
-
-## Worker Agent Target Topology
+Observed worker agents:
 
 - PMO Manager
 - Git Manager
@@ -50,74 +55,25 @@ Verified existing:
 - Docs Operator
 - Unit Test Operator
 - Triage Operator
+- Jules Sandbox
 
-Each worker bundle is required to carry:
+The live agent instruction bundles already include the DEL-89 corrections for local-first execution, GitHub issue and PR gates, Jules parallelism, and low-cost OpenCode model policy.
 
-- `AGENTS.md`
-- `SOUL.md`
-- `HEARTBEAT.md`
-- `TOOLS.md`
-- role-specific `SKILL.md`
+## Operating Corrections
 
-## Worker Agents Created In Paperclip
+- GitHub-first now explicitly means canonical GitHub recordkeeping, not remote-first execution.
+- Execution is local-first: pull locally, work locally, validate locally when applicable, push branch, open PR.
+- Low-complexity and factual code work routes to Jules Executor by default.
+- Jules adapter parallelism is allowed when branches and allowed files do not collide.
+- Every execution task must belong to a GitHub issue plus Paperclip project and goal.
+- Stale prior tasks must be cancelled, archived, or explicitly superseded before assigning replacement work.
 
-- PMO Manager: `fecc53a4-8779-4f1b-896a-b3077b459250`
-- Git Manager: `09aba987-4c7d-4520-8a3b-6e320e9162b9`
-- DevOps Manager: `3263ebb7-346a-4bb7-9061-0ed26a636e6b`
-- Tester: `1fa16367-18de-4deb-bd27-cdeae82c9e2b`
-- Reviewer: `c426905b-f05f-48d2-b757-d01f28605b7c`
-- Jules Executor: `8314e42a-b145-4f60-8ec8-cf860440540b`
-- Docs Operator: `683410d2-04cb-4776-8173-1df53ef0c36d`
-- Unit Test Operator: `0aa47fbb-5fd4-49c5-98c7-3fcb3362e276`
-- Triage Operator: `14317cf7-f187-4b43-97b7-0849d7746e4c`
+## Validation Evidence
 
-All were configured to report to Codex Governor and to use managed instruction bundles carrying `AGENTS.md`, `SOUL.md`, `HEARTBEAT.md`, `TOOLS.md`, and role-specific `SKILL.md`.
+- PR #371 was inspected and is mergeable.
+- GitHub governance workflow on PR #371 was already green before this report update.
+- GitHub Projects v2 creation remains blocked by token permission and is tracked in issue #370.
 
-## Runtime Correction After Bootstrap
+## Gate
 
-Issue `DEL-47` corrected the worker runtime split expected by the operating model:
-
-- PMO Manager, Git Manager, DevOps Manager, Tester, Reviewer, Docs Operator, Unit Test Operator, and Triage Operator now use `opencode_local`
-- `Jules Executor` remains on `jules_local`
-- Managed instruction bundles were preserved for every worker agent during the adapter change
-
-## Agent Model Balancing (DEL-50)
-
-After human approval, the `opencode_local` agents were moved away from the single `opencode/gpt-5.4` model to a cost/reasoning-balanced profile:
-
-| Agent | Adapter | Model |
-|-------|---------|-------|
-| Codex Governor | `opencode_local` | `opencode/kimi-k2.7-code` |
-| PMO Manager | `opencode_local` | `opencode/qwen3.6-plus` |
-| Git Manager | `opencode_local` | `opencode/deepseek-v4-pro` |
-| DevOps Manager | `opencode_local` | `opencode/qwen3.6-plus` |
-| Tester | `opencode_local` | `opencode/minimax-m2.5` |
-| Reviewer | `opencode_local` | `opencode/kimi-k2.6` |
-| Docs Operator | `opencode_local` | `opencode/deepseek-v4-flash-free` |
-| Unit Test Operator | `opencode_local` | `opencode/minimax-m2.5` |
-| Triage Operator | `opencode_local` | `opencode/qwen3.5-plus` |
-| Jules Executor | `jules_local` | adapter-managed |
-
-Rationale:
-
-- The governor/task-elaboration agent keeps a high-reasoning model.
-- Manager agents use intermediate models because their work is more deterministic.
-- Operational agents (docs, tests, records) use the cheapest adequate models.
-- `Jules Executor` is unchanged on its own adapter-managed model.
-
-The updated model map is also recorded in `TEAM.md`.
-
-## Initial Gaps Recorded
-
-- `main` does not yet contain issue templates.
-- GitHub Project v2 creation is reported as blocked in draft PR `#371`.
-- Bootstrap artifacts exist locally in this workspace and need normal PR handling before repository acceptance.
-
-## Approval Gate
-
-Bootstrap completion does not authorize broad execution.
-
-Next required action:
-
-- Human approval of the bootstrap state
-- Then execution-task creation and delegation under the GitHub-first contract
+Broad System Builder execution remains gated behind human approval after the operating-model PR is reviewed and merged.

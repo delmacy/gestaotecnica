@@ -6,6 +6,8 @@ System Builder / Gestao Tecnica development uses GitHub as the canonical technic
 
 GitHub owns repository state, issues, branches, pull requests, Actions, milestones, releases, and review evidence. Paperclip owns agent hierarchy, tasks, instructions, skills, budgets, heartbeat, and operational audit.
 
+GitHub-first is not remote-first execution. Agents must pull locally, work locally, validate locally when applicable, push a branch, and deliver through a PR.
+
 ## Agent Organization
 
 ### Codex Governor
@@ -33,6 +35,8 @@ GitHub owns repository state, issues, branches, pull requests, Actions, mileston
 - Preferred code executor.
 - Works from GitHub issue scope and Paperclip task context.
 - Delivers a PR, a blocker report, or a correction request.
+- Receives low-complexity and factual code tasks by default.
+- May run as multiple parallel Jules adapter agents when branches and allowed files do not collide.
 
 ## Workflow
 
@@ -40,7 +44,7 @@ GitHub owns repository state, issues, branches, pull requests, Actions, mileston
 2. PMO creates or links the GitHub issue, milestone, and Project item.
 3. Git Manager validates base branch, branch name, labels, and PR expectations.
 4. DevOps validates baseline Actions or records known failures.
-5. Jules/OpenCode executes.
+5. Jules/OpenCode executes locally, then pushes a branch.
 6. Tester validates Actions and required checks.
 7. Reviewer reviews PR diff and evidence.
 8. Codex approves, requests changes, closes, restarts, or escalates.
@@ -53,6 +57,7 @@ GitHub owns repository state, issues, branches, pull requests, Actions, mileston
 - Actions result or documented blocker.
 - Labels using `front/*`, `type/*`, `risk/*`, `agent/*`, `gate/*`, and `status/*`.
 - Milestone for the current System Builder phase or rollout.
+- Paperclip project and goal for each task.
 
 ## Initial Workstreams
 
@@ -70,3 +75,12 @@ Expand to Workflow / Actions / Events, Security / Identity / Governance, Builder
 - Jules completion means ready for validation, not accepted.
 - Out-of-scope files return to Reviewer and Git Manager before Codex review.
 - Human escalation is only for product, architecture, permission, credential, cost, risk, or irreconcilable conflict.
+
+## Task Allocation Rules
+
+- Cancel, archive, or explicitly supersede stale prior tasks before assigning replacement work.
+- Keep all work attached to a GitHub issue, milestone or Project item when available, Paperclip project, and Paperclip goal.
+- Prefer Jules Executor for low-complexity and factual code changes.
+- Use OpenCode managers for planning, review, DevOps, Git hygiene, and technical gates.
+- Use low-cost operational agents for docs, triage, fixtures, unit tests, and checklist work.
+- Split long or parallel work into child issues instead of polling agents.

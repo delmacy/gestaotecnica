@@ -1,0 +1,42 @@
+name: Agent Blocker Report
+description: Report a real blocker for Jules/OpenCode/Codex-governed work.
+title: "[BLOCKER] "
+labels:
+  - type/blocker
+  - status/blocked
+body:
+  - type: textarea
+    id: blocker
+    attributes:
+      label: Blocker
+      description: What blocks execution.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Commands, logs, Actions runs, PRs, or screenshots proving the blocker.
+    validations:
+      required: true
+  - type: textarea
+    id: attempted
+    attributes:
+      label: Attempted resolution
+      description: What the agent tried and why it was insufficient.
+    validations:
+      required: true
+  - type: dropdown
+    id: escalation
+    attributes:
+      label: Escalation owner
+      options:
+        - Codex Governor
+        - PMO Manager
+        - Git Manager
+        - DevOps Manager
+        - Tester
+        - Reviewer
+        - Human
+    validations:
+      required: true

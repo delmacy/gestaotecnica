@@ -1,0 +1,63 @@
+name: Agent Task
+description: GitHub-first executable task for Paperclip agents.
+title: "[AGENT] "
+labels:
+  - type/task
+  - status/ready
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What must be delivered.
+    validations:
+      required: true
+  - type: input
+    id: paperclip
+    attributes:
+      label: Paperclip task
+      description: Paperclip task URL or identifier.
+    validations:
+      required: true
+  - type: dropdown
+    id: front
+    attributes:
+      label: Workstream
+      options:
+        - Quality / CI / Observability
+        - Persistence / Multi-Tenancy
+        - GitHub / Paperclip Operating System
+        - Workflow / Actions / Events
+        - Security / Identity / Governance
+        - Builder UI / Registry / Forms
+        - Gestao Tecnica Runtime
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Included scope, excluded scope, allowed paths, and prohibited paths.
+    validations:
+      required: true
+  - type: textarea
+    id: contracts
+    attributes:
+      label: Contracts
+      description: Shared contracts consumed or changed.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Required behavior and evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Required checks
+      description: GitHub Actions, local commands, migrations, tests, build, or blocker evidence.
+    validations:
+      required: true

@@ -1,4 +1,15 @@
-# TEAM.md -- Bootstrap Team Map
+---
+schema: agentcompanies/v1
+kind: team
+slug: github-first-engineering
+name: GitHub-First Engineering
+description: Agent organization for System Builder / Gestao Tecnica delivery.
+manager: AGENTS.md
+includes:
+  - skills/github-first-system-builder/SKILL.md
+---
+
+# GitHub-First Engineering Team
 
 ## Governor
 
@@ -19,12 +30,23 @@
 | Unit Test Operator | focused unit coverage and test-only changes | `opencode/minimax-m2.5` |
 | Triage Operator | issue triage, routing, minimal repro, labels | `opencode/qwen3.5-plus` |
 
+## Levels
+
+1. Codex Governor: planning, scope control, final review, and human escalation.
+2. OpenCode Managers: PMO, Git, DevOps, Tester, and Reviewer management roles.
+3. Operational Workers: documentation, triage, unit tests, evidence, and routine tasks.
+4. Jules Executor: preferred implementation agent for code changes and PR delivery.
+
 ## Model Balancing Rationale
 
 - The task-elaboration agent (Codex Governor) keeps a high-reasoning model.
 - Manager agents use intermediate models because their work is more deterministic and less open-ended reasoning.
 - Operational agents (docs, records, tests, code helpers) use the cheapest adequate models to control cost.
 - Jules Executor uses its own adapter-managed model.
+
+## Rule
+
+Paperclip tasks coordinate work. GitHub issues, pull requests, Actions, milestones, and Projects prove the work.
 
 ## Routing
 

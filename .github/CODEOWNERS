@@ -1,1 +1,18 @@
 * @delmacy
+
+# GitHub-first agent company operating model
+/COMPANY.md @delmacy
+/TEAM.md @delmacy
+/PROJECT.md @delmacy
+/TASK.md @delmacy
+/skills/** @delmacy
+/docs/operations/** @delmacy
+/.github/** @delmacy
+
+# Critical System Builder contracts and governance
+/docs/agent-work/** @delmacy
+/docs/system-builder/** @delmacy
+/docs/product-roadmap/** @delmacy
+/drizzle/** @delmacy
+/src/db/** @delmacy
+/src/platform/** @delmacy

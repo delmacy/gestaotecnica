@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Paperclip control plane
+    url: https://paperclip.178.104.14.30.sslip.io
+    about: Use Paperclip for agent orchestration and task discussion.

@@ -24,12 +24,10 @@ export type RuntimeDb = {
   query?: any;
 };
 
-export type RuntimeRepositoryRow = Record<string, unknown> | null | undefined;
+export type UnknownRow = Record<string, unknown>;
 
-export function mapProcessInstanceRow<T extends RuntimeRepositoryRow>(
-  row: T
-): T extends null | undefined ? null : ProcessInstanceRecord {
-  if (!row) return null as any;
+export function mapProcessInstanceRow(row: UnknownRow | null | undefined): ProcessInstanceRecord | null {
+  if (!row) return null;
   return {
     id: row.id as string,
     workspaceId: row.workspaceId as string,
@@ -39,41 +37,37 @@ export function mapProcessInstanceRow<T extends RuntimeRepositoryRow>(
     createdById: row.createdById as string,
     createdAt: row.createdAt as Date,
     updatedAt: row.updatedAt as Date
-  } as any;
+  };
 }
 
-export function mapProcessPayloadRow<T extends RuntimeRepositoryRow>(
-  row: T
-): T extends null | undefined ? null : ProcessPayloadRecord {
-  if (!row) return null as any;
+export function mapProcessPayloadRow(row: UnknownRow | null | undefined): ProcessPayloadRecord | null {
+  if (!row) return null;
   return {
     id: row.id as string,
     instanceId: row.instanceId as string,
     workspaceId: row.workspaceId as string,
     schemaVersion: (row.schema_version ?? row.schemaVersion) as string,
-    data: row.data as Record<string, unknown> | null,
+    data: (row.data as Record<string, unknown> | null) ?? {},
     createdAt: row.createdAt as Date,
     updatedAt: row.updatedAt as Date
-  } as any;
+  };
 }
 
-export function mapActionExecutionRow<T extends RuntimeRepositoryRow>(
-  row: T
-): T extends null | undefined ? null : ActionExecutionRecord {
-  if (!row) return null as any;
+export function mapActionExecutionRow(row: UnknownRow | null | undefined): ActionExecutionRecord | null {
+  if (!row) return null;
   return {
     id: row.id as string,
     workspaceId: row.workspaceId as string,
     instanceId: row.instanceId as string,
     actionKey: row.actionKey as string,
     actorId: row.actorId as string | null,
-    inputPayload: row.inputPayload as Record<string, unknown> | null,
-    outputPayload: row.outputPayload as Record<string, unknown> | null,
+    inputPayload: (row.inputPayload as Record<string, unknown> | null) ?? {},
+    outputPayload: (row.outputPayload as Record<string, unknown> | null) ?? {},
     status: row.status as ActionExecutionStatus,
     error: row.error as string | null,
     startedAt: row.startedAt as Date,
     finishedAt: row.finishedAt as Date | null
-  } as any;
+  };
 }
 
 export async function insertProcessInstance(

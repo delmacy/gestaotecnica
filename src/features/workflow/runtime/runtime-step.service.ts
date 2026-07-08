@@ -147,7 +147,7 @@ export async function advanceStep(
     });
 
     // 4. Load Definition for Path-Finding
-    const version = await getProcessVersionById(db as any, instance.processVersionId);
+    const version = await getProcessVersionById(db, instance.processVersionId);
     if (!version || !version.definition) {
       return {
         ok: false,

@@ -124,8 +124,10 @@ export async function getProcessDefinitionById(
 }
 
 // Helper function added for Phase 18C path-finding
+export type ProcessVersionQueryDb = Pick<ProcessDefinitionDb, 'select'>;
+
 export async function getProcessVersionById(
-  db: ProcessDefinitionDb,
+  db: ProcessVersionQueryDb,
   processVersionId: string
 ) {
   const versions = await db

@@ -45,6 +45,33 @@ export function extractNodesAndEdges(definitionJson: unknown): { nodes: RuntimeG
   return { nodes, edges };
 }
 
+export type PlanNextStepResult =
+  | { type: 'complete'; reason: 'no_more_edges' | 'reached_end_node' }
+  | { type: 'next_node'; nextNodeId: string }
+  | { type: 'error'; error: { code: string; message: string } };
+
+export function planNextStep(nodes: RuntimeGraphNode[], edges: RuntimeGraphEdge[], currentActionKey: string): PlanNextStepResult {
+  const outgoingEdges = edges.filter((e) => e.source === currentActionKey);
+
+  if (outgoingEdges.length === 0) {
+    return { type: 'complete', reason: 'no_more_edges' };
+  }
+
+  const nextEdge = outgoingEdges[0];
+  const nextNodeId = nextEdge.target;
+
+  const nextNode = nodes.find((n) => n.id === nextNodeId);
+  if (!nextNode) {
+    return { type: 'error', error: { code: "INVALID_PROCESS_DEFINITION", message: "O nó alvo da aresta não existe no diagrama." } };
+  }
+
+  if (nextNode.type === "end") {
+    return { type: 'complete', reason: 'reached_end_node' };
+  }
+
+  return { type: 'next_node', nextNodeId };
+}
+
 export async function advanceStep(
   db: RuntimeDb,
   input: AdvanceStepInput
@@ -144,9 +171,16 @@ export async function advanceStep(
     }
 
     // 6. Path Finding (Simple linear path)
-    const outgoingEdges = edges.filter((e) => e.source === currentActionKey);
+    const decision = planNextStep(nodes, edges, currentActionKey);
 
-    if (outgoingEdges.length === 0) {
+    if (decision.type === 'error') {
+      return {
+        ok: false,
+        error: { code: decision.error.code as "INVALID_PROCESS_DEFINITION", message: decision.error.message }
+      };
+    }
+
+    if (decision.type === 'complete') {
       // Reached End or terminal node
       await updateProcessInstanceStatus(db, workspaceId, processInstanceId, "completed");
 
@@ -157,7 +191,7 @@ export async function advanceStep(
         eventType: "process.completed",
         entityType: "process_instance",
         entityId: processInstanceId,
-        payload: { reason: "no_more_edges" },
+        payload: { reason: decision.reason },
       });
 
       return {
@@ -170,46 +204,11 @@ export async function advanceStep(
       };
     }
 
-    // Path Finding - taking first edge only for this simple linear engine (no branches)
-    const nextEdge = outgoingEdges[0];
-    const nextNodeId = nextEdge.target;
-
-    const nextNode = nodes.find((n) => n.id === nextNodeId);
-    if (!nextNode) {
-      return {
-        ok: false,
-        error: { code: "INVALID_PROCESS_DEFINITION", message: "O nó alvo da aresta não existe no diagrama." }
-      };
-    }
-
-    if (nextNode.type === "end") {
-      // Next node is explicitly the end block. We can just complete the process.
-      await updateProcessInstanceStatus(db, workspaceId, processInstanceId, "completed");
-
-      await logEvent(db as any, {
-        workspaceId,
-        instanceId: processInstanceId,
-        eventType: "process.completed",
-        entityType: "process_instance",
-        entityId: processInstanceId,
-        payload: { reason: "reached_end_node" },
-      });
-
-      return {
-        ok: true,
-        data: {
-          executionId: actionExecutionId,
-          instanceId: processInstanceId,
-          status: "completed" // indicates the entire path closed gracefully
-        }
-      };
-    }
-
     // 6. Create Next Step as active (pending/running)
     const newActionExecution = await insertActionExecution(db, {
       workspaceId,
       instanceId: processInstanceId,
-      actionKey: nextNodeId,
+      actionKey: decision.nextNodeId,
       status: "pending",
       // inputPayload remains empty by default, the next operator must supply it
     });
@@ -221,7 +220,7 @@ export async function advanceStep(
       eventType: "step.started",
       entityType: "action_execution",
       entityId: newActionExecution.id,
-      payload: { actionKey: nextNodeId },
+      payload: { actionKey: decision.nextNodeId },
     });
 
     return {

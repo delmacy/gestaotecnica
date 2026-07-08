@@ -26,7 +26,7 @@ export async function logEvent(
     })
     .returning({ id: events.id });
 
-  return record as EventRecord;
+  return record as unknown as EventRecord;
 }
 
 export async function getEventsByInstanceId(
@@ -45,5 +45,5 @@ export async function getEventsByInstanceId(
     )
     .orderBy(desc(events.createdAt));
 
-  return records as EventRecord[];
+  return records as unknown as EventRecord[];
 }

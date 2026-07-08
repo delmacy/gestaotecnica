@@ -59,7 +59,7 @@ export async function startProcessInstance(
     }
 
     // 4. Registrar Evento de Início de Processo
-    await logEvent(db as any, {
+    await logEvent(db, {
       workspaceId,
       instanceId: instance.id,
       eventType: "process.started",

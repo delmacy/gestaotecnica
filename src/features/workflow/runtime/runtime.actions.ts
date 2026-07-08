@@ -3,6 +3,7 @@
 import { startProcessInstance } from "./runtime.service";
 import { advanceStep } from "./runtime-step.service";
 import { getActiveActionExecutionForInstance } from "./runtime.repository";
+import type { RuntimeDb } from "./runtime.repository";
 import { getRuntimeDb } from "@/db";
 import type { RuntimePayload } from "./runtime.types";
 
@@ -17,10 +18,10 @@ export async function startProcessInstanceAction(
     const workspaceId = "00000000-0000-0000-0000-000000000000";
     const userId = "11111111-1111-1111-1111-111111111111";
 
-    const db = getRuntimeDb();
+    const db = getRuntimeDb() as RuntimeDb;
 
     // Call business logic passing context implicitly
-    const result = await startProcessInstance(db as any, {
+    const result = await startProcessInstance(db, {
       workspaceId,
       processVersionId,
       createdById: userId || undefined,
@@ -45,10 +46,10 @@ export async function advanceStepAction(
     const workspaceId = "00000000-0000-0000-0000-000000000000";
     const userId = "11111111-1111-1111-1111-111111111111";
 
-    const db = getRuntimeDb();
+    const db = getRuntimeDb() as RuntimeDb;
 
     // 1. Fetch current active step to know what we are advancing
-    const activeStep = await getActiveActionExecutionForInstance(db as any, workspaceId, processInstanceId);
+    const activeStep = await getActiveActionExecutionForInstance(db, workspaceId, processInstanceId);
 
     if (!activeStep) {
       return {
@@ -58,7 +59,7 @@ export async function advanceStepAction(
     }
 
     // 2. Advance the step
-    const result = await advanceStep(db as any, {
+    const result = await advanceStep(db, {
       workspaceId,
       processInstanceId,
       actionExecutionId: activeStep.id,

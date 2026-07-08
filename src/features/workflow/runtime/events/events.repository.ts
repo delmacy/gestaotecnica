@@ -1,11 +1,9 @@
 import { eq, and, desc } from "drizzle-orm";
 import { events } from "@/db/runtime/schema/workflow";
 import type { LogEventInput, EventRecord } from "./events.types";
+import type { RuntimeDb } from "../runtime.repository";
 
-export type EventDb = {
-  insert: any;
-  select: any;
-};
+export type EventDb = Pick<RuntimeDb, "insert" | "select">;
 
 export async function logEvent(
   db: EventDb,

@@ -135,7 +135,7 @@ export async function advanceStep(
     });
 
     // 3b. Registrar Evento de Conclusão do Step Atual
-    await logEvent(db as any, {
+    await logEvent(db, {
       workspaceId,
       instanceId: processInstanceId,
       eventType: "step.completed",
@@ -185,7 +185,7 @@ export async function advanceStep(
       await updateProcessInstanceStatus(db, workspaceId, processInstanceId, "completed");
 
       // Registrar Evento de Fim de Processo
-      await logEvent(db as any, {
+      await logEvent(db, {
         workspaceId,
         instanceId: processInstanceId,
         eventType: "process.completed",
@@ -214,7 +214,7 @@ export async function advanceStep(
     });
 
     // 6b. Registrar Evento de Início de Novo Step
-    await logEvent(db as any, {
+    await logEvent(db, {
       workspaceId,
       instanceId: processInstanceId,
       eventType: "step.started",

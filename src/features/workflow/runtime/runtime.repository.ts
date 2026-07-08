@@ -15,16 +15,37 @@ import type {
   ActionExecutionStatus
 } from "./runtime.types";
 
+export type RuntimeRepositoryRow = Record<string, unknown> | null | undefined;
+
 // Minimal DB Type for dependency injection, avoiding deep drizzle type leaks
 export type RuntimeDb = {
-  insert: any;
-  select: any;
-  update: any;
-  delete: any;
-  query?: any;
+  insert: (table: unknown) => {
+    values: (data: unknown) => {
+      returning: (fields?: unknown) => Promise<unknown[]>;
+    };
+  };
+  select: (fields?: unknown) => {
+    from: (table: unknown) => {
+      where: (condition: unknown) => {
+        orderBy: (order: unknown) => Promise<unknown[]>;
+        limit: (limit: number) => Promise<RuntimeRepositoryRow[]>;
+      } & Promise<RuntimeRepositoryRow[]>;
+    } & Promise<RuntimeRepositoryRow[]>;
+  };
+  update: (table: unknown) => {
+    set: (values: unknown) => {
+      where: (condition: unknown) => {
+        returning: () => Promise<RuntimeRepositoryRow[]>;
+      };
+    };
+  };
+  delete: (table: unknown) => {
+    where: (condition: unknown) => {
+      returning: () => Promise<RuntimeRepositoryRow[]>;
+    } & Promise<RuntimeRepositoryRow[]>;
+  };
+  query?: unknown;
 };
-
-export type RuntimeRepositoryRow = Record<string, unknown> | null | undefined;
 
 export function mapProcessInstanceRow(row: null | undefined): null;
 export function mapProcessInstanceRow(row: NonNullable<RuntimeRepositoryRow>): ProcessInstanceRecord;
@@ -85,7 +106,7 @@ export async function insertProcessInstance(
     .values(data)
     .returning();
 
-  return mapProcessInstanceRow(instance)!;
+  return mapProcessInstanceRow(instance as NonNullable<RuntimeRepositoryRow>)!;
 }
 
 export async function insertProcessPayload(
@@ -103,7 +124,7 @@ export async function insertProcessPayload(
     .values(data)
     .returning();
 
-  return mapProcessPayloadRow(payload)!;
+  return mapProcessPayloadRow(payload as NonNullable<RuntimeRepositoryRow>)!;
 }
 
 export async function insertActionExecution(
@@ -115,7 +136,7 @@ export async function insertActionExecution(
     .values(data)
     .returning();
 
-  return mapActionExecutionRow(execution)!;
+  return mapActionExecutionRow(execution as NonNullable<RuntimeRepositoryRow>)!;
 }
 
 export async function getProcessInstanceById(
@@ -133,7 +154,7 @@ export async function getProcessInstanceById(
       )
     );
 
-  return instance ? mapProcessInstanceRow(instance) : null;
+  return instance ? mapProcessInstanceRow(instance as NonNullable<RuntimeRepositoryRow>) : null;
 }
 
 export async function getProcessPayloadForInstance(
@@ -151,7 +172,7 @@ export async function getProcessPayloadForInstance(
       )
     );
 
-  return payload ? mapProcessPayloadRow(payload) : null;
+  return payload ? mapProcessPayloadRow(payload as NonNullable<RuntimeRepositoryRow>) : null;
 }
 
 export async function listActionExecutionsForInstance(
@@ -169,7 +190,7 @@ export async function listActionExecutionsForInstance(
       )
     );
 
-  return executions.map(mapActionExecutionRow);
+  return executions.filter((e): e is NonNullable<RuntimeRepositoryRow> => e != null).map(mapActionExecutionRow);
 }
 
 export async function updateProcessInstanceStatus(
@@ -192,7 +213,7 @@ export async function updateProcessInstanceStatus(
     )
     .returning();
 
-  return updated ? mapProcessInstanceRow(updated) : null;
+  return updated ? mapProcessInstanceRow(updated as NonNullable<RuntimeRepositoryRow>) : null;
 }
 
 export async function getActionExecutionById(
@@ -210,7 +231,7 @@ export async function getActionExecutionById(
       )
     );
 
-  return execution ? mapActionExecutionRow(execution) : null;
+  return execution ? mapActionExecutionRow(execution as NonNullable<RuntimeRepositoryRow>) : null;
 }
 
 export async function getActiveActionExecutionForInstance(
@@ -231,7 +252,7 @@ export async function getActiveActionExecutionForInstance(
     )
     .limit(1);
 
-  return active ? mapActionExecutionRow(active) : null;
+  return active ? mapActionExecutionRow(active as NonNullable<RuntimeRepositoryRow>) : null;
 }
 
 export async function updateActionExecutionStatus(
@@ -266,5 +287,5 @@ export async function updateActionExecutionStatus(
     )
     .returning();
 
-  return updated ? mapActionExecutionRow(updated) : null;
+  return updated ? mapActionExecutionRow(updated as NonNullable<RuntimeRepositoryRow>) : null;
 }

@@ -4,12 +4,13 @@ import { startProcessInstance } from "./runtime.service";
 import { advanceStep } from "./runtime-step.service";
 import { getActiveActionExecutionForInstance } from "./runtime.repository";
 import { getRuntimeDb } from "@/db";
+import type { RuntimePayload } from "./runtime.types";
 
 // Action Boundary encapsulating next.js server environment specifics
 
 export async function startProcessInstanceAction(
   processVersionId: string,
-  initialPayload: Record<string, any> = {}
+  initialPayload: RuntimePayload = {}
 ) {
   try {
     // Mock tenant context as per project convention for early phases
@@ -38,7 +39,7 @@ export async function startProcessInstanceAction(
 
 export async function advanceStepAction(
   processInstanceId: string,
-  outputPayload: Record<string, any> = {}
+  outputPayload: RuntimePayload = {}
 ) {
   try {
     const workspaceId = "00000000-0000-0000-0000-000000000000";

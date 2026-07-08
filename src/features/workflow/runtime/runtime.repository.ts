@@ -26,54 +26,54 @@ export type RuntimeDb = {
 
 export type RuntimeRepositoryRow = Record<string, unknown> | null | undefined;
 
-export function mapProcessInstanceRow<T extends RuntimeRepositoryRow>(
-  row: T
-): T extends null | undefined ? null : ProcessInstanceRecord {
-  if (!row) return null as any;
+export function mapProcessInstanceRow(row: null | undefined): null;
+export function mapProcessInstanceRow(row: NonNullable<RuntimeRepositoryRow>): ProcessInstanceRecord;
+export function mapProcessInstanceRow(row: RuntimeRepositoryRow): ProcessInstanceRecord | null {
+  if (!row) return null;
   return {
     id: row.id as string,
-    workspaceId: row.workspaceId as string,
-    processVersionId: row.processVersionId as string,
-    currentStateId: row.currentStateId as string,
+    workspaceId: (row.workspaceId ?? row.workspace_id) as string,
+    processVersionId: (row.processVersionId ?? row.process_version_id) as string,
+    currentStateId: (row.currentStateId ?? row.current_state_id) as string,
     status: row.status as ProcessInstanceStatus,
-    createdById: row.createdById as string,
-    createdAt: row.createdAt as Date,
-    updatedAt: row.updatedAt as Date
-  } as any;
+    createdById: (row.createdById ?? row.created_by_id) as string,
+    createdAt: (row.createdAt ?? row.created_at) as Date,
+    updatedAt: (row.updatedAt ?? row.updated_at) as Date
+  };
 }
 
-export function mapProcessPayloadRow<T extends RuntimeRepositoryRow>(
-  row: T
-): T extends null | undefined ? null : ProcessPayloadRecord {
-  if (!row) return null as any;
+export function mapProcessPayloadRow(row: null | undefined): null;
+export function mapProcessPayloadRow(row: NonNullable<RuntimeRepositoryRow>): ProcessPayloadRecord;
+export function mapProcessPayloadRow(row: RuntimeRepositoryRow): ProcessPayloadRecord | null {
+  if (!row) return null;
   return {
     id: row.id as string,
-    instanceId: row.instanceId as string,
-    workspaceId: row.workspaceId as string,
-    schemaVersion: (row.schema_version ?? row.schemaVersion) as string,
-    data: row.data as Record<string, unknown> | null,
-    createdAt: row.createdAt as Date,
-    updatedAt: row.updatedAt as Date
-  } as any;
+    instanceId: (row.instanceId ?? row.instance_id) as string,
+    workspaceId: (row.workspaceId ?? row.workspace_id) as string,
+    schemaVersion: (row.schemaVersion ?? row.schema_version) as string,
+    data: row.data as Record<string, unknown>,
+    createdAt: (row.createdAt ?? row.created_at) as Date,
+    updatedAt: (row.updatedAt ?? row.updated_at) as Date
+  };
 }
 
-export function mapActionExecutionRow<T extends RuntimeRepositoryRow>(
-  row: T
-): T extends null | undefined ? null : ActionExecutionRecord {
-  if (!row) return null as any;
+export function mapActionExecutionRow(row: null | undefined): null;
+export function mapActionExecutionRow(row: NonNullable<RuntimeRepositoryRow>): ActionExecutionRecord;
+export function mapActionExecutionRow(row: RuntimeRepositoryRow): ActionExecutionRecord | null {
+  if (!row) return null;
   return {
     id: row.id as string,
-    workspaceId: row.workspaceId as string,
-    instanceId: row.instanceId as string,
-    actionKey: row.actionKey as string,
-    actorId: row.actorId as string | null,
-    inputPayload: row.inputPayload as Record<string, unknown> | null,
-    outputPayload: row.outputPayload as Record<string, unknown> | null,
+    workspaceId: (row.workspaceId ?? row.workspace_id) as string,
+    instanceId: (row.instanceId ?? row.instance_id) as string,
+    actionKey: (row.actionKey ?? row.action_key) as string,
+    actorId: (row.actorId ?? row.actor_id) as string | null,
+    inputPayload: (row.inputPayload ?? row.input_payload) as Record<string, unknown>,
+    outputPayload: (row.outputPayload ?? row.output_payload) as Record<string, unknown>,
     status: row.status as ActionExecutionStatus,
     error: row.error as string | null,
-    startedAt: row.startedAt as Date,
-    finishedAt: row.finishedAt as Date | null
-  } as any;
+    startedAt: (row.startedAt ?? row.started_at) as Date,
+    finishedAt: (row.finishedAt ?? row.finished_at) as Date | null
+  };
 }
 
 export async function insertProcessInstance(
@@ -85,7 +85,7 @@ export async function insertProcessInstance(
     .values(data)
     .returning();
 
-  return mapProcessInstanceRow(instance) as ProcessInstanceRecord;
+  return mapProcessInstanceRow(instance)!;
 }
 
 export async function insertProcessPayload(
@@ -103,7 +103,7 @@ export async function insertProcessPayload(
     .values(data)
     .returning();
 
-  return mapProcessPayloadRow(payload) as ProcessPayloadRecord;
+  return mapProcessPayloadRow(payload)!;
 }
 
 export async function insertActionExecution(
@@ -115,7 +115,7 @@ export async function insertActionExecution(
     .values(data)
     .returning();
 
-  return mapActionExecutionRow(execution) as ActionExecutionRecord;
+  return mapActionExecutionRow(execution)!;
 }
 
 export async function getProcessInstanceById(

@@ -8,7 +8,7 @@ import {
 
 describe("Runtime Repository Row Mappers", () => {
   describe("mapProcessInstanceRow", () => {
-    it("should map row to ProcessInstanceRecord", () => {
+    it("should map row to ProcessInstanceRecord with camelCase keys", () => {
       const now = new Date();
       const row = {
         id: "pi_123",
@@ -19,6 +19,33 @@ describe("Runtime Repository Row Mappers", () => {
         createdById: "user_123",
         createdAt: now,
         updatedAt: now,
+        extraColumn: "should_be_ignored"
+      };
+
+      const result = mapProcessInstanceRow(row);
+      assert.deepStrictEqual(result, {
+        id: "pi_123",
+        workspaceId: "ws_123",
+        processVersionId: "pv_123",
+        currentStateId: "cs_123",
+        status: "active",
+        createdById: "user_123",
+        createdAt: now,
+        updatedAt: now
+      });
+    });
+
+    it("should map row to ProcessInstanceRecord with snake_case keys fallback", () => {
+      const now = new Date();
+      const row = {
+        id: "pi_123",
+        workspace_id: "ws_123",
+        process_version_id: "pv_123",
+        current_state_id: "cs_123",
+        status: "active",
+        created_by_id: "user_123",
+        created_at: now,
+        updated_at: now,
         extraColumn: "should_be_ignored"
       };
 
@@ -96,7 +123,7 @@ describe("Runtime Repository Row Mappers", () => {
   });
 
   describe("mapActionExecutionRow", () => {
-    it("should map row to ActionExecutionRecord", () => {
+    it("should map row to ActionExecutionRecord with camelCase keys", () => {
       const start = new Date();
       const finish = new Date();
       const row = {
@@ -111,6 +138,40 @@ describe("Runtime Repository Row Mappers", () => {
         error: null,
         startedAt: start,
         finishedAt: finish,
+        extraColumn: "should_be_ignored"
+      };
+
+      const result = mapActionExecutionRow(row);
+      assert.deepStrictEqual(result, {
+        id: "ae_123",
+        workspaceId: "ws_123",
+        instanceId: "pi_123",
+        actionKey: "step_1",
+        actorId: "user_123",
+        inputPayload: { a: 1 },
+        outputPayload: { b: 2 },
+        status: "completed",
+        error: null,
+        startedAt: start,
+        finishedAt: finish
+      });
+    });
+
+    it("should map row to ActionExecutionRecord with snake_case keys fallback", () => {
+      const start = new Date();
+      const finish = new Date();
+      const row = {
+        id: "ae_123",
+        workspace_id: "ws_123",
+        instance_id: "pi_123",
+        action_key: "step_1",
+        actor_id: "user_123",
+        input_payload: { a: 1 },
+        output_payload: { b: 2 },
+        status: "completed",
+        error: null,
+        started_at: start,
+        finished_at: finish,
         extraColumn: "should_be_ignored"
       };
 

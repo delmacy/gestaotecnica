@@ -232,7 +232,7 @@ export async function updateActionExecutionStatus(
 ): Promise<ActionExecutionRecord | null> {
   const { workspaceId, instanceId, actionExecutionId, status, outputPayload, error, finishedAt } = input;
 
-  const updateData: any = { status };
+  const updateData: Partial<ActionExecutionInsert> = { status };
 
   if (outputPayload !== undefined) {
     updateData.outputPayload = outputPayload;

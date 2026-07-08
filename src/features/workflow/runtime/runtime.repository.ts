@@ -24,6 +24,50 @@ export type RuntimeDb = {
   query?: any;
 };
 
+export function mapProcessInstanceRow(row: any): ProcessInstanceRecord {
+  if (!row) return row;
+  return {
+    id: row.id,
+    workspaceId: row.workspaceId,
+    processVersionId: row.processVersionId,
+    currentStateId: row.currentStateId,
+    status: row.status,
+    createdById: row.createdById,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
+  };
+}
+
+export function mapProcessPayloadRow(row: any): ProcessPayloadRecord {
+  if (!row) return row;
+  return {
+    id: row.id,
+    instanceId: row.instanceId,
+    workspaceId: row.workspaceId,
+    schemaVersion: row.schema_version ?? row.schemaVersion,
+    data: row.data,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
+  };
+}
+
+export function mapActionExecutionRow(row: any): ActionExecutionRecord {
+  if (!row) return row;
+  return {
+    id: row.id,
+    workspaceId: row.workspaceId,
+    instanceId: row.instanceId,
+    actionKey: row.actionKey,
+    actorId: row.actorId,
+    inputPayload: row.inputPayload,
+    outputPayload: row.outputPayload,
+    status: row.status,
+    error: row.error,
+    startedAt: row.startedAt,
+    finishedAt: row.finishedAt
+  };
+}
+
 export async function insertProcessInstance(
   db: RuntimeDb,
   data: ProcessInstanceInsert
@@ -33,7 +77,7 @@ export async function insertProcessInstance(
     .values(data)
     .returning();
 
-  return instance as ProcessInstanceRecord;
+  return mapProcessInstanceRow(instance);
 }
 
 export async function insertProcessPayload(
@@ -51,7 +95,7 @@ export async function insertProcessPayload(
     .values(data)
     .returning();
 
-  return payload as ProcessPayloadRecord;
+  return mapProcessPayloadRow(payload);
 }
 
 export async function insertActionExecution(
@@ -63,7 +107,7 @@ export async function insertActionExecution(
     .values(data)
     .returning();
 
-  return execution as ActionExecutionRecord;
+  return mapActionExecutionRow(execution);
 }
 
 export async function getProcessInstanceById(
@@ -81,7 +125,7 @@ export async function getProcessInstanceById(
       )
     );
 
-  return (instance as ProcessInstanceRecord) || null;
+  return instance ? mapProcessInstanceRow(instance) : null;
 }
 
 export async function getProcessPayloadForInstance(
@@ -99,7 +143,7 @@ export async function getProcessPayloadForInstance(
       )
     );
 
-  return (payload as ProcessPayloadRecord) || null;
+  return payload ? mapProcessPayloadRow(payload) : null;
 }
 
 export async function listActionExecutionsForInstance(
@@ -117,7 +161,7 @@ export async function listActionExecutionsForInstance(
       )
     );
 
-  return executions as ActionExecutionRecord[];
+  return executions.map(mapActionExecutionRow);
 }
 
 export async function updateProcessInstanceStatus(
@@ -140,7 +184,7 @@ export async function updateProcessInstanceStatus(
     )
     .returning();
 
-  return (updated as ProcessInstanceRecord) || null;
+  return updated ? mapProcessInstanceRow(updated) : null;
 }
 
 export async function getActionExecutionById(
@@ -158,7 +202,7 @@ export async function getActionExecutionById(
       )
     );
 
-  return (execution as ActionExecutionRecord) || null;
+  return execution ? mapActionExecutionRow(execution) : null;
 }
 
 export async function getActiveActionExecutionForInstance(
@@ -179,7 +223,7 @@ export async function getActiveActionExecutionForInstance(
     )
     .limit(1);
 
-  return (active as ActionExecutionRecord) || null;
+  return active ? mapActionExecutionRow(active) : null;
 }
 
 export async function updateActionExecutionStatus(
@@ -214,5 +258,5 @@ export async function updateActionExecutionStatus(
     )
     .returning();
 
-  return (updated as ActionExecutionRecord) || null;
+  return updated ? mapActionExecutionRow(updated) : null;
 }

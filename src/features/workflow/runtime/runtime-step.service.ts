@@ -48,7 +48,7 @@ export function extractNodesAndEdges(definitionJson: unknown): { nodes: RuntimeG
 export type PlanNextStepResult =
   | { type: 'complete'; reason: 'no_more_edges' | 'reached_end_node' }
   | { type: 'next_node'; nextNodeId: string }
-  | { type: 'error'; error: { code: string; message: string } };
+  | { type: 'error'; error: { code: "INVALID_PROCESS_DEFINITION"; message: string } };
 
 export function planNextStep(nodes: RuntimeGraphNode[], edges: RuntimeGraphEdge[], currentActionKey: string): PlanNextStepResult {
   const outgoingEdges = edges.filter((e) => e.source === currentActionKey);
@@ -176,7 +176,7 @@ export async function advanceStep(
     if (decision.type === 'error') {
       return {
         ok: false,
-        error: { code: decision.error.code as "INVALID_PROCESS_DEFINITION", message: decision.error.message }
+        error: { code: decision.error.code, message: decision.error.message }
       };
     }
 

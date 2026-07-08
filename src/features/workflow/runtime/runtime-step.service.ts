@@ -14,10 +14,34 @@ import type { RuntimeResult } from "./runtime.errors";
 import { getProcessVersionById } from "../definitions/process-definition.queries";
 import { logEvent } from "./events/events.repository";
 
+// Graph structure types for local path-finding definition boundary
+export interface RuntimeGraphNode {
+  id: string;
+  type: string;
+  [key: string]: unknown;
+}
+
+export interface RuntimeGraphEdge {
+  id: string;
+  source: string;
+  target: string;
+  [key: string]: unknown;
+}
+
+export interface RuntimeGraphDefinition {
+  nodes?: RuntimeGraphNode[];
+  edges?: RuntimeGraphEdge[];
+  draft?: {
+    nodes?: RuntimeGraphNode[];
+    edges?: RuntimeGraphEdge[];
+  };
+}
+
 // Helper defension against dynamic object formats
-function extractNodesAndEdges(definitionJson: any) {
-  const nodes = definitionJson?.nodes || definitionJson?.draft?.nodes || [];
-  const edges = definitionJson?.edges || definitionJson?.draft?.edges || [];
+export function extractNodesAndEdges(definitionJson: unknown): { nodes: RuntimeGraphNode[], edges: RuntimeGraphEdge[] } {
+  const def = definitionJson as RuntimeGraphDefinition;
+  const nodes = def?.nodes || def?.draft?.nodes || [];
+  const edges = def?.edges || def?.draft?.edges || [];
   return { nodes, edges };
 }
 
@@ -120,7 +144,7 @@ export async function advanceStep(
     }
 
     // 6. Path Finding (Simple linear path)
-    const outgoingEdges = edges.filter((e: any) => e.source === currentActionKey);
+    const outgoingEdges = edges.filter((e) => e.source === currentActionKey);
 
     if (outgoingEdges.length === 0) {
       // Reached End or terminal node
@@ -150,7 +174,7 @@ export async function advanceStep(
     const nextEdge = outgoingEdges[0];
     const nextNodeId = nextEdge.target;
 
-    const nextNode = nodes.find((n: any) => n.id === nextNodeId);
+    const nextNode = nodes.find((n) => n.id === nextNodeId);
     if (!nextNode) {
       return {
         ok: false,

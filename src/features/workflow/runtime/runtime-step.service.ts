@@ -176,7 +176,7 @@ export async function advanceStep(
     if (decision.type === 'error') {
       return {
         ok: false,
-        error: decision.error as any
+        error: { code: decision.error.code as "INVALID_PROCESS_DEFINITION", message: decision.error.message }
       };
     }
 

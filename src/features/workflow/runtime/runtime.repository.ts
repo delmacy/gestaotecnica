@@ -21,13 +21,13 @@ export type RuntimeRepositoryRow = Record<string, unknown> | null | undefined;
 export type RuntimeDb = {
   insert: (table: unknown) => {
     values: (data: unknown) => {
-      returning: (fields?: unknown) => Promise<RuntimeRepositoryRow[]>;
+      returning: (fields?: unknown) => Promise<unknown[]>;
     };
   };
   select: (fields?: unknown) => {
     from: (table: unknown) => {
       where: (condition: unknown) => {
-        orderBy: (order: unknown) => Promise<RuntimeRepositoryRow[]>;
+        orderBy: (order: unknown) => Promise<unknown[]>;
         limit: (limit: number) => Promise<RuntimeRepositoryRow[]>;
       } & Promise<RuntimeRepositoryRow[]>;
     } & Promise<RuntimeRepositoryRow[]>;

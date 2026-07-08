@@ -1,3 +1,5 @@
+export type RuntimePayload = Record<string, unknown>;
+
 export type ProcessInstanceStatus = "active" | "completed" | "failed" | "pending" | "cancelled";
 
 export type ActionExecutionStatus = "pending" | "running" | "completed" | "failed" | "skipped";
@@ -18,7 +20,7 @@ export interface ProcessPayloadRecord {
   instanceId: string;
   workspaceId: string;
   schemaVersion: string;
-  data: Record<string, any>;
+  data: RuntimePayload;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,8 +31,8 @@ export interface ActionExecutionRecord {
   instanceId: string;
   actionKey: string;
   actorId: string | null;
-  inputPayload: Record<string, any>;
-  outputPayload: Record<string, any>;
+  inputPayload: RuntimePayload;
+  outputPayload: RuntimePayload;
   status: ActionExecutionStatus;
   error: string | null;
   startedAt: Date;
@@ -43,7 +45,7 @@ export interface StartProcessInstanceInput {
   workspaceId: string;
   processVersionId: string;
   createdById?: string;
-  initialPayload?: Record<string, any>;
+  initialPayload?: RuntimePayload;
 }
 
 export interface ProcessInstanceInsert {
@@ -61,8 +63,8 @@ export interface ActionExecutionInsert {
   instanceId: string;
   actionKey: string;
   actorId?: string | null;
-  inputPayload?: Record<string, any>;
-  outputPayload?: Record<string, any>;
+  inputPayload?: RuntimePayload;
+  outputPayload?: RuntimePayload;
   status?: ActionExecutionStatus;
   error?: string | null;
   finishedAt?: Date | null;
@@ -76,7 +78,7 @@ export interface StepExecutionInput {
   workspaceId: string;
   processInstanceId: string;
   actionKey: string;
-  input: Record<string, unknown>;
+  input: RuntimePayload;
   actorId?: string;
 }
 
@@ -84,7 +86,7 @@ export interface StepExecutionOutput {
   workspaceId: string;
   processInstanceId: string;
   actionKey: string;
-  output: Record<string, unknown>;
+  output: RuntimePayload;
   status: StepExecutionStatus;
   error?: string;
 }
@@ -94,7 +96,7 @@ export interface AdvanceStepInput {
   processInstanceId: string;
   actionKey?: string;
   actionExecutionId?: string;
-  output?: Record<string, unknown>;
+  output?: RuntimePayload;
   actorId?: string;
   status?: StepExecutionStatus;
 }
@@ -110,7 +112,7 @@ export interface UpdateActionExecutionInput {
   instanceId: string;
   actionExecutionId: string;
   status: ActionExecutionStatus;
-  outputPayload?: Record<string, unknown>;
+  outputPayload?: RuntimePayload;
   error?: string | null;
   finishedAt?: Date;
 }

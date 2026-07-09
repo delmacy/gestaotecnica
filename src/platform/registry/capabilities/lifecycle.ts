@@ -57,3 +57,22 @@ export function isCapabilityReadyForActivation(capability: Capability): boolean 
 
   return true;
 }
+
+/**
+ * Checks if a capability can be safely deactivated (deprecated or retired)
+ * based on the status of its dependents.
+ *
+ * @param targetStatus The target status for the capability
+ * @param dependents List of dependents with their current status
+ * @returns boolean True if the capability can be deactivated
+ */
+export function canDeactivateCapability(
+  targetStatus: CapabilityStatus,
+  dependents: { status: CapabilityStatus }[]
+): boolean {
+  if (targetStatus !== "deprecated" && targetStatus !== "retired") {
+    return true;
+  }
+
+  return !dependents.some((dep) => dep.status === "active" || dep.status === "draft");
+}

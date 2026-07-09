@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
-import { canTransitionCapabilityStatus, isCapabilityReadyForActivation } from "../../src/platform/registry/capabilities/lifecycle";
+import { canTransitionCapabilityStatus, isCapabilityReadyForActivation, canDeactivateCapability } from "../../src/platform/registry/capabilities/lifecycle";
 import { Capability } from "../../src/platform/registry/capabilities/schemas";
 import { CapabilityStatus } from "../../src/platform/registry/capabilities/schemas";
 
@@ -35,6 +35,38 @@ test("canTransitionCapabilityStatus", async (t) => {
     assert.strictEqual(canTransitionCapabilityStatus("retired", "draft"), false);
     assert.strictEqual(canTransitionCapabilityStatus("retired", "active"), false);
     assert.strictEqual(canTransitionCapabilityStatus("retired", "deprecated"), false);
+  });
+});
+
+test("canDeactivateCapability", async (t) => {
+  await t.test("should allow transition to non-deactivation states regardless of dependents", () => {
+    const dependents = [{ status: "active" as CapabilityStatus }];
+    assert.strictEqual(canDeactivateCapability("active", dependents), true);
+    assert.strictEqual(canDeactivateCapability("draft", dependents), true);
+  });
+
+  await t.test("should block deprecation or retirement when there is an active dependent", () => {
+    const dependents = [{ status: "active" as CapabilityStatus }, { status: "deprecated" as CapabilityStatus }];
+    assert.strictEqual(canDeactivateCapability("deprecated", dependents), false);
+    assert.strictEqual(canDeactivateCapability("retired", dependents), false);
+  });
+
+  await t.test("should block deprecation or retirement when there is a draft dependent", () => {
+    const dependents = [{ status: "draft" as CapabilityStatus }, { status: "retired" as CapabilityStatus }];
+    assert.strictEqual(canDeactivateCapability("deprecated", dependents), false);
+    assert.strictEqual(canDeactivateCapability("retired", dependents), false);
+  });
+
+  await t.test("should allow deprecation or retirement when all dependents are deprecated or retired", () => {
+    const dependents = [{ status: "deprecated" as CapabilityStatus }, { status: "retired" as CapabilityStatus }];
+    assert.strictEqual(canDeactivateCapability("deprecated", dependents), true);
+    assert.strictEqual(canDeactivateCapability("retired", dependents), true);
+  });
+
+  await t.test("should allow deprecation or retirement when there are no dependents", () => {
+    const dependents: { status: CapabilityStatus }[] = [];
+    assert.strictEqual(canDeactivateCapability("deprecated", dependents), true);
+    assert.strictEqual(canDeactivateCapability("retired", dependents), true);
   });
 });
 

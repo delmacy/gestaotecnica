@@ -9,13 +9,19 @@ export const ModuleLifecycleStatusSchema = z.enum([
 
 export type ModuleLifecycleStatus = z.infer<typeof ModuleLifecycleStatusSchema>;
 
-export type ModuleManifest = {
-  key: string;
-  name: string;
-  description?: string;
-  actions?: string[];
-  events?: string[];
-  views?: string[];
-  dependencies?: string[];
-  lifecycleStatus?: ModuleLifecycleStatus;
-};
+const uniqueStringArray = z.array(z.string()).refine(items => new Set(items).size === items.length, {
+  message: "Duplicates not allowed",
+}).optional();
+
+export const ModuleManifestSchema = z.object({
+  key: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  actions: uniqueStringArray,
+  events: uniqueStringArray,
+  views: uniqueStringArray,
+  dependencies: uniqueStringArray,
+  lifecycleStatus: ModuleLifecycleStatusSchema.optional()
+});
+
+export type ModuleManifest = z.infer<typeof ModuleManifestSchema>;

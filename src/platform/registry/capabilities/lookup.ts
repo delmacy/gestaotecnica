@@ -66,6 +66,20 @@ export function hasCapability(catalog: Capability[], key: string): boolean {
 }
 
 /**
+ * Returns capabilities whose dependencies array includes the exact target capability key.
+ *
+ * @param catalog - The capability catalog array.
+ * @param targetKey - The exact dependency key to search for.
+ * @returns A new array of capabilities that directly depend on the target capability.
+ */
+export function listDependentCapabilities(catalog: Capability[], targetKey: string): Capability[] {
+  if (!targetKey) {
+    return [];
+  }
+  return catalog.filter((cap) => cap.dependencies?.includes(targetKey));
+}
+
+/**
  * Searches for capabilities by key, name, description, or tags.
  *
  * Rules:

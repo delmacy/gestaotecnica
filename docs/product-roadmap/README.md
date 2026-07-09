@@ -12,7 +12,8 @@ Leia nesta ordem:
 4. `EXECUTION_RULES.md` — regras determinísticas para agentes.
 5. `INTERLEAVED_SPRINT_PLAN.md` — sequência intercalada por lane.
 6. `AUTONOMOUS_BACKLOG_160_TASKS.md` — backlog detalhado de 160 microtasks para continuidade sem Codex.
-7. `TASK_INDEX.md` — índice estável das tasks já catalogadas.
+7. `../../state/state.json` — versão JSON legível por automação do backlog autônomo.
+8. `TASK_INDEX.md` — índice estável das tasks já catalogadas.
 
 Documentos fora deste diretório são referência técnica, histórico ou insumo de módulo. Eles não substituem este roadmap, salvo quando forem explicitamente promovidos aqui.
 
@@ -23,6 +24,8 @@ O catálogo atual possui 50 tasks principais. Cada task possui ID estável, tipo
 ## Backlog autônomo expandido
 
 `AUTONOMOUS_BACKLOG_160_TASKS.md` contém 16 sprints adicionais de 10 microtasks cada, com objetivo, arquivos permitidos/proibidos, aceite e validação. Ele deve ser usado quando for necessário continuar criando sprints com menor supervisão do Codex.
+
+`state/state.json` contém a mesma fila em formato de máquina para o OpenCode Governor ou outro GPT materializar novas sprints sem acessar o servidor. Esse arquivo é planejamento versionado, não é o `state/state.json` operacional do container.
 
 ## Regra de execução
 

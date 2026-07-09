@@ -15,6 +15,15 @@ export const CapabilityStatusSchema = z.enum([
 export type CapabilityStatus = z.infer<typeof CapabilityStatusSchema>;
 
 /**
+ * Capability Lifecycle Transition
+ */
+export const CapabilityLifecycleTransitionSchema = z.object({
+  from: CapabilityStatusSchema,
+  to: CapabilityStatusSchema,
+});
+export type CapabilityLifecycleTransition = z.infer<typeof CapabilityLifecycleTransitionSchema>;
+
+/**
  * Business Object - Represents a core entity the capability interacts with
  */
 export const BusinessObjectSchema = z.object({

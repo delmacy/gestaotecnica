@@ -32,6 +32,17 @@ export const ProcessVersionNumberSchema = z.number().int().min(1);
 export type ProcessVersionNumber = z.infer<typeof ProcessVersionNumberSchema>;
 
 /**
+ * Process Version Rollback Schema
+ */
+export const ProcessVersionRollbackSchema = z.object({
+  restoredFromVersionId: EntityIdSchema,
+  reason: z.string().optional(),
+}).strict();
+
+export type ProcessVersionRollback = z.infer<typeof ProcessVersionRollbackSchema>;
+
+
+/**
  * Process Definition Schema
  */
 export const ProcessDefinitionSchema = z
@@ -123,6 +134,7 @@ export const ProcessVersionSchema = z
     publishedAt: ISODateTimeSchema.optional(),
     publishedById: EntityIdSchema.optional(),
     changeSummary: z.string().optional(),
+    rollback: ProcessVersionRollbackSchema.optional(),
     metadata: SafeJsonRecordSchema.optional(),
   })
   .strict()

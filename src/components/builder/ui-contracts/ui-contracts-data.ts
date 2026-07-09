@@ -1,4 +1,4 @@
-import { UiContractStaticIndex } from "./ui-contracts-types";
+import { UiContractStaticIndex, UiSurfaceContract, UiContractDevStatus } from "./ui-contracts-types";
 
 export const MOCK_UI_CONTRACTS_INDEX: UiContractStaticIndex = {
   version: "1.0.0",
@@ -166,3 +166,23 @@ export const MOCK_UI_CONTRACTS_INDEX: UiContractStaticIndex = {
     }
   ]
 };
+
+export function getUiContractDevStatusSummary(contracts: UiSurfaceContract[]): Record<UiContractDevStatus, number> {
+  const summary: Record<UiContractDevStatus, number> = {
+    not_started: 0,
+    planned: 0,
+    ready: 0,
+    in_progress: 0,
+    done: 0,
+    blocked: 0,
+    future: 0,
+  };
+
+  for (const contract of contracts) {
+    if (contract.dev_status in summary) {
+      summary[contract.dev_status]++;
+    }
+  }
+
+  return summary;
+}

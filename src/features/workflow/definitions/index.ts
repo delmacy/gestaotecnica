@@ -12,3 +12,4 @@ export * from "./process-definition-publication.types";
 export * from "./process-definition-publication.service";
 export * from "./process-definition-publication.server";
 export * from "./process-definition-publication.actions";
+export * from './process-definition-publication.preflight';

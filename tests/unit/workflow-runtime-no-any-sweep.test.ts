@@ -35,9 +35,7 @@ describe('Runtime Core No-Any Sweep', () => {
       /as\s+any\b/g
     ];
 
-    const baselineViolations: Record<string, number> = {
-      'src/features/workflow/runtime/events/events.actions.ts': 1
-    };
+    const baselineViolations: Record<string, number> = {};
 
     let foundViolations = false;
     let messages: string[] = [];

@@ -41,7 +41,7 @@ describe("Event Repository Mappers", () => {
       });
     });
 
-    it("should map row to EventRecord with snake_case keys fallback", () => {
+    it("should map row to EventRecord with snake_case keys fallback safely", () => {
       const now = new Date();
       const row = {
         id: "evt_123",

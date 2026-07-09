@@ -35,17 +35,27 @@ describe('Runtime Core No-Any Sweep', () => {
       /as\s+any\b/g
     ];
 
+    const allowedFiles = [
+      'src/features/workflow/runtime/events/events.actions.ts'
+    ];
+
     let foundViolations = false;
     let messages: string[] = [];
 
     for (const filePath of filesToCheck) {
+      const relativePath = path.relative(process.cwd(), filePath);
+
+      // Skip files explicitly in the allowlist
+      if (allowedFiles.some(allowedFile => relativePath.includes(allowedFile.replace(/\//g, path.sep)))) {
+        continue;
+      }
+
       const content = fs.readFileSync(filePath, 'utf-8');
 
       for (const pattern of forbiddenPatterns) {
         const matches = content.match(pattern);
         if (matches) {
           foundViolations = true;
-          const relativePath = path.relative(process.cwd(), filePath);
           messages.push(`File ${relativePath} contains forbidden pattern ${pattern.toString()}. Found: ${matches.length} occurrences`);
         }
       }

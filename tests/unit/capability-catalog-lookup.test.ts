@@ -5,7 +5,8 @@ import {
   listCapabilitiesByDomain,
   listCapabilitiesByGroup,
   searchCapabilities,
-  hasCapability
+  hasCapability,
+  listDependentCapabilities
 } from "../../src/platform/registry/capabilities/lookup";
 import { Capability } from "../../src/platform/registry/capabilities/schemas";
 import { CAPABILITY_DOMAINS, CAPABILITY_GROUPS } from "../../src/platform/registry/capabilities/constants";
@@ -49,7 +50,7 @@ const MOCK_CATALOG: Capability[] = [
     roles: [],
     inputs: [],
     outputs: [],
-    dependencies: [],
+    dependencies: ["manage-work-request"],
     relatedCapabilities: [],
     applicableSectors: [],
     metadata: {
@@ -192,5 +193,19 @@ test("capability catalog lookup", async (t) => {
 
     const resultSearch = searchCapabilities(MOCK_CATALOG, "work");
     assert.notStrictEqual(resultSearch, MOCK_CATALOG);
+  });
+
+  await t.test("listDependentCapabilities returns correct direct dependencies", () => {
+    const result = listDependentCapabilities(MOCK_CATALOG, "manage-work-request");
+    assert.strictEqual(result.length, 1);
+    assert.strictEqual(result[0].id, "cap-2");
+  });
+
+  await t.test("listDependentCapabilities returns empty list for missing target key", () => {
+    assert.strictEqual(listDependentCapabilities(MOCK_CATALOG, "").length, 0);
+  });
+
+  await t.test("listDependentCapabilities returns empty list for non-existing target key", () => {
+    assert.strictEqual(listDependentCapabilities(MOCK_CATALOG, "non-existing").length, 0);
   });
 });

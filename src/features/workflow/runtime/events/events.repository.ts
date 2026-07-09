@@ -54,17 +54,17 @@ export function mapEventRow(row: RuntimeRepositoryRow): EventRecord | null {
   if (!row) return null;
   return {
     id: row.id as string,
-    workspaceId: (row.workspaceId ?? row.workspace_id) as string,
-    instanceId: (row.instanceId ?? row.instance_id) as string | null,
-    eventType: (row.eventType ?? row.event_type) as string,
-    entityType: (row.entityType ?? row.entity_type) as string,
-    entityId: (row.entityId ?? row.entity_id) as string | null,
-    actorType: (row.actorType ?? row.actor_type) as string | null,
-    actorId: (row.actorId ?? row.actor_id) as string | null,
+    workspaceId: (row.workspace_id ?? row.workspaceId) as string,
+    instanceId: (row.instance_id ?? row.instanceId) as string | null,
+    eventType: (row.event_type ?? row.eventType) as string,
+    entityType: (row.entity_type ?? row.entityType) as string,
+    entityId: (row.entity_id ?? row.entityId) as string | null,
+    actorType: (row.actor_type ?? row.actorType) as string | null,
+    actorId: (row.actor_id ?? row.actorId) as string | null,
     source: row.source as string | null,
-    correlationId: (row.correlationId ?? row.correlation_id) as string | null,
-    causationId: (row.causationId ?? row.causation_id) as string | null,
+    correlationId: (row.correlation_id ?? row.correlationId) as string | null,
+    causationId: (row.causation_id ?? row.causationId) as string | null,
     payload: row.payload as Record<string, unknown>,
-    createdAt: (row.createdAt ?? row.created_at) as Date,
+    createdAt: (row.created_at ?? row.createdAt) as Date,
   };
 }

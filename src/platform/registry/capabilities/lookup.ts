@@ -80,6 +80,27 @@ export function listDependentCapabilities(catalog: Capability[], targetKey: stri
 }
 
 /**
+ * Returns capabilities related to a target key using relatedCapabilities in either direction.
+ *
+ * @param catalog - The capability catalog array.
+ * @param targetKey - The exact capability key to search for.
+ * @returns A new array of capabilities related to the target capability without duplicates.
+ */
+export function listRelatedCapabilities(catalog: Capability[], targetKey: string): Capability[] {
+  if (!targetKey) {
+    return [];
+  }
+  const targetCap = findCapabilityByKey(catalog, targetKey);
+  const forwardRelated = targetCap?.relatedCapabilities ?? [];
+
+  return catalog.filter((cap) => {
+    const isForward = forwardRelated.includes(cap.key);
+    const isReverse = cap.relatedCapabilities?.includes(targetKey);
+    return isForward || isReverse;
+  });
+}
+
+/**
  * Searches for capabilities by key, name, description, or tags.
  *
  * Rules:

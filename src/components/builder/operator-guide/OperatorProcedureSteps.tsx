@@ -22,7 +22,22 @@ export function OperatorProcedureSteps({
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    } else {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      } catch (err) {
+        // Fallback failed
+      }
+    }
     // In a real implementation, you might show a toast here.
   };
 

@@ -20,3 +20,8 @@ export const logEventInputSchema = z.object({
   causationId: z.string().optional(),
   payload: z.record(z.string(), z.unknown()).optional().default({}),
 });
+
+export const getTimelineForInstanceInputSchema = z.object({
+  workspaceId: z.string().uuid(),
+  instanceId: z.string().uuid(),
+});

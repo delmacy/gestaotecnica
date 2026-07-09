@@ -52,20 +52,32 @@ export function mapEventRow(row: null | undefined): null;
 export function mapEventRow(row: NonNullable<RuntimeRepositoryRow>): EventRecord;
 export function mapEventRow(row: RuntimeRepositoryRow): EventRecord | null {
   if (!row) return null;
-  // Fallback support for snake_case db keys
+  // Resolve keys prioritizing camelCase but falling back to snake_case gracefully
+  const workspaceId = (row.workspaceId ?? row.workspace_id) as string;
+  const instanceId = (row.instanceId ?? row.instance_id) as string | null;
+  const eventType = (row.eventType ?? row.event_type) as string;
+  const entityType = (row.entityType ?? row.entity_type) as string;
+  const entityId = (row.entityId ?? row.entity_id) as string | null;
+  const actorType = (row.actorType ?? row.actor_type) as string | null;
+  const actorId = (row.actorId ?? row.actor_id) as string | null;
+  const source = row.source as string | null;
+  const correlationId = (row.correlationId ?? row.correlation_id) as string | null;
+  const causationId = (row.causationId ?? row.causation_id) as string | null;
+  const createdAt = (row.createdAt ?? row.created_at) as Date;
+
   return {
     id: row.id as string,
-    workspaceId: (row.workspaceId ?? row.workspace_id) as string,
-    instanceId: (row.instanceId ?? row.instance_id) as string | null,
-    eventType: (row.eventType ?? row.event_type) as string,
-    entityType: (row.entityType ?? row.entity_type) as string,
-    entityId: (row.entityId ?? row.entity_id) as string | null,
-    actorType: (row.actorType ?? row.actor_type) as string | null,
-    actorId: (row.actorId ?? row.actor_id) as string | null,
-    source: row.source as string | null,
-    correlationId: (row.correlationId ?? row.correlation_id) as string | null,
-    causationId: (row.causationId ?? row.causation_id) as string | null,
+    workspaceId,
+    instanceId,
+    eventType,
+    entityType,
+    entityId,
+    actorType,
+    actorId,
+    source,
+    correlationId,
+    causationId,
     payload: row.payload as Record<string, unknown>,
-    createdAt: (row.createdAt ?? row.created_at) as Date,
+    createdAt,
   };
 }

@@ -256,3 +256,26 @@ test("ProcessVersion - rejects missing target node in edge", () => {
   const result = ProcessVersionSchema.safeParse(missingTarget);
   assert.strictEqual(result.success, false);
 });
+
+test("ProcessVersion - rollback metadata valid", () => {
+  const withRollback = {
+    ...validVersionBase,
+    rollback: {
+      restoredFromVersionId: "123e4567-e89b-12d3-a456-426614174003",
+      reason: "Critical bug fix",
+    }
+  };
+  const result = ProcessVersionSchema.safeParse(withRollback);
+  assert.strictEqual(result.success, true);
+});
+
+test("ProcessVersion - rollback metadata invalid missing restoredFromVersionId", () => {
+  const withInvalidRollback = {
+    ...validVersionBase,
+    rollback: {
+      reason: "Missing restoredFromVersionId",
+    }
+  };
+  const result = ProcessVersionSchema.safeParse(withInvalidRollback);
+  assert.strictEqual(result.success, false);
+});

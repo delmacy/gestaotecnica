@@ -3,7 +3,7 @@ import * as assert from "node:assert/strict";
 import { logEventInputSchema, getTimelineForInstanceInputSchema } from "../../src/features/workflow/runtime/events/events.validation";
 
 describe("logEventInputSchema validation", () => {
-  it("should validate a valid minimal input and default payload to {}", () => {
+  it("should validate a valid minimal input and default omitted payload to {}", () => {
     const input = {
       workspaceId: "b8f59d57-3721-4f18-b2ba-1f6e2b95b871",
       eventType: "process.started",
@@ -113,6 +113,55 @@ describe("logEventInputSchema validation", () => {
     if (!result.success) {
       const issue = result.error.issues.find((i) => i.path.includes("actorId"));
       assert.ok(issue);
+    }
+  });
+
+  it("should accept nested unknown values inside object payload", () => {
+    const input = {
+      workspaceId: "b8f59d57-3721-4f18-b2ba-1f6e2b95b871",
+      eventType: "process.started",
+      entityType: "process",
+      payload: {
+        someKey: "someValue",
+        nested: {
+          number: 123,
+          boolean: true
+        }
+      }
+    };
+
+    const result = logEventInputSchema.safeParse(input);
+
+    assert.equal(result.success, true);
+    if (result.success) {
+      assert.deepEqual(result.data.payload, input.payload);
+    }
+  });
+
+  it("should reject non-object top-level payload", () => {
+    const inputs = [
+      "string payload",
+      123,
+      true,
+      null,
+      []
+    ];
+
+    for (const payload of inputs) {
+      const input = {
+        workspaceId: "b8f59d57-3721-4f18-b2ba-1f6e2b95b871",
+        eventType: "process.started",
+        entityType: "process",
+        payload
+      };
+
+      const result = logEventInputSchema.safeParse(input);
+
+      assert.equal(result.success, false, `Expected validation to fail for payload: ${JSON.stringify(payload)}`);
+      if (!result.success) {
+        const issue = result.error.issues.find((i) => i.path.includes("payload"));
+        assert.ok(issue, `Expected validation issue for payload type: ${typeof payload}`);
+      }
     }
   });
 });

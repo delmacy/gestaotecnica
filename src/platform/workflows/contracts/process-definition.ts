@@ -162,3 +162,27 @@ export const ProcessDefinitionEnvelopeSchema = z
   .transform((data) => Object.freeze(data));
 
 export type ProcessDefinitionEnvelope = z.infer<typeof ProcessDefinitionEnvelopeSchema>;
+
+/**
+ * Publication Result Envelope Schema
+ */
+export const PublicationResultEnvelopeSchema = z.discriminatedUnion("ok", [
+  z.object({
+    ok: z.literal(true),
+    data: z.object({
+      processDefinitionId: EntityIdSchema,
+      processVersionId: EntityIdSchema,
+      status: z.literal("published"),
+      publishedAt: ISODateTimeSchema,
+    }).strict(),
+  }).strict(),
+  z.object({
+    ok: z.literal(false),
+    error: z.object({
+      code: z.string(),
+      message: z.string(),
+    }).strict(),
+  }).strict(),
+]);
+
+export type PublicationResultEnvelope = z.infer<typeof PublicationResultEnvelopeSchema>;

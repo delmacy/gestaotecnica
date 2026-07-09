@@ -4,6 +4,7 @@ import {
   ProcessDefinitionSchema,
   ProcessVersionSchema,
   ProcessDefinitionEnvelopeSchema,
+  PublicationResultEnvelopeSchema,
 } from "../../src/platform/workflows/contracts/process-definition";
 
 const VALID_ID = "123e4567-e89b-12d3-a456-426614174000";
@@ -164,6 +165,99 @@ describe("ProcessVersionSchema - Integrated Graph", () => {
   it("should return frozen object", () => {
     const result = ProcessVersionSchema.parse(baseVersion);
     assert.ok(Object.isFrozen(result));
+  });
+});
+
+describe("PublicationResultEnvelopeSchema", () => {
+  it("should accept valid success response", () => {
+    const successResult = {
+      ok: true,
+      data: {
+        processDefinitionId: VALID_ID,
+        processVersionId: "123e4567-e89b-12d3-a456-426614174002",
+        status: "published",
+        publishedAt: VALID_DATE,
+      }
+    };
+
+    const result = PublicationResultEnvelopeSchema.safeParse(successResult);
+    assert.strictEqual(result.success, true);
+  });
+
+  it("should accept valid error response", () => {
+    const errorResult = {
+      ok: false,
+      error: {
+        code: "VALIDATION_FAILED",
+        message: "Process has no start node",
+      }
+    };
+
+    const result = PublicationResultEnvelopeSchema.safeParse(errorResult);
+    assert.strictEqual(result.success, true);
+  });
+
+  it("should reject success response with missing data", () => {
+    const invalidSuccess = {
+      ok: true,
+    };
+
+    const result = PublicationResultEnvelopeSchema.safeParse(invalidSuccess);
+    assert.strictEqual(result.success, false);
+  });
+
+  it("should reject error response with missing error details", () => {
+    const invalidError = {
+      ok: false,
+    };
+
+    const result = PublicationResultEnvelopeSchema.safeParse(invalidError);
+    assert.strictEqual(result.success, false);
+  });
+
+  it("should reject success response with extra fields", () => {
+    const extraSuccess = {
+      ok: true,
+      data: {
+        processDefinitionId: VALID_ID,
+        processVersionId: "123e4567-e89b-12d3-a456-426614174002",
+        status: "published",
+        publishedAt: VALID_DATE,
+      },
+      extraField: "not allowed",
+    };
+
+    const result = PublicationResultEnvelopeSchema.safeParse(extraSuccess);
+    assert.strictEqual(result.success, false);
+  });
+
+  it("should reject error response with extra fields", () => {
+    const extraError = {
+      ok: false,
+      error: {
+        code: "ERR",
+        message: "err",
+      },
+      extraField: "not allowed",
+    };
+
+    const result = PublicationResultEnvelopeSchema.safeParse(extraError);
+    assert.strictEqual(result.success, false);
+  });
+
+  it("should reject non-published status in success response", () => {
+    const invalidStatus = {
+      ok: true,
+      data: {
+        processDefinitionId: VALID_ID,
+        processVersionId: "123e4567-e89b-12d3-a456-426614174002",
+        status: "draft",
+        publishedAt: VALID_DATE,
+      }
+    };
+
+    const result = PublicationResultEnvelopeSchema.safeParse(invalidStatus);
+    assert.strictEqual(result.success, false);
   });
 });
 

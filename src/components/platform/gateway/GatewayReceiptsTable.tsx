@@ -23,7 +23,22 @@ export function GatewayReceiptsTable({ receipts }: GatewayReceiptsTableProps) {
   const [selectedReceipt, setSelectedReceipt] = useState<AgentGatewaySubmissionRecord | null>(null);
 
   const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    } else {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      } catch (err) {
+        // Fallback failed
+      }
+    }
   };
 
   if (receipts.length === 0) {

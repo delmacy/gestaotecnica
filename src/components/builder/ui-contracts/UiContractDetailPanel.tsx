@@ -10,7 +10,22 @@ interface Props {
 
 export function UiContractDetailPanel({ contract }: Props) {
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    } else {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      } catch (err) {
+        // Fallback failed
+      }
+    }
     // Simple visual feedback could be added here, but omitted for simplicity in mock
   };
 

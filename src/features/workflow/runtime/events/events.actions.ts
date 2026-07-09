@@ -4,8 +4,10 @@ import { getRuntimeDb } from "@/db";
 import { getTimelineForInstance } from "./events.server";
 import { getTimelineForInstanceInputSchema } from "./events.validation";
 import type { EventDb } from "./events.repository";
+import type { EventRecord } from "./events.types";
+import type { RuntimeResult, RuntimeError } from "../runtime.errors";
 
-export async function getTimelineForInstanceAction(instanceId: string) {
+export async function getTimelineForInstanceAction(instanceId: string): Promise<RuntimeResult<EventRecord[]>> {
   try {
     // Mock tenant context as per project convention for MVP execution blocks
     const workspaceId = "00000000-0000-0000-0000-000000000000";
@@ -18,7 +20,7 @@ export async function getTimelineForInstanceAction(instanceId: string) {
           code: "INVALID_INPUT",
           message: "Invalid input provided",
           issues: validationResult.error.issues,
-        }
+        } as RuntimeError
       };
     }
 

@@ -1,3 +1,5 @@
+export type EventPayload = Record<string, unknown>;
+
 export type ProcessEventType =
   | "process.started"
   | "process.completed"
@@ -15,7 +17,7 @@ export interface LogEventInput {
   source?: string;
   correlationId?: string;
   causationId?: string;
-  payload?: Record<string, unknown>;
+  payload?: EventPayload;
 }
 
 export interface EventRecord {
@@ -30,6 +32,6 @@ export interface EventRecord {
   source: string | null;
   correlationId: string | null;
   causationId: string | null;
-  payload: Record<string, unknown>;
+  payload: EventPayload;
   createdAt: Date;
 }

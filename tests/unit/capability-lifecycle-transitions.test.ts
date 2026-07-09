@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import * as assert from "node:assert/strict";
-import { canTransitionCapabilityStatus, isCapabilityReadyForActivation, canDeactivateCapability } from "../../src/platform/registry/capabilities/lifecycle";
+import { canTransitionCapabilityStatus, isCapabilityReadyForActivation, canDeactivateCapability } from "../../src/platform/registry/capabilities";
 import { Capability } from "../../src/platform/registry/capabilities/schemas";
 import { CapabilityStatus } from "../../src/platform/registry/capabilities/schemas";
 

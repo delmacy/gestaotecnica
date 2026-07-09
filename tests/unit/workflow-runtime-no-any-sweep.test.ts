@@ -35,29 +35,37 @@ describe('Runtime Core No-Any Sweep', () => {
       /as\s+any\b/g
     ];
 
-    const allowedFiles = [
-      'src/features/workflow/runtime/events/events.actions.ts'
-    ];
+    const baselineViolations: Record<string, number> = {
+      'src/features/workflow/runtime/events/events.actions.ts': 1
+    };
 
     let foundViolations = false;
     let messages: string[] = [];
 
     for (const filePath of filesToCheck) {
       const relativePath = path.relative(process.cwd(), filePath);
-
-      // Skip files explicitly in the allowlist
-      if (allowedFiles.some(allowedFile => relativePath.includes(allowedFile.replace(/\//g, path.sep)))) {
-        continue;
-      }
+      const normalizedPath = relativePath.split(path.sep).join('/');
 
       const content = fs.readFileSync(filePath, 'utf-8');
+
+      let fileViolationsCount = 0;
+      let fileMessages: string[] = [];
 
       for (const pattern of forbiddenPatterns) {
         const matches = content.match(pattern);
         if (matches) {
-          foundViolations = true;
-          messages.push(`File ${relativePath} contains forbidden pattern ${pattern.toString()}. Found: ${matches.length} occurrences`);
+          fileViolationsCount += matches.length;
+          fileMessages.push(`File ${relativePath} contains forbidden pattern ${pattern.toString()}. Found: ${matches.length} occurrences`);
         }
+      }
+
+      const allowedCount = baselineViolations[normalizedPath] || 0;
+
+      if (fileViolationsCount > allowedCount) {
+        foundViolations = true;
+        messages.push(...fileMessages);
+      } else if (fileViolationsCount > 0) {
+        console.warn(`[WARNING] Ignored baseline violations in ${relativePath}: ${fileViolationsCount} (allowed: ${allowedCount})`);
       }
     }
 

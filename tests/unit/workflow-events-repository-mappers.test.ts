@@ -205,5 +205,89 @@ describe("Event Repository Mappers", () => {
       assert.strictEqual(result?.createdAt instanceof Date, true);
       assert.strictEqual(result?.createdAt.getTime(), expectedDate.getTime());
     });
+
+    it("should map string payload to empty object", () => {
+      const now = new Date();
+      const row = {
+        id: "evt_123",
+        workspaceId: "ws_123",
+        instanceId: "pi_123",
+        eventType: "step.completed",
+        entityType: "step",
+        entityId: "step_1",
+        actorType: "user",
+        actorId: "user_123",
+        source: "system",
+        correlationId: "corr_123",
+        causationId: "caus_123",
+        payload: "primitive string",
+        createdAt: now
+      };
+      const result = mapEventRow(row);
+      assert.deepStrictEqual(result?.payload, {});
+    });
+
+    it("should map number payload to empty object", () => {
+      const now = new Date();
+      const row = {
+        id: "evt_123",
+        workspaceId: "ws_123",
+        instanceId: "pi_123",
+        eventType: "step.completed",
+        entityType: "step",
+        entityId: "step_1",
+        actorType: "user",
+        actorId: "user_123",
+        source: "system",
+        correlationId: "corr_123",
+        causationId: "caus_123",
+        payload: 42,
+        createdAt: now
+      };
+      const result = mapEventRow(row);
+      assert.deepStrictEqual(result?.payload, {});
+    });
+
+    it("should map boolean payload to empty object", () => {
+      const now = new Date();
+      const row = {
+        id: "evt_123",
+        workspaceId: "ws_123",
+        instanceId: "pi_123",
+        eventType: "step.completed",
+        entityType: "step",
+        entityId: "step_1",
+        actorType: "user",
+        actorId: "user_123",
+        source: "system",
+        correlationId: "corr_123",
+        causationId: "caus_123",
+        payload: true,
+        createdAt: now
+      };
+      const result = mapEventRow(row);
+      assert.deepStrictEqual(result?.payload, {});
+    });
+
+    it("should map array payload to empty object", () => {
+      const now = new Date();
+      const row = {
+        id: "evt_123",
+        workspaceId: "ws_123",
+        instanceId: "pi_123",
+        eventType: "step.completed",
+        entityType: "step",
+        entityId: "step_1",
+        actorType: "user",
+        actorId: "user_123",
+        source: "system",
+        correlationId: "corr_123",
+        causationId: "caus_123",
+        payload: [1, 2, 3],
+        createdAt: now
+      };
+      const result = mapEventRow(row);
+      assert.deepStrictEqual(result?.payload, {});
+    });
   });
 });

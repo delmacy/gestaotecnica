@@ -68,6 +68,18 @@ export function mapEventRow(row: RuntimeRepositoryRow): EventRecord | null {
   const rawCreatedAt = row.createdAt ?? row.created_at;
   const createdAt = typeof rawCreatedAt === "string" ? new Date(rawCreatedAt) : (rawCreatedAt as Date);
 
+  // Normalize payload
+  const rawPayload = row.payload;
+  let normalizedPayload: Record<string, unknown> = {};
+  if (
+    rawPayload !== null &&
+    rawPayload !== undefined &&
+    typeof rawPayload === "object" &&
+    !Array.isArray(rawPayload)
+  ) {
+    normalizedPayload = rawPayload as Record<string, unknown>;
+  }
+
   return {
     id: row.id as string,
     workspaceId,
@@ -80,7 +92,7 @@ export function mapEventRow(row: RuntimeRepositoryRow): EventRecord | null {
     source,
     correlationId,
     causationId,
-    payload: (row.payload ?? {}) as Record<string, unknown>,
+    payload: normalizedPayload,
     createdAt,
   };
 }

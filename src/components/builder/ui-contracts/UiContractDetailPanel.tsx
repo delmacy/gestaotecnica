@@ -22,7 +22,7 @@ export function UiContractDetailPanel({ contract }: Props) {
         textArea.select();
         document.execCommand("copy");
         document.body.removeChild(textArea);
-      } catch (err) {
+      } catch {
         // Fallback failed
       }
     }
@@ -33,8 +33,8 @@ export function UiContractDetailPanel({ contract }: Props) {
     if (Array.isArray(data)) {
       return (
         <ul className="list-disc pl-4 space-y-1">
-          {data.map((item, idx) => (
-            <li key={idx} className="text-sm">{item}</li>
+          {data.map((item) => (
+            <li key={item} className="text-sm">{item}</li>
           ))}
         </ul>
       );
@@ -139,26 +139,26 @@ export function UiContractDetailPanel({ contract }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-t pt-6">
            <div>
             <h3 className="text-sm font-semibold mb-3">Data Inputs</h3>
-            {contract.data_inputs.length > 0 ? (
+            {contract.data_inputs?.length > 0 ? (
                <ul className="space-y-1 text-sm text-muted-foreground list-disc pl-4">
-                 {contract.data_inputs.map((item, i) => <li key={i}>{item}</li>)}
+                 {contract.data_inputs.map((item) => <li key={item}>{item}</li>)}
                </ul>
             ) : <span className="text-sm text-muted-foreground">N/A</span>}
           </div>
           <div>
             <h3 className="text-sm font-semibold mb-3">Data Outputs</h3>
-             {contract.data_outputs.length > 0 ? (
+             {contract.data_outputs?.length > 0 ? (
                <ul className="space-y-1 text-sm text-muted-foreground list-disc pl-4">
-                 {contract.data_outputs.map((item, i) => <li key={i}>{item}</li>)}
+                 {contract.data_outputs.map((item) => <li key={item}>{item}</li>)}
                </ul>
             ) : <span className="text-sm text-muted-foreground">N/A</span>}
           </div>
           <div>
             <h3 className="text-sm font-semibold mb-3">Commands</h3>
-             {contract.commands.length > 0 ? (
+             {contract.commands?.length > 0 ? (
                <div className="flex flex-wrap gap-2">
-                 {contract.commands.map((cmd, i) => (
-                   <span key={i} className="px-2 py-1 bg-muted rounded text-xs border font-medium">
+                 {contract.commands.map((cmd) => (
+                   <span key={cmd} className="px-2 py-1 bg-muted rounded text-xs border font-medium">
                      {cmd}
                    </span>
                  ))}
@@ -174,12 +174,12 @@ export function UiContractDetailPanel({ contract }: Props) {
             Related Tasks & Reviews
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             {contract.related_tasks.length > 0 && (
+             {contract.related_tasks?.length > 0 && (
                <div>
                  <span className="text-xs font-semibold text-muted-foreground uppercase block mb-2">Tasks</span>
                  <ul className="space-y-2">
-                   {contract.related_tasks.map((task, i) => (
-                     <li key={i} className="text-sm flex items-center gap-2">
+                   {contract.related_tasks.map((task) => (
+                     <li key={task} className="text-sm flex items-center gap-2">
                        <div title="Task"><CheckCircle2 className="h-3.5 w-3.5 text-green-500" /></div>
                        {task}
                      </li>
@@ -187,12 +187,12 @@ export function UiContractDetailPanel({ contract }: Props) {
                  </ul>
                </div>
              )}
-             {contract.related_reviews.length > 0 && (
+             {contract.related_reviews?.length > 0 && (
                <div>
                  <span className="text-xs font-semibold text-muted-foreground uppercase block mb-2">Reviews</span>
                  <ul className="space-y-2">
-                   {contract.related_reviews.map((rev, i) => (
-                     <li key={i} className="text-sm flex items-center gap-2">
+                   {contract.related_reviews.map((rev) => (
+                     <li key={rev} className="text-sm flex items-center gap-2">
                        <div title="Review"><CheckCircle2 className="h-3.5 w-3.5 text-blue-500" /></div>
                        {rev}
                      </li>
@@ -204,15 +204,15 @@ export function UiContractDetailPanel({ contract }: Props) {
         </div>
 
         {/* Dependencies */}
-        {contract.dependencies.length > 0 && (
+        {contract.dependencies?.length > 0 && (
            <div className="border-t pt-6">
             <h3 className="text-sm font-semibold mb-3 text-red-600 dark:text-red-400 flex items-center gap-2">
                <div title="Blocked"><Lock className="h-4 w-4" /></div>
                Dependencies / Blockers
             </h3>
             <div className="space-y-3">
-              {contract.dependencies.map((dep, i) => (
-                <div key={i} className="p-3 bg-red-50/50 dark:bg-red-900/10 border border-red-200 rounded-lg">
+              {contract.dependencies.map((dep) => (
+                <div key={dep.id} className="p-3 bg-red-50/50 dark:bg-red-900/10 border border-red-200 rounded-lg">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm text-red-900 dark:text-red-300">{dep.name}</span>
                     {dep.isBlocking && <span className="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded-full font-bold">BLOCKING</span>}

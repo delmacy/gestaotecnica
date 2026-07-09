@@ -1,3 +1,4 @@
+import { getAction } from "@/platform/actions/action-registry";
 import type { BuilderDraft, BuilderValidationResult, BuilderValidationIssue } from "../types";
 
 export function validateBuilderDraft(draft: BuilderDraft): BuilderValidationResult {
@@ -34,6 +35,29 @@ export function validateBuilderDraft(draft: BuilderDraft): BuilderValidationResu
       });
     }
     nodeIds.add(node.id);
+
+    if (node.type === "integration") {
+      const actionName = node.config?.action;
+      if (!actionName || typeof actionName !== "string") {
+        issues.push({
+          code: "MISSING_ACTION_REFERENCE",
+          message: `Nó de integração sem ação configurada: ${node.id}`,
+          severity: "error",
+          path: `nodes[id=${node.id}].config.action`,
+        });
+      } else {
+        const actionDef = getAction(actionName);
+        if (!actionDef) {
+          issues.push({
+            code: "INVALID_ACTION_REFERENCE",
+            message: `Ação referenciada não existe: ${actionName}`,
+            severity: "error",
+            path: `nodes[id=${node.id}].config.action`,
+          });
+        }
+      }
+    }
+
 
     if (node.type === "start") {
       startNodeCount++;

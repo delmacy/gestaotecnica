@@ -25,3 +25,38 @@ test("preflightPublication fails an invalid draft", () => {
   assert.equal(result.valid, false);
   assert.ok(result.issues.some((i) => i.code === "DRAFT_NAME_REQUIRED"));
 });
+
+
+test("preflightPublication fails an invalid draft with missing action reference", () => {
+  const draft = createSampleBuilderDraft();
+  draft.nodes.push({
+    id: "node-integration",
+    type: "integration",
+    label: "Integration Node",
+    position: { x: 0, y: 0 },
+    config: {},
+  });
+
+  const result = preflightPublication(draft);
+
+  assert.equal(result.valid, false);
+  assert.ok(result.issues.some((i) => i.code === "MISSING_ACTION_REFERENCE"));
+});
+
+test("preflightPublication fails an invalid draft with non-existent action reference", () => {
+  const draft = createSampleBuilderDraft();
+  draft.nodes.push({
+    id: "node-integration",
+    type: "integration",
+    label: "Integration Node",
+    position: { x: 0, y: 0 },
+    config: {
+      action: "non_existent_action"
+    },
+  });
+
+  const result = preflightPublication(draft);
+
+  assert.equal(result.valid, false);
+  assert.ok(result.issues.some((i) => i.code === "INVALID_ACTION_REFERENCE"));
+});

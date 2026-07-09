@@ -65,7 +65,8 @@ export function mapEventRow(row: RuntimeRepositoryRow): EventRecord | null {
   const source = row.source as string | null;
   const correlationId = (row.correlationId ?? row.correlation_id) as string | null;
   const causationId = (row.causationId ?? row.causation_id) as string | null;
-  const createdAt = (row.createdAt ?? row.created_at) as Date;
+  const rawCreatedAt = row.createdAt ?? row.created_at;
+  const createdAt = typeof rawCreatedAt === "string" ? new Date(rawCreatedAt) : (rawCreatedAt as Date);
 
   return {
     id: row.id as string,

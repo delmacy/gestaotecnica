@@ -26,7 +26,7 @@ export async function startProcessInstance(
 
     // 1. Verificar a versão do processo
     // Necessário cast para "any" no db apenas para compatibilizar a injeção caso o type vaze Drizzle
-    const version = await getProcessVersionById(db as any, processVersionId);
+    const version = await getProcessVersionById(db, processVersionId);
     if (!version) {
       return {
         ok: false,

@@ -41,6 +41,7 @@ describe("Event Repository Mappers", () => {
       });
     });
 
+    // Test explicit snake_case keys mapped properly to camelCase
     it("should map row to EventRecord with snake_case keys fallback", () => {
       const now = new Date();
       const row = {

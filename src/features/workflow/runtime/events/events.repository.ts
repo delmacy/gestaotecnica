@@ -52,6 +52,7 @@ export function mapEventRow(row: null | undefined): null;
 export function mapEventRow(row: NonNullable<RuntimeRepositoryRow>): EventRecord;
 export function mapEventRow(row: RuntimeRepositoryRow): EventRecord | null {
   if (!row) return null;
+  // Fallback support for snake_case db keys
   return {
     id: row.id as string,
     workspaceId: (row.workspaceId ?? row.workspace_id) as string,

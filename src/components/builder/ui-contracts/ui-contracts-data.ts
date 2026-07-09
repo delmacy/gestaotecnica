@@ -1,4 +1,4 @@
-import { UiContractStaticIndex, UiSurfaceContract, UiContractDevStatus } from "./ui-contracts-types";
+import { UiContractStaticIndex, UiSurfaceContract, UiContractDevStatus, UiContractGroup } from "./ui-contracts-types";
 
 export const MOCK_UI_CONTRACTS_INDEX: UiContractStaticIndex = {
   version: "1.0.0",
@@ -181,6 +181,23 @@ export function getUiContractDevStatusSummary(contracts: UiSurfaceContract[]): R
   for (const contract of contracts) {
     if (contract.dev_status in summary) {
       summary[contract.dev_status]++;
+    }
+  }
+
+  return summary;
+}
+
+export function getUiContractGroupSummary(contracts: UiSurfaceContract[]): Record<UiContractGroup, number> {
+  const summary: Record<UiContractGroup, number> = {
+    group_a_platform_foundation: 0,
+    group_b_builder_design: 0,
+    group_c_runtime_integration: 0,
+    group_d_client_real: 0,
+  };
+
+  for (const contract of contracts) {
+    if (contract.group in summary) {
+      summary[contract.group]++;
     }
   }
 

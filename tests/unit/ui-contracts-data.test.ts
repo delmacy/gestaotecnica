@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { MOCK_UI_CONTRACTS_INDEX, getUiContractDevStatusSummary } from '../../src/components/builder/ui-contracts/ui-contracts-data';
+import { MOCK_UI_CONTRACTS_INDEX, getUiContractDevStatusSummary, getUiContractGroupSummary } from '../../src/components/builder/ui-contracts/ui-contracts-data';
 import { UiSurfaceContract } from '../../src/components/builder/ui-contracts/ui-contracts-types';
 
 describe('UI Contracts Data Uniqueness', () => {
@@ -20,6 +20,34 @@ describe('UI Contracts Data Uniqueness', () => {
     const routes = MOCK_UI_CONTRACTS_INDEX.contracts.map(contract => contract.route_candidate);
     const uniqueRoutes = new Set(routes);
     assert.equal(routes.length, uniqueRoutes.size, 'Duplicate UI contract route_candidate found');
+  });
+});
+
+describe('getUiContractGroupSummary', () => {
+  it('should summarize group correctly', () => {
+    const mockContracts: Partial<UiSurfaceContract>[] = [
+      { id: '1', group: 'group_a_platform_foundation' },
+      { id: '2', group: 'group_a_platform_foundation' },
+      { id: '3', group: 'group_b_builder_design' },
+      { id: '4', group: 'group_c_runtime_integration' },
+      { id: '5', group: 'group_d_client_real' },
+    ];
+
+    const summary = getUiContractGroupSummary(mockContracts as UiSurfaceContract[]);
+
+    assert.equal(summary.group_a_platform_foundation, 2);
+    assert.equal(summary.group_b_builder_design, 1);
+    assert.equal(summary.group_c_runtime_integration, 1);
+    assert.equal(summary.group_d_client_real, 1);
+  });
+
+  it('should return empty summary for empty input', () => {
+    const summary = getUiContractGroupSummary([]);
+
+    assert.equal(summary.group_a_platform_foundation, 0);
+    assert.equal(summary.group_b_builder_design, 0);
+    assert.equal(summary.group_c_runtime_integration, 0);
+    assert.equal(summary.group_d_client_real, 0);
   });
 });
 

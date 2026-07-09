@@ -1,6 +1,13 @@
 # Plano Mestre de Próximas Fases - System Builder
 
-Este documento consolida o planejamento estratégico aprovado para as próximas fases de evolução do System Builder, servindo como a principal referência orquestral para a coordenação entre agentes.
+Este documento fica preservado como resumo histórico das nove fases. A fonte canônica atual para planejamento comercial, sprints, percentuais de maturidade e conversão em tasks é:
+
+- `docs/product-roadmap/COMMERCIAL_DELIVERY_PLAN.md`
+- `docs/product-roadmap/MODULE_MATURITY_ASSESSMENT.md`
+- `docs/product-roadmap/PROJECT_BREAKDOWN.md`
+- `docs/product-roadmap/TASK_INDEX.md`
+
+Em caso de conflito entre este arquivo e `docs/product-roadmap/*`, prevalece `docs/product-roadmap/*`.
 
 ## Atribuição de Papéis
 

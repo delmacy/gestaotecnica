@@ -1,6 +1,28 @@
-# System Builder — Roadmap operacional de 50 tasks
+# System Builder — Roadmap Operacional Canônico
 
-Este diretório é a fonte oficial das próximas tasks do produto. Cada task possui ID estável, tipo, dependências, modo de execução, escopo e critérios de aceite.
+Este diretório é a fonte oficial de planejamento comercial, fases, sprints e próximas tasks do System Builder.
+
+## Fonte única
+
+Leia nesta ordem:
+
+1. `COMMERCIAL_DELIVERY_PLAN.md` — norte comercial, gates e release path.
+2. `MODULE_MATURITY_ASSESSMENT.md` — percentual atual por módulo e principais gaps.
+3. `PROJECT_BREAKDOWN.md` — fases, sprints candidatas e regra para transformar plano em tasks.
+4. `EXECUTION_RULES.md` — regras determinísticas para agentes.
+5. `INTERLEAVED_SPRINT_PLAN.md` — sequência intercalada por lane.
+6. `AUTONOMOUS_BACKLOG_160_TASKS.md` — backlog detalhado de 160 microtasks para continuidade sem Codex.
+7. `TASK_INDEX.md` — índice estável das tasks já catalogadas.
+
+Documentos fora deste diretório são referência técnica, histórico ou insumo de módulo. Eles não substituem este roadmap, salvo quando forem explicitamente promovidos aqui.
+
+## Roadmap operacional de 50 tasks
+
+O catálogo atual possui 50 tasks principais. Cada task possui ID estável, tipo, dependências, modo de execução, escopo e critérios de aceite.
+
+## Backlog autônomo expandido
+
+`AUTONOMOUS_BACKLOG_160_TASKS.md` contém 16 sprints adicionais de 10 microtasks cada, com objetivo, arquivos permitidos/proibidos, aceite e validação. Ele deve ser usado quando for necessário continuar criando sprints com menor supervisão do Codex.
 
 ## Regra de execução
 
@@ -50,3 +72,12 @@ O executor deve receber somente o ID e o caminho da sprint. Exemplo:
 ## Índice rápido
 
 Consulte `TASK_INDEX.md` para localizar qualquer task por ID, sprint, tipo ou dependência.
+
+## Regra de atualização
+
+Ao fim de cada sprint:
+
+1. Atualize o status real das tasks.
+2. Atualize `MODULE_MATURITY_ASSESSMENT.md` se a entrega mudou a maturidade comercial.
+3. Atualize `PROJECT_BREAKDOWN.md` se a próxima sprint recomendada mudou.
+4. Não aumente maturidade por PR aberto, sessão Jules finalizada ou UI mockada sem evidência de merge e revisão.

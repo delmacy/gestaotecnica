@@ -24,9 +24,9 @@ export async function logEvent(
       causationId: input.causationId,
       payload: Object.keys(input.payload || {}).length ? input.payload : {},
     })
-    .returning({ id: events.id });
+    .returning();
 
-  return record as EventRecord;
+  return mapEventRow(record as NonNullable<RuntimeRepositoryRow>);
 }
 
 export async function getEventsByInstanceId(
@@ -45,7 +45,9 @@ export async function getEventsByInstanceId(
     )
     .orderBy(desc(events.createdAt));
 
-  return records as EventRecord[];
+  return records
+    .filter((row): row is NonNullable<RuntimeRepositoryRow> => row != null)
+    .map(mapEventRow);
 }
 
 export function mapEventRow(row: null | undefined): null;

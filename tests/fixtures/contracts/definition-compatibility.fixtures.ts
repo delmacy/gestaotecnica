@@ -48,8 +48,8 @@ describe("Definition Compatibility Fixtures", () => {
     // We expect a Zod validation error because INVALID_TYPE is not in ProcessNodeTypeSchema
     assert.throws(
       () => ProcessVersionSchema.parse(invalid),
-      (err: any) => {
-        return err.issues && err.issues.some((i: any) => i.path.includes("type"));
+      (err: Error & { issues?: { path: string[] }[] }) => {
+        return err.issues && err.issues.some((i) => i.path.includes("type"));
       }
     );
   });

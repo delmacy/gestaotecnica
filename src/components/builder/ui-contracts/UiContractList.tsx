@@ -45,7 +45,7 @@ export function UiContractList({ contracts, selectedId, onSelect }: Props) {
 
   if (contracts.length === 0) {
     return (
-      <div className="p-4 text-center text-sm text-muted-foreground border rounded-lg bg-background">
+      <div className="p-4 text-center text-sm text-muted-foreground">
         Nenhum contrato encontrado para os filtros atuais.
       </div>
     );
@@ -64,9 +64,9 @@ export function UiContractList({ contracts, selectedId, onSelect }: Props) {
           }`}
         >
           <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full overflow-hidden">
               {getGroupIcon(contract.group)}
-              <span className="font-semibold text-sm">{contract.surface_name}</span>
+              <span className="font-semibold text-sm truncate flex-1">{contract.surface_name}</span>
             </div>
           </div>
           <div className="flex items-center justify-between mt-2">

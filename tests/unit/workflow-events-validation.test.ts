@@ -49,6 +49,72 @@ describe("logEventInputSchema validation", () => {
       assert.ok(issue);
     }
   });
+
+  it("should validate input with valid optional UUID fields", () => {
+    const input = {
+      workspaceId: "b8f59d57-3721-4f18-b2ba-1f6e2b95b871",
+      eventType: "process.started",
+      entityType: "process",
+      instanceId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      entityId: "123e4567-e89b-12d3-a456-426614174000",
+      actorId: "550e8400-e29b-41d4-a716-446655440000"
+    };
+
+    const result = logEventInputSchema.safeParse(input);
+
+    assert.equal(result.success, true);
+  });
+
+  it("should invalidate input with invalid instance id", () => {
+    const input = {
+      workspaceId: "b8f59d57-3721-4f18-b2ba-1f6e2b95b871",
+      eventType: "process.started",
+      entityType: "process",
+      instanceId: "not-a-uuid",
+    };
+
+    const result = logEventInputSchema.safeParse(input);
+
+    assert.equal(result.success, false);
+    if (!result.success) {
+      const issue = result.error.issues.find((i) => i.path.includes("instanceId"));
+      assert.ok(issue);
+    }
+  });
+
+  it("should invalidate input with invalid entity id", () => {
+    const input = {
+      workspaceId: "b8f59d57-3721-4f18-b2ba-1f6e2b95b871",
+      eventType: "process.started",
+      entityType: "process",
+      entityId: "not-a-uuid",
+    };
+
+    const result = logEventInputSchema.safeParse(input);
+
+    assert.equal(result.success, false);
+    if (!result.success) {
+      const issue = result.error.issues.find((i) => i.path.includes("entityId"));
+      assert.ok(issue);
+    }
+  });
+
+  it("should invalidate input with invalid actor id", () => {
+    const input = {
+      workspaceId: "b8f59d57-3721-4f18-b2ba-1f6e2b95b871",
+      eventType: "process.started",
+      entityType: "process",
+      actorId: "not-a-uuid",
+    };
+
+    const result = logEventInputSchema.safeParse(input);
+
+    assert.equal(result.success, false);
+    if (!result.success) {
+      const issue = result.error.issues.find((i) => i.path.includes("actorId"));
+      assert.ok(issue);
+    }
+  });
 });
 
 describe("getTimelineForInstanceInputSchema validation", () => {

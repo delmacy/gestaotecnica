@@ -1,4 +1,4 @@
-import { CapabilityStatus } from "./schemas";
+import { CapabilityStatus, Capability } from "./schemas";
 
 /**
  * Validates whether a capability status transition is allowed.
@@ -33,4 +33,27 @@ export function canTransitionCapabilityStatus(from: CapabilityStatus, to: Capabi
     default:
       return false;
   }
+}
+
+/**
+ * Checks if a draft capability is structurally ready for activation.
+ * Requires draft status, at least one business object, and at least one action.
+ *
+ * @param capability The capability to evaluate
+ * @returns boolean True if ready for activation
+ */
+export function isCapabilityReadyForActivation(capability: Capability): boolean {
+  if (capability.status !== "draft") {
+    return false;
+  }
+
+  if (!capability.businessObjects || capability.businessObjects.length === 0) {
+    return false;
+  }
+
+  if (!capability.businessActions || capability.businessActions.length === 0) {
+    return false;
+  }
+
+  return true;
 }

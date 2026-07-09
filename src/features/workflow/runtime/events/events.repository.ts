@@ -79,7 +79,7 @@ export function mapEventRow(row: RuntimeRepositoryRow): EventRecord | null {
     source,
     correlationId,
     causationId,
-    payload: row.payload as Record<string, unknown>,
+    payload: (row.payload ?? {}) as Record<string, unknown>,
     createdAt,
   };
 }

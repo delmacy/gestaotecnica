@@ -157,5 +157,53 @@ describe("Event Repository Mappers", () => {
         createdAt: now
       });
     });
+
+    it("should normalize string createdAt to Date", () => {
+      const isoString = "2023-10-15T12:00:00.000Z";
+      const expectedDate = new Date(isoString);
+      const row = {
+        id: "evt_123",
+        workspaceId: "ws_123",
+        instanceId: "pi_123",
+        eventType: "step.completed",
+        entityType: "step",
+        entityId: "step_1",
+        actorType: "user",
+        actorId: "user_123",
+        source: "system",
+        correlationId: "corr_123",
+        causationId: "caus_123",
+        payload: {},
+        createdAt: isoString
+      };
+
+      const result = mapEventRow(row);
+      assert.strictEqual(result?.createdAt instanceof Date, true);
+      assert.strictEqual(result?.createdAt.getTime(), expectedDate.getTime());
+    });
+
+    it("should normalize string created_at to Date", () => {
+      const isoString = "2023-10-15T12:00:00.000Z";
+      const expectedDate = new Date(isoString);
+      const row = {
+        id: "evt_123",
+        workspace_id: "ws_123",
+        instance_id: "pi_123",
+        event_type: "step.completed",
+        entity_type: "step",
+        entity_id: "step_1",
+        actor_type: "user",
+        actor_id: "user_123",
+        source: "system",
+        correlation_id: "corr_123",
+        causation_id: "caus_123",
+        payload: {},
+        created_at: isoString
+      };
+
+      const result = mapEventRow(row);
+      assert.strictEqual(result?.createdAt instanceof Date, true);
+      assert.strictEqual(result?.createdAt.getTime(), expectedDate.getTime());
+    });
   });
 });

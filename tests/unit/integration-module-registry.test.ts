@@ -26,7 +26,7 @@ test('Integration Module Registry', async (t) => {
   await t.test('gatewayModules contains expected gateway entries', () => {
     assert.ok(Array.isArray(gatewayModules));
     assert.strictEqual(gatewayModules.length, 15);
-    const workItems = gatewayModules.find((m: any) => m.key === 'work-items');
+    const workItems = gatewayModules.find((m: { key: string }) => m.key === 'work-items');
     assert.deepEqual(workItems, { key: 'work-items', name: 'Work Items', methods: ['GET'], packHints: ['operacoes-tecnicas'] });
   });
 

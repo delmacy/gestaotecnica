@@ -2,7 +2,7 @@ import { getRuntimeDb } from "@/db";
 import { events } from "@/db/runtime/schema/workflow";
 import { enqueueEventForFlows, processFlowOutboxEvent } from "@/platform/outbox";
 import type { WorkspaceContext } from "@/platform/workspace";
-import type { EmittedEvent, EmitEventInput } from "./event-types";
+import { EventReceiptSchema, type EventReceipt, type EmittedEvent, type EmitEventInput } from "./event-types";
 
 function asUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
@@ -53,4 +53,22 @@ export async function emitEvent(
   await processFlowOutboxEvent(outboxEvent.id, emittedEvent, context);
 
   return emittedEvent;
+}
+
+export function createReceipt(
+  event: EmittedEvent,
+  status: "success" | "error" | "skipped",
+  options?: { processorId?: string; error?: string; idempotencyKey?: string }
+): EventReceipt {
+  const receipt = {
+    eventId: event.id ?? "unknown",
+    processorId: options?.processorId,
+    processedAt: new Date().toISOString(),
+    status,
+    correlationId: event.correlationId,
+    idempotencyKey: options?.idempotencyKey,
+    error: options?.error,
+  };
+
+  return EventReceiptSchema.parse(receipt);
 }

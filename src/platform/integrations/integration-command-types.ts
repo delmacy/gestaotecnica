@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { IntegrationWebhookEnvelopeSchema } from "./contracts/webhook-envelope";
+
 export type IntegrationCommandRequest = {
   workspaceKey?: string;
   command: string;
@@ -15,3 +18,9 @@ export type IntegrationCommandResponse = {
   };
   correlationId: string;
 };
+
+export const IntegrationWebhookCommandEnvelopeSchema = IntegrationWebhookEnvelopeSchema.extend({
+  idempotencyKey: z.string().min(1).max(255).optional(),
+});
+
+export type IntegrationWebhookCommandEnvelope = z.infer<typeof IntegrationWebhookCommandEnvelopeSchema>;

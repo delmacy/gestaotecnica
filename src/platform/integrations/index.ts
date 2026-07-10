@@ -1,4 +1,5 @@
 export * from "./contracts";
 export { validateGatewayRequest } from "./auth";
 export { routeIntegrationCommand } from "./integration-command-router";
-export type { IntegrationCommandRequest, IntegrationCommandResponse } from "./integration-command-types";
+export { IntegrationWebhookCommandEnvelopeSchema } from "./integration-command-types";
+export type { IntegrationCommandRequest, IntegrationCommandResponse, IntegrationWebhookCommandEnvelope } from "./integration-command-types";

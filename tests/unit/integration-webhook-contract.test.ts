@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import * as assert from "node:assert/strict";
-import { IntegrationWebhookCommandEnvelopeSchema } from "../../src/platform/integrations/integration-command-types";
+import { IntegrationWebhookCommandEnvelopeSchema } from "../../src/platform/integrations";
 
 describe("IntegrationWebhookCommandEnvelopeSchema", () => {
   it("should allow a valid envelope without an idempotency key", () => {

@@ -16,3 +16,7 @@ export function getEvent(eventKey: string) {
 export function listEvents() {
   return Array.from(events.values());
 }
+
+export function clearEvents() {
+  events.clear();
+}

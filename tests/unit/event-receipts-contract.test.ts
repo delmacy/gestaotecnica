@@ -4,6 +4,7 @@ import { EventReceiptSchema, EmittedEvent } from "../../src/platform/events/even
 import { EventWriter } from "../../src/platform/events/event-writer";
 import { CanonicalEvent } from "../../src/platform/events/canonical-contract";
 import { CanonicalEventSchema } from "../../src/platform/events/types/canonical-event";
+import { DEFAULT_EVENT_FIXTURES } from "../../src/platform/events/default-events";
 
 test("EventReceiptSchema valid payloads", () => {
   const validPayload = {
@@ -167,4 +168,20 @@ test("EventWriter.createReceipt maps error boundary", () => {
   assert.equal(receipt.processorId, undefined);
   assert.ok(receipt.processedAt);
   assert.equal(receipt.error, "something failed");
+});
+
+test("DEFAULT_EVENT_FIXTURES produce audit-friendly receipts", () => {
+  for (const fixture of DEFAULT_EVENT_FIXTURES) {
+    const receipt = EventWriter.createReceipt(fixture, "success", {
+      processorId: "audit-processor-1",
+    });
+
+    assert.equal(receipt.eventId, fixture.id);
+    assert.equal(receipt.correlationId, fixture.correlationId);
+    assert.equal(receipt.idempotencyKey, fixture.idempotencyKey);
+    assert.equal(receipt.status, "success");
+    assert.equal(receipt.processorId, "audit-processor-1");
+    assert.ok(receipt.processedAt);
+    assert.equal(receipt.error, undefined);
+  }
 });

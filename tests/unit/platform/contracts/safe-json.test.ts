@@ -32,7 +32,7 @@ describe('Safe JSON Operational Boundaries', () => {
   });
 
   it('should reject cycles', () => {
-    const obj: any = { a: 1 };
+    const obj: Record<string, unknown> = { a: 1 };
     obj.b = obj;
     const result = checkSafeJsonValue(obj);
     assert.deepEqual(result, { isSafe: false, reason: 'CYCLE' });

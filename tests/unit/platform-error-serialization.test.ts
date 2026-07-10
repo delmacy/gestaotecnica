@@ -254,3 +254,45 @@ test("no field is silently removed during round trip", () => {
   const deserialized = deserializePlatformError(serialized);
   assert.deepEqual(deserialized, fullEnvelope);
 });
+
+test("Roundtrip preserves code/message/status", () => {
+  const error: PlatformErrorEnvelope = {
+    id: "err-123",
+    code: "VALIDATION.USER.INVALID_NAME",
+    category: "validation",
+    severity: "error",
+    message: "Invalid name provided",
+    timestamp: "2023-10-27T10:00:00.000Z",
+  };
+
+  const serialized = serializePlatformError(error);
+  const deserialized = deserializePlatformError(serialized);
+
+  assert.strictEqual(deserialized.code, error.code);
+  assert.strictEqual(deserialized.message, error.message);
+  assert.strictEqual(deserialized.severity, error.severity);
+  assert.strictEqual(deserialized.category, error.category);
+  assert.strictEqual(deserialized.timestamp, error.timestamp);
+});
+
+test("Unknown details remain safe", () => {
+  const error: PlatformErrorEnvelope = {
+    id: "err-123",
+    code: "VALIDATION.USER.INVALID_NAME",
+    category: "validation",
+    severity: "error",
+    message: "Invalid name provided",
+    timestamp: "2023-10-27T10:00:00.000Z",
+    details: {
+      foo: "bar",
+      nested: {
+         some: "value"
+      }
+    }
+  };
+
+  const serialized = serializePlatformError(error);
+  const deserialized = deserializePlatformError(serialized);
+
+  assert.deepEqual(deserialized.details, error.details);
+});

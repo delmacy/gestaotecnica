@@ -99,3 +99,19 @@ export const INVALID_ISO_DATETIMES = [
   "2023-10-32T10:00:00Z", // Invalid day
   "",
 ];
+
+
+
+export const VALID_CORRELATION_IDS = [
+  "550e8400-e29b-41d4-a716-446655440000",
+  "req-12345",
+  "run-98765",
+  "op-abcde",
+];
+
+export const INVALID_CORRELATION_IDS: unknown[] = [
+  "",
+  123,
+  null,
+  {},
+];

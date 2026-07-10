@@ -83,6 +83,15 @@ describe("Shared Contracts Audit Suite", () => {
   });
 
   describe("Correlation and Traceability", () => {
+    test("CorrelationIdSchema validation", () => {
+      Fixtures.VALID_CORRELATION_IDS.forEach((val) => {
+        assert.doesNotThrow(() => Contracts.CorrelationIdSchema.parse(val));
+      });
+      Fixtures.INVALID_CORRELATION_IDS.forEach((val) => {
+        assert.throws(() => Contracts.CorrelationIdSchema.parse(val));
+      });
+    });
+
     test("CorrelationContextSchema validation", () => {
       Fixtures.VALID_CORRELATION_CONTEXTS.forEach((val) => {
         assert.doesNotThrow(() => Contracts.CorrelationContextSchema.parse(val));

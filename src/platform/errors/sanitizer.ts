@@ -31,6 +31,7 @@ const SENSITIVE_KEYS = new Set([
   "cookie",
   "set-cookie",
   "apikey",
+  "api_key",
   "privatekey",
   "clientsecret",
   "connectionstring",
@@ -54,7 +55,11 @@ const FORBIDDEN_KEYS = new Set([
  * Checks if a key is sensitive and should be redacted.
  */
 function isSensitive(key: string): boolean {
-  return SENSITIVE_KEYS.has(key.toLowerCase());
+  const lower = key.toLowerCase();
+  for (const sensitive of SENSITIVE_KEYS) {
+    if (lower.includes(sensitive)) return true;
+  }
+  return false;
 }
 
 /**

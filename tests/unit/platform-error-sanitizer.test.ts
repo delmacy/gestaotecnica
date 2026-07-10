@@ -229,6 +229,25 @@ test("sanitizeUnknownError: Security", async (t) => {
     assert.equal(result.name, "Error");
     assert.notEqual(result.message, hostile);
   });
+
+  await t.test("redacts secret-bearing (like) keys", () => {
+    const obj = {
+      metadata: {
+        dbPassword: "123",
+        api_key: "abc",
+        sessionToken: "xyz",
+        oauth_secret: "456",
+        authorization_header: "Bearer 123",
+      },
+    };
+    const result = sanitizeUnknownError(obj);
+    const metadata = result.metadata as Record<string, unknown>;
+    assert.equal(metadata.dbPassword, "[REDACTED]");
+    assert.equal(metadata.api_key, "[REDACTED]");
+    assert.equal(metadata.sessionToken, "[REDACTED]");
+    assert.equal(metadata.oauth_secret, "[REDACTED]");
+    assert.equal(metadata.authorization_header, "[REDACTED]");
+  });
 });
 
 test("sanitizeUnknownError: Structures", async (t) => {

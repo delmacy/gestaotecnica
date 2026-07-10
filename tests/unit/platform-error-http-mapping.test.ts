@@ -38,6 +38,23 @@ describe("Platform Error HTTP Mapping", () => {
         assert.strictEqual(mapPlatformErrorToHttpStatus(error), expectedStatus);
       });
     }
+
+    test("should map null to 500", () => {
+      assert.strictEqual(mapPlatformErrorToHttpStatus(null as unknown as PlatformErrorEnvelope), 500);
+    });
+
+    test("should map undefined to 500", () => {
+      assert.strictEqual(mapPlatformErrorToHttpStatus(undefined as unknown as PlatformErrorEnvelope), 500);
+    });
+
+    test("should map unknown category to 500", () => {
+      const error = { ...baseError, category: "unknown_category" as any };
+      assert.strictEqual(mapPlatformErrorToHttpStatus(error), 500);
+    });
+
+    test("should map empty object error to 500", () => {
+      assert.strictEqual(mapPlatformErrorToHttpStatus({} as unknown as PlatformErrorEnvelope), 500);
+    });
   });
 
   describe("toPlatformErrorHttpBody", () => {
@@ -99,6 +116,27 @@ describe("Platform Error HTTP Mapping", () => {
       const body = toPlatformErrorHttpBody(error);
       assert.strictEqual(body.error.retryable, false);
       assert.strictEqual(Object.hasOwn(body.error, "retryable"), true);
+    });
+
+    test("should map null to unexpected fallback body", () => {
+      const body = toPlatformErrorHttpBody(null as unknown as PlatformErrorEnvelope);
+      assert.strictEqual(body.error.code, "UNEXPECTED_ERROR");
+      assert.strictEqual(body.error.category, "unexpected");
+      assert.strictEqual(body.error.message, "An unexpected error occurred.");
+    });
+
+    test("should map undefined to unexpected fallback body", () => {
+      const body = toPlatformErrorHttpBody(undefined as unknown as PlatformErrorEnvelope);
+      assert.strictEqual(body.error.code, "UNEXPECTED_ERROR");
+      assert.strictEqual(body.error.category, "unexpected");
+      assert.strictEqual(body.error.message, "An unexpected error occurred.");
+    });
+
+    test("should map empty object error to unexpected fallback body", () => {
+      const body = toPlatformErrorHttpBody({} as unknown as PlatformErrorEnvelope);
+      assert.strictEqual(body.error.code, "UNEXPECTED_ERROR");
+      assert.strictEqual(body.error.category, "unexpected");
+      assert.strictEqual(body.error.message, "An unexpected error occurred.");
     });
 
     test("should not include sensitive fields (details, source, validationIssues)", () => {

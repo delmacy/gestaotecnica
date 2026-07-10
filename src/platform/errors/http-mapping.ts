@@ -35,6 +35,9 @@ const CATEGORY_TO_STATUS: Record<PlatformErrorCategory, number> = {
  * PURE function.
  */
 export function mapPlatformErrorToHttpStatus(error: PlatformErrorEnvelope): number {
+  if (!error || !error.category) {
+    return 500;
+  }
   return CATEGORY_TO_STATUS[error.category] || 500;
 }
 
@@ -51,8 +54,18 @@ export function mapPlatformErrorToHttpStatus(error: PlatformErrorEnvelope): numb
 export function toPlatformErrorHttpBody(error: PlatformErrorEnvelope): PlatformErrorHttpBody {
   let publicMessage = "An unexpected error occurred.";
 
+  if (!error) {
+    return {
+      error: {
+        code: "UNEXPECTED_ERROR",
+        message: publicMessage,
+        category: "unexpected",
+      },
+    };
+  }
+
   if (error.category === "validation" || error.category === "domain" || error.category === "not_found" || error.category === "conflict") {
-    publicMessage = error.userMessage || error.message;
+    publicMessage = error.userMessage || error.message || publicMessage;
   } else if (error.category === "authentication") {
     publicMessage = "Authentication failed.";
   } else if (error.category === "authorization") {
@@ -67,9 +80,9 @@ export function toPlatformErrorHttpBody(error: PlatformErrorEnvelope): PlatformE
 
   const body: PlatformErrorHttpBody = {
     error: {
-      code: error.code,
+      code: error.code || "UNEXPECTED_ERROR",
       message: publicMessage,
-      category: error.category,
+      category: error.category || "unexpected",
     },
   };
 
@@ -77,7 +90,7 @@ export function toPlatformErrorHttpBody(error: PlatformErrorEnvelope): PlatformE
     body.error.correlationId = error.correlationId;
   }
 
-  if (error.retry !== undefined) {
+  if (error?.retry !== undefined) {
     body.error.retryable = error.retry.retryable;
   }
 

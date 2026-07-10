@@ -36,11 +36,8 @@ test("verifyWebhookSignature rejects invalid signature", () => {
 });
 
 test("verifyWebhookSignature rejects empty parameters", () => {
-  // @ts-expect-error Testing invalid runtime input
   assert.equal(verifyWebhookSignature({ payload: "", signature: "sig", secret: "sec" }), false);
-  // @ts-expect-error Testing invalid runtime input
   assert.equal(verifyWebhookSignature({ payload: "pay", signature: "", secret: "sec" }), false);
-  // @ts-expect-error Testing invalid runtime input
   assert.equal(verifyWebhookSignature({ payload: "pay", signature: "sig", secret: "" }), false);
 });
 

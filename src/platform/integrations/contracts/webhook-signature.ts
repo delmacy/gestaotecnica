@@ -5,7 +5,7 @@ export const WebhookSignatureVerificationOptionsSchema = z.object({
   payload: z.string().min(1),
   signature: z.string().min(1),
   secret: z.string().min(1),
-  algorithm: z.enum(["sha1", "sha256", "sha512"]).default("sha256"),
+  algorithm: z.enum(["sha1", "sha256", "sha512"]).optional(),
 });
 
 export type WebhookSignatureVerificationOptions = z.infer<typeof WebhookSignatureVerificationOptionsSchema>;
@@ -23,7 +23,7 @@ export function verifyWebhookSignature(options: WebhookSignatureVerificationOpti
     return false;
   }
 
-  const { payload, signature, secret, algorithm } = result.data;
+  const { payload, signature, secret, algorithm = "sha256" } = result.data;
 
   try {
     const hmac = createHmac(algorithm, secret);

@@ -85,4 +85,25 @@ describe("Event Mappers Audit", () => {
       return true;
     });
   });
+
+  it("should normalize eventId to lowercase", () => {
+    const input: EventMapperInput = {
+      ...validBaseInput,
+      eventId: "550E8400-E29B-41D4-A716-446655440000",
+    };
+    const result = mapToCanonicalEvent(input);
+    assert.strictEqual(result.eventId, "550e8400-e29b-41d4-a716-446655440000");
+  });
+
+  it("should normalize occurredAt and recordedAt timestamps correctly", () => {
+    const dateInput = new Date("2023-10-27T10:00:00Z");
+    const input: EventMapperInput = {
+      ...validBaseInput,
+      occurredAt: dateInput,
+      recordedAt: dateInput.getTime(),
+    };
+    const result = mapToCanonicalEvent(input);
+    assert.strictEqual(result.occurredAt, "2023-10-27T10:00:00.000Z");
+    assert.strictEqual(result.recordedAt, "2023-10-27T10:00:00.000Z");
+  });
 });

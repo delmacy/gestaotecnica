@@ -6,6 +6,7 @@ import {
   CanonicalEvent,
   CanonicalEventSchema,
 } from "./canonical-contract";
+import { EventReceipt, EventReceiptSchema } from "./event-types";
 import type { WorkspaceContext } from "@/platform/workspace/workspace-context";
 import { EventStoreError } from "./errors/event-errors";
 
@@ -116,6 +117,28 @@ export class EventWriter {
       results.push(await this.appendDomainEvent(event, context));
     }
     return results;
+  }
+
+  /**
+   * Creates an explicitly validated EventReceipt boundary object
+   * based on the canonical event.
+   */
+  static createReceipt(
+    event: CanonicalEvent,
+    status: "success" | "error" | "skipped",
+    options?: { processorId?: string; error?: string }
+  ): EventReceipt {
+    const receipt = {
+      eventId: event.id,
+      processorId: options?.processorId,
+      processedAt: new Date().toISOString(),
+      status,
+      correlationId: event.correlationId,
+      idempotencyKey: event.idempotencyKey,
+      error: options?.error,
+    };
+
+    return EventReceiptSchema.parse(receipt);
   }
 
   private static prepareEvent(

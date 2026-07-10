@@ -52,18 +52,38 @@ export const ProcessNodeSchema = z
         message: "actionKey is required when type is action",
         path: ["actionKey"],
       });
+    } else if (data.type !== "action" && data.actionKey !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "actionKey must not be present when type is not action",
+        path: ["actionKey"],
+      });
     }
+
     if (data.type === "form" && !data.formKey) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "formKey is required when type is form",
         path: ["formKey"],
       });
+    } else if (data.type !== "form" && data.formKey !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "formKey must not be present when type is not form",
+        path: ["formKey"],
+      });
     }
+
     if (data.type === "subprocess" && !data.subprocessDefinitionKey) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "subprocessDefinitionKey is required when type is subprocess",
+        path: ["subprocessDefinitionKey"],
+      });
+    } else if (data.type !== "subprocess" && data.subprocessDefinitionKey !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "subprocessDefinitionKey must not be present when type is not subprocess",
         path: ["subprocessDefinitionKey"],
       });
     }
@@ -110,6 +130,12 @@ export const ProcessEdgeSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "condition is required when type is conditional",
+        path: ["condition"],
+      });
+    } else if (data.type !== "conditional" && data.condition !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "condition must not be present when type is not conditional",
         path: ["condition"],
       });
     }

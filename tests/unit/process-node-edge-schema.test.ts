@@ -61,6 +61,10 @@ describe("ProcessNodeSchema", () => {
     assert.throws(() => ProcessNodeSchema.parse({ ...baseNode, type: "action" }));
   });
 
+  it("should reject non-action node with actionKey", () => {
+    assert.throws(() => ProcessNodeSchema.parse({ ...baseNode, type: "start", actionKey: "some-action" }));
+  });
+
   it("should accept valid form node with formKey", () => {
     assert.doesNotThrow(() => ProcessNodeSchema.parse({ ...baseNode, type: "form", formKey: "some-form" }));
   });
@@ -69,12 +73,20 @@ describe("ProcessNodeSchema", () => {
     assert.throws(() => ProcessNodeSchema.parse({ ...baseNode, type: "form" }));
   });
 
+  it("should reject non-form node with formKey", () => {
+    assert.throws(() => ProcessNodeSchema.parse({ ...baseNode, type: "start", formKey: "some-form" }));
+  });
+
   it("should accept valid subprocess node with subprocessDefinitionKey", () => {
     assert.doesNotThrow(() => ProcessNodeSchema.parse({ ...baseNode, type: "subprocess", subprocessDefinitionKey: "sub-key" }));
   });
 
   it("should reject subprocess node without subprocessDefinitionKey", () => {
     assert.throws(() => ProcessNodeSchema.parse({ ...baseNode, type: "subprocess" }));
+  });
+
+  it("should reject non-subprocess node with subprocessDefinitionKey", () => {
+    assert.throws(() => ProcessNodeSchema.parse({ ...baseNode, type: "start", subprocessDefinitionKey: "sub-key" }));
   });
 
   it("should reject invalid subprocessDefinitionKey", () => {
@@ -171,6 +183,14 @@ describe("ProcessEdgeSchema", () => {
 
   it("should reject conditional edge without condition", () => {
     assert.throws(() => ProcessEdgeSchema.parse({ ...baseEdge, type: "conditional" }));
+  });
+
+  it("should reject non-conditional edge with condition", () => {
+    assert.throws(() => ProcessEdgeSchema.parse({
+      ...baseEdge,
+      type: "default",
+      condition: { expression: "true", language: "expression" }
+    }));
   });
 
   it("should accept error and timeout edges", () => {

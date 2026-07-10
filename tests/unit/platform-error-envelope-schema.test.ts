@@ -24,6 +24,7 @@ test("PlatformErrorEnvelopeSchema", async (t) => {
     userMessage: "We are experiencing technical difficulties. Please try again later.",
     workspaceId: "123e4567-e89b-12d3-a456-426614174000",
     correlationId: "corr_789",
+    requestId: "req_345",
     causationId: "caus_012",
     source: {
       pointer: "/data/attributes/email",
@@ -151,6 +152,39 @@ test("PlatformErrorEnvelopeSchema", async (t) => {
     const invalid = { ...validMin, unknownField: "should-fail" };
     const result = PlatformErrorEnvelopeSchema.safeParse(invalid);
     assert.strictEqual(result.success, false);
+  });
+
+  await t.test("should validate when correlationId, causationId, and requestId are valid strings", () => {
+    const validIds = {
+      ...validMin,
+      correlationId: "valid_correlation",
+      causationId: "valid_causation",
+      requestId: "valid_request",
+    };
+    const result = PlatformErrorEnvelopeSchema.safeParse(validIds);
+    assert.strictEqual(result.success, true);
+  });
+
+  await t.test("should reject when correlationId, causationId, or requestId are empty strings", () => {
+    const emptyCorrelationId = { ...validMin, correlationId: "" };
+    assert.strictEqual(PlatformErrorEnvelopeSchema.safeParse(emptyCorrelationId).success, false);
+
+    const emptyCausationId = { ...validMin, causationId: "" };
+    assert.strictEqual(PlatformErrorEnvelopeSchema.safeParse(emptyCausationId).success, false);
+
+    const emptyRequestId = { ...validMin, requestId: "" };
+    assert.strictEqual(PlatformErrorEnvelopeSchema.safeParse(emptyRequestId).success, false);
+  });
+
+  await t.test("should reject when correlationId, causationId, or requestId are invalid types", () => {
+    const invalidCorrelationId = { ...validMin, correlationId: 123 };
+    assert.strictEqual(PlatformErrorEnvelopeSchema.safeParse(invalidCorrelationId).success, false);
+
+    const invalidCausationId = { ...validMin, causationId: { id: "123" } };
+    assert.strictEqual(PlatformErrorEnvelopeSchema.safeParse(invalidCausationId).success, false);
+
+    const invalidRequestId = { ...validMin, requestId: ["req_123"] };
+    assert.strictEqual(PlatformErrorEnvelopeSchema.safeParse(invalidRequestId).success, false);
   });
 
   await t.test("should support JSON serialization and re-validation", () => {

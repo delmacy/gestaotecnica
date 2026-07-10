@@ -48,7 +48,7 @@ describe("Platform Error HTTP Mapping", () => {
     });
 
     test("should map unknown category to 500", () => {
-      const error = { ...baseError, category: "unknown_category" as any };
+      const error = { ...baseError, category: "unknown_category" as unknown as PlatformErrorEnvelope["category"] };
       assert.strictEqual(mapPlatformErrorToHttpStatus(error), 500);
     });
 

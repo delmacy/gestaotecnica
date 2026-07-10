@@ -6,6 +6,7 @@ export const EventReceiptSchema = z.object({
   processedAt: z.string().datetime(),
   status: z.enum(["success", "error", "skipped"]),
   correlationId: z.string().min(1).optional(),
+  idempotencyKey: z.string().max(255).optional(),
   error: z.string().optional()
 });
 

@@ -9,6 +9,7 @@ test("EventReceiptSchema valid payloads", () => {
     processedAt: new Date().toISOString(),
     status: "success",
     correlationId: "corr-789",
+    idempotencyKey: "idem-abc",
     error: "something went wrong"
   };
 
@@ -44,6 +45,13 @@ export const INVALID_FIXTURES: unknown[] = [
     eventId: 123,
     processedAt: new Date().toISOString(),
     status: "success"
+  },
+  // idempotencyKey too long
+  {
+    eventId: "evt-123",
+    processedAt: new Date().toISOString(),
+    status: "success",
+    idempotencyKey: "a".repeat(256)
   },
   null,
   undefined,

@@ -60,9 +60,27 @@ describe("Shared Contracts - Shared Canonical Primitives", () => {
       assert.doesNotThrow(() => ISODateTimeSchema.parse("2023-10-27T10:00:00.000Z"));
     });
 
+    test("should accept valid date boundaries like leap years", () => {
+      assert.doesNotThrow(() => ISODateTimeSchema.parse("2024-02-29T00:00:00Z")); // 2024 is a leap year
+      assert.doesNotThrow(() => ISODateTimeSchema.parse("2000-02-29T00:00:00Z")); // 2000 is a leap year
+    });
+
+    test("should reject invalid date boundaries", () => {
+      assert.throws(() => ISODateTimeSchema.parse("2023-02-29T00:00:00Z")); // 2023 is not a leap year
+      assert.throws(() => ISODateTimeSchema.parse("2023-11-31T00:00:00Z")); // November has 30 days
+      assert.throws(() => ISODateTimeSchema.parse("2023-04-31T00:00:00Z")); // April has 30 days
+      assert.throws(() => ISODateTimeSchema.parse("2100-02-29T00:00:00Z")); // 2100 is not a leap year
+    });
+
     test("should reject an invalid ISO datetime string", () => {
       assert.throws(() => ISODateTimeSchema.parse("2023-10-27"));
       assert.throws(() => ISODateTimeSchema.parse("not-a-date"));
+    });
+
+    test("should reject ISO datetime strings missing timezone or poorly formatted", () => {
+      assert.throws(() => ISODateTimeSchema.parse("2023-10-27T10:00:00")); // missing Z
+      assert.throws(() => ISODateTimeSchema.parse("2023-10-27 10:00:00Z")); // space instead of T
+      assert.throws(() => ISODateTimeSchema.parse("2023-10-27T10:00:00.Z")); // malformed ms
     });
   });
 

@@ -78,7 +78,7 @@ describe("IntegrationWebhookCommandEnvelopeSchema", () => {
     const result = IntegrationWebhookCommandEnvelopeSchema.safeParse(validEnvelope);
     assert.strictEqual(result.success, true);
     if (result.success) {
-      assert.strictEqual(result.data.idempotencyKey.length, 255);
+      assert.strictEqual(result.data.idempotencyKey?.length, 255);
     }
   });
 });

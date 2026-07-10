@@ -29,6 +29,8 @@ describe("Platform Error Next.js Adapter", () => {
 
       assert.strictEqual(response.status, 400);
       const body = await response.json();
+      assert.strictEqual(body.error.code, "TEST.ERR.CODE");
+      assert.strictEqual(body.error.category, "validation");
       assert.strictEqual(body.error.message, "Invalid input");
       assert.strictEqual(response.headers.get("Content-Type"), "application/json");
     });
@@ -39,6 +41,8 @@ describe("Platform Error Next.js Adapter", () => {
 
       assert.strictEqual(response.status, 500);
       const body = await response.json();
+      assert.strictEqual(body.error.code, "TEST.ERR.CODE");
+      assert.strictEqual(body.error.category, "unexpected");
       assert.strictEqual(body.error.message, "An unexpected error occurred.");
     });
 
@@ -80,6 +84,32 @@ describe("Platform Error Next.js Adapter", () => {
       // Verification
       assert.strictEqual(Object.hasOwn(body.error, "details"), false);
       assert.strictEqual(Object.hasOwn(body.error, "metadata"), false);
+    });
+
+    test("should map all error categories to correct HTTP statuses and include category in body", async () => {
+      const categoryToStatusMap: Record<string, number> = {
+        validation: 400,
+        domain: 400,
+        authentication: 401,
+        authorization: 403,
+        not_found: 404,
+        conflict: 409,
+        rate_limit: 429,
+        integration: 502,
+        infrastructure: 503,
+        timeout: 504,
+        unexpected: 500,
+      };
+
+      for (const [category, status] of Object.entries(categoryToStatusMap)) {
+        const error = { ...baseError, category: category as any };
+        const response = toNextPlatformErrorResponse(error);
+
+        assert.strictEqual(response.status, status, `Category ${category} should map to status ${status}`);
+
+        const body = await response.json();
+        assert.strictEqual(body.error.category, category, `Body should include category ${category}`);
+      }
     });
   });
 

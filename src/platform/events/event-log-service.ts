@@ -3,6 +3,7 @@ import { events } from "@/db/runtime/schema/workflow";
 import { enqueueEventForFlows, processFlowOutboxEvent } from "@/platform/outbox";
 import type { WorkspaceContext } from "@/platform/workspace";
 import type { EmittedEvent, EmitEventInput } from "./event-types";
+import { EventWriter } from "./event-writer";
 
 function asUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
@@ -45,12 +46,32 @@ export async function emitEvent(
 
   const emittedEvent = {
     ...input,
-    id: row.id,
+    id: row?.id || (input.payload?.idempotencyKey ? "skipped-id" : "unknown-id"),
     correlationId: context.correlationId,
   };
 
   const outboxEvent = await enqueueEventForFlows(emittedEvent, context);
   await processFlowOutboxEvent(outboxEvent.id, emittedEvent, context);
+
+    const idempotencyKey = typeof input.payload?.idempotencyKey === "string" ? input.payload.idempotencyKey : undefined;
+
+  const receipt = EventWriter.createReceipt(
+    {
+      id: row?.id || "skipped-id",
+      workspaceId: context.workspaceId,
+      eventType: input.eventType,
+      entityType: input.entityType,
+      actorId: context.actor.id || "system",
+      occurredAt: new Date().toISOString(),
+      schemaVersion: "1.0.0",
+      correlationId: context.correlationId,
+      idempotencyKey,
+      payload: {},
+    } as unknown as import("./canonical-contract").CanonicalEvent,
+    "success"
+  );
+
+  (emittedEvent as EmittedEvent & { receipt?: import("./event-types").EventReceipt }).receipt = receipt;
 
   return emittedEvent;
 }

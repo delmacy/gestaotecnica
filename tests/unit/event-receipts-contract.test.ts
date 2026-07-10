@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { EventReceiptSchema, EmittedEvent } from "../../src/platform/events/event-types";
 import { EventWriter } from "../../src/platform/events/event-writer";
 import { CanonicalEvent } from "../../src/platform/events/canonical-contract";
+import { registerEvent, clearEvents } from "../../src/platform/events/event-registry";
 import { CanonicalEventSchema } from "../../src/platform/events/types/canonical-event";
 import { DEFAULT_EVENT_FIXTURES } from "../../src/platform/events/default-events";
 
@@ -168,6 +169,30 @@ test("EventWriter.createReceipt maps error boundary", () => {
   assert.equal(receipt.processorId, undefined);
   assert.ok(receipt.processedAt);
   assert.equal(receipt.error, "something failed");
+});
+
+test("registerEvent is idempotent", () => {
+  clearEvents();
+
+  const eventDefinition = {
+    key: "test.event",
+    moduleKey: "test",
+    description: "A test event"
+  };
+
+  const firstResult = registerEvent(eventDefinition);
+  assert.equal(firstResult, eventDefinition);
+
+  // Subsequent registrations with the same key should return the original
+  const secondResult = registerEvent({
+    key: "test.event",
+    moduleKey: "different",
+    description: "Different description"
+  });
+
+  assert.equal(secondResult, firstResult);
+  assert.equal(secondResult.moduleKey, "test"); // Original is kept
+  assert.equal(secondResult.description, "A test event");
 });
 
 test("DEFAULT_EVENT_FIXTURES produce audit-friendly receipts", () => {

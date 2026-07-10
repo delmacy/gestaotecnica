@@ -86,6 +86,7 @@ export const PlatformErrorEnvelopeSchema = z.object({
   userMessage: z.string().optional(),
   workspaceId: WorkspaceIdSchema.optional(),
   correlationId: CorrelationIdSchema.optional(),
+  requestId: z.string().min(1).optional(),
   causationId: CausationIdSchema.optional(),
   source: PlatformErrorSourceSchema.optional(),
   details: UnknownRecordSchema.optional(),

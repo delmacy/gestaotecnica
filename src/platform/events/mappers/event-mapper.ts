@@ -36,7 +36,7 @@ export function mapToCanonicalEvent(input: EventMapperInput): CanonicalEvent {
   const { data } = validation;
 
   const canonical: CanonicalEvent = {
-    eventId: data.eventId,
+    eventId: data.eventId.toLowerCase(),
     eventType: data.eventType,
     eventVersion: data.eventVersion,
     occurredAt: normalizeDate(data.occurredAt),

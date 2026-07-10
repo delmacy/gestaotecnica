@@ -1,4 +1,47 @@
 import { registerEvent } from "./event-registry";
+import { CanonicalEvent } from "./canonical-contract";
+
+export const DEFAULT_EVENT_FIXTURES: CanonicalEvent[] = [
+  {
+    id: "e1a9b1c0-3d4a-4e5b-9f6c-8a9b0c1d2e3f",
+    workspaceId: "w1a9b1c0-3d4a-4e5b-9f6c-8a9b0c1d2e3f",
+    eventType: "work_item.created",
+    entityType: "work_item",
+    entityId: "123e4567-e89b-12d3-a456-426614174000",
+    actorId: "a1a9b1c0-3d4a-4e5b-9f6c-8a9b0c1d2e3f",
+    occurredAt: new Date("2024-01-01T12:00:00Z").toISOString(),
+    schemaVersion: "1.0.0",
+    correlationId: "corr-123",
+    idempotencyKey: "idem-123",
+    payload: { title: "New Work Item" },
+  },
+  {
+    id: "e2a9b1c0-3d4a-4e5b-9f6c-8a9b0c1d2e3f",
+    workspaceId: "w1a9b1c0-3d4a-4e5b-9f6c-8a9b0c1d2e3f",
+    eventType: "service_order.completed",
+    entityType: "service_order",
+    entityId: "123e4567-e89b-12d3-a456-426614174001",
+    actorId: "a1a9b1c0-3d4a-4e5b-9f6c-8a9b0c1d2e3f",
+    occurredAt: new Date("2024-01-02T12:00:00Z").toISOString(),
+    schemaVersion: "1.0.0",
+    correlationId: "corr-124",
+    idempotencyKey: "idem-124",
+    payload: { status: "completed" },
+  },
+  {
+    id: "e3a9b1c0-3d4a-4e5b-9f6c-8a9b0c1d2e3f",
+    workspaceId: "w1a9b1c0-3d4a-4e5b-9f6c-8a9b0c1d2e3f",
+    eventType: "notification.sent",
+    entityType: "notification",
+    entityId: "123e4567-e89b-12d3-a456-426614174002",
+    actorId: "system",
+    occurredAt: new Date("2024-01-03T12:00:00Z").toISOString(),
+    schemaVersion: "1.0.0",
+    correlationId: "corr-125",
+    idempotencyKey: "idem-125",
+    payload: { to: "user@example.com" },
+  }
+];
 
 export function registerDefaultEvents() {
   registerEvent({

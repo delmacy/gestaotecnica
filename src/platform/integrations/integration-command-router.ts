@@ -43,11 +43,21 @@ export async function routeIntegrationCommand(
       .limit(1);
 
     if (existingCommand) {
-      const responsePayload = existingCommand.responsePayload as Partial<IntegrationCommandResponse>;
+      const responsePayload = existingCommand.responsePayload as Partial<{
+        data: unknown;
+        error: { code: string; message: string; details?: unknown; };
+      }>;
+      const isSuccess = existingCommand.status === "succeeded";
+      if (isSuccess) {
+        return {
+          success: true,
+          data: responsePayload.data,
+          correlationId: existingCommand.correlationId,
+        };
+      }
       return {
-        success: existingCommand.status === "succeeded",
-        data: responsePayload.data,
-        error: responsePayload.error ?? (existingCommand.errorPayload as IntegrationCommandResponse["error"]),
+        success: false,
+        error: responsePayload.error ?? (existingCommand.errorPayload as { code: string; message: string; details?: unknown; }),
         correlationId: existingCommand.correlationId,
       };
     }
@@ -74,12 +84,20 @@ export async function routeIntegrationCommand(
     .returning({ id: integrationCommands.id });
 
   const result = await runAction(commandRequest.command, commandRequest.payload ?? {}, context);
-  const response: IntegrationCommandResponse = {
-    success: result.success,
-    data: result.data,
-    error: result.error,
-    correlationId: context.correlationId,
-  };
+  let response: IntegrationCommandResponse;
+  if (result.success) {
+    response = {
+      success: true,
+      data: result.data,
+      correlationId: context.correlationId,
+    };
+  } else {
+    response = {
+      success: false,
+      error: result.error as { code: string; message: string; details?: unknown; },
+      correlationId: context.correlationId,
+    };
+  }
 
   const finishedAt = new Date();
   await db

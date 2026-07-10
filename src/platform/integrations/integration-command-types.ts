@@ -8,16 +8,23 @@ export type IntegrationCommandRequest = {
   payload?: unknown;
 };
 
-export type IntegrationCommandResponse = {
-  success: boolean;
-  data?: unknown;
-  error?: {
-    code: string;
-    message: string;
-    details?: unknown;
-  };
-  correlationId: string;
-};
+export type IntegrationCommandResponse =
+  | {
+      success: true;
+      data?: unknown;
+      error?: never;
+      correlationId: string;
+    }
+  | {
+      success: false;
+      data?: never;
+      error: {
+        code: string;
+        message: string;
+        details?: unknown;
+      };
+      correlationId: string;
+    };
 
 export const IntegrationWebhookCommandEnvelopeSchema = IntegrationWebhookEnvelopeSchema.extend({
   idempotencyKey: z.string().min(1).max(255).optional(),

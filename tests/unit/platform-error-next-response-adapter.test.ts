@@ -4,7 +4,7 @@ import {
   toNextPlatformErrorResponse,
   toNextUnknownErrorResponse
 } from "../../src/platform/errors/next-response-adapter";
-import { PlatformErrorEnvelope } from "../../src/platform/errors/schema";
+import { PlatformErrorEnvelope, PlatformErrorCategory } from "../../src/platform/errors/schema";
 import { PlatformErrorContext } from "../../src/platform/errors/factory";
 
 const baseError: PlatformErrorEnvelope = Object.freeze({
@@ -102,7 +102,7 @@ describe("Platform Error Next.js Adapter", () => {
       };
 
       for (const [category, status] of Object.entries(categoryToStatusMap)) {
-        const error = { ...baseError, category: category as any };
+        const error = { ...baseError, category: category as PlatformErrorCategory };
         const response = toNextPlatformErrorResponse(error);
 
         assert.strictEqual(response.status, status, `Category ${category} should map to status ${status}`);

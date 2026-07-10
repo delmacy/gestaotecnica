@@ -4,15 +4,15 @@ import proxyquire from "proxyquire";
 
 // Mock NextResponse
 class MockNextResponse {
-  body: any;
+  body: unknown;
   status: number;
 
-  constructor(body: any, init?: { status?: number }) {
+  constructor(body: unknown, init?: { status?: number }) {
     this.body = body;
     this.status = init?.status || 200;
   }
 
-  static json(body: any, init?: { status?: number }) {
+  static json(body: unknown, init?: { status?: number }) {
     return new MockNextResponse(body, init);
   }
 

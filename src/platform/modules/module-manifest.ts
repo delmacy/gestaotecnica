@@ -29,39 +29,40 @@ export type ModuleManifest = z.infer<typeof ModuleManifestSchema>;
 
 export const StrictModuleManifestSchema = ModuleManifestSchema.extend({
   id: z.string({
-    errorMap: (issue: any, ctx: any) => {
-      if (issue.code === z.ZodIssueCode.invalid_type) return { message: "INVALID_MANIFEST_ID" };
-      return { message: "MISSING_MANIFEST_ID" };
-    }
-  } as any).min(1, { message: "EMPTY_MANIFEST_ID" }),
+    message: "MISSING_MANIFEST_ID"
+  }).min(1, { message: "EMPTY_MANIFEST_ID" }),
 
   name: z.string({
-    errorMap: (issue: any, ctx: any) => {
-      if (issue.code === z.ZodIssueCode.invalid_type) return { message: "INVALID_MANIFEST_NAME" };
-      return { message: "MISSING_MANIFEST_NAME" };
-    }
-  } as any),
+    message: "MISSING_MANIFEST_NAME"
+  }),
 
-  version: z.any().superRefine((val, ctx) => {
+  version: z.unknown().superRefine((val, ctx) => {
     if (val === undefined) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "MISSING_MANIFEST_VERSION" });
       return z.NEVER;
     }
-  }).pipe(SchemaVersionSchema),
+    const result = SchemaVersionSchema.safeParse(val);
+    if (!result.success) {
+      result.error.issues.forEach(i => ctx.addIssue(i as z.IssueData));
+      return z.NEVER;
+    }
+  }).transform(val => val as string),
 
   capabilities: z.array(z.string(), {
-    errorMap: (issue: any, ctx: any) => {
-      if (issue.code === z.ZodIssueCode.invalid_type) return { message: "INVALID_MANIFEST_CAPABILITIES" };
-      return { message: "MISSING_MANIFEST_CAPABILITIES" };
-    }
-  } as any),
+    message: "MISSING_MANIFEST_CAPABILITIES"
+  }),
 
-  lifecycleMetadata: z.any().superRefine((val, ctx) => {
+  lifecycleMetadata: z.unknown().superRefine((val, ctx) => {
     if (val === undefined) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "MISSING_LIFECYCLE_METADATA" });
       return z.NEVER;
     }
-  }).pipe(UnknownRecordSchema)
+    const result = UnknownRecordSchema.safeParse(val);
+    if (!result.success) {
+      result.error.issues.forEach(i => ctx.addIssue(i as z.IssueData));
+      return z.NEVER;
+    }
+  }).transform(val => val as Record<string, unknown>)
 });
 
 export type StrictModuleManifest = z.infer<typeof StrictModuleManifestSchema>;

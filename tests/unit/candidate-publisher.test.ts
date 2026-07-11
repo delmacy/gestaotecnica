@@ -102,11 +102,11 @@ function createMockRepository(
 }
 
 
-const traceReceiptsGenerated: any[] = [];
+const traceReceiptsGenerated: unknown[] = [];
 const mockTraceReceiptService = {
-  createAndAppendReceipt: async (db: any, input: any) => {
+  createAndAppendReceipt: async (db: unknown, input: unknown) => {
     traceReceiptsGenerated.push(input);
-    return { id: "test-receipt-id" } as any;
+    return { id: "test-receipt-id" } as unknown;
   },
   getReceiptById: async () => null,
   getReceiptsByCorrelationId: async () => [],
@@ -292,7 +292,7 @@ test("Falha ao salvar trace receipt rejeita a operacao e da throw", async () => 
 
   await assert.rejects(
     () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, errorMockService),
-    (err: any) => {
+    (err: unknown) => {
       assert.strictEqual(err.message, "Failed to publish workflow definition");
       return true;
     }

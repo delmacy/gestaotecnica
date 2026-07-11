@@ -96,6 +96,45 @@ jobs:
         if: steps.deploy_gate.outputs.deploy == 'true'
         run: vercel env pull .env.production.local --environment=production --yes --token="$VERCEL_TOKEN"
 
+      - name: Export production environment for local build
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require("node:fs");
+          const dotenv = require("dotenv");
+
+          const envFile = ".env.production.local";
+          const requiredKeys = [
+            "DATABASE_URL",
+            "PLATFORM_DATABASE_URL",
+            "RUNTIME_DATABASE_URL",
+            "JWT_SECRET",
+          ];
+
+          if (!fs.existsSync(envFile)) {
+            throw new Error(`${envFile} was not created by vercel env pull.`);
+          }
+
+          const parsed = dotenv.parse(fs.readFileSync(envFile));
+          const missing = requiredKeys.filter((key) => !parsed[key]);
+          if (missing.length > 0) {
+            throw new Error(`Missing required production env key(s): ${missing.join(", ")}`);
+          }
+
+          const githubEnv = process.env.GITHUB_ENV;
+          if (!githubEnv) {
+            throw new Error("GITHUB_ENV is not available.");
+          }
+
+          const output = requiredKeys
+            .map((key) => `${key}<<__${key}__\n${parsed[key]}\n__${key}__`)
+            .join("\n");
+
+          fs.appendFileSync(githubEnv, `${output}\n`);
+          console.log(`Exported ${requiredKeys.length} production env key(s) for build.`);
+          NODE
+
       - name: Validate Next.js build
         if: steps.deploy_gate.outputs.deploy == 'true'
         run: npm run build

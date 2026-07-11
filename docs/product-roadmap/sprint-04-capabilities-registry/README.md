@@ -17,3 +17,9 @@ Teste após T19. Cobrir instalação, dependência ausente, ciclo, incompatibili
 
 ## Prompt Jules
 Busque a task `<ID>` em `docs/product-roadmap/sprint-04-capabilities-registry/README.md` e execute somente esse contrato.
+
+## Canonical Manifest Entry Points
+- **Schema & Types**: `src/platform/modules/module-manifest.ts`
+- **Tests**:
+  - `tests/unit/platform/modules/module-manifest-schema.test.ts`
+  - `tests/unit/platform/modules/module-lifecycle-status.test.ts`

@@ -36,6 +36,7 @@ export function Sidebar() {
                         ? "bg-primary text-primary-foreground font-medium"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     )}
+                    aria-current={isActive ? "page" : undefined}
                   >
                     <Icon className="w-4 h-4" />
                     {module.label}

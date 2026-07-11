@@ -3,6 +3,13 @@ import { EntityIdSchema } from "../../contracts/identifiers";
 import { SchemaVersionSchema } from "../../contracts/payload";
 import { CAPABILITY_DOMAINS, CAPABILITY_GROUPS } from "./constants";
 
+
+/**
+ * Manifest Version
+ */
+export const ManifestVersionSchema = SchemaVersionSchema;
+export type ManifestVersion = z.infer<typeof ManifestVersionSchema>;
+
 /**
  * Capability Status
  */
@@ -78,7 +85,7 @@ export type BusinessRole = z.infer<typeof BusinessRoleSchema>;
  */
 export const ProcessTemplateReferenceSchema = z.object({
   templateId: EntityIdSchema,
-  version: SchemaVersionSchema.optional(),
+  version: ManifestVersionSchema.optional(),
 });
 export type ProcessTemplateReference = z.infer<typeof ProcessTemplateReferenceSchema>;
 
@@ -149,7 +156,7 @@ export const CapabilitySchema = z.object({
   description: z.string().min(1),
   domain: CapabilityDomainSchema,
   group: CapabilityGroupSchema,
-  version: SchemaVersionSchema,
+  version: ManifestVersionSchema,
   status: CapabilityStatusSchema,
   businessObjects: z.array(BusinessObjectSchema).min(1).refine(uniqueKeyRefinement, uniqueKeyMessage("businessObjects")),
   businessActions: z.array(BusinessActionSchema).min(1).refine(uniqueKeyRefinement, uniqueKeyMessage("businessActions")),
@@ -170,7 +177,7 @@ export type Capability = z.infer<typeof CapabilitySchema>;
  * Capability Catalog Index Schema
  */
 export const CapabilityCatalogIndexSchema = z.object({
-  version: SchemaVersionSchema,
+  version: ManifestVersionSchema,
   lastUpdated: z.string().datetime(),
   capabilities: z.array(CapabilitySchema),
 });

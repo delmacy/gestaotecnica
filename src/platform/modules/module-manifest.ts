@@ -67,3 +67,20 @@ export const StrictModuleManifestSchema = ModuleManifestSchema.extend({
 });
 
 export type StrictModuleManifest = z.infer<typeof StrictModuleManifestSchema>;
+
+export const ManifestValidationResultEnvelopeSchema = z.discriminatedUnion("ok", [
+  z.object({
+    ok: z.literal(true),
+    data: StrictModuleManifestSchema,
+  }).strict(),
+  z.object({
+    ok: z.literal(false),
+    error: z.object({
+      code: z.string(),
+      message: z.string(),
+      path: z.array(z.string()).optional(),
+    }).strict(),
+  }).strict(),
+]);
+
+export type ManifestValidationResult = z.infer<typeof ManifestValidationResultEnvelopeSchema>;

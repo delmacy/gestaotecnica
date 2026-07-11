@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { SchemaVersionSchema, UnknownRecordSchema } from "../contracts/payload";
+import { UUIDSchema } from "../contracts/identifiers";
 
 export const ModuleLifecycleStatusSchema = z.enum([
   "draft",
@@ -48,7 +49,7 @@ export const StrictModuleManifestSchema = ModuleManifestSchema.extend({
     }
   }).transform(val => val as string),
 
-  capabilities: z.array(z.string(), {
+  capabilities: z.array(UUIDSchema, {
     message: "MISSING_MANIFEST_CAPABILITIES"
   }),
 

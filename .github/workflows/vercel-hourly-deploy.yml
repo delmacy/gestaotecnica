@@ -116,11 +116,9 @@ jobs:
             "JWT_SECRET",
           ];
 
-          if (!fs.existsSync(envFile)) {
-            throw new Error(`${envFile} was not created by vercel env pull.`);
-          }
-
-          const parsed = dotenv.parse(fs.readFileSync(envFile));
+          const parsed = fs.existsSync(envFile)
+            ? dotenv.parse(fs.readFileSync(envFile))
+            : {};
           const resolved = Object.fromEntries(
             requiredKeys.map((key) => [key, parsed[key] || process.env[key] || ""]),
           );

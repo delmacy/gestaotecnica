@@ -1,7 +1,7 @@
 export interface BuilderModule {
   href: string;
   label: string;
-  icon: any;
+  icon: unknown;
   status: string;
 }
 

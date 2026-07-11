@@ -133,7 +133,7 @@ test("Candidate aprovado gera definição oficial e atualiza status", async () =
 
   assert.equal(definition.workspaceId, validWorkspaceId, "A definição publicada deve pertencer ao mesmo workspace");
   assert.equal(traceReceiptsGenerated.length, 1);
-  const generatedReceipt = traceReceiptsGenerated[0];
+  const generatedReceipt = traceReceiptsGenerated[0] as Record<string, unknown>;
   assert.equal(generatedReceipt.subject.id, result.processDefinitionId);
   assert.equal(generatedReceipt.metadata.processVersionId, result.processVersionId);
   assert.equal(generatedReceipt.metadata.sourceCandidateId, result.sourceCandidateId);

@@ -165,7 +165,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
   });
 
   it("should ignore forged authorId and use context actor instead", async () => {
-    let insertedValues: unknown = null;
+    let insertedValues: Record<string, unknown> | null = null;
     const { addCaseCommentKernelAction } = proxyquire("./kernel-actions", {
       "@/db": { getDb: () => ({
         select: () => ({
@@ -200,7 +200,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
       context
     );
 
-    assert.strictEqual(insertedValues.proposedDefinition.authorId, "real-author-id");
+    assert.strictEqual((insertedValues as Record<string, unknown>).proposedDefinition.authorId, "real-author-id");
   });
 
   it("should correctly filter comments by caseId inside proposedDefinition", async () => {
@@ -216,7 +216,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
                 }
                 // Drizzle select() without args might pass an object or undefined.
                 // Let's refine the mock to handle both calls.
-                if (table && table.name === 'process_candidates' && !capturedWhere.length) {
+                if (table && (table as Record<string, unknown>).name === 'process_candidates' && !capturedWhere.length) {
                      // First call: parent check
                      return { limit: async () => [{ id: VALID_UUID }] };
                 }

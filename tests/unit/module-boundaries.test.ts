@@ -261,6 +261,8 @@ const boundaryRules: BoundaryRule[] = [
 ];
 
 const baseline: BaselineEntry[] = [
+  { file: 'src/platform/events/event-writer.ts', importPath: '@/db', ruleName: 'Events boundaries', severity: 'BLOCKER' },
+  { file: 'src/platform/events/event-writer.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Events boundaries', severity: 'BLOCKER' },
   { file: 'src/platform/events/event-log-service.ts', importPath: '@/db', ruleName: 'Events boundaries', severity: 'BLOCKER' },
   { file: 'src/platform/events/event-log-service.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Events boundaries', severity: 'BLOCKER' },
   { file: 'src/platform/events/event-log-service.ts', importPath: '@/db/runtime/schema/workflow', ruleName: 'Deep import from src/db. Use public index instead.', severity: 'MEDIUM' },

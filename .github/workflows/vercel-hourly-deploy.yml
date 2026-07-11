@@ -150,4 +150,30 @@ jobs:
 
       - name: Deploy prebuilt artifact to production
         if: steps.deploy_gate.outputs.deploy == 'true'
-        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        run: |
+          set -euo pipefail
+
+          deploy_log="$(mktemp)"
+          set +e
+          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" >"$deploy_log" 2>&1
+          deploy_status=$?
+          set -e
+
+          cat "$deploy_log"
+
+          if [ "$deploy_status" -eq 0 ]; then
+            exit 0
+          fi
+
+          if grep -Eiq "(rate[- ]?limit|too many requests|http 429|\\b429\\b|deployment limit|deployments limit|exceeded.*deploy|limit.*deploy)" "$deploy_log"; then
+            echo "::warning::Vercel deploy skipped because Vercel returned a deployment/rate limit. Build validation passed, so this workflow remains successful."
+            {
+              echo "### Vercel deploy skipped"
+              echo
+              echo "The production build passed, but Vercel refused the deployment because of a deployment/rate limit."
+              echo "This is treated as a soft deploy skip so CI can remain green."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          exit "$deploy_status"

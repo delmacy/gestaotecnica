@@ -1,0 +1,109 @@
+name: Vercel hourly production deploy
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: "Deploy even if the latest successful run used the same commit"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: vercel-hourly-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy latest main to Vercel
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VERCEL_ORG_ID: team_KpojeVYSgUJpZi9pUZIeCiya
+      VERCEL_PROJECT_ID: prj_LIkgEIpTfmDf5Pzor9pjnValohsu
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Decide whether this commit needs deployment
+        id: deploy_gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE_DEPLOY: ${{ inputs.force_deploy || 'false' }}
+          WORKFLOW_FILE: vercel-hourly-deploy.yml
+        run: |
+          set -euo pipefail
+
+          if [ "$FORCE_DEPLOY" = "true" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "reason=manual force_deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          previous_sha="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$WORKFLOW_FILE/runs?branch=main&status=success&per_page=10" \
+            --jq ".workflow_runs[] | select(.id != $GITHUB_RUN_ID) | .head_sha" | head -n 1 || true)"
+
+          if [ -n "$previous_sha" ] && [ "$previous_sha" = "$GITHUB_SHA" ]; then
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "reason=main commit already deployed by this workflow" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+          echo "reason=new main commit or no prior successful deploy found" >> "$GITHUB_OUTPUT"
+
+      - name: Show skip reason
+        if: steps.deploy_gate.outputs.deploy != 'true'
+        run: echo "${{ steps.deploy_gate.outputs.reason }}"
+
+      - name: Validate Vercel token
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: |
+          set -euo pipefail
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "Missing GitHub secret VERCEL_TOKEN."
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: npm ci
+
+      - name: Install Vercel CLI
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: npm install --global vercel@latest
+
+      - name: Pull production environment
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: vercel env pull .env.production.local --environment=production --yes --token="$VERCEL_TOKEN"
+
+      - name: Validate Next.js build
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: npm run build
+
+      - name: Build Vercel artifact
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy prebuilt artifact to production
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"

@@ -15,38 +15,9 @@ const uniqueStringArray = z.array(z.string()).refine(items => new Set(items).siz
 }).optional();
 
 export const ModuleManifestSchema = z.object({
-  id: z.string({
-    message: "INVALID_MANIFEST_ID"
-  }).min(1, { message: "EMPTY_MANIFEST_ID" }),
-
-  key: z.string({
-    message: "INVALID_MANIFEST_KEY"
-  }).min(1, { message: "EMPTY_MANIFEST_KEY" }),
-
-  name: z.string({
-    message: "INVALID_MANIFEST_NAME"
-  }),
-
-  version: z.any().superRefine((val, ctx) => {
-    if (val === undefined) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "MISSING_MANIFEST_VERSION" });
-      return z.NEVER;
-    }
-  }).pipe(SchemaVersionSchema),
-
+  key: z.string(),
+  name: z.string(),
   description: z.string().optional(),
-
-  capabilities: z.array(z.string(), {
-    message: "INVALID_MANIFEST_CAPABILITIES"
-  }),
-
-  lifecycleMetadata: z.any().superRefine((val, ctx) => {
-    if (val === undefined) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "MISSING_LIFECYCLE_METADATA" });
-      return z.NEVER;
-    }
-  }).pipe(UnknownRecordSchema),
-
   actions: uniqueStringArray,
   events: uniqueStringArray,
   views: uniqueStringArray,
@@ -56,5 +27,41 @@ export const ModuleManifestSchema = z.object({
 
 export type ModuleManifest = z.infer<typeof ModuleManifestSchema>;
 
-export const StrictModuleManifestSchema = ModuleManifestSchema;
+export const StrictModuleManifestSchema = ModuleManifestSchema.extend({
+  id: z.string({
+    errorMap: (issue: any, ctx: any) => {
+      if (issue.code === z.ZodIssueCode.invalid_type) return { message: "INVALID_MANIFEST_ID" };
+      return { message: "MISSING_MANIFEST_ID" };
+    }
+  } as any).min(1, { message: "EMPTY_MANIFEST_ID" }),
+
+  name: z.string({
+    errorMap: (issue: any, ctx: any) => {
+      if (issue.code === z.ZodIssueCode.invalid_type) return { message: "INVALID_MANIFEST_NAME" };
+      return { message: "MISSING_MANIFEST_NAME" };
+    }
+  } as any),
+
+  version: z.any().superRefine((val, ctx) => {
+    if (val === undefined) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "MISSING_MANIFEST_VERSION" });
+      return z.NEVER;
+    }
+  }).pipe(SchemaVersionSchema),
+
+  capabilities: z.array(z.string(), {
+    errorMap: (issue: any, ctx: any) => {
+      if (issue.code === z.ZodIssueCode.invalid_type) return { message: "INVALID_MANIFEST_CAPABILITIES" };
+      return { message: "MISSING_MANIFEST_CAPABILITIES" };
+    }
+  } as any),
+
+  lifecycleMetadata: z.any().superRefine((val, ctx) => {
+    if (val === undefined) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "MISSING_LIFECYCLE_METADATA" });
+      return z.NEVER;
+    }
+  }).pipe(UnknownRecordSchema)
+});
+
 export type StrictModuleManifest = z.infer<typeof StrictModuleManifestSchema>;

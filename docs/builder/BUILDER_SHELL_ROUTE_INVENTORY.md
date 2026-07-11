@@ -62,3 +62,28 @@ According to the Builder Shell contract (`docs/ui/surfaces/BUILDER_SHELL.md`), t
 - `error_state`: Application-wide error boundaries handling HTTP 500s or network failures are not integrated within the shell wrapper.
 - `synthetic_data_mode`: The UI implies synthetic data operations but lacks dynamic assertions to ensure the indicator is foolproof when mixing environments.
 - `real_data_required`: Unimplemented.
+
+## Shell Readiness vs. Persisted Builder Readiness
+
+**Shell Readiness** refers to the current state of the `BuilderShell` and its immediate child navigational structures. It means the application can successfully mount the structural layout, render the sidebar and topbar, display active/mock/future module states, and route between the defined URLs without crashing. The client-side routing and visual contracts are satisfied.
+
+**Persisted Builder Readiness**, on the other hand, implies that the modules loaded within the shell are fully wired to a backend persistence layer (e.g., PostgreSQL via Drizzle), actively saving drafts, loading real configurations, and triggering domain events.
+
+*Crucially*, the current state of the application is **Shell Ready but NOT Persisted Builder Ready**. The shell provides a synthetic, stateless container for modules that are largely operating on mocked or transient in-memory data structures. The visual shell is "complete" for the current UI iteration, while the underlying data mechanics are pending.
+
+## Non-Goals
+
+For the current phase of the Builder Shell, the following are explicitly non-goals:
+- **Dynamic Module Loading:** The shell relies on static configurations in `shell-data.ts`. It does not attempt to dynamically load or discover modules from a database or remote manifest.
+- **Backend Persistence Integration:** The shell itself does not manage fetching or saving workspace data, user profiles, or module states to a real backend.
+- **Granular RBAC:** While mock personas exist, true role-based access control (RBAC) and authorization checks before rendering a route are not implemented at the shell level yet.
+- **Real-time State Syncing:** No WebSockets or real-time polling mechanisms are implemented to synchronize shell state with backend changes.
+
+## Next Persistence Handoff
+
+To transition the Builder Shell from a purely synthetic UI wrapper to a fully persisted, stateful container, the following handoff steps are required:
+1. **Dynamic Workspace Resolution:** Replace `CURRENT_WORKSPACE` in `shell-data.ts` with a real state management solution (e.g., React Context) that fetches the user's active workspace from the backend upon login.
+2. **Database-Driven Routing:** Transition `ACTIVE_MODULES` and `FUTURE_MODULES` from static arrays to a dynamic structure fetched from a module registry in the database, allowing per-workspace feature flags.
+3. **Persisted User Session:** Integrate real authentication data to populate the `Topbar` and drive access control decisions.
+4. **Error & Loading Boundaries:** Implement Suspense boundaries and error catchers that integrate with the data fetching layer to replace the currently static layouts with true data-driven loading states.
+5. **Stateful Breadcrumbs:** Connect the breadcrumb system to the actual hierarchical data models (e.g., loading the specific Task ID name rather than just the generic route path).

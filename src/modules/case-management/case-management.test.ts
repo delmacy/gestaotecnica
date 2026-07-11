@@ -165,7 +165,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
   });
 
   it("should ignore forged authorId and use context actor instead", async () => {
-    let insertedValues: Record<string, unknown> | null = null;
+    let insertedValues: unknown = null;
     const { addCaseCommentKernelAction } = proxyquire("./kernel-actions", {
       "@/db": { getDb: () => ({
         select: () => ({
@@ -200,7 +200,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
       context
     );
 
-    assert.strictEqual((insertedValues as Record<string, unknown>).proposedDefinition.authorId, "real-author-id");
+    assert.strictEqual(((insertedValues as Record<string, unknown>).proposedDefinition as Record<string, unknown>).authorId, "real-author-id");
   });
 
   it("should correctly filter comments by caseId inside proposedDefinition", async () => {

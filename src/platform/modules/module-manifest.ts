@@ -26,29 +26,17 @@ export const ModuleManifestSchema = z.object({
 
 export type ModuleManifest = z.infer<typeof ModuleManifestSchema>;
 
-
-
-const strictErrorMap: z.ZodErrorMap = (issue, ctx) => {
-  if (issue.code === z.ZodIssueCode.invalid_type && issue.received === "undefined") {
-    const p = issue.path[0];
-    switch (p) {
-      case "id": return { message: "MANIFEST_MISSING_ID" };
-      case "key": return { message: "MANIFEST_MISSING_KEY" };
-      case "name": return { message: "MANIFEST_MISSING_NAME" };
-      case "version": return { message: "MANIFEST_MISSING_VERSION" };
-      case "capabilities": return { message: "MANIFEST_MISSING_CAPABILITIES" };
-      case "lifecycleStatus": return { message: "MANIFEST_MISSING_LIFECYCLE" };
-    }
-  }
-  return { message: ctx.defaultError };
-};
-
-export const StrictModuleManifestSchemaBase = ModuleManifestSchema.extend({
-  id: z.string({ required_error: "MANIFEST_MISSING_ID" }),
-  key: z.string({ required_error: "MANIFEST_MISSING_KEY" }),
-  name: z.string({ required_error: "MANIFEST_MISSING_NAME" }),
-  version: z.string({ required_error: "MANIFEST_MISSING_VERSION" }).regex(/^\d+\.\d+\.\d+$/),
-  capabilities: z.array(z.string(), { required_error: "MANIFEST_MISSING_CAPABILITIES" }).refine(items => new Set(items).size === items.length, {
+export const StrictModuleManifestSchemaBase = z.object({
+  id: z.string({ message: "MANIFEST_MISSING_ID" }),
+  key: z.string({ message: "MANIFEST_MISSING_KEY" }),
+  name: z.string({ message: "MANIFEST_MISSING_NAME" }),
+  description: z.string().optional(),
+  actions: uniqueStringArray,
+  events: uniqueStringArray,
+  views: uniqueStringArray,
+  dependencies: uniqueStringArray,
+  version: z.string({ message: "MANIFEST_MISSING_VERSION" }).regex(/^\d+\.\d+\.\d+$/),
+  capabilities: z.array(z.string(), { message: "MANIFEST_MISSING_CAPABILITIES" }).refine(items => new Set(items).size === items.length, {
     message: "Duplicates not allowed",
   }),
   lifecycleStatus: z.enum([
@@ -56,17 +44,39 @@ export const StrictModuleManifestSchemaBase = ModuleManifestSchema.extend({
     "active",
     "deprecated",
     "retired"
-  ], { required_error: "MANIFEST_MISSING_LIFECYCLE" }).or(z.string({ required_error: "MANIFEST_MISSING_LIFECYCLE" }))
+  ], { message: "MANIFEST_MISSING_LIFECYCLE" }).or(z.string({ message: "MANIFEST_MISSING_LIFECYCLE" }))
 });
 
-export const StrictModuleManifestSchema = z.preprocess(
-  (val) => val,
-  StrictModuleManifestSchemaBase
-);
+export const StrictModuleManifestSchema = z.preprocess((val) => val, StrictModuleManifestSchemaBase);
 
 export type StrictModuleManifest = z.infer<typeof StrictModuleManifestSchemaBase>;
 
-// Re-wrap parse with error map for edge cases where union throws differently
+
+
 export function validateStrictModuleManifest(data: unknown) {
-    return StrictModuleManifestSchemaBase.safeParse(data, { errorMap: strictErrorMap });
+    const errorMap = (issue: any, ctx: any) => {
+      if (issue.code === 'invalid_type' && issue.received === 'undefined') {
+        const p = issue.path[0];
+        if (p === 'id') return { message: "MANIFEST_MISSING_ID" };
+        if (p === 'key') return { message: "MANIFEST_MISSING_KEY" };
+        if (p === 'name') return { message: "MANIFEST_MISSING_NAME" };
+        if (p === 'version') return { message: "MANIFEST_MISSING_VERSION" };
+        if (p === 'capabilities') return { message: "MANIFEST_MISSING_CAPABILITIES" };
+        if (p === 'lifecycleStatus') return { message: "MANIFEST_MISSING_LIFECYCLE" };
+      }
+      return { message: ctx.defaultError };
+    };
+
+    const result = StrictModuleManifestSchemaBase.safeParse(data, { errorMap } as any);
+
+    if (!result.success) {
+      if (typeof data === 'object' && data !== null && !('lifecycleStatus' in data)) {
+         for (const issue of result.error.issues) {
+             if (issue.path[0] === 'lifecycleStatus') {
+                 (issue as any).message = "MANIFEST_MISSING_LIFECYCLE";
+             }
+         }
+      }
+    }
+    return result;
 }

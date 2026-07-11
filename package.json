@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "check:architecture": "npx tsx scripts/validate-architecture-rules.ts",
+    "check:no-explicit-any": "npx tsx scripts/check-explicit-any.ts",
     "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "test:unit": "npx tsx --test tests/unit/*.test.ts",
     "test:integration": "npx tsx --test tests/integration/*.test.ts",

@@ -4,6 +4,10 @@ on:
     types: [opened, synchronize, reopened, edited]
     paths:
       - 'src/**'
+      - '.github/workflows/architecture-check.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/check-explicit-any.ts'
       - 'scripts/validate-architecture-rules.ts'
 
 jobs:
@@ -12,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -26,3 +32,9 @@ jobs:
           echo "Running strict architecture rules validation..."
           npm run check:architecture -- --strict
           echo "Architecture validation passed."
+
+      - name: Reject explicit any in changed TypeScript
+        run: |
+          echo "Checking changed TypeScript files for explicit any..."
+          npm run check:no-explicit-any
+          echo "No explicit any usage found."

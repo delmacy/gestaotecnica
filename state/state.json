@@ -250,205 +250,286 @@
     "UI-02": {
       "id": "UI-02",
       "lane": "UI",
-      "title": "Builder Shell Navigation Hardening",
-      "goal": "make Builder navigation states, empty states, and active section behavior reliable without backend coupling.",
-      "status": "planned_gated",
-      "taskCount": 10,
+      "title": "Client Workspace Navigation",
+      "goal": "Builder users can navigate clients and inspect each client workspace/application/system surface before persistence binding.",
       "tasks": [
         {
           "id": "UI-02-001",
-          "title": "builder-shell-route-inventory",
-          "objective": "document current Builder shell routes, navigation components, and known missing states.",
+          "title": "client-workspace-ui-contract",
+          "objective": "Document the Builder navigation contract where a builder enters Clients, selects a client, and then sees that client's workspaces/applications/systems. Keep this as the single UI north star for the next implementation tasks.",
           "allowedFiles": [
-            "`docs/product-roadmap/`",
-            "`src/app/**/builder/**`",
-            "`src/components/**/builder/**`."
+            "docs/product-roadmap/**",
+            "docs/ui/**",
+            "docs/system-builder/**"
           ],
           "forbiddenFiles": [
-            "DB",
-            "runtime",
-            "auth changes."
+            "src/**",
+            "db/**",
+            "drizzle/**",
+            "migrations/**",
+            "package.json",
+            "package-lock.json"
           ],
           "acceptance": [
-            "route inventory exists and does not claim persistence readiness."
+            "Document the hierarchy: Builder -> Clients -> Client detail -> Workspaces/Applications/Systems.",
+            "State clearly that Gestao Tecnica is a future client/project and must not be developed as a System Builder extension in this sprint.",
+            "Define the initial UI as read-only/static or fixture-backed until a later persistence-binding sprint.",
+            "No production code or database files are changed."
           ],
           "validationCommands": [
-            "`npm run build`."
+            "git diff --check"
           ],
-          "prompt": "Task UI-02-001: builder-shell-route-inventory\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\ndocument current Builder shell routes, navigation components, and known missing states.\n\nAllowed files only:\n- `docs/product-roadmap/`\n- `src/app/**/builder/**`\n- `src/components/**/builder/**`.\n\nForbidden files/scope:\n- DB\n- runtime\n- auth changes.\n\nAcceptance criteria:\n- route inventory exists and does not claim persistence readiness.\n\nValidation commands:\n- `npm run build`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-001: client-workspace-ui-contract\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nDocument the Builder navigation contract where a builder enters Clients, selects a client, and then sees that client's workspaces/applications/systems. Keep this as the single UI north star for the next implementation tasks.\n\nAllowed files only:\n- docs/product-roadmap/**\n- docs/ui/**\n- docs/system-builder/**\n\nForbidden files/scope:\n- src/**\n- db/**\n- drizzle/**\n- migrations/**\n- package.json\n- package-lock.json\n\nAcceptance criteria:\n- Document the hierarchy: Builder -> Clients -> Client detail -> Workspaces/Applications/Systems.\n- State clearly that Gestao Tecnica is a future client/project and must not be developed as a System Builder extension in this sprint.\n- Define the initial UI as read-only/static or fixture-backed until a later persistence-binding sprint.\n- No production code or database files are changed.\n\nValidation commands:\n- git diff --check\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         },
         {
           "id": "UI-02-002",
-          "title": "builder-active-section-helper",
-          "objective": "add or tighten a pure helper that maps current pathname to active Builder section.",
+          "title": "client-workspace-types-fixtures",
+          "objective": "Create typed client/workspace fixture contracts for the Builder client navigator without using any explicit any and without binding to live persistence yet.",
           "allowedFiles": [
-            "Builder navigation helper files and unit tests."
+            "src/components/builder/client-workspaces/**",
+            "tests/unit/builder-client-workspaces-fixtures.test.ts"
           ],
           "forbiddenFiles": [
-            "route rewrites",
-            "persistence",
-            "auth."
+            "src/db/**",
+            "drizzle/**",
+            "migrations/**",
+            "src/platform/**",
+            "src/app/**"
           ],
           "acceptance": [
-            "helper covers root, known section, unknown section, and nested path."
+            "Typed fixtures include client id/key/name/status and workspace/application/system id/key/name/type/status.",
+            "Every workspace fixture belongs to a declared client.",
+            "No explicit any is introduced.",
+            "The fixture shape can support later persistence binding without changing visible UI contracts."
           ],
           "validationCommands": [
-            "focused helper test, then `npm run build`."
+            "npx tsx --test tests/unit/builder-client-workspaces-fixtures.test.ts",
+            "npm run check:no-explicit-any",
+            "npm run build"
           ],
-          "prompt": "Task UI-02-002: builder-active-section-helper\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nadd or tighten a pure helper that maps current pathname to active Builder section.\n\nAllowed files only:\n- Builder navigation helper files and unit tests.\n\nForbidden files/scope:\n- route rewrites\n- persistence\n- auth.\n\nAcceptance criteria:\n- helper covers root, known section, unknown section, and nested path.\n\nValidation commands:\n- focused helper test, then `npm run build`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-002: client-workspace-types-fixtures\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nCreate typed client/workspace fixture contracts for the Builder client navigator without using any explicit any and without binding to live persistence yet.\n\nAllowed files only:\n- src/components/builder/client-workspaces/**\n- tests/unit/builder-client-workspaces-fixtures.test.ts\n\nForbidden files/scope:\n- src/db/**\n- drizzle/**\n- migrations/**\n- src/platform/**\n- src/app/**\n\nAcceptance criteria:\n- Typed fixtures include client id/key/name/status and workspace/application/system id/key/name/type/status.\n- Every workspace fixture belongs to a declared client.\n- No explicit any is introduced.\n- The fixture shape can support later persistence binding without changing visible UI contracts.\n\nValidation commands:\n- npx tsx --test tests/unit/builder-client-workspaces-fixtures.test.ts\n- npm run check:no-explicit-any\n- npm run build\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         },
         {
           "id": "UI-02-003",
-          "title": "builder-empty-state-component",
-          "objective": "add a reusable Builder empty state component for no selection/no draft/no result states.",
+          "title": "client-list-panel",
+          "objective": "Build a compact client list panel for the Builder clients surface using the typed fixtures from UI-02-002.",
           "allowedFiles": [
-            "Builder shell/components and focused tests if present."
+            "src/components/builder/client-workspaces/**"
           ],
           "forbiddenFiles": [
-            "backend calls",
-            "DB",
-            "broad design system changes."
+            "src/db/**",
+            "drizzle/**",
+            "migrations/**",
+            "src/platform/**",
+            "src/app/**"
           ],
           "acceptance": [
-            "component is accessible, compact, and does not use marketing hero layout."
+            "The panel renders client name, key/status, and workspace count.",
+            "The selected client state is visually clear and accessible.",
+            "An empty-state path exists for zero clients.",
+            "No API, database, or auth behavior is added."
           ],
           "validationCommands": [
-            "`npm run build`."
+            "npm run check:no-explicit-any",
+            "npm run build"
           ],
-          "prompt": "Task UI-02-003: builder-empty-state-component\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nadd a reusable Builder empty state component for no selection/no draft/no result states.\n\nAllowed files only:\n- Builder shell/components and focused tests if present.\n\nForbidden files/scope:\n- backend calls\n- DB\n- broad design system changes.\n\nAcceptance criteria:\n- component is accessible, compact, and does not use marketing hero layout.\n\nValidation commands:\n- `npm run build`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-003: client-list-panel\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nBuild a compact client list panel for the Builder clients surface using the typed fixtures from UI-02-002.\n\nAllowed files only:\n- src/components/builder/client-workspaces/**\n\nForbidden files/scope:\n- src/db/**\n- drizzle/**\n- migrations/**\n- src/platform/**\n- src/app/**\n\nAcceptance criteria:\n- The panel renders client name, key/status, and workspace count.\n- The selected client state is visually clear and accessible.\n- An empty-state path exists for zero clients.\n- No API, database, or auth behavior is added.\n\nValidation commands:\n- npm run check:no-explicit-any\n- npm run build\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         },
         {
           "id": "UI-02-004",
-          "title": "builder-nav-aria-current",
-          "objective": "ensure active Builder nav item exposes correct `aria-current` or equivalent accessibility state.",
+          "title": "client-workspace-list-panel",
+          "objective": "Build the workspace/application/system list panel scoped to the selected client.",
           "allowedFiles": [
-            "Builder nav components and focused tests."
+            "src/components/builder/client-workspaces/**"
           ],
           "forbiddenFiles": [
-            "router architecture changes."
+            "src/db/**",
+            "drizzle/**",
+            "migrations/**",
+            "src/platform/**",
+            "src/app/**"
           ],
           "acceptance": [
-            "active item is programmatically distinguishable."
+            "The panel shows only workspaces/systems belonging to the selected client.",
+            "Each row shows name, key/type, status, and a small capability/form/view/workflow summary if present in fixtures.",
+            "Selection and empty filtered states are handled.",
+            "No API, database, or auth behavior is added."
           ],
           "validationCommands": [
-            "focused component test if present, then `npm run build`."
+            "npm run check:no-explicit-any",
+            "npm run build"
           ],
-          "prompt": "Task UI-02-004: builder-nav-aria-current\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nensure active Builder nav item exposes correct `aria-current` or equivalent accessibility state.\n\nAllowed files only:\n- Builder nav components and focused tests.\n\nForbidden files/scope:\n- router architecture changes.\n\nAcceptance criteria:\n- active item is programmatically distinguishable.\n\nValidation commands:\n- focused component test if present, then `npm run build`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-004: client-workspace-list-panel\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nBuild the workspace/application/system list panel scoped to the selected client.\n\nAllowed files only:\n- src/components/builder/client-workspaces/**\n\nForbidden files/scope:\n- src/db/**\n- drizzle/**\n- migrations/**\n- src/platform/**\n- src/app/**\n\nAcceptance criteria:\n- The panel shows only workspaces/systems belonging to the selected client.\n- Each row shows name, key/type, status, and a small capability/form/view/workflow summary if present in fixtures.\n- Selection and empty filtered states are handled.\n- No API, database, or auth behavior is added.\n\nValidation commands:\n- npm run check:no-explicit-any\n- npm run build\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         },
         {
           "id": "UI-02-005",
-          "title": "builder-unknown-section-fallback",
-          "objective": "add a safe fallback for unknown Builder sections without redirect loops.",
+          "title": "workspace-detail-panel",
+          "objective": "Build a read-only detail panel for the selected workspace/application/system that previews the builder areas it will contain.",
           "allowedFiles": [
-            "Builder route/page components."
+            "src/components/builder/client-workspaces/**"
           ],
           "forbiddenFiles": [
-            "middleware",
-            "auth",
-            "DB."
+            "src/db/**",
+            "drizzle/**",
+            "migrations/**",
+            "src/platform/**",
+            "src/app/**"
           ],
           "acceptance": [
-            "unknown section renders stable fallback or not-found behavior."
+            "The detail panel shows selected workspace metadata and status.",
+            "The panel exposes clear sections for capabilities, forms, views, workflows, and runtime without implementing those features.",
+            "Missing selection and empty states are handled.",
+            "No runtime execution, install action, API call, or database access is added."
           ],
           "validationCommands": [
-            "`npm run build`."
+            "npm run check:no-explicit-any",
+            "npm run build"
           ],
-          "prompt": "Task UI-02-005: builder-unknown-section-fallback\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nadd a safe fallback for unknown Builder sections without redirect loops.\n\nAllowed files only:\n- Builder route/page components.\n\nForbidden files/scope:\n- middleware\n- auth\n- DB.\n\nAcceptance criteria:\n- unknown section renders stable fallback or not-found behavior.\n\nValidation commands:\n- `npm run build`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-005: workspace-detail-panel\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nBuild a read-only detail panel for the selected workspace/application/system that previews the builder areas it will contain.\n\nAllowed files only:\n- src/components/builder/client-workspaces/**\n\nForbidden files/scope:\n- src/db/**\n- drizzle/**\n- migrations/**\n- src/platform/**\n- src/app/**\n\nAcceptance criteria:\n- The detail panel shows selected workspace metadata and status.\n- The panel exposes clear sections for capabilities, forms, views, workflows, and runtime without implementing those features.\n- Missing selection and empty states are handled.\n- No runtime execution, install action, API call, or database access is added.\n\nValidation commands:\n- npm run check:no-explicit-any\n- npm run build\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         },
         {
           "id": "UI-02-006",
-          "title": "builder-navigation-fixtures",
-          "objective": "add navigation fixtures for known Builder sections used by tests and docs.",
+          "title": "builder-clients-route",
+          "objective": "Add the /builder/clients route and wire the client list, workspace list, and detail panels into one usable Builder clients screen.",
           "allowedFiles": [
-            "Builder fixtures/constants/tests."
+            "src/app/(builder)/builder/clients/**",
+            "src/components/builder/client-workspaces/**"
           ],
           "forbiddenFiles": [
-            "persisted config",
-            "DB."
+            "src/db/**",
+            "drizzle/**",
+            "migrations/**",
+            "src/platform/**",
+            "src/app/api/**",
+            "src/app/(auth)/**"
           ],
           "acceptance": [
-            "fixtures list section id, label, href, and status."
+            "/builder/clients renders from fixtures and defaults to a valid client/workspace selection.",
+            "The first viewport is the actual builder client workspace experience, not a marketing page.",
+            "The page layout is dense, scannable, and consistent with the existing Builder UI.",
+            "No database, auth, or API behavior is added."
           ],
           "validationCommands": [
-            "focused test, then `npm run build`."
+            "npm run check:no-explicit-any",
+            "npm run build"
           ],
-          "prompt": "Task UI-02-006: builder-navigation-fixtures\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nadd navigation fixtures for known Builder sections used by tests and docs.\n\nAllowed files only:\n- Builder fixtures/constants/tests.\n\nForbidden files/scope:\n- persisted config\n- DB.\n\nAcceptance criteria:\n- fixtures list section id, label, href, and status.\n\nValidation commands:\n- focused test, then `npm run build`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-006: builder-clients-route\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nAdd the /builder/clients route and wire the client list, workspace list, and detail panels into one usable Builder clients screen.\n\nAllowed files only:\n- src/app/(builder)/builder/clients/**\n- src/components/builder/client-workspaces/**\n\nForbidden files/scope:\n- src/db/**\n- drizzle/**\n- migrations/**\n- src/platform/**\n- src/app/api/**\n- src/app/(auth)/**\n\nAcceptance criteria:\n- /builder/clients renders from fixtures and defaults to a valid client/workspace selection.\n- The first viewport is the actual builder client workspace experience, not a marketing page.\n- The page layout is dense, scannable, and consistent with the existing Builder UI.\n- No database, auth, or API behavior is added.\n\nValidation commands:\n- npm run check:no-explicit-any\n- npm run build\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         },
         {
           "id": "UI-02-007",
-          "title": "builder-mobile-nav-smoke",
-          "objective": "add a lightweight smoke test or static assertion for mobile navigation layout data.",
+          "title": "builder-nav-clients-entry",
+          "objective": "Add Clients/Clientes as a first-class Builder navigation entry pointing to /builder/clients, preserving existing active-state behavior.",
           "allowedFiles": [
-            "Builder nav tests and fixtures."
+            "src/components/builder/**",
+            "src/app/(builder)/builder/**",
+            "tests/unit/**"
           ],
           "forbiddenFiles": [
-            "broad CSS rewrite",
-            "E2E infrastructure changes."
+            "src/db/**",
+            "drizzle/**",
+            "migrations/**",
+            "src/platform/**",
+            "src/app/api/**"
           ],
           "acceptance": [
-            "mobile nav data can render without missing labels/hrefs."
+            "Builder navigation includes a Clientes/Clients entry for /builder/clients.",
+            "Active state works for /builder/clients without breaking existing Builder routes.",
+            "No unrelated navigation restructure is introduced.",
+            "Any added test is focused on the navigation contract."
           ],
           "validationCommands": [
-            "focused test, then `npm run build`."
+            "npm run check:no-explicit-any",
+            "npm run build"
           ],
-          "prompt": "Task UI-02-007: builder-mobile-nav-smoke\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nadd a lightweight smoke test or static assertion for mobile navigation layout data.\n\nAllowed files only:\n- Builder nav tests and fixtures.\n\nForbidden files/scope:\n- broad CSS rewrite\n- E2E infrastructure changes.\n\nAcceptance criteria:\n- mobile nav data can render without missing labels/hrefs.\n\nValidation commands:\n- focused test, then `npm run build`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-007: builder-nav-clients-entry\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nAdd Clients/Clientes as a first-class Builder navigation entry pointing to /builder/clients, preserving existing active-state behavior.\n\nAllowed files only:\n- src/components/builder/**\n- src/app/(builder)/builder/**\n- tests/unit/**\n\nForbidden files/scope:\n- src/db/**\n- drizzle/**\n- migrations/**\n- src/platform/**\n- src/app/api/**\n\nAcceptance criteria:\n- Builder navigation includes a Clientes/Clients entry for /builder/clients.\n- Active state works for /builder/clients without breaking existing Builder routes.\n- No unrelated navigation restructure is introduced.\n- Any added test is focused on the navigation contract.\n\nValidation commands:\n- npm run check:no-explicit-any\n- npm run build\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         },
         {
           "id": "UI-02-008",
-          "title": "builder-breadcrumb-contract",
-          "objective": "define a typed breadcrumb contract for Builder pages and apply it to one existing page.",
+          "title": "client-workspace-filter-search",
+          "objective": "Add local filtering/search across clients and workspaces so the Builder can quickly find a client or system from the fixture-backed surface.",
           "allowedFiles": [
-            "Builder shell/page components and tests."
+            "src/components/builder/client-workspaces/**",
+            "tests/unit/builder-client-workspaces-fixtures.test.ts"
           ],
           "forbiddenFiles": [
-            "persistence",
-            "runtime",
-            "global router changes."
+            "src/db/**",
+            "drizzle/**",
+            "migrations/**",
+            "src/platform/**",
+            "src/app/api/**"
           ],
           "acceptance": [
-            "breadcrumb items are typed and stable."
+            "Filtering can match client/workspace names and keys using local fixture data.",
+            "Filtered empty states are explicit and do not collapse the layout.",
+            "The selected client/workspace remains valid after filtering or resets predictably.",
+            "No server search, API route, or database query is added."
           ],
           "validationCommands": [
-            "`npm run build`."
+            "npx tsx --test tests/unit/builder-client-workspaces-fixtures.test.ts",
+            "npm run check:no-explicit-any",
+            "npm run build"
           ],
-          "prompt": "Task UI-02-008: builder-breadcrumb-contract\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\ndefine a typed breadcrumb contract for Builder pages and apply it to one existing page.\n\nAllowed files only:\n- Builder shell/page components and tests.\n\nForbidden files/scope:\n- persistence\n- runtime\n- global router changes.\n\nAcceptance criteria:\n- breadcrumb items are typed and stable.\n\nValidation commands:\n- `npm run build`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-008: client-workspace-filter-search\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nAdd local filtering/search across clients and workspaces so the Builder can quickly find a client or system from the fixture-backed surface.\n\nAllowed files only:\n- src/components/builder/client-workspaces/**\n- tests/unit/builder-client-workspaces-fixtures.test.ts\n\nForbidden files/scope:\n- src/db/**\n- drizzle/**\n- migrations/**\n- src/platform/**\n- src/app/api/**\n\nAcceptance criteria:\n- Filtering can match client/workspace names and keys using local fixture data.\n- Filtered empty states are explicit and do not collapse the layout.\n- The selected client/workspace remains valid after filtering or resets predictably.\n- No server search, API route, or database query is added.\n\nValidation commands:\n- npx tsx --test tests/unit/builder-client-workspaces-fixtures.test.ts\n- npm run check:no-explicit-any\n- npm run build\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         },
         {
           "id": "UI-02-009",
-          "title": "builder-shell-docs",
-          "objective": "document current Builder shell behavior, non-goals, and next persistence handoff.",
+          "title": "client-workspace-contract-tests",
+          "objective": "Add focused contract tests for the client/workspace fixtures and selection helpers used by the Builder clients screen.",
           "allowedFiles": [
-            "`docs/product-roadmap/`",
-            "Builder docs."
+            "src/components/builder/client-workspaces/**",
+            "tests/unit/builder-client-workspaces-fixtures.test.ts"
           ],
           "forbiddenFiles": [
-            "production code."
+            "src/db/**",
+            "drizzle/**",
+            "migrations/**",
+            "src/platform/**",
+            "src/app/api/**",
+            "playwright.config.*"
           ],
           "acceptance": [
-            "docs clearly separate shell readiness from persisted Builder readiness."
+            "Tests prove each workspace belongs to an existing client.",
+            "Tests prove the default selected client/workspace is valid.",
+            "Tests cover the local filter helper if present.",
+            "No E2E infrastructure or database setup is introduced."
           ],
           "validationCommands": [
-            "`git diff --check`."
+            "npx tsx --test tests/unit/builder-client-workspaces-fixtures.test.ts",
+            "npm run check:no-explicit-any",
+            "npm run build"
           ],
-          "prompt": "Task UI-02-009: builder-shell-docs\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\ndocument current Builder shell behavior, non-goals, and next persistence handoff.\n\nAllowed files only:\n- `docs/product-roadmap/`\n- Builder docs.\n\nForbidden files/scope:\n- production code.\n\nAcceptance criteria:\n- docs clearly separate shell readiness from persisted Builder readiness.\n\nValidation commands:\n- `git diff --check`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-009: client-workspace-contract-tests\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nAdd focused contract tests for the client/workspace fixtures and selection helpers used by the Builder clients screen.\n\nAllowed files only:\n- src/components/builder/client-workspaces/**\n- tests/unit/builder-client-workspaces-fixtures.test.ts\n\nForbidden files/scope:\n- src/db/**\n- drizzle/**\n- migrations/**\n- src/platform/**\n- src/app/api/**\n- playwright.config.*\n\nAcceptance criteria:\n- Tests prove each workspace belongs to an existing client.\n- Tests prove the default selected client/workspace is valid.\n- Tests cover the local filter helper if present.\n- No E2E infrastructure or database setup is introduced.\n\nValidation commands:\n- npx tsx --test tests/unit/builder-client-workspaces-fixtures.test.ts\n- npm run check:no-explicit-any\n- npm run build\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         },
         {
           "id": "UI-02-010",
-          "title": "builder-shell-build-polish",
-          "objective": "fix any type/build issues left by UI-02 and export stable shell helpers.",
+          "title": "client-workspace-docs-build-polish",
+          "objective": "Polish the UI-02 client/workspace navigation deliverable, align docs with the implemented route, and leave a clear handoff for the later persistence-binding sprint.",
           "allowedFiles": [
-            "Builder shell files touched in UI-02."
+            "src/components/builder/client-workspaces/**",
+            "src/app/(builder)/builder/clients/**",
+            "docs/product-roadmap/**",
+            "docs/ui/**",
+            "docs/system-builder/**"
           ],
           "forbiddenFiles": [
-            "unrelated UI refactors."
+            "src/db/**",
+            "drizzle/**",
+            "migrations/**",
+            "src/platform/**",
+            "src/app/api/**"
           ],
           "acceptance": [
-            "`npm run build` passes."
+            "The implemented route and docs agree on the client -> workspace/system hierarchy.",
+            "Any placeholder copy clearly says fixture/read-only where applicable.",
+            "A concise persistence-binding handoff note exists for a later sprint.",
+            "npm run build passes and no explicit any is introduced."
           ],
           "validationCommands": [
-            "`npm run build`."
+            "git diff --check",
+            "npm run check:no-explicit-any",
+            "npm run build"
           ],
-          "prompt": "Task UI-02-010: builder-shell-build-polish\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nfix any type/build issues left by UI-02 and export stable shell helpers.\n\nAllowed files only:\n- Builder shell files touched in UI-02.\n\nForbidden files/scope:\n- unrelated UI refactors.\n\nAcceptance criteria:\n- `npm run build` passes.\n\nValidation commands:\n- `npm run build`.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
+          "prompt": "Task UI-02-010: client-workspace-docs-build-polish\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nPolish the UI-02 client/workspace navigation deliverable, align docs with the implemented route, and leave a clear handoff for the later persistence-binding sprint.\n\nAllowed files only:\n- src/components/builder/client-workspaces/**\n- src/app/(builder)/builder/clients/**\n- docs/product-roadmap/**\n- docs/ui/**\n- docs/system-builder/**\n\nForbidden files/scope:\n- src/db/**\n- drizzle/**\n- migrations/**\n- src/platform/**\n- src/app/api/**\n\nAcceptance criteria:\n- The implemented route and docs agree on the client -> workspace/system hierarchy.\n- Any placeholder copy clearly says fixture/read-only where applicable.\n- A concise persistence-binding handoff note exists for a later sprint.\n- npm run build passes and no explicit any is introduced.\n\nValidation commands:\n- git diff --check\n- npm run check:no-explicit-any\n- npm run build\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations.\n- Do not add real customer data or secrets.\n- Open a GitHub PR against main when done.\n"
         }
       ]
     },
@@ -3169,6 +3250,13 @@
           "prompt": "Task OPS-04-010: support-diagnostics-build-polish\n\nRepository: delmacy/gestaotecnica\nBase branch: main\nContext mode: branch-url\n\nObjective:\nfix build/type issues from OPS-04 only.\n\nAllowed files only:\n- files touched by OPS-04.\n\nForbidden files/scope:\n- unrelated operations.\n\nAcceptance criteria:\n- `npm run build` passes.\n\nValidation commands:\n- `npm run build`. ## Materialization Rule For Future Coordinators When creating runtime queue items from this document: 1. Select the next sprint whose predecessor is terminal and clean. 2. Copy all 10 tasks with their exact IDs. 3. Set each task to `planned_gated` first. 4. Promote to `ready` only after the prior sprint closeout is clean. 5. Keep task order stable. 6. Do not merge two tasks into one Jules prompt. 7. Do not broaden allowed files to make Jules comfortable. 8. If a task cannot be executed within its allowed files, mark it `needs_codex` and create a corrective task. ## Corrective Sprint Template Use only when the prior sprint closed with defects or review risk. | Task | Objective | |---|---| | FIX-XX-001 | Reproduce the failing evidence from the prior sprint. | | FIX-XX-002 | Identify the smallest file scope needed for repair. | | FIX-XX-003 | Repair the failing type/build/test issue. | | FIX-XX-004 | Add or tighten a regression test. | | FIX-XX-005 | Update docs only if the behavior contract changed. | Corrective sprints should be 5 tasks unless the defect spans multiple lanes.\n\nRules:\n- Implement only this task.\n- Do not broaden scope.\n- Do not edit files outside the allowed list.\n- Do not weaken or delete existing tests.\n- Do not change database schema or migrations unless explicitly allowed.\n- Open a GitHub PR against main when done."
         }
       ]
+    }
+  },
+  "sprintPlan": {
+    "nextReleaseGate": {
+      "nextSprint": "UI-02",
+      "nextSprintTitle": "Client Workspace Navigation",
+      "policy": "release_after_active_sprint_clean_closeout"
     }
   }
 }

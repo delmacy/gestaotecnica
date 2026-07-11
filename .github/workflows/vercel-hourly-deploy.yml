@@ -31,6 +31,10 @@ jobs:
       VERCEL_ORG_ID: team_KpojeVYSgUJpZi9pUZIeCiya
       VERCEL_PROJECT_ID: prj_LIkgEIpTfmDf5Pzor9pjnValohsu
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PLATFORM_DATABASE_URL: ${{ secrets.PLATFORM_DATABASE_URL }}
+      RUNTIME_DATABASE_URL: ${{ secrets.RUNTIME_DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
@@ -117,7 +121,10 @@ jobs:
           }
 
           const parsed = dotenv.parse(fs.readFileSync(envFile));
-          const missing = requiredKeys.filter((key) => !parsed[key]);
+          const resolved = Object.fromEntries(
+            requiredKeys.map((key) => [key, parsed[key] || process.env[key] || ""]),
+          );
+          const missing = requiredKeys.filter((key) => !resolved[key]);
           if (missing.length > 0) {
             throw new Error(`Missing required production env key(s): ${missing.join(", ")}`);
           }
@@ -128,7 +135,7 @@ jobs:
           }
 
           const output = requiredKeys
-            .map((key) => `${key}<<__${key}__\n${parsed[key]}\n__${key}__`)
+            .map((key) => `${key}<<__${key}__\n${resolved[key]}\n__${key}__`)
             .join("\n");
 
           fs.appendFileSync(githubEnv, `${output}\n`);

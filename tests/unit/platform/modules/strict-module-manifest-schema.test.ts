@@ -62,3 +62,21 @@ describe("Strict Module Manifest Schema", () => {
     }
   });
 });
+
+  test("should fail if capability reference is empty", () => {
+    const invalidManifest = { ...validManifest, capabilities: [""] };
+    const result = StrictModuleManifestSchema.safeParse(invalidManifest);
+    assert.strictEqual(result.success, false);
+    if (!result.success) {
+      assert.ok(result.error.issues.some(i => i.path.includes("capabilities") && i.message === "MISSING_MANIFEST_CAPABILITIES"));
+    }
+  });
+
+  test("should fail if capability reference is malformed", () => {
+    const invalidManifest = { ...validManifest, capabilities: ["not-a-uuid"] };
+    const result = StrictModuleManifestSchema.safeParse(invalidManifest);
+    assert.strictEqual(result.success, false);
+    if (!result.success) {
+      assert.ok(result.error.issues.some(i => i.path.includes("capabilities") && i.message === "MISSING_MANIFEST_CAPABILITIES"));
+    }
+  });

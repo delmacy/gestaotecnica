@@ -8,7 +8,7 @@ describe("Strict Module Manifest Schema", () => {
     key: "test-module",
     name: "Test Module",
     version: "1.0.0",
-    capabilities: ["cap1", "cap2"],
+    capabilities: ["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174001"],
     lifecycleMetadata: { author: "test" }
   };
 
@@ -59,6 +59,24 @@ describe("Strict Module Manifest Schema", () => {
     assert.strictEqual(result.success, false);
     if (!result.success) {
       assert.ok(result.error.issues.some(i => i.path.includes("version")));
+    }
+  });
+
+  test("should fail if capability reference is empty", () => {
+    const invalidManifest = { ...validManifest, capabilities: [""] };
+    const result = StrictModuleManifestSchema.safeParse(invalidManifest);
+    assert.strictEqual(result.success, false);
+    if (!result.success) {
+      assert.ok(result.error.issues.some(i => i.path.includes("capabilities") && i.message === "MISSING_MANIFEST_CAPABILITIES"));
+    }
+  });
+
+  test("should fail if capability reference is malformed", () => {
+    const invalidManifest = { ...validManifest, capabilities: ["not-a-uuid"] };
+    const result = StrictModuleManifestSchema.safeParse(invalidManifest);
+    assert.strictEqual(result.success, false);
+    if (!result.success) {
+      assert.ok(result.error.issues.some(i => i.path.includes("capabilities") && i.message === "MISSING_MANIFEST_CAPABILITIES"));
     }
   });
 });

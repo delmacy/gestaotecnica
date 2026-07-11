@@ -61,7 +61,6 @@ describe("Strict Module Manifest Schema", () => {
       assert.ok(result.error.issues.some(i => i.path.includes("version")));
     }
   });
-});
 
   test("should fail if capability reference is empty", () => {
     const invalidManifest = { ...validManifest, capabilities: [""] };
@@ -80,3 +79,4 @@ describe("Strict Module Manifest Schema", () => {
       assert.ok(result.error.issues.some(i => i.path.includes("capabilities") && i.message === "MISSING_MANIFEST_CAPABILITIES"));
     }
   });
+});

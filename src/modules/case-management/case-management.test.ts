@@ -8,7 +8,7 @@ const ANOTHER_UUID = "e4a52028-d8f9-4673-90d5-66778899aabb";
 
 describe("CaseManagementModule - Advanced Isolation & Security", () => {
   it("workspace A should not read cases from workspace B", async () => {
-    let capturedWhere: any[] = [];
+    const capturedWhere: any[] = [];
 
     const { getCases } = proxyquire("./queries", {
       "@/db": { getDb: () => ({
@@ -45,7 +45,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
   });
 
   it("workspace A should not update cases from workspace B", async () => {
-    let capturedWhere: any[] = [];
+    const capturedWhere: any[] = [];
 
     const { updateCaseKernelAction } = proxyquire("./kernel-actions", {
       "@/db": { getDb: () => ({
@@ -105,7 +105,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
   });
 
   it("should verify ID collision safety (same ID but different module)", async () => {
-    let capturedWhere: any[] = [];
+    const capturedWhere: any[] = [];
     const { addCaseCommentKernelAction } = proxyquire("./kernel-actions", {
       "@/db": { getDb: () => ({
         select: () => ({
@@ -204,7 +204,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
   });
 
   it("should correctly filter comments by caseId inside proposedDefinition", async () => {
-    let capturedWhere: any[] = [];
+    const capturedWhere: any[] = [];
 
     const { getCaseComments: getCommentsFixed } = proxyquire("./queries", {
       "@/db": { getDb: () => ({

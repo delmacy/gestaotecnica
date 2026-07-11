@@ -102,7 +102,7 @@ function createMockRepository(
 }
 
 
-let traceReceiptsGenerated: any[] = [];
+const traceReceiptsGenerated: any[] = [];
 const mockTraceReceiptService = {
   createAndAppendReceipt: async (db: any, input: any) => {
     traceReceiptsGenerated.push(input);

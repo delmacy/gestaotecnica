@@ -24,12 +24,12 @@ export function getActiveBuilderSection(
   let bestMatch: BuilderModule | undefined = undefined;
   let maxMatchLength = 0;
 
-  for (const module of activeModules) {
+  for (const mod of activeModules) {
     // Only consider as a prefix if it starts with the href and is followed by a slash (or is the exact root)
-    if (pathname.startsWith(module.href) && pathname.charAt(module.href.length) === "/") {
-      if (module.href.length > maxMatchLength) {
-        bestMatch = module;
-        maxMatchLength = module.href.length;
+    if (pathname.startsWith(mod.href) && pathname.charAt(mod.href.length) === "/") {
+      if (mod.href.length > maxMatchLength) {
+        bestMatch = mod;
+        maxMatchLength = mod.href.length;
       }
     }
   }

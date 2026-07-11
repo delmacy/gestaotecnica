@@ -37,7 +37,7 @@ test("Operational Proof Logic Unit Test", async () => {
 
     const dryRunArtifact = (await db.select().from(agentOperationalArtifacts).where(eq(agentOperationalArtifacts.artifactType, "dry_run")))[0];
     assert.ok(dryRunArtifact, "Dry run artifact should be recorded");
-    assert.strictEqual((dryRunArtifact.content as any).final_status, "PARALLEL_WORK_READY");
+    assert.strictEqual((dryRunArtifact.content as Record<string, unknown>).final_status, "PARALLEL_WORK_READY");
 
     const negativeTests = await db.select().from(agentOperationalArtifacts).where(eq(agentOperationalArtifacts.artifactType, "negative_tests"));
     assert.ok(negativeTests.length >= 2, `Expected at least 2 negative tests artifacts, got ${negativeTests.length}`);

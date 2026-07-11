@@ -292,7 +292,7 @@ test("Falha ao salvar trace receipt rejeita a operacao e da throw", async () => 
 
   await assert.rejects(
     () => publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, errorMockService),
-    (err: unknown) => {
+    (err: Error) => {
       assert.strictEqual(err.message, "Failed to publish workflow definition");
       return true;
     }

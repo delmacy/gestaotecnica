@@ -7,6 +7,7 @@ import { Topbar } from "./Topbar";
 import { ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ACTIVE_MODULES } from "./shell-data";
+import { getActiveBuilderSection } from "./shell-utils";
 
 export function BuilderShell({ children }: { children: React.ReactNode }) {
   // Client component inside for breadcrumbs, or we can just render standard wrapper here
@@ -41,7 +42,7 @@ function BreadcrumbHeader() {
         }
 
         const paths = pathname.split("/").filter(Boolean);
-        const currentModule = ACTIVE_MODULES.find(m => m.href === pathname);
+        const currentModule = getActiveBuilderSection(pathname, ACTIVE_MODULES);
 
         return paths.map((p, index) => {
             if (index === 0) return "Builder";

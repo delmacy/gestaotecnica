@@ -4,9 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ACTIVE_MODULES, FUTURE_MODULES } from "./shell-data";
 import { cn } from "@/lib/utils";
+import { getActiveBuilderSection } from "./shell-utils";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const activeModule = getActiveBuilderSection(pathname, ACTIVE_MODULES);
 
   return (
     <aside className="w-64 border-r bg-muted/40 flex flex-col overflow-y-auto">
@@ -22,7 +24,7 @@ export function Sidebar() {
           <ul className="space-y-1">
             {ACTIVE_MODULES.map((module) => {
               const Icon = module.icon;
-              const isActive = pathname === module.href || (module.href !== "/builder" && pathname?.startsWith(module.href));
+              const isActive = activeModule?.href === module.href;
 
               return (
                 <li key={module.href}>

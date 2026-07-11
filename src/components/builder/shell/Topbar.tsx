@@ -4,6 +4,7 @@ import { Search, ChevronRight, UserCircle, Bell, HelpCircle } from "lucide-react
 import { usePathname } from "next/navigation";
 import { CURRENT_WORKSPACE, MOCK_USER, ACTIVE_MODULES } from "./shell-data";
 import React from "react";
+import { getActiveBuilderSection } from "./shell-utils";
 
 export function Topbar() {
   const pathname = usePathname();
@@ -19,7 +20,7 @@ export function Topbar() {
     const paths = pathname.split("/").filter(Boolean);
 
     // Attempt to map to module label
-    const currentModule = ACTIVE_MODULES.find(m => m.href === pathname);
+    const currentModule = getActiveBuilderSection(pathname, ACTIVE_MODULES);
 
     const formattedPaths = paths.map((p, index) => {
         if (index === 0) return "Builder";

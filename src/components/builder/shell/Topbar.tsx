@@ -4,35 +4,10 @@ import { Search, ChevronRight, UserCircle, Bell, HelpCircle } from "lucide-react
 import { usePathname } from "next/navigation";
 import { CURRENT_WORKSPACE, MOCK_USER, ACTIVE_MODULES } from "./shell-data";
 import React from "react";
-import { getActiveBuilderSection } from "./shell-utils";
+
 
 export function Topbar() {
   const pathname = usePathname();
-
-  // Simple Breadcrumb logic
-  const getBreadcrumbs = () => {
-    if (!pathname) return ["Builder"];
-
-    if (pathname === "/builder") {
-        return ["Builder", "Dashboard"];
-    }
-
-    const paths = pathname.split("/").filter(Boolean);
-
-    // Attempt to map to module label
-    const currentModule = getActiveBuilderSection(pathname, ACTIVE_MODULES);
-
-    const formattedPaths = paths.map((p, index) => {
-        if (index === 0) return "Builder";
-        if (index === 1 && currentModule) return currentModule.label;
-        // capitalize first letter
-        return p.charAt(0).toUpperCase() + p.slice(1);
-    });
-
-    return formattedPaths;
-  };
-
-  const breadcrumbs = getBreadcrumbs();
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">

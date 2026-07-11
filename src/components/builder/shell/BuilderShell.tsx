@@ -8,6 +8,7 @@ import { ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ACTIVE_MODULES } from "./shell-data";
 import { getActiveBuilderSection } from "./shell-utils";
+import { BuilderBreadcrumb } from "./breadcrumb-types";
 
 export function BuilderShell({ children }: { children: React.ReactNode }) {
   // Client component inside for breadcrumbs, or we can just render standard wrapper here
@@ -36,18 +37,19 @@ function BreadcrumbHeader() {
     const pathname = usePathname();
     if (!pathname) return null;
 
-    const getBreadcrumbs = () => {
+    const getBreadcrumbs = (): BuilderBreadcrumb[] => {
         if (pathname === "/builder") {
-            return ["Builder", "Dashboard"];
+            return [{ label: "Builder" }, { label: "Dashboard", isActive: true }];
         }
 
         const paths = pathname.split("/").filter(Boolean);
         const currentModule = getActiveBuilderSection(pathname, ACTIVE_MODULES);
 
         return paths.map((p, index) => {
-            if (index === 0) return "Builder";
-            if (index === 1 && currentModule) return currentModule.label;
-            return p.charAt(0).toUpperCase() + p.slice(1);
+            const isLast = index === paths.length - 1;
+            if (index === 0) return { label: "Builder", isActive: isLast };
+            if (index === 1 && currentModule) return { label: currentModule.label, isActive: isLast };
+            return { label: p.charAt(0).toUpperCase() + p.slice(1), isActive: isLast };
         });
       };
 
@@ -57,11 +59,14 @@ function BreadcrumbHeader() {
         <div className="px-6 pt-6 pb-2">
             <nav className="flex items-center text-sm font-medium text-muted-foreground mb-4">
               {breadcrumbs.map((crumb, index) => (
-                <React.Fragment key={crumb}>
-                  <span className={index === breadcrumbs.length - 1 ? "text-foreground" : ""}>
-                    {crumb}
+                <React.Fragment key={index}>
+                  <span
+                    className={crumb.isActive ? "text-foreground" : ""}
+                    {...(crumb.isActive ? { "aria-current": "page" } : {})}
+                  >
+                    {crumb.label}
                   </span>
-                  {index < breadcrumbs.length - 1 && (
+                  {!crumb.isActive && (
                     <ChevronRight className="h-4 w-4 mx-2" />
                   )}
                 </React.Fragment>

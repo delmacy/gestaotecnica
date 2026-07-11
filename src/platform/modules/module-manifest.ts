@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SchemaVersionSchema, UnknownRecordSchema } from "../contracts/payload";
 
 export const ModuleLifecycleStatusSchema = z.enum([
   "draft",
@@ -25,3 +26,36 @@ export const ModuleManifestSchema = z.object({
 });
 
 export type ModuleManifest = z.infer<typeof ModuleManifestSchema>;
+
+export const StrictModuleManifestSchema = ModuleManifestSchema.extend({
+  id: z.string({
+    required_error: "MISSING_MANIFEST_ID",
+    invalid_type_error: "INVALID_MANIFEST_ID"
+  }).min(1, { message: "EMPTY_MANIFEST_ID" }),
+
+  name: z.string({
+    required_error: "MISSING_MANIFEST_NAME",
+    invalid_type_error: "INVALID_MANIFEST_NAME"
+  }),
+
+  version: z.any().superRefine((val, ctx) => {
+    if (val === undefined) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "MISSING_MANIFEST_VERSION" });
+      return z.NEVER;
+    }
+  }).pipe(SchemaVersionSchema),
+
+  capabilities: z.array(z.string(), {
+    required_error: "MISSING_MANIFEST_CAPABILITIES",
+    invalid_type_error: "INVALID_MANIFEST_CAPABILITIES"
+  }),
+
+  lifecycleMetadata: z.any().superRefine((val, ctx) => {
+    if (val === undefined) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "MISSING_LIFECYCLE_METADATA" });
+      return z.NEVER;
+    }
+  }).pipe(UnknownRecordSchema)
+});
+
+export type StrictModuleManifest = z.infer<typeof StrictModuleManifestSchema>;

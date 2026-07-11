@@ -15,27 +15,16 @@ const uniqueStringArray = z.array(z.string()).refine(items => new Set(items).siz
 }).optional();
 
 export const ModuleManifestSchema = z.object({
-  key: z.string(),
-  name: z.string(),
-  description: z.string().optional(),
-  actions: uniqueStringArray,
-  events: uniqueStringArray,
-  views: uniqueStringArray,
-  dependencies: uniqueStringArray,
-  lifecycleStatus: ModuleLifecycleStatusSchema.optional()
-});
-
-export type ModuleManifest = z.infer<typeof ModuleManifestSchema>;
-
-export const StrictModuleManifestSchema = ModuleManifestSchema.extend({
   id: z.string({
-    required_error: "MISSING_MANIFEST_ID",
-    invalid_type_error: "INVALID_MANIFEST_ID"
+    message: "INVALID_MANIFEST_ID"
   }).min(1, { message: "EMPTY_MANIFEST_ID" }),
 
+  key: z.string({
+    message: "INVALID_MANIFEST_KEY"
+  }).min(1, { message: "EMPTY_MANIFEST_KEY" }),
+
   name: z.string({
-    required_error: "MISSING_MANIFEST_NAME",
-    invalid_type_error: "INVALID_MANIFEST_NAME"
+    message: "INVALID_MANIFEST_NAME"
   }),
 
   version: z.any().superRefine((val, ctx) => {
@@ -45,9 +34,10 @@ export const StrictModuleManifestSchema = ModuleManifestSchema.extend({
     }
   }).pipe(SchemaVersionSchema),
 
+  description: z.string().optional(),
+
   capabilities: z.array(z.string(), {
-    required_error: "MISSING_MANIFEST_CAPABILITIES",
-    invalid_type_error: "INVALID_MANIFEST_CAPABILITIES"
+    message: "INVALID_MANIFEST_CAPABILITIES"
   }),
 
   lifecycleMetadata: z.any().superRefine((val, ctx) => {
@@ -55,7 +45,16 @@ export const StrictModuleManifestSchema = ModuleManifestSchema.extend({
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "MISSING_LIFECYCLE_METADATA" });
       return z.NEVER;
     }
-  }).pipe(UnknownRecordSchema)
+  }).pipe(UnknownRecordSchema),
+
+  actions: uniqueStringArray,
+  events: uniqueStringArray,
+  views: uniqueStringArray,
+  dependencies: uniqueStringArray,
+  lifecycleStatus: ModuleLifecycleStatusSchema.optional()
 });
 
+export type ModuleManifest = z.infer<typeof ModuleManifestSchema>;
+
+export const StrictModuleManifestSchema = ModuleManifestSchema;
 export type StrictModuleManifest = z.infer<typeof StrictModuleManifestSchema>;

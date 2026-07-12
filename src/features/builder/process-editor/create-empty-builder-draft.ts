@@ -1,13 +1,14 @@
 import type { BuilderDraft } from "../types";
 
 export function createEmptyBuilderDraft(
-  input?: Partial<Pick<BuilderDraft, "id" | "workspaceId" | "name" | "description">>,
+  input?: Partial<Pick<BuilderDraft, "id" | "workspaceId" | "ownerId" | "name" | "description">>,
 ): BuilderDraft {
   const now = new Date().toISOString();
 
   return {
     id: input?.id,
     workspaceId: input?.workspaceId,
+    ownerId: input?.ownerId,
     name: input?.name ?? "Novo processo",
     description: input?.description,
     status: "draft",

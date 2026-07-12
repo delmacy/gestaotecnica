@@ -1,8 +1,22 @@
+import { BuilderDraftValidationSchema } from "./builder-draft.schema";
 import { getAction } from "@/platform/actions/action-registry";
 import type { BuilderDraft, BuilderValidationResult, BuilderValidationIssue } from "../types";
 
 export function validateBuilderDraft(draft: BuilderDraft): BuilderValidationResult {
   const issues: BuilderValidationIssue[] = [];
+
+  const zodResult = BuilderDraftValidationSchema.safeParse(draft);
+  if (!zodResult.success) {
+    for (const error of zodResult.error.issues) {
+      issues.push({
+        code: "ZOD_VALIDATION_ERROR",
+        message: error.message,
+        severity: "error",
+        path: error.path.join("."),
+      });
+    }
+  }
+
 
   if (!draft.name || draft.name.trim() === "") {
     issues.push({

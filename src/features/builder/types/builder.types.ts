@@ -8,7 +8,7 @@ export type BuilderJson =
   | BuilderJson[]
   | { [key: string]: BuilderJson };
 
-export type BuilderMetadata = Record<string, BuilderJson>;
+export type BuilderMetadata = Record<string, unknown>;
 
 export type BuilderPosition = {
   x: number;

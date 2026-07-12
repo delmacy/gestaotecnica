@@ -304,3 +304,41 @@ test("Falha ao salvar trace receipt rejeita a operacao e da throw", async () => 
   const definition = repo.getPublishedDefinition();
   assert.equal(definition, null, "Definicao nao deveria ser persistida apos rollback");
 });
+
+test("Payload inválido com metadata ou payload não esperados gera saída de validação estável", async () => {
+  const candidate = createBaseCandidate();
+  candidate.proposedDefinition = {
+    name: "Test Process",
+    status: "draft",
+    nodes: [],
+    edges: [],
+    payload: "invalid_payload",
+    metadata: "invalid_metadata"
+  };
+  const repo = createMockRepository(candidate);
+
+  let caughtError: InvalidProposedDefinitionError | null = null;
+  try {
+    await publishApprovedCandidate(dummyDb, validWorkspaceId, validCandidateId, validPublisherId, repo, mockTraceReceiptService);
+  } catch (err) {
+
+    if (err instanceof InvalidProposedDefinitionError) {
+
+      caughtError = err;
+    }
+  }
+
+
+  if (!caughtError) {
+    console.log("No InvalidProposedDefinitionError caught. Expected caughtError to be set.");
+  }
+  assert.ok(caughtError !== null, "Should throw InvalidProposedDefinitionError");
+
+  assert.ok(Array.isArray(caughtError.issues), "Should have issues array");
+
+  const hasPayloadError = caughtError.issues.some((issue: unknown) => (issue as { path?: string, code?: string }).path === "payload" && (issue as { path?: string, code?: string }).code === "ZOD_VALIDATION_ERROR");
+  const hasMetadataError = caughtError.issues.some((issue: unknown) => { const i = issue as { path?: string | string[], code?: string }; return i.path && i.path.includes("metadata") && i.code === "ZOD_VALIDATION_ERROR"; });
+
+  assert.ok(hasPayloadError, "Stable validation output for payload missing");
+  assert.ok(hasMetadataError, "Stable validation output for metadata missing");
+});

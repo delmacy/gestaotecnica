@@ -16,6 +16,7 @@ export type BuilderDraft = {
   nodes: BuilderNode[];
   edges: BuilderEdge[];
   metadata?: BuilderMetadata;
+  payload?: unknown;
   createdAt?: string;
   updatedAt?: string;
 };

@@ -177,6 +177,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         }),
         insert: () => ({
           values: (v: unknown) => {
+            // @ts-expect-error - testing mock
             insertedValues = v;
             return {
               returning: async () => [{ id: VALID_UUID }]

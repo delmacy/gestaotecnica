@@ -1,4 +1,6 @@
 export type BuilderId = string;
+export type BuilderDraftId = string;
+export type BuilderOwnerId = string;
 
 export type BuilderJson =
   | string

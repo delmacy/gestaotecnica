@@ -8,13 +8,13 @@ const ANOTHER_UUID = "e4a52028-d8f9-4673-90d5-66778899aabb";
 
 describe("CaseManagementModule - Advanced Isolation & Security", () => {
   it("workspace A should not read cases from workspace B", async () => {
-    let capturedWhere: any[] = [];
+    const capturedWhere: unknown[] = [];
 
     const { getCases } = proxyquire("./queries", {
       "@/db": { getDb: () => ({
         select: () => ({
           from: () => ({
-            where: (condition: any) => {
+            where: (condition: unknown) => {
               capturedWhere.push(condition);
               return {
                 orderBy: () => ({
@@ -29,11 +29,11 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         resolveWorkspaceContext: async () => ({ workspaceId: VALID_UUID })
       },
       "drizzle-orm": {
-        eq: (a: any, b: any) => ({ type: "eq", left: "some-col", right: b }),
-        and: (...args: any[]) => ({ type: "and", args }),
-        desc: (a: any) => a,
-        sql: (strings: any, ...values: any[]) => ({ type: "sql", strings, values }),
-        asc: (a: any) => a,
+        eq: (a: unknown, b: unknown) => ({ type: "eq", left: "some-col", right: b }),
+        and: (...args: unknown[]) => ({ type: "and", args }),
+        desc: (a: unknown) => a,
+        sql: (strings: unknown, ...values: unknown[]) => ({ type: "sql", strings, values }),
+        asc: (a: unknown) => a,
       }
     });
 
@@ -45,13 +45,13 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
   });
 
   it("workspace A should not update cases from workspace B", async () => {
-    let capturedWhere: any[] = [];
+    const capturedWhere: unknown[] = [];
 
     const { updateCaseKernelAction } = proxyquire("./kernel-actions", {
       "@/db": { getDb: () => ({
         select: () => ({
           from: () => ({
-            where: (condition: any) => {
+            where: (condition: unknown) => {
               capturedWhere.push(condition);
               return {
                 limit: async () => []
@@ -61,8 +61,8 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         })
       }) },
       "drizzle-orm": {
-        eq: (a: any, b: any) => ({ type: "eq", left: "some-col", right: b }),
-        and: (...args: any[]) => ({ type: "and", args }),
+        eq: (a: unknown, b: unknown) => ({ type: "eq", left: "some-col", right: b }),
+        and: (...args: unknown[]) => ({ type: "and", args }),
       }
     });
 
@@ -82,7 +82,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
       "@/db": { getDb: () => ({
         select: () => ({
           from: () => ({
-            where: (condition: any) => {
+            where: (condition: unknown) => {
               // Simulate NO case found because filter by workspaceId (VALID_UUID) excludes case from another workspace
               return { limit: async () => [] };
             }
@@ -90,8 +90,8 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         })
       }) },
       "drizzle-orm": {
-        eq: (a: any, b: any) => ({ type: "eq", left: "col", right: b }),
-        and: (...args: any[]) => ({ type: "and", args }),
+        eq: (a: unknown, b: unknown) => ({ type: "eq", left: "col", right: b }),
+        and: (...args: unknown[]) => ({ type: "and", args }),
       }
     });
 
@@ -105,12 +105,12 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
   });
 
   it("should verify ID collision safety (same ID but different module)", async () => {
-    let capturedWhere: any[] = [];
+    const capturedWhere: unknown[] = [];
     const { addCaseCommentKernelAction } = proxyquire("./kernel-actions", {
       "@/db": { getDb: () => ({
         select: () => ({
           from: () => ({
-            where: (condition: any) => {
+            where: (condition: unknown) => {
               capturedWhere.push(condition);
               // Simulate record exists but with DIFFERENT origin (e.g. 'work-intake')
               // The query includes origin filter, so it should return empty if trying to access work-intake ID
@@ -120,8 +120,8 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         })
       }) },
       "drizzle-orm": {
-        eq: (a: any, b: any) => ({ type: "eq", left: "col", right: b }),
-        and: (...args: any[]) => ({ type: "and", args }),
+        eq: (a: unknown, b: unknown) => ({ type: "eq", left: "col", right: b }),
+        and: (...args: unknown[]) => ({ type: "and", args }),
       }
     });
 
@@ -150,8 +150,8 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         })
       }) },
       "drizzle-orm": {
-        eq: (a: any, b: any) => ({ type: "eq", left: "col", right: b }),
-        and: (...args: any[]) => ({ type: "and", args }),
+        eq: (a: unknown, b: unknown) => ({ type: "eq", left: "col", right: b }),
+        and: (...args: unknown[]) => ({ type: "and", args }),
       }
     });
 
@@ -165,7 +165,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
   });
 
   it("should ignore forged authorId and use context actor instead", async () => {
-    let insertedValues: any = null;
+    let insertedValues = null as { proposedDefinition?: { authorId?: string } } | null;
     const { addCaseCommentKernelAction } = proxyquire("./kernel-actions", {
       "@/db": { getDb: () => ({
         select: () => ({
@@ -176,7 +176,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
           })
         }),
         insert: () => ({
-          values: (v: any) => {
+          values: (v: unknown) => {
             insertedValues = v;
             return {
               returning: async () => [{ id: VALID_UUID }]
@@ -185,8 +185,8 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         })
       }) },
       "drizzle-orm": {
-        eq: (a: any, b: any) => ({ type: "eq", left: "col", right: b }),
-        and: (...args: any[]) => ({ type: "and", args }),
+        eq: (a: unknown, b: unknown) => ({ type: "eq", left: "col", right: b }),
+        and: (...args: unknown[]) => ({ type: "and", args }),
       }
     });
 
@@ -200,23 +200,23 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
       context
     );
 
-    assert.strictEqual(insertedValues.proposedDefinition.authorId, "real-author-id");
+    assert.strictEqual(insertedValues?.proposedDefinition?.authorId, "real-author-id");
   });
 
   it("should correctly filter comments by caseId inside proposedDefinition", async () => {
-    let capturedWhere: any[] = [];
+    const capturedWhere: unknown[] = [];
 
     const { getCaseComments: getCommentsFixed } = proxyquire("./queries", {
       "@/db": { getDb: () => ({
-        select: (cols: any) => ({
-          from: (table: any) => ({
-            where: (condition: any) => {
+        select: (cols: unknown) => ({
+          from: (table: unknown) => ({
+            where: (condition: unknown) => {
                 if (cols === undefined) { // parent check in queries.ts:127 uses .select({ id: PC.id }) which might be passed as an object
                    return { limit: async () => [{ id: VALID_UUID }] };
                 }
                 // Drizzle select() without args might pass an object or undefined.
                 // Let's refine the mock to handle both calls.
-                if (table && table.name === 'process_candidates' && !capturedWhere.length) {
+                if (table && (table as Record<string, unknown>).name === 'process_candidates' && !capturedWhere.length) {
                      // First call: parent check
                      return { limit: async () => [{ id: VALID_UUID }] };
                 }
@@ -235,11 +235,11 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         resolveWorkspaceContext: async () => ({ workspaceId: VALID_UUID })
       },
       "drizzle-orm": {
-        eq: (a: any, b: any) => ({ type: "eq", left: "col", right: b }),
-        and: (...args: any[]) => ({ type: "and", args }),
-        desc: (a: any) => a,
-        sql: (strings: any, ...values: any[]) => ({ type: "sql", strings, values }),
-        asc: (a: any) => a,
+        eq: (a: unknown, b: unknown) => ({ type: "eq", left: "col", right: b }),
+        and: (...args: unknown[]) => ({ type: "and", args }),
+        desc: (a: unknown) => a,
+        sql: (strings: unknown, ...values: unknown[]) => ({ type: "sql", strings, values }),
+        asc: (a: unknown) => a,
       }
     });
 
@@ -250,7 +250,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         "@/db": { getDb: () => ({
           select: () => ({
             from: () => ({
-              where: (condition: any) => {
+              where: (condition: unknown) => {
                   return {
                       limit: (n: number) => {
                           if (n === 1) return Promise.resolve([{ id: VALID_UUID }]); // parent check
@@ -272,11 +272,11 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
           resolveWorkspaceContext: async () => ({ workspaceId: VALID_UUID })
         },
         "drizzle-orm": {
-          eq: (a: any, b: any) => ({ type: "eq", left: "col", right: b }),
-          and: (...args: any[]) => ({ type: "and", args }),
-          desc: (a: any) => a,
-          sql: (strings: any, ...values: any[]) => ({ type: "sql", strings, values }),
-          asc: (a: any) => a,
+          eq: (a: unknown, b: unknown) => ({ type: "eq", left: "col", right: b }),
+          and: (...args: unknown[]) => ({ type: "and", args }),
+          desc: (a: unknown) => a,
+          sql: (strings: unknown, ...values: unknown[]) => ({ type: "sql", strings, values }),
+          asc: (a: unknown) => a,
         }
       });
 

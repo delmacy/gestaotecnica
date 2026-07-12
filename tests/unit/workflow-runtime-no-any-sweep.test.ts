@@ -38,7 +38,7 @@ describe('Runtime Core No-Any Sweep', () => {
     const baselineViolations: Record<string, number> = {};
 
     let foundViolations = false;
-    let messages: string[] = [];
+    const messages: string[] = [];
 
     for (const filePath of filesToCheck) {
       const relativePath = path.relative(process.cwd(), filePath);
@@ -47,7 +47,7 @@ describe('Runtime Core No-Any Sweep', () => {
       const content = fs.readFileSync(filePath, 'utf-8');
 
       let fileViolationsCount = 0;
-      let fileMessages: string[] = [];
+      const fileMessages: string[] = [];
 
       for (const pattern of forbiddenPatterns) {
         const matches = content.match(pattern);

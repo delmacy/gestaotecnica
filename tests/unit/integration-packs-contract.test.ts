@@ -29,15 +29,15 @@ describe('Integration Packs Contract', () => {
       assert.ok(pack.description.length > 0, `Pack ${pack.key} description is empty`);
 
       assert.ok(Array.isArray(pack.requiredModules), `Pack ${pack.key} requiredModules must be an array`);
-      for (const module of pack.requiredModules) {
-        assert.equal(typeof module, 'string', `Pack ${pack.key} required module must be a string`);
-        assert.ok(module.length > 0, `Pack ${pack.key} required module cannot be empty`);
+      for (const reqModule of pack.requiredModules) {
+        assert.equal(typeof reqModule, 'string', `Pack ${pack.key} required module must be a string`);
+        assert.ok(reqModule.length > 0, `Pack ${pack.key} required reqModule cannot be empty`);
       }
 
       assert.ok(Array.isArray(pack.optionalModules), `Pack ${pack.key} optionalModules must be an array`);
-      for (const module of pack.optionalModules) {
-        assert.equal(typeof module, 'string', `Pack ${pack.key} optional module must be a string`);
-        assert.ok(module.length > 0, `Pack ${pack.key} optional module cannot be empty`);
+      for (const reqModule of pack.optionalModules) {
+        assert.equal(typeof reqModule, 'string', `Pack ${pack.key} optional module must be a string`);
+        assert.ok(reqModule.length > 0, `Pack ${pack.key} optional reqModule cannot be empty`);
       }
     }
   });

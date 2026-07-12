@@ -42,7 +42,7 @@ describe("ApprovalDecision Contract", () => {
     const result = ApprovalDecisionSchema.parse(completeDecision);
     assert.strictEqual(result.justification, "This looks great and meets all requirements.");
     assert.strictEqual(result.approvedContentHash?.algorithm, "sha256");
-    assert.strictEqual((result.approvedContentHash as any).scope, undefined);
+    assert.strictEqual((result.approvedContentHash as unknown as Record<string, unknown>).scope, undefined);
   });
 
   test("should reject subject without version", () => {

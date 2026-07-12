@@ -7,4 +7,6 @@ export {
   type ProcessVersionRollback,
   PublicationResultEnvelopeSchema,
   type PublicationResultEnvelope,
+  DraftSaveResultEnvelopeSchema,
+  type DraftSaveResultEnvelope,
 } from "./process-definition";

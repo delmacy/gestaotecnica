@@ -198,3 +198,37 @@ export const PublicationResultEnvelopeSchema = z.discriminatedUnion("ok", [
 ]);
 
 export type PublicationResultEnvelope = z.infer<typeof PublicationResultEnvelopeSchema>;
+
+
+/**
+ * Draft Save Result Envelope Schema
+ */
+export const DraftSaveResultEnvelopeSchema = z.union([
+  z.object({
+    ok: z.literal(true),
+    data: z.object({
+      processDefinitionId: EntityIdSchema,
+      processVersionId: EntityIdSchema,
+      version: ProcessVersionNumberSchema,
+      savedAt: ISODateTimeSchema,
+    }).strict(),
+  }).strict(),
+  z.object({
+    ok: z.literal(false),
+    error: z.discriminatedUnion("type", [
+      z.object({
+        type: z.literal("validation_failure"),
+        code: z.string(),
+        message: z.string(),
+        issues: z.array(z.unknown()).optional(),
+      }).strict(),
+      z.object({
+        type: z.literal("conflict_failure"),
+        code: z.string(),
+        message: z.string(),
+      }).strict(),
+    ]),
+  }).strict(),
+]);
+
+export type DraftSaveResultEnvelope = z.infer<typeof DraftSaveResultEnvelopeSchema>;

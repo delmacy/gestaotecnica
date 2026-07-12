@@ -177,7 +177,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
         }),
         insert: () => ({
           values: (v: unknown) => {
-            insertedValues = v;
+            insertedValues = v as { proposedDefinition?: { authorId?: string } } | null;
             return {
               returning: async () => [{ id: VALID_UUID }]
             };

@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+export const BuilderDraftConflictMetadataSchema = z.object({
+  revision: z.number().int().nonnegative(),
+  updatedAt: z.string().datetime(),
+  versionToken: z.string().optional(),
+});
+
 export const BuilderDraftMetadataSchema = z.record(z.string(), z.unknown());
 export const BuilderDraftPayloadSchema = z.unknown().superRefine((val, ctx) => {
   if (val !== undefined && (typeof val !== "object" || val === null || Array.isArray(val))) {
@@ -18,4 +24,5 @@ export const BuilderDraftValidationSchema = z.object({
   edges: z.array(z.object({ id: z.string() }).passthrough()),
   metadata: BuilderDraftMetadataSchema.optional(),
   payload: BuilderDraftPayloadSchema.optional(),
+  conflictMetadata: BuilderDraftConflictMetadataSchema.optional(),
 }).passthrough();

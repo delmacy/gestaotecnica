@@ -336,8 +336,8 @@ test("Payload inválido com metadata ou payload não esperados gera saída de va
 
   assert.ok(Array.isArray(caughtError.issues), "Should have issues array");
 
-  const hasPayloadError = caughtError.issues.some((issue: any) => issue.path === "payload" && issue.code === "ZOD_VALIDATION_ERROR");
-  const hasMetadataError = caughtError.issues.some((issue: any) => issue.path && issue.path.includes("metadata") && issue.code === "ZOD_VALIDATION_ERROR");
+  const hasPayloadError = caughtError.issues.some((issue: unknown) => (issue as { path?: string, code?: string }).path === "payload" && (issue as { path?: string, code?: string }).code === "ZOD_VALIDATION_ERROR");
+  const hasMetadataError = caughtError.issues.some((issue: unknown) => { const i = issue as { path?: string | string[], code?: string }; return i.path && i.path.includes("metadata") && i.code === "ZOD_VALIDATION_ERROR"; });
 
   assert.ok(hasPayloadError, "Stable validation output for payload missing");
   assert.ok(hasMetadataError, "Stable validation output for metadata missing");

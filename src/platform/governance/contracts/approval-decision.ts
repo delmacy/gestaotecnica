@@ -2,11 +2,28 @@ import { z } from "zod";
 import {
   EntityIdSchema,
   WorkspaceIdSchema,
-  ActorReferenceSchema,
   ISODateTimeSchema,
   UnknownRecordSchema,
 } from "../../contracts";
 import { TraceReceiptHashAlgorithmSchema } from "../../documents/traceability/contracts";
+
+/**
+ * Approval Actor
+ * Explicit actor type for approval provenance.
+ */
+export const ApprovalActorTypeSchema = z.enum([
+  "user",
+  "agent",
+  "system",
+  "external_source",
+]);
+export type ApprovalActorType = z.infer<typeof ApprovalActorTypeSchema>;
+
+export const ApprovalActorSchema = z.object({
+  type: ApprovalActorTypeSchema,
+  id: z.string().min(1),
+}).strict();
+export type ApprovalActor = z.infer<typeof ApprovalActorSchema>;
 
 /**
  * Approval Decision Values
@@ -78,7 +95,7 @@ export const ApprovalDecisionSchema = z
     workspaceId: WorkspaceIdSchema,
     subject: ApprovalSubjectReferenceSchema,
     decision: ApprovalDecisionValueSchema,
-    actor: ActorReferenceSchema,
+    actor: ApprovalActorSchema,
     policyId: EntityIdSchema.optional(),
     justification: z
       .string()

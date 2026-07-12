@@ -16,7 +16,7 @@ describe("ApprovalDecision Contract", () => {
     },
     decision: "approved",
     actor: {
-      type: "human",
+      type: "user",
       id: "user-1",
     },
     decidedAt: VALID_ISO_DATE,

@@ -3,9 +3,12 @@ import type { BuilderEdge, BuilderNode } from "./builder-block.types";
 
 export type BuilderDraftStatus = "draft" | "published" | "archived";
 
+export type BuilderDraftId = string;
+export type BuilderOwnerId = string;
+
 export type BuilderDraft = {
-  id?: BuilderId;
-  workspaceId?: BuilderId;
+  id?: BuilderDraftId;
+  workspaceId?: BuilderOwnerId;
   name: string;
   description?: string;
   status: BuilderDraftStatus;
@@ -23,8 +26,8 @@ export type SerializedBuilderDraft = {
 };
 
 export type BuilderDraftSummary = {
-  id: BuilderId;
-  workspaceId?: BuilderId;
+  id: BuilderDraftId;
+  workspaceId?: BuilderOwnerId;
   name: string;
   description?: string;
   status: BuilderDraftStatus;

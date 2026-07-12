@@ -203,7 +203,7 @@ export type PublicationResultEnvelope = z.infer<typeof PublicationResultEnvelope
 /**
  * Draft Save Result Envelope Schema
  */
-export const DraftSaveResultEnvelopeSchema = z.union([
+export const DraftSaveResultEnvelopeSchema = z.discriminatedUnion("ok", [
   z.object({
     ok: z.literal(true),
     data: z.object({

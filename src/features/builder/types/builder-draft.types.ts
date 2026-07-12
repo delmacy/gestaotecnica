@@ -1,11 +1,16 @@
-import type { BuilderId, BuilderMetadata } from "./builder.types";
+import type { BuilderMetadata } from "./builder.types";
 import type { BuilderEdge, BuilderNode } from "./builder-block.types";
+
+export type BuilderDraftId = string;
+export type BuilderWorkspaceId = string;
+export type BuilderOwnerId = string;
 
 export type BuilderDraftStatus = "draft" | "published" | "archived";
 
 export type BuilderDraft = {
-  id?: BuilderId;
-  workspaceId?: BuilderId;
+  id?: BuilderDraftId;
+  workspaceId?: BuilderWorkspaceId;
+  ownerId?: BuilderOwnerId;
   name: string;
   description?: string;
   status: BuilderDraftStatus;
@@ -23,8 +28,9 @@ export type SerializedBuilderDraft = {
 };
 
 export type BuilderDraftSummary = {
-  id: BuilderId;
-  workspaceId?: BuilderId;
+  id: BuilderDraftId;
+  workspaceId?: BuilderWorkspaceId;
+  ownerId?: BuilderOwnerId;
   name: string;
   description?: string;
   status: BuilderDraftStatus;

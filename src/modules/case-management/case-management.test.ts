@@ -165,7 +165,7 @@ describe("CaseManagementModule - Advanced Isolation & Security", () => {
   });
 
   it("should ignore forged authorId and use context actor instead", async () => {
-    let insertedValues = null as { proposedDefinition?: { authorId?: string } } | null;
+    let insertedValues = null as any;
     const { addCaseCommentKernelAction } = proxyquire("./kernel-actions", {
       "@/db": { getDb: () => ({
         select: () => ({

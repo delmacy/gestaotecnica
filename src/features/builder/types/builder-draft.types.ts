@@ -6,6 +6,16 @@ export type BuilderDraftStatus = "draft" | "published" | "archived";
 export type BuilderDraftId = string;
 export type BuilderOwnerId = string;
 
+/**
+ * Optimistic conflict metadata used for concurrency control
+ * to avoid overwriting changes when multiple actors are editing a draft.
+ */
+export type BuilderDraftConflictMetadata = {
+  revision: number;
+  updatedAt: string;
+  versionToken?: string;
+};
+
 export type BuilderDraft = {
   id?: BuilderDraftId;
   workspaceId?: BuilderOwnerId;
@@ -19,6 +29,7 @@ export type BuilderDraft = {
   payload?: unknown;
   createdAt?: string;
   updatedAt?: string;
+  conflictMetadata?: BuilderDraftConflictMetadata;
 };
 
 export type SerializedBuilderDraft = {
@@ -36,4 +47,5 @@ export type BuilderDraftSummary = {
   nodeCount: number;
   edgeCount: number;
   updatedAt?: string;
+  conflictMetadata?: BuilderDraftConflictMetadata;
 };

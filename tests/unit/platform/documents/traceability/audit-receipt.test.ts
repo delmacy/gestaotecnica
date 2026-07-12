@@ -11,15 +11,15 @@ describe("Audit Receipt Redaction Class Validation", () => {
   });
 
   test("unknown redaction classes fail deterministically", () => {
-    assert.throws(() => RedactionClassSchema.parse("UNKNOWN"), (err: any) => {
+    assert.throws(() => RedactionClassSchema.parse("UNKNOWN"), (err: unknown) => {
         assert(err instanceof z.ZodError);
         return true;
     });
-    assert.throws(() => RedactionClassSchema.parse(""), (err: any) => {
+    assert.throws(() => RedactionClassSchema.parse(""), (err: unknown) => {
         assert(err instanceof z.ZodError);
         return true;
     });
-    assert.throws(() => RedactionClassSchema.parse("public"), (err: any) => {
+    assert.throws(() => RedactionClassSchema.parse("public"), (err: unknown) => {
         assert(err instanceof z.ZodError);
         return true;
     });

@@ -5,6 +5,8 @@ import { BlueprintPackageManifestSchema } from '../../../../src/platform/bluepri
 import {
   VALID_MANIFEST_FULL,
   VALID_MANIFEST_MINIMAL,
+  VALID_MANIFEST_MISSING_SECTION,
+  INVALID_MANIFEST_INCOMPATIBLE_VERSION,
   INVALID_MANIFEST_MISSING_ID,
   INVALID_MANIFEST_EMPTY_VERSION,
   INVALID_MANIFEST_MISSING_DEPENDENCY_ID,
@@ -22,6 +24,23 @@ describe('BlueprintPackageManifestSchema', () => {
   it('should validate a minimal valid manifest', () => {
     const result = BlueprintPackageManifestSchema.parse(VALID_MANIFEST_MINIMAL);
     assert.deepStrictEqual(result, VALID_MANIFEST_MINIMAL);
+  });
+
+  it('should validate a manifest missing optional sections', () => {
+    const result = BlueprintPackageManifestSchema.parse(VALID_MANIFEST_MISSING_SECTION);
+    assert.deepStrictEqual(result, VALID_MANIFEST_MISSING_SECTION);
+  });
+
+  it('should throw ZodError for incompatible version type', () => {
+    assert.throws(
+      () => BlueprintPackageManifestSchema.parse(INVALID_MANIFEST_INCOMPATIBLE_VERSION),
+      (err) => {
+        assert(err instanceof z.ZodError);
+        const issues = err.issues;
+        assert.strictEqual(issues[0].path[0], 'version');
+        return true;
+      }
+    );
   });
 
   it('should throw ZodError for missing packageId', () => {

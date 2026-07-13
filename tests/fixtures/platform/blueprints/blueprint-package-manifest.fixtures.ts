@@ -69,3 +69,12 @@ export const INVALID_MANIFEST_EMPTY_DEPENDENCY_VERSION: unknown = {
     { packageId: 'com.example.core', version: '' }
   ]
 };
+
+export const INVALID_MANIFEST_CONTAINS_SECRETS: unknown = {
+  packageId: 'com.example.package',
+  version: '1.0.0',
+  seedMetadata: {
+    connectionString: "postgres://dummy",
+    password: "123"
+  }
+};

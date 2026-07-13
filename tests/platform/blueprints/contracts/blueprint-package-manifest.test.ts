@@ -12,7 +12,8 @@ import {
   INVALID_MANIFEST_MISSING_DEPENDENCY_ID,
   INVALID_MANIFEST_EMPTY_DEPENDENCY_ID,
   INVALID_MANIFEST_MISSING_DEPENDENCY_VERSION,
-  INVALID_MANIFEST_EMPTY_DEPENDENCY_VERSION
+  INVALID_MANIFEST_EMPTY_DEPENDENCY_VERSION,
+  INVALID_MANIFEST_CONTAINS_SECRETS
 } from '../../../fixtures/platform/blueprints/blueprint-package-manifest.fixtures';
 
 describe('BlueprintPackageManifestSchema', () => {
@@ -124,6 +125,18 @@ describe('BlueprintPackageManifestSchema', () => {
         assert.strictEqual(issues[0].path[0], 'dependencies');
         assert.strictEqual(issues[0].path[1], 0);
         assert.strictEqual(issues[0].path[2], 'version');
+        return true;
+      }
+    );
+  });
+
+  it('should throw ZodError when manifest contains secret-like fields', () => {
+    assert.throws(
+      () => BlueprintPackageManifestSchema.parse(INVALID_MANIFEST_CONTAINS_SECRETS),
+      (err) => {
+        assert(err instanceof z.ZodError);
+        const issues = err.issues;
+        assert.strictEqual(issues[0].message, 'FORBIDDEN_SECRET_FIELD');
         return true;
       }
     );

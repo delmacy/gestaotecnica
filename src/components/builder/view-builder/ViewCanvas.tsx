@@ -15,6 +15,8 @@ export function ViewCanvas({ blueprint, simulatedType, simulatedFields }: ViewCa
     return simulatedFields[f.id] !== undefined ? simulatedFields[f.id] : f.visible;
   });
 
+  const getFieldLabel = (f: ViewField) => f.label || f.key || f.id || "Unknown Field";
+
   const renderMockTable = () => (
     <div className="border rounded-md bg-white overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
@@ -23,7 +25,7 @@ export function ViewCanvas({ blueprint, simulatedType, simulatedFields }: ViewCa
             <tr>
               {visibleFields.map(f => (
                 <th key={f.id} className="px-4 py-3 font-medium text-gray-700 whitespace-nowrap">
-                  {f.label}
+                  {getFieldLabel(f)}
                   {f.sortable && <span className="ml-1 text-gray-400 text-[10px]">↕</span>}
                 </th>
               ))}
@@ -73,7 +75,7 @@ export function ViewCanvas({ blueprint, simulatedType, simulatedFields }: ViewCa
                 <div className="h-4 bg-gray-100 rounded animate-pulse w-full"></div>
                 {visibleFields.slice(0, 3).map(f => (
                   <div key={f.id} className="flex justify-between items-center text-xs">
-                    <span className="text-gray-400">{f.label}</span>
+                    <span className="text-gray-400">{getFieldLabel(f)}</span>
                     <span className="h-3 bg-gray-100 rounded animate-pulse w-1/3"></span>
                   </div>
                 ))}
@@ -128,14 +130,14 @@ export function ViewCanvas({ blueprint, simulatedType, simulatedFields }: ViewCa
             <div className="flex-1 space-y-2">
                {visibleFields.slice(0, 1).map(f => (
                   <div key={f.id} className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-700">{f.label}:</span>
+                    <span className="text-sm font-medium text-gray-700">{getFieldLabel(f)}:</span>
                     <div className="h-4 bg-gray-200 rounded animate-pulse w-1/3"></div>
                   </div>
                ))}
                <div className="flex gap-4">
                  {visibleFields.slice(1, 3).map(f => (
                     <div key={f.id} className="flex items-center gap-2">
-                       <span className="text-xs text-gray-400">{f.label}:</span>
+                       <span className="text-xs text-gray-400">{getFieldLabel(f)}:</span>
                        <div className="h-3 bg-gray-100 rounded animate-pulse w-16"></div>
                     </div>
                  ))}

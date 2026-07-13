@@ -7,3 +7,4 @@ export * from "./runtime.service";
 export * from "./runtime.actions";
 
 export * from "./envelopes/runtime-diagnostic-envelope";
+export * from "./envelopes/runtime-support-lookup-query";

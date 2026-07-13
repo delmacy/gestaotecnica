@@ -8,6 +8,7 @@ export const ConnectorRequestSchema = z.object({
   idempotencyKey: z.string().min(1),
   payload: z.unknown(),
   timeout: z.number().int().positive().min(1000).max(300000).default(CONNECTOR_TIMEOUT_DEFAULT),
+  redactedFields: z.array(z.string()).optional(),
 });
 
 export type ConnectorRequest = Readonly<z.infer<typeof ConnectorRequestSchema>>;

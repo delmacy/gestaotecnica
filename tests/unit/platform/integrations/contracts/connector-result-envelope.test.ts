@@ -50,3 +50,45 @@ test('ConnectorResultEnvelopeSchema - missing error code for failure', () => {
     return true;
   });
 });
+
+test('ConnectorResultEnvelopeSchema - success with redactedFields', () => {
+  const payload = {
+    status: 'success',
+    data: { some: 'data' },
+    redactedFields: ['data.secret']
+  };
+  const parsed = ConnectorResultEnvelopeSchema.parse(payload);
+  assert.deepStrictEqual(parsed.redactedFields, ['data.secret']);
+});
+
+test('ConnectorResultEnvelopeSchema - retryable_failure with redactedFields', () => {
+  const payload = {
+    status: 'retryable_failure',
+    errorCode: 'TIMEOUT',
+    errorMessage: 'Connection timed out',
+    redactedFields: ['errorMessage']
+  };
+  const parsed = ConnectorResultEnvelopeSchema.parse(payload);
+  assert.deepStrictEqual(parsed.redactedFields, ['errorMessage']);
+});
+
+test('ConnectorResultEnvelopeSchema - permanent_failure with redactedFields', () => {
+  const payload = {
+    status: 'permanent_failure',
+    errorCode: 'INVALID_AUTH',
+    errorMessage: 'Invalid API key',
+    redactedFields: ['errorMessage']
+  };
+  const parsed = ConnectorResultEnvelopeSchema.parse(payload);
+  assert.deepStrictEqual(parsed.redactedFields, ['errorMessage']);
+});
+
+test('ConnectorResultEnvelopeSchema - cancelled with redactedFields', () => {
+  const payload = {
+    status: 'cancelled',
+    reason: 'User request',
+    redactedFields: ['reason']
+  };
+  const parsed = ConnectorResultEnvelopeSchema.parse(payload);
+  assert.deepStrictEqual(parsed.redactedFields, ['reason']);
+});

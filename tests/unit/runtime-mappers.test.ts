@@ -25,7 +25,7 @@ describe("Runtime Mappers", () => {
         ...validRaw,
         createdById: null,
       };
-      delete (minimal as any).metadata;
+      delete (minimal as unknown as Record<string, unknown>).metadata;
 
       const result = mapToProcessInstance(minimal);
       assert.strictEqual(result.id, validId);
@@ -54,7 +54,7 @@ describe("Runtime Mappers", () => {
 
     it("should reject payload with missing mandatory field", () => {
       const invalid = { ...validRaw };
-      delete (invalid as any).workspaceId;
+      delete (invalid as unknown as Record<string, unknown>).workspaceId;
       assert.throws(() => mapToProcessInstance(invalid), z.ZodError);
     });
 
@@ -184,7 +184,7 @@ describe("Runtime Mappers", () => {
 
     it("should fallback missing correlation id to stable validation failure", () => {
       const invalid = { ...validRaw };
-      delete (invalid as any).correlationId;
+      delete (invalid as unknown as Record<string, unknown>).correlationId;
       assert.throws(() => mapToActionExecution(invalid), (err: unknown) => {
         assert.ok(err instanceof z.ZodError);
         const issues = err.issues;

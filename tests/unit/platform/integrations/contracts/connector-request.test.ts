@@ -85,3 +85,16 @@ test("ConnectorRequestSchema exports CONNECTOR_TIMEOUT_DEFAULT", async () => {
   const m = await import("@/platform/integrations/contracts/connector-request");
   assert.strictEqual(m.CONNECTOR_TIMEOUT_DEFAULT, 30000);
 });
+
+test("ConnectorRequestSchema validates payload with redactedFields", () => {
+  const payload = {
+    destination: "some-destination",
+    method: "POST",
+    idempotencyKey: "123-abc",
+    payload: { key: "value" },
+    timeout: 5000,
+    redactedFields: ["payload.password"]
+  };
+  const result = ConnectorRequestSchema.parse(payload);
+  assert.deepStrictEqual(result.redactedFields, ["payload.password"]);
+});

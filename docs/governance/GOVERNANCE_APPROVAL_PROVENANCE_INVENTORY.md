@@ -75,3 +75,7 @@ Este documento mapeia os ativos reais no repositório `gestaotecnica` que susten
 | **Datasets** | **Média** | Dados de referência para automação. |
 | **Integrations** | **Baixa** | Configurações técnicas de conectividade. |
 | **View Definitions** | **Baixa** | Elementos de apresentação visual. |
+
+## 5. Gate E Readiness
+
+- O contrato de rastreabilidade e as definições de proveniência (`TraceReceiptSchema`, `ApprovalDecisionSchema`) estabelecem a fundação documental exigida para Gate E Readiness, sem implicar suporte em banco de dados ou schemas instaláveis via drizzle.

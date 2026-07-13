@@ -18,3 +18,7 @@ The `ApprovalDecision` contract captures the "Semantic Act" of approval (the int
 - `correlationId`: For grouping related events.
 - `previousReceiptId`: Chain linkage.
 - `causationId`: The event that triggered this action.
+
+## Gate E Readiness
+
+- The canonical schemas defined here support Gate E readiness by formalizing structural and semantic bounds (what constitutes a decision vs what constitutes a receipt) without requiring corresponding database tables immediately.

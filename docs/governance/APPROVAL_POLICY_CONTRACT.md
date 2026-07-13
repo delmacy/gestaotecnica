@@ -47,3 +47,7 @@ The `ApprovalPolicy` contract defines the requirements and scope for asset versi
 - `process_version`
 - `form_definition`
 - `utility_app_definition`
+
+## Gate E Readiness
+
+Este contrato estabelece as bases estruturais de políticas exigidas para alcançar a prontidão **Gate E**. Assim como os demais contratos deste pacote, ele atua no nível de schemas lógicos, respeitando restrições de não alterar o banco de dados via Drizzle.

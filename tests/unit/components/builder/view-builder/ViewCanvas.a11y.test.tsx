@@ -6,11 +6,11 @@ import { ViewCanvas } from '../../../../../src/components/builder/view-builder/V
 describe('ViewCanvas Accessibility', () => {
   it('renders a heading and empty state when blueprint is invalid', () => {
     // Arrange
-    const invalidBlueprint: any = null;
+    const invalidBlueprint: unknown = null;
 
     // Act
     const html = renderToString(
-      <ViewCanvas blueprint={invalidBlueprint} simulatedType="table" simulatedFields={{}} />
+      <ViewCanvas blueprint={invalidBlueprint as never} simulatedType="table" simulatedFields={{}} />
     );
 
     // Assert
@@ -21,7 +21,7 @@ describe('ViewCanvas Accessibility', () => {
 
   it('renders proper roles or semantic tags for standard layouts', () => {
     // Arrange
-    const validBlueprint: any = {
+    const validBlueprint: unknown = {
       name: 'Test View',
       description: 'Test Desc',
       fields: [{ id: 'f1', label: 'Field 1', visible: true }],
@@ -31,7 +31,7 @@ describe('ViewCanvas Accessibility', () => {
 
     // Act
     const html = renderToString(
-      <ViewCanvas blueprint={validBlueprint} simulatedType="table" simulatedFields={{}} />
+      <ViewCanvas blueprint={validBlueprint as never} simulatedType="table" simulatedFields={{}} />
     );
 
     // Assert

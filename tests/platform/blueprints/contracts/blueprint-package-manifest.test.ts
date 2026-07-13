@@ -26,7 +26,7 @@ describe('BlueprintPackageManifestSchema', () => {
       (err) => {
         assert(err instanceof z.ZodError);
         const issues = err.issues;
-        assert.strictEqual(issues[0].code, 'invalid_type');
+        assert.strictEqual(issues[0].message, 'MISSING_PACKAGE_ID');
         assert.strictEqual(issues[0].path[0], 'packageId');
         return true;
       }
@@ -39,7 +39,7 @@ describe('BlueprintPackageManifestSchema', () => {
       (err) => {
         assert(err instanceof z.ZodError);
         const issues = err.issues;
-        assert.strictEqual(issues[0].code, 'too_small');
+        assert.strictEqual(issues[0].message, 'EMPTY_PACKAGE_VERSION');
         assert.strictEqual(issues[0].path[0], 'version');
         return true;
       }

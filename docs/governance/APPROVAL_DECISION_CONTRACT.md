@@ -61,3 +61,7 @@ const decision = ApprovalDecisionSchema.parse({
   decidedAt: new Date().toISOString()
 });
 ```
+
+## Gate E Readiness
+
+Este contrato fornece a definição semântica necessária para alcançar a prontidão **Gate E** sem introduzir novos esquemas de banco de dados e migrações.

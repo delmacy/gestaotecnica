@@ -39,3 +39,7 @@ O modelo deve distinguir claramente:
 - **Integridade != Aprovação:** O hash garante integridade técnica; a aprovação garante conformidade semântica.
 - **Assinaturas Digitais são Opcionais:** O sistema deve suportar aprovações baseadas em identidade autenticada, reservando assinaturas criptográficas (JWS/JWE) para cenários de alta garantia.
 - **Flexibilidade de Publicação:** A obrigatoriedade de aprovação deve ser configurável via política, permitindo publicação direta onde apropriado.
+
+## 4. Gate E Readiness
+
+- Os pacotes e contratos definidos garantem o suporte lógico de rastreabilidade (Gate E Readiness), priorizando a paridade documental (contracts, audit policies) sem forçar persistência antecipada em banco de dados.

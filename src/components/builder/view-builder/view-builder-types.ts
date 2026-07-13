@@ -63,6 +63,13 @@ export interface ViewField {
   notes: string;
 }
 
+export interface StaticViewModel {
+  fields: ViewField[];
+  layout: ViewLayoutRule;
+  sample_rows: Record<string, unknown>[];
+  display_metadata: Record<string, unknown>;
+}
+
 export interface ViewColumn {
   id: string;
   field_id: string;

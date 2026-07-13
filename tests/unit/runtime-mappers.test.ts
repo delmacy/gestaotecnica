@@ -170,5 +170,28 @@ describe("Runtime Mappers", () => {
       assert.strictEqual(result.correlationId, "corr-1");
       assert.strictEqual(result.causationId, "caus-1");
     });
+
+    it("invalid correlation id produces stable validation failure", () => {
+      const invalid = { ...validRaw, correlationId: "" };
+      assert.throws(() => mapToActionExecution(invalid), (err: unknown) => {
+        assert.ok(err instanceof z.ZodError);
+        const issues = err.issues;
+        assert.strictEqual(issues[0].code, z.ZodIssueCode.too_small);
+        assert.strictEqual(issues[0].path[0], "correlationId");
+        return true;
+      });
+    });
+
+    it("should fallback missing correlation id to stable validation failure", () => {
+      const invalid = { ...validRaw };
+      delete (invalid as any).correlationId;
+      assert.throws(() => mapToActionExecution(invalid), (err: unknown) => {
+        assert.ok(err instanceof z.ZodError);
+        const issues = err.issues;
+        assert.strictEqual(issues[0].code, z.ZodIssueCode.invalid_type);
+        assert.strictEqual(issues[0].path[0], "correlationId");
+        return true;
+      });
+    });
   });
 });

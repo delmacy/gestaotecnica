@@ -27,3 +27,61 @@ test("ConnectorRequestSchema rejects missing payload", () => {
     return true;
   });
 });
+
+test("ConnectorRequestSchema assigns default timeout", () => {
+  const payloadWithoutTimeout = {
+    destination: "some-destination",
+    method: "POST",
+    idempotencyKey: "123-abc",
+    payload: { key: "value" },
+  };
+  const result = ConnectorRequestSchema.parse(payloadWithoutTimeout);
+  assert.strictEqual(result.timeout, 30000);
+});
+
+test("ConnectorRequestSchema rejects timeout below minimum", () => {
+  const payload = {
+    destination: "some-destination",
+    method: "POST",
+    idempotencyKey: "123-abc",
+    payload: { key: "value" },
+    timeout: 999,
+  };
+  assert.throws(() => ConnectorRequestSchema.parse(payload), (err) => {
+    assert(err instanceof z.ZodError);
+    return true;
+  });
+});
+
+test("ConnectorRequestSchema rejects timeout above maximum", () => {
+  const payload = {
+    destination: "some-destination",
+    method: "POST",
+    idempotencyKey: "123-abc",
+    payload: { key: "value" },
+    timeout: 300001,
+  };
+  assert.throws(() => ConnectorRequestSchema.parse(payload), (err) => {
+    assert(err instanceof z.ZodError);
+    return true;
+  });
+});
+
+test("ConnectorRequestSchema rejects negative timeout", () => {
+  const payload = {
+    destination: "some-destination",
+    method: "POST",
+    idempotencyKey: "123-abc",
+    payload: { key: "value" },
+    timeout: -100,
+  };
+  assert.throws(() => ConnectorRequestSchema.parse(payload), (err) => {
+    assert(err instanceof z.ZodError);
+    return true;
+  });
+});
+
+test("ConnectorRequestSchema exports CONNECTOR_TIMEOUT_DEFAULT", async () => {
+  const m = await import("@/platform/integrations/contracts/connector-request");
+  assert.strictEqual(m.CONNECTOR_TIMEOUT_DEFAULT, 30000);
+});

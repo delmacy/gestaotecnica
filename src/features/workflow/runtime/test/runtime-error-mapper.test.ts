@@ -3,8 +3,18 @@ import { describe, it } from "node:test";
 import { mapRuntimeErrorToPublicDiagnostic } from "../mappers/runtime-error.mapper";
 import { RuntimeError, RuntimeErrorCode } from "../runtime.errors";
 import { RuntimeDiagnosticEnvelope } from "../envelopes/runtime-diagnostic-envelope";
+import { INVALID_RUNTIME_DIAGNOSTIC_ENVELOPE_WITH_PAYLOAD } from "../../../../../tests/fixtures/features/workflow/runtime/runtime-diagnostic-envelope.fixtures";
 
 describe("mapRuntimeErrorToPublicDiagnostic", () => {
+  it("diagnostic output does not expose raw payload fields by default", () => {
+    const error: RuntimeError = { code: "INVALID_INPUT", message: "Internal detail message" };
+    const context = INVALID_RUNTIME_DIAGNOSTIC_ENVELOPE_WITH_PAYLOAD as unknown as Partial<RuntimeDiagnosticEnvelope>;
+
+    const result = mapRuntimeErrorToPublicDiagnostic(error, context);
+
+    assert.strictEqual("payload" in result, false);
+  });
+
   it("should map a known error correctly", () => {
     const error: RuntimeError = { code: "INVALID_INPUT", message: "Internal detail message" };
     const context: Partial<RuntimeDiagnosticEnvelope> = {

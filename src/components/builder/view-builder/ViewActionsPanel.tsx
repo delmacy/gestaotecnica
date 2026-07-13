@@ -8,6 +8,16 @@ interface ViewActionsPanelProps {
 }
 
 export function ViewActionsPanel({ blueprint }: ViewActionsPanelProps) {
+  if (!blueprint || !blueprint.actions) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center text-gray-500 p-4 text-center">
+        <div className="text-2xl mb-2">⚠️</div>
+        <h3 className="text-sm font-medium mb-1">Invalid Model</h3>
+        <p className="text-xs">Cannot render actions for an invalid view model.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="p-3 border-b bg-gray-50 text-sm font-medium">

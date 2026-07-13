@@ -8,6 +8,16 @@ interface ViewSortingPanelProps {
 }
 
 export function ViewSortingPanel({ blueprint }: ViewSortingPanelProps) {
+  if (!blueprint || !blueprint.fields || !blueprint.sort_rules || !blueprint.group_rules) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center text-gray-500 p-4 text-center">
+        <div className="text-2xl mb-2">⚠️</div>
+        <h3 className="text-sm font-medium mb-1">Invalid Model</h3>
+        <p className="text-xs">Cannot render sorting rules for an invalid view model.</p>
+      </div>
+    );
+  }
+
   const getFieldLabel = (fieldId: string) => {
     return blueprint.fields.find((f) => f.id === fieldId)?.label || "Unknown Field";
   };

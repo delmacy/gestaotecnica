@@ -1,0 +1,47 @@
+export const VIEW_BUILDER_SAMPLE_ROWS: Record<string, unknown>[] = [
+  {
+    id: "mock-row-1",
+    protocol_number: "PRT-2024-001",
+    client_category: "VIP",
+    status: "in_progress",
+    priority: "high",
+    created_at: "2024-01-15T10:00:00Z",
+    assigned_tech: "Tech A",
+  },
+  {
+    id: "mock-row-2",
+    protocol_number: "PRT-2024-002",
+    client_category: "Standard",
+    status: "pending",
+    priority: "medium",
+    created_at: "2024-01-15T11:30:00Z",
+    assigned_tech: "Tech B",
+  },
+  {
+    id: "mock-row-3",
+    protocol_number: "PRT-2024-003",
+    client_category: "Corporate",
+    status: "resolved",
+    priority: "low",
+    created_at: "2024-01-16T14:15:00Z",
+    assigned_tech: "Tech A",
+  },
+  {
+    id: "mock-row-4",
+    protocol_number: "PRT-2024-004",
+    client_category: "Standard",
+    status: "in_progress",
+    priority: "medium",
+    created_at: "2024-01-17T09:00:00Z",
+    assigned_tech: "Tech C",
+  },
+  {
+    id: "mock-row-5",
+    protocol_number: "PRT-2024-005",
+    client_category: "VIP",
+    status: "pending",
+    priority: "high",
+    created_at: "2024-01-17T15:45:00Z",
+    assigned_tech: "Tech B",
+  }
+];

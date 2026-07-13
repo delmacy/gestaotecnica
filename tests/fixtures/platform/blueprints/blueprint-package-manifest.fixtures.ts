@@ -19,6 +19,16 @@ export const VALID_MANIFEST_MINIMAL: BlueprintPackageManifest = {
   version: '0.1.0'
 };
 
+export const VALID_MANIFEST_MISSING_SECTION: BlueprintPackageManifest = {
+  packageId: 'com.example.package',
+  version: '1.0.0'
+};
+
+export const INVALID_MANIFEST_INCOMPATIBLE_VERSION: unknown = {
+  packageId: 'com.example.package',
+  version: 123
+};
+
 export const INVALID_MANIFEST_MISSING_ID: unknown = {
   version: '1.0.0'
 };

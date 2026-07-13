@@ -30,4 +30,20 @@ describe("RuntimeDiagnosticEnvelopeSchema", () => {
       return true;
     });
   });
+
+  it("invalid correlation id produces stable validation failure", () => {
+    const invalidWithEmptyCorrelation = {
+      correlationId: "",
+      processId: "proc-123",
+      actionId: "act-123",
+      redactionClass: "RESTRICTED",
+    };
+    assert.throws(() => RuntimeDiagnosticEnvelopeSchema.parse(invalidWithEmptyCorrelation), (err: unknown) => {
+      assert.ok(err instanceof z.ZodError);
+      const issues = err.issues;
+      assert.strictEqual(issues[0].code, z.ZodIssueCode.too_small);
+      assert.strictEqual(issues[0].path[0], "correlationId");
+      return true;
+    });
+  });
 });

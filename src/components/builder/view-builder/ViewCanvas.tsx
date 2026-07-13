@@ -110,6 +110,51 @@ export function ViewCanvas({ blueprint, simulatedType, simulatedFields }: ViewCa
     </div>
   );
 
+  const renderMockCompactList = () => {
+    const rowCount = blueprint.preview_state.mock_row_count || 0;
+
+    if (rowCount === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-48 border rounded-md bg-white text-gray-500 shadow-sm">
+          <p>No rows to display.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white border rounded-md shadow-sm divide-y">
+        {Array.from({ length: rowCount }).map((_, i) => (
+          <div key={i} className="p-4 flex justify-between items-center hover:bg-gray-50">
+            <div className="flex-1 space-y-2">
+               {visibleFields.slice(0, 1).map(f => (
+                  <div key={f.id} className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-700">{f.label}:</span>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-1/3"></div>
+                  </div>
+               ))}
+               <div className="flex gap-4">
+                 {visibleFields.slice(1, 3).map(f => (
+                    <div key={f.id} className="flex items-center gap-2">
+                       <span className="text-xs text-gray-400">{f.label}:</span>
+                       <div className="h-3 bg-gray-100 rounded animate-pulse w-16"></div>
+                    </div>
+                 ))}
+               </div>
+            </div>
+            {blueprint.layout.show_actions && (
+              <div className="flex gap-2">
+                <div className="w-8 h-8 bg-gray-100 rounded animate-pulse"></div>
+              </div>
+            )}
+          </div>
+        ))}
+        <div className="bg-gray-50 px-4 py-2 text-xs text-gray-500 border-t flex justify-between">
+          <span>Showing {rowCount} items</span>
+        </div>
+      </div>
+    );
+  };
+
   const renderFallback = () => (
     <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-md bg-gray-50 text-gray-500">
       <div title="Warning" className="mb-2">⚠️</div>
@@ -147,7 +192,8 @@ export function ViewCanvas({ blueprint, simulatedType, simulatedFields }: ViewCa
         {simulatedType === 'table' && renderMockTable()}
         {simulatedType === 'kanban' && renderMockKanban()}
         {simulatedType === 'calendar' && renderMockCalendar()}
-        {['detail', 'timeline', 'dashboard_cards', 'compact_list', 'split_master_detail'].includes(simulatedType) && renderFallback()}
+        {simulatedType === 'compact_list' && renderMockCompactList()}
+        {['detail', 'timeline', 'dashboard_cards', 'split_master_detail'].includes(simulatedType) && renderFallback()}
       </div>
     </div>
   );

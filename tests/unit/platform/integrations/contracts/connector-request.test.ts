@@ -98,3 +98,45 @@ test("ConnectorRequestSchema validates payload with redactedFields", () => {
   const result = ConnectorRequestSchema.parse(payload);
   assert.deepStrictEqual(result.redactedFields, ["payload.password"]);
 });
+
+
+test("ConnectorRequestSchema rejects missing idempotencyKey", () => {
+  const invalidPayload = {
+    destination: "some-destination",
+    method: "POST",
+    payload: { key: "value" },
+    timeout: 5000,
+  };
+  assert.throws(() => ConnectorRequestSchema.parse(invalidPayload), (err) => {
+    assert(err instanceof z.ZodError);
+    return true;
+  });
+});
+
+test("ConnectorRequestSchema rejects empty idempotencyKey", () => {
+  const invalidPayload = {
+    destination: "some-destination",
+    method: "POST",
+    idempotencyKey: "",
+    payload: { key: "value" },
+    timeout: 5000,
+  };
+  assert.throws(() => ConnectorRequestSchema.parse(invalidPayload), (err) => {
+    assert(err instanceof z.ZodError);
+    return true;
+  });
+});
+
+test("ConnectorRequestSchema rejects non-string idempotencyKey", () => {
+  const invalidPayload = {
+    destination: "some-destination",
+    method: "POST",
+    idempotencyKey: 123,
+    payload: { key: "value" },
+    timeout: 5000,
+  };
+  assert.throws(() => ConnectorRequestSchema.parse(invalidPayload), (err) => {
+    assert(err instanceof z.ZodError);
+    return true;
+  });
+});

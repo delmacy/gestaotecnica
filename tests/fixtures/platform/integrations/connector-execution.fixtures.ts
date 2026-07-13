@@ -19,20 +19,20 @@ export const VALID_CONNECTOR_PERMANENT_FAILURE: ConnectorResultEnvelope = {
   errorMessage: 'Authentication failed'
 };
 
-export const INVALID_CONNECTOR_MISSING_STATUS: any = {
+export const INVALID_CONNECTOR_MISSING_STATUS: unknown = {
   data: {
     message: 'Operation successful'
   }
 };
 
-export const INVALID_CONNECTOR_UNKNOWN_STATUS: any = {
+export const INVALID_CONNECTOR_UNKNOWN_STATUS: unknown = {
   status: 'pending',
   data: {
     message: 'Operation pending'
   }
 };
 
-export const INVALID_CONNECTOR_RETRYABLE_MISSING_CODE: any = {
+export const INVALID_CONNECTOR_RETRYABLE_MISSING_CODE: unknown = {
   status: 'retryable_failure',
   errorMessage: 'Too many requests'
 };

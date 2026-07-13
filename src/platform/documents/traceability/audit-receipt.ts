@@ -5,7 +5,7 @@ import {
   ActorReferenceSchema,
 } from "../../contracts";
 
-export const RedactionClassSchema = z.string().min(1);
+export const RedactionClassSchema = z.enum(["PUBLIC", "INTERNAL", "RESTRICTED"]);
 export type RedactionClass = z.infer<typeof RedactionClassSchema>;
 
 export const AuditTargetSchema = z.object({

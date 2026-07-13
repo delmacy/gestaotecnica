@@ -8,3 +8,4 @@ export * from "./runtime.actions";
 
 export * from "./envelopes/runtime-diagnostic-envelope";
 export * from "./envelopes/runtime-support-lookup-query";
+export * from "./mappers/runtime-error.mapper";

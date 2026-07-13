@@ -3,6 +3,9 @@ import { BlueprintPackageManifest } from '../../../../src/platform/blueprints/co
 export const VALID_MANIFEST_FULL: BlueprintPackageManifest = {
   packageId: 'com.example.package',
   version: '1.0.0',
+  dependencies: [
+    { packageId: 'com.example.core', version: '1.2.3' }
+  ],
   capabilities: ['auth', 'billing'],
   forms: ['form-1', 'form-2'],
   views: ['view-1'],
@@ -23,4 +26,36 @@ export const INVALID_MANIFEST_MISSING_ID: unknown = {
 export const INVALID_MANIFEST_EMPTY_VERSION: unknown = {
   packageId: 'com.example.package',
   version: ''
+};
+
+export const INVALID_MANIFEST_MISSING_DEPENDENCY_ID: unknown = {
+  packageId: 'com.example.package',
+  version: '1.0.0',
+  dependencies: [
+    { version: '1.2.3' }
+  ]
+};
+
+export const INVALID_MANIFEST_EMPTY_DEPENDENCY_ID: unknown = {
+  packageId: 'com.example.package',
+  version: '1.0.0',
+  dependencies: [
+    { packageId: '', version: '1.2.3' }
+  ]
+};
+
+export const INVALID_MANIFEST_MISSING_DEPENDENCY_VERSION: unknown = {
+  packageId: 'com.example.package',
+  version: '1.0.0',
+  dependencies: [
+    { packageId: 'com.example.core' }
+  ]
+};
+
+export const INVALID_MANIFEST_EMPTY_DEPENDENCY_VERSION: unknown = {
+  packageId: 'com.example.package',
+  version: '1.0.0',
+  dependencies: [
+    { packageId: 'com.example.core', version: '' }
+  ]
 };

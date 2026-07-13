@@ -28,6 +28,6 @@ The UI components reside in `src/components/builder/view-builder/`.
 
 ## Key Characteristics
 
-- **Design-Only / Mock Mode:** The View Builder MVP is strictly an offline simulation. It uses static local schemas for its blueprints and interactions.
-- **No Persistence:** There are no backend calls to save views, no database interactions, and no actual capabilities or server actions are invoked.
+- **Design-Only / Mock Mode:** The View Builder MVP is strictly an offline simulation. It uses static local schemas for its blueprints and interactions. It does not claim real data binding or publication.
+- **No Persistence:** There are no backend calls to save views, no database interactions, and no actual capabilities or server actions are invoked. A future persistence handoff phase will integrate these systems.
 - **Real-Time Client Reaction:** The interface immediately reflects state changes within the client, resetting on page refresh.

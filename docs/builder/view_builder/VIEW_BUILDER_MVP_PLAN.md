@@ -19,6 +19,7 @@ Criar e implementar uma superfície de `View Builder`, integrada ao Builder Shel
 - Não consulta dados operacionais.
 - Não instala capabilities reais ou aciona server actions.
 - Não altera workspaces reais.
+- Não possui real data binding ou publicação (design-only scope).
 
 ## 4. Personas
 - System Builder / Platform Architect.
@@ -65,7 +66,7 @@ Criar e implementar uma superfície de `View Builder`, integrada ao Builder Shel
 Schemas hardcoded nas classes do frontend, limitados aos casos sintéticos de MVP definidos.
 
 ## 9. Dados reais futuros
-Metadados da infraestrutura builder real salvos no PostgreSQL via API, consumindo definições de processo do DB.
+Metadados da infraestrutura builder real salvos no PostgreSQL via API, consumindo definições de processo do DB. A future persistence handoff implementará a publicação e o real data binding consumindo dados operacionais das APIs de backend.
 
 ## 10. Regras de view schema
 A estrutura tem de respeitar um format fixo para o mock renderizar corretamente os diferentes view types (Table, Kanban, etc).

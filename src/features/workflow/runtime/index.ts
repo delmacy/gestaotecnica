@@ -5,3 +5,5 @@ export * from "./runtime.errors";
 export * from "./runtime-step.service";
 export * from "./runtime.service";
 export * from "./runtime.actions";
+
+export * from "./envelopes/runtime-diagnostic-envelope";

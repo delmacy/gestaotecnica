@@ -54,7 +54,7 @@ export async function advanceStepAction(
     if (!activeStep) {
       return {
         ok: false,
-        error: { code: "NO_ACTIVE_STEP", message: "Nenhum passo ativo encontrado para esta instância." }
+        error: { code: "ACTION_EXECUTION_NOT_ACTIVE", message: "Nenhum passo ativo encontrado para esta instância." }
       };
     }
 

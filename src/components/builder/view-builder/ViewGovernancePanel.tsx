@@ -8,6 +8,16 @@ interface ViewGovernancePanelProps {
 }
 
 export function ViewGovernancePanel({ blueprint }: ViewGovernancePanelProps) {
+  if (!blueprint || !blueprint.governance_warnings) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center text-gray-500 p-4 text-center">
+        <div className="text-2xl mb-2">⚠️</div>
+        <h3 className="text-sm font-medium mb-1">Invalid Model</h3>
+        <p className="text-xs">Cannot render governance warnings for an invalid view model.</p>
+      </div>
+    );
+  }
+
   const getIconForSeverity = (severity: string) => {
     switch (severity) {
       case 'info': return <Info className="w-4 h-4 text-blue-500" />;

@@ -9,6 +9,18 @@ interface ViewCanvasProps {
 }
 
 export function ViewCanvas({ blueprint, simulatedType, simulatedFields }: ViewCanvasProps) {
+  if (!blueprint || !blueprint.fields || !blueprint.layout || !blueprint.preview_state) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-gray-50 text-gray-500">
+        <div className="text-center">
+          <div className="text-4xl mb-2">⚠️</div>
+          <h3 className="text-lg font-medium text-gray-700 mb-1">Invalid View Model</h3>
+          <p>The selected view blueprint is missing required configuration data.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Filter fields based on simulated visibility
   const visibleFields = blueprint.fields.filter(f => {
     // If we have a simulated state for this field, use it, otherwise fallback to the blueprint's default visibility

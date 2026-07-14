@@ -306,5 +306,22 @@ export const STATIC_DOCS_INDEX: DocsItem[] = [
     tags: ["ui", "docs"],
     last_known_state: "Ready for Dev",
     synthetic: false,
+  },
+  {
+    id: "doc-19",
+    title: "Release Readiness Inventory",
+    slug: "release-readiness-inventory",
+    category: "readiness",
+    module: "core",
+    phase: "readiness",
+    status: "ready",
+    summary: "Release Readiness Inventory and Release Checklist.",
+    source_path: "docs/operations/RELEASE_READINESS_INVENTORY.md",
+    related_docs: [],
+    related_tasks: [],
+    related_capabilities: ["platform_core"],
+    tags: ["readiness", "release", "checklist"],
+    last_known_state: "Active",
+    synthetic: false,
   }
 ];

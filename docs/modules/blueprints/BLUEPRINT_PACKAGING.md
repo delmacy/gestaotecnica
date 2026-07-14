@@ -24,5 +24,12 @@ Before a blueprint package is installed, a preflight compatibility check is exec
 ## Redaction
 Blueprint packages are validated to ensure they do not contain secrets or runtime customer data. The `BlueprintPackageManifestSchema` recursively checks for sensitive keys (e.g., `password`, `secret`, `token`, etc.) using a helper. If any forbidden field is detected, it applies a `FORBIDDEN_SECRET_FIELD` custom Zod issue code via `.superRefine()`, rejecting the package.
 
+## Channels
+The **`platform-blueprints-channels`** module acts as the secure boundary for blueprint ingestion and extraction. It supports:
+- **Secure Import/Export**: Endpoints for importing and exporting `BlueprintPackageManifest` payloads securely.
+- **Checksum**: All import requests must include a strictly formatted SHA-256 string checksum (`/^sha256-[a-f0-9]{64}$/`) to verify package integrity.
+- **Dry-run**: Import requests support a `dryRun` boolean flag (defaulting to safe/true) to simulate compatibility checks without side effects.
+- **Redaction**: Export requests can specify redaction options to strip sensitive fields before returning the payload, ensuring runtime customer data or secrets are never exposed.
+
 ## Non-Goals
 - **Import Execution**: The actual execution or hydration of importing blueprint packages into the runtime system or database is strictly considered future work.

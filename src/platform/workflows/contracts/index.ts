@@ -8,3 +8,4 @@ export {
   PublicationResultEnvelopeSchema,
   type PublicationResultEnvelope,
 } from "./process-definition";
+export * from "./workflow-definition-version";

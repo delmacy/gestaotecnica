@@ -21,3 +21,21 @@ A persistência da `ProcessVersion` (Publicação) **nunca deve conter `draft` n
 - Edge `source` e `target` usarão essa ActionKey unificada.
 
 A compatibilidade atual requer um "Anti-Corruption Layer" que limpe a definição vinda do Builder antes da query do motor rodar, convertendo JSONs não-validados em instâncias Zod validadas no momento da inicialização do fluxo (futuro).
+
+## Compatibility Policy
+
+A new version is considered incompatible (breaking) if it violates any of the following rules:
+
+- **Removed Node**: A node that existed in the previous version is missing in the new version.
+- **Changed Action**: A node's `actionKey` has changed compared to the previous version.
+- **Changed Payload**: A node's configuration (`config`) has changed (determined by a basic deep equal check).
+
+If any of these conditions are met, the version update will trigger blockers, marking the change as breaking.
+
+## Non-Goals
+
+The following aspects are explicitly excluded from the definition compatibility check:
+
+- Visual or structural layout changes (e.g., node coordinates).
+- Backward-compatible additions (e.g., adding new nodes or edges).
+- Semantic correctness of business logic inside nodes.

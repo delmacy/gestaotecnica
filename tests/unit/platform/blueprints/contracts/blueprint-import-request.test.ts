@@ -5,6 +5,7 @@ import {
   validBlueprintImportRequest,
   executionBlueprintImportRequest,
   invalidBlueprintImportRequestEmptyChecksum,
+  invalidBlueprintImportRequestInvalidChecksumShape,
   invalidBlueprintImportRequestEmptyWorkspace
 } from '../../../../fixtures/platform/blueprints/blueprint-import-request.fixtures';
 
@@ -28,7 +29,7 @@ describe('BlueprintImportRequest Contract', () => {
   it('should apply safe default for dryRun if missing', () => {
      const reqWithoutDryRun = {
         sourceMetadata: {},
-        checksum: 'some-checksum',
+        checksum: 'sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
         targetWorkspace: 'workspace-a'
      };
      const result = BlueprintImportRequestSchema.safeParse(reqWithoutDryRun);
@@ -43,6 +44,14 @@ describe('BlueprintImportRequest Contract', () => {
     assert.strictEqual(result.success, false);
     if (!result.success) {
       assert.strictEqual(result.error.issues[0].message, 'EMPTY_CHECKSUM');
+    }
+  });
+
+  it('should reject a request with an invalid checksum shape', () => {
+    const result = BlueprintImportRequestSchema.safeParse(invalidBlueprintImportRequestInvalidChecksumShape);
+    assert.strictEqual(result.success, false);
+    if (!result.success) {
+      assert.strictEqual(result.error.issues[0].message, 'INVALID_CHECKSUM_SHAPE');
     }
   });
 

@@ -10,3 +10,4 @@ export {
 } from "./process-definition";
 export * from "./workflow-definition-version";
 export * from "./definition-compatibility-result";
+export * from "./definition-runtime-readiness-result";

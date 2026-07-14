@@ -18,3 +18,15 @@ Based on the principle that the System Builder governs and versions configuratio
 ### Rationale
 - Blueprints are structural definitions, templates, and configurations governed by the System Builder (Platform domain).
 - They sit on the Platform side of the architecture (in `src/platform/blueprints/` conceptually or physically), completely isolated from `runtime-engine` execution records, but providing the metadata and schemas that the runtime consumes.
+
+## Channel Concepts
+Existing channel concepts across the platform include:
+1. **Notifications Channel:** Defined in `src/platform/notifications/contracts/channels.ts`, focusing on delivery channels (in_app, email, sms, push, webhook).
+2. **Support Requests:** Mentioned in requests/communication documentation (RequestChannel).
+3. **Data Exports/Imports:** Mentioned in CSV/JSON data export references.
+
+The canonical boundary for blueprint import/export channels is:
+
+**`platform-blueprints-channels`**
+
+This boundary defines the valid mechanisms through which a `BlueprintPackageManifest` can enter or leave the system.

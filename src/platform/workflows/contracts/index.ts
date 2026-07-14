@@ -9,3 +9,4 @@ export {
   type PublicationResultEnvelope,
 } from "./process-definition";
 export * from "./workflow-definition-version";
+export * from "./definition-compatibility-result";

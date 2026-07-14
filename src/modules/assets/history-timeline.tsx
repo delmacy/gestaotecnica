@@ -59,7 +59,7 @@ export function HistoryTimeline({ history }: { history: AssetHistoryEntry[] }) {
                     </p>
                     {entry.newData?.note && (
                       <p className="mt-1 text-xs text-slate-500 italic">
-                        "{entry.newData.note}"
+                        &quot;{entry.newData.note}&quot;
                       </p>
                     )}
                   </div>

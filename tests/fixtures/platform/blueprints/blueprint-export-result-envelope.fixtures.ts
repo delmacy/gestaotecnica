@@ -59,3 +59,21 @@ export const INVALID_EXPORT_RESULT_ENVELOPE_EMPTY_BLOCKER = {
   warnings: [],
   blockers: [""]
 };
+
+export const exportSuccess = {
+  artifactMetadata: {
+    filename: "export.zip",
+    size: 2048
+  },
+  warnings: [],
+  blockers: []
+};
+
+export const exportWarning = {
+  artifactMetadata: {
+    filename: "export.zip",
+    size: 2048
+  },
+  warnings: ["Missing optional metadata"],
+  blockers: []
+};

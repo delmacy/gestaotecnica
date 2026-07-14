@@ -24,3 +24,10 @@ export const invalidEmptyStringInArrays = {
   blockers: [''],
   requiredApprovals: ['']
 };
+
+export const importDryRunBlocker: BlueprintImportPreflightResultEnvelope = {
+  compatible: false,
+  warnings: [],
+  blockers: ["Dry run validation failed"],
+  requiredApprovals: []
+};

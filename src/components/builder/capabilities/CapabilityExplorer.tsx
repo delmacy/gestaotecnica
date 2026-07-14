@@ -83,7 +83,7 @@ export function CapabilityExplorer() {
           <AlertCircle className="h-4 w-4 text-amber-600" />
           <AlertTitle className="text-amber-800 font-semibold">Synthetic/Mock Mode Active</AlertTitle>
           <AlertDescription className="text-amber-700/90 text-sm">
-            This surface is currently using synthetic data. Actions such as "Request Install" will only simulate state changes locally. No actual workspace configuration, database records, or markdown files will be altered.
+            This surface is currently using synthetic data. Actions such as &quot;Request Install&quot; will only simulate state changes locally. No actual workspace configuration, database records, or markdown files will be altered.
           </AlertDescription>
         </Alert>
       </div>
@@ -107,7 +107,7 @@ export function CapabilityExplorer() {
           <FlaskConical className="h-10 w-10 text-muted-foreground mb-4 opacity-20" />
           <h3 className="text-lg font-medium">No capabilities found</h3>
           <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            Try adjusting your search or filters to find what you're looking for.
+            Try adjusting your search or filters to find what you&apos;re looking for.
           </p>
           <Button variant="outline" className="mt-4" onClick={handleClearFilters}>
             Clear Filters

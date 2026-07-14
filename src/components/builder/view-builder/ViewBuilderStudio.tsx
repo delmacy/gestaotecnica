@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { VIEW_BLUEPRINTS } from "./view-builder-data";
-import { ViewBlueprint, ViewType } from "./view-builder-types";
+import { ViewType } from "./view-builder-types";
 
 // Components
 import { ViewBlueprintList } from "./ViewBlueprintList";
@@ -19,6 +19,7 @@ type ActiveTab = "fields" | "filters" | "sorting" | "actions" | "bindings" | "go
 
 export function ViewBuilderStudio() {
   const [selectedBlueprintId, setSelectedBlueprintId] = useState<string | null>(null);
+  const [prevSelectedBlueprintId, setPrevSelectedBlueprintId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("fields");
 
   // Simulated local state for the current session
@@ -28,12 +29,13 @@ export function ViewBuilderStudio() {
   const activeBlueprint = VIEW_BLUEPRINTS.find(b => b.id === selectedBlueprintId) || null;
 
   // Reset simulated state when a new blueprint is selected
-  useEffect(() => {
+  if (selectedBlueprintId !== prevSelectedBlueprintId) {
+    setPrevSelectedBlueprintId(selectedBlueprintId);
     if (activeBlueprint) {
       setSimulatedType(activeBlueprint.view_type);
       setSimulatedFields({}); // Clear overrides
     }
-  }, [activeBlueprint]);
+  }
 
   const handleToggleField = (fieldId: string) => {
     if (!activeBlueprint) return;

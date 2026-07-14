@@ -3,8 +3,8 @@ import { getStatusLabel, getCategoryLabel } from "./constants";
 type AssetHistoryEntry = {
   id: string;
   action: string;
-  previousData: any;
-  newData: any;
+  previousData: { status?: string; note?: string; [key: string]: unknown } | null;
+  newData: { status?: string; note?: string; [key: string]: unknown } | null;
   occurredAt: Date;
 };
 
@@ -48,18 +48,18 @@ export function HistoryTimeline({ history }: { history: AssetHistoryEntry[] }) {
                         <>
                           {" alterado de "}
                           <span className="font-medium">
-                            {getStatusLabel(entry.previousData?.status)}
+                            {getStatusLabel(entry.previousData?.status as string)}
                           </span>
                           {" para "}
                           <span className="font-medium">
-                            {getStatusLabel(entry.newData?.status)}
+                            {getStatusLabel(entry.newData?.status as string)}
                           </span>
                         </>
                       )}
                     </p>
                     {entry.newData?.note && (
                       <p className="mt-1 text-xs text-slate-500 italic">
-                        "{entry.newData.note}"
+                        &quot;{entry.newData.note}&quot;
                       </p>
                     )}
                   </div>

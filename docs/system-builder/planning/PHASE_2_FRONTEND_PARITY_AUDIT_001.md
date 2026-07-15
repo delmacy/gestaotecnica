@@ -10,7 +10,7 @@ Phase 2 is focused on persistence (backend-heavy) and is currently in the founda
 **UI Impact Now:** None. Phase 2 is an exclusively backend-oriented sprint.
 **Justification:** Phase 2 aims to establish the fundamental, unbreakable layer of data storage (Platform and Runtime schemas). UI implementation is deferred until the underlying schemas, migrations, and basic data access functions are verified.
 
-## 6 Master Rules (FRONTEND_PARITY_GATE.md)
+## 6 Master Rules
 1. **Quem usa esta capacidade?**
    - Platform Schemas: Developers / System Admins.
    - Runtime Schemas: Workspace Users / Technical Operators.

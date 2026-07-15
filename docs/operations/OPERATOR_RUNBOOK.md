@@ -1,7 +1,7 @@
 # Operator Runbook
 
 ## Deploy
-[TODO: Add deploy procedures once evidence is available]
+*Deploy procedures pending operational evidence.*
 
 ## Backup and Restore Proof Plan
 
@@ -38,7 +38,7 @@ In the event that a restore fails or corrupts the test environment:
 - **Credential Exposure:** Ensure that database credentials used in the commands are handled securely (e.g., via environment variables or secret managers) and not hardcoded in scripts.
 
 ## Incident
-[TODO: Add incident response procedures once evidence is available]
+*Incident response procedures pending operational evidence.*
 
 ## Support Lookup
-[TODO: Add support lookup procedures once evidence is available]
+*Support lookup procedures pending operational evidence.*

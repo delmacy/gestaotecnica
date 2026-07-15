@@ -33,7 +33,7 @@ export class TimelineService {
     }));
 
     timelineItems.push(
-      ...fRuns.map((run: any) => ({
+      ...fRuns.map((run: typeof flowRuns.$inferSelect) => ({
         id: run.id,
         type: "event",
         title: `Flow Run: ${run.flowName || run.flowKey}`,

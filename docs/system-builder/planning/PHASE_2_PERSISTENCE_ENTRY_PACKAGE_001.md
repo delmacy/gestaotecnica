@@ -3,7 +3,7 @@
 ## 1. Context and Objective
 
 This document defines the Entry Package for Phase 2 (Persistence) of the System Builder.
-As established in the Phase 1 Final Gate (PHASE_1_FINAL_GATE_001.md), Phase 1 was conditionally accepted. This conditional acceptance mandates that the environment constraints (lack of dev/test Postgres and Playwright binaries) must be resolved before Phase 2 can be fully accepted and operationalized.
+As established in the Phase 1 Final Gate (Phase 1 Final Gate), Phase 1 was conditionally accepted. This conditional acceptance mandates that the environment constraints (lack of dev/test Postgres and Playwright binaries) must be resolved before Phase 2 can be fully accepted and operationalized.
 
 The primary goal of Phase 2 is to establish the fundamental, unbreakable layer of data storage and schema models in the database, adhering strictly to Drizzle rules and Postgres architecture for separation of Platform vs Runtime.
 

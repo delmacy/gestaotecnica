@@ -12,7 +12,7 @@ A review of the `src/db/` directory confirms this split:
 
 ### Gaps Identified in Multi-Tenancy Boundaries:
 - **Platform Schema Leakage**: Found `workspaceId` definitions inside Platform schemas (`src/db/platform/schema/candidates.ts`, `src/db/platform/schema/workflow.ts`). This is an architectural violation since Platform schemas should be global and not bound to a specific workspace ID unless explicitly modeling cross-workspace mapping (which these do not appear to be).
-- **Runtime Enforcement**: While all tables in `src/db/runtime/schema/workflow.ts` correctly include `workspaceId` (e.g., `processDefinitions`, `flowDefinitions`, `processInstances`), reliance solely on application-level filtering without PostgreSQL Row-Level Security (RLS) is vulnerable to "Data Bleed," as noted in historical audits (`docs/archive/audits/AUDITORIA_ARQUITETURA.md`).
+- **Runtime Enforcement**: While all tables in `src/db/runtime/schema/workflow.ts` correctly include `workspaceId` (e.g., `processDefinitions`, `flowDefinitions`, `processInstances`), reliance solely on application-level filtering without PostgreSQL Row-Level Security (RLS) is vulnerable to "Data Bleed," as noted in historical audits ([AUDITORIA_ARQUITETURA.md](../../archive/audits/AUDITORIA_ARQUITETURA.md)).
 
 ## 3. Safe Draft and Publication Storage Audit
 

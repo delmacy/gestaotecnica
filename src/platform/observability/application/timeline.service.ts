@@ -3,17 +3,9 @@ import { events } from "@/db/runtime/schema/workflow";
 import { flowRuns, flowActionRuns } from "@/db/schema";
 import { eq, desc, and, or } from "drizzle-orm";
 
-type WorkflowEventRow = typeof events.$inferSelect;
+import { TimelineItem } from "../contracts/timeline-item";
 
-export interface TimelineItem {
-  id: string;
-  type: string;
-  title: string;
-  description?: string;
-  occurredAt: Date;
-  actorId?: string;
-  payload: Record<string, unknown>;
-}
+type WorkflowEventRow = typeof events.$inferSelect;
 
 export class TimelineService {
   async getWorkspaceTimeline(workspaceId: string, limit = 20): Promise<TimelineItem[]> {

@@ -1,15 +1,19 @@
 # Blocker: CanonicalEventSchema Divergence
 
-The task requests consolidating `CanonicalEventSchema` into a single source of truth under `src/platform/events/` and removing duplicate contract definitions.
+The task requires re-exporting or moving `CanonicalEventSchema`, `ActionExecutionSchema`, and `ProcessInstanceSchema` into the platform/workflow contract boundary, and strictly states: "no duplicate schema source is introduced".
 
-However, the two existing schemas diverge significantly in shape and cannot be consolidated via re-export without changing runtime behavior or causing compilation errors.
+However, there is an unresolvable structural divergence between the two existing `CanonicalEventSchema` definitions in the codebase:
 
-## Evidence
+1. `src/platform/events/canonical-contract.ts` defines:
+   - `id`
+   - `entityType`
+   - `entityId`
+   - `actorId`
 
-`src/platform/events/canonical-contract.ts` defines properties such as `id`, `entityType`, `entityId`, and `actorId`.
+2. `src/platform/events/types/canonical-event.ts` defines:
+   - `eventId`
+   - `subjectType`
+   - `subjectId`
+   - `actor`
 
-`src/platform/events/types/canonical-event.ts` defines completely different properties, including `eventId`, `eventVersion`, `subjectType`, `subjectId`, `source`, and `actor`.
-
-Following the operational memory guideline: *"When tasked with consolidating schemas or contracts (e.g., via re-export), if the types diverge in shape and cause compilation errors, do NOT attempt to manually merge fields or migrate field names to bypass the errors. Revert the code changes, restore a clean working tree, and file a blocker document (e.g., `blocker.md`) explaining the divergence, committing only the blocker documentation."*
-
-I am halting consolidation and filing this blocker document.
+Attempting to consolidate these schemas or map their fields manually to resolve the duplicate schema sources causes compilation errors and broad regressions, which is forbidden. Therefore, I am filing this blocker and aborting code modifications for this task.

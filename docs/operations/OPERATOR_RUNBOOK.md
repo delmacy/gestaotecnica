@@ -1,5 +1,15 @@
 # Operator Runbook
 
+## Phase Supervision
+
+Codex phase/thread supervision is governed by:
+
+- `docs/operations/CODEX_PHASE_THREAD_PROTOCOL.md`
+- `docs/operations/PHASE_HANDOFF_INDEX.md`
+
+Use the handoff index when a phase closes or a new phase thread begins. Do not
+create a Jules task only to manage Codex conversation handoff.
+
 ## Deploy
 *Deploy procedures pending operational evidence.*
 

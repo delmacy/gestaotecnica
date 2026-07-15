@@ -30,5 +30,13 @@ Establish a real baseline and executable gap map before vertical implementation.
 - **Mitigation:** Propose changes and clearly mark decisions requiring manual approval as blocked until addressed.
 
 ## Governor and Supervisor Rules Readiness
-- **Analysis:** Current governor rules (`docs/operations/CODEX_GOVERNOR_BOOTSTRAP_REPORT.md`) mandate high reasoning models for task-elaboration and restrict agent autonomy for final system publication. Supervisor rules (`docs/governance/PERMISSION_MODEL.md` etc) specify that a Supervisor can validate work orders but cannot validate their own execution.
-- **Proposal:** No immediate updates to the actual `.py` or capability schema are required before the vertical implementation begins. However, as the phase progresses, we may need to introduce more explicit fallback checks in case human validation is delayed, and specify how the Governor handles blocked Vercel preview environments.
+- **Analysis:** Current phase/thread supervision rules are recorded in
+  `docs/operations/CODEX_PHASE_THREAD_PROTOCOL.md` and
+  `docs/operations/PHASE_HANDOFF_INDEX.md`. Supervisor rules
+  (`docs/governance/PERMISSION_MODEL.md` etc) specify that a Supervisor can
+  validate work orders but cannot validate their own execution.
+- **Proposal:** No immediate updates to the actual `.py` or capability schema are
+  required before the vertical implementation begins. However, as the phase
+  progresses, we may need to introduce more explicit fallback checks in case
+  human validation is delayed, and specify how the Governor handles blocked
+  Vercel preview environments.

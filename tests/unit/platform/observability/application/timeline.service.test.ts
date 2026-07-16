@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import * as assert from "node:assert/strict";
-import { TimelineItem } from "@/platform/observability/application/timeline.service";
+import { TimelineItem } from "@/platform/observability/contracts/timeline-item";
 
 describe("TimelineService Boundaries", () => {
   it("documents TimelineItem interface structure", () => {

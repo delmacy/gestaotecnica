@@ -5,15 +5,7 @@ import { eq, desc, and, or } from "drizzle-orm";
 
 type WorkflowEventRow = typeof events.$inferSelect;
 
-export interface TimelineItem {
-  id: string;
-  type: string;
-  title: string;
-  description?: string;
-  occurredAt: Date;
-  actorId?: string;
-  payload: Record<string, unknown>;
-}
+import { TimelineItem } from "@/platform/observability/contracts/timeline-item";
 
 export class TimelineService {
   async getWorkspaceTimeline(workspaceId: string, limit = 20): Promise<TimelineItem[]> {
@@ -41,18 +33,18 @@ export class TimelineService {
     }));
 
     timelineItems.push(
-      ...fRuns.map((run: any) => ({
+      ...fRuns.map((run: typeof fRuns[number]) => ({
         id: run.id,
         type: "event",
         title: `Flow Run: ${run.flowName || run.flowKey}`,
         occurredAt: run.startedAt,
         payload: {
           status: run.status,
-        eventType: run.triggerEventType,
-        duration: run.durationMs ? `${run.durationMs}ms` : 'running',
-        error: run.errorPayload
-      }
-    })));
+          eventType: run.triggerEventType,
+          duration: run.durationMs ? `${run.durationMs}ms` : 'running',
+          error: run.errorPayload
+        } as Record<string, unknown>
+      })));
 
     return timelineItems.sort((a, b) => (b.occurredAt?.getTime() || 0) - (a.occurredAt?.getTime() || 0)).slice(0, limit);
   }

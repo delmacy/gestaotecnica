@@ -11,3 +11,5 @@ export * from "./blueprints/contracts/blueprint-import-request";
 export * from "./blueprints/contracts/blueprint-import-preflight-result-envelope";
 export * from "./blueprints/contracts/blueprint-package-manifest";
 export * from "./observability/contracts/timeline-item";
+export * from "./capabilities/contracts";
+export * from "./builder/contracts";

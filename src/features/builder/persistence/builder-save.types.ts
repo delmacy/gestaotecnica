@@ -1,26 +1,11 @@
 import type { BuilderDraft } from "../types";
+import type {
+  SaveBuilderDraftOfficialInput as PlatformSaveBuilderDraftOfficialInput,
+  SaveBuilderDraftOfficialResult
+} from "@/platform/builder/contracts/builder-client-interactions";
 
-export type SaveBuilderDraftOfficialInput = {
-  workspaceId: string;
+export type SaveBuilderDraftOfficialInput = Omit<PlatformSaveBuilderDraftOfficialInput, 'draft'> & {
   draft: BuilderDraft;
-  createdBy?: string;
 };
 
-export type SaveBuilderDraftOfficialResult =
-  | {
-      ok: true;
-      data: {
-        processDefinitionId: string;
-        versionId: string;
-        version: number;
-        savedAt: string;
-      };
-    }
-  | {
-      ok: false;
-      error: {
-        code: string;
-        message: string;
-        issues?: unknown[];
-      };
-    };
+export type { SaveBuilderDraftOfficialResult };

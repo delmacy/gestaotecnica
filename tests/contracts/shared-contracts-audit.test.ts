@@ -20,6 +20,7 @@ describe("Shared Contracts Audit Suite", () => {
         "UnknownRecordSchema",
         "SchemaVersionSchema",
         "ISODateTimeSchema",
+        "IdentityContextSchema",
       ];
 
       expectedSchemas.forEach((schema) => {
@@ -67,6 +68,15 @@ describe("Shared Contracts Audit Suite", () => {
       });
       Fixtures.INVALID_ENTITY_IDS.forEach((val) => {
         assert.throws(() => Contracts.EntityIdSchema.parse(val));
+      });
+    });
+
+    test("IdentityContextSchema validation", () => {
+      Fixtures.VALID_IDENTITY_CONTEXTS.forEach((val) => {
+        assert.doesNotThrow(() => Contracts.IdentityContextSchema.parse(val));
+      });
+      Fixtures.INVALID_IDENTITY_CONTEXTS.forEach((val) => {
+        assert.throws(() => Contracts.IdentityContextSchema.parse(val));
       });
     });
   });

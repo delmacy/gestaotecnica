@@ -115,3 +115,15 @@ export const INVALID_CORRELATION_IDS: unknown[] = [
   null,
   {},
 ];
+
+export const VALID_IDENTITY_CONTEXTS = [
+  { actor: { type: "human", id: "user-123" } },
+  { workspaceId: "550e8400-e29b-41d4-a716-446655440000", actor: { type: "system", id: "sys-1" } },
+  { actor: { type: "worker", id: "worker-1" }, entityId: "entity-123" },
+];
+
+export const INVALID_IDENTITY_CONTEXTS = [
+  {}, // Missing actor
+  { actor: { type: "invalid", id: "user-123" } }, // Invalid actor type
+  { workspaceId: "invalid-uuid", actor: { type: "human", id: "user-1" } }, // Invalid workspace ID
+];

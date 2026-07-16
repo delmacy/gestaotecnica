@@ -5,3 +5,4 @@ export * from "./correlation";
 export * from "./payload";
 export * from "./safe-json";
 export * from "./time";
+export * from "./identity";

@@ -26,6 +26,9 @@ Use this file with `docs/operations/CODEX_PHASE_THREAD_PROTOCOL.md`.
   hourly deployment guardrail.
 - `docs/operations/VERTICAL_PHASE_RISK_REGISTER.md` - current vertical-phase risk
   assumptions.
+- `docs/product-roadmap/COMMERCIAL_LAUNCH_ALPHA_TASKS.md` - planned post-`V-01`
+  commercial launch phase with `CL-01` through `CL-12` and 120 planned-gated
+  tasks.
 
 ## Handoff Record Template
 
@@ -67,7 +70,9 @@ Jules evidence: session status, questions, PR creation state
 OpenCode review evidence: heartbeat/OpenCode review records
 Blockers or carry-forward items: none recorded in this index
 Next heartbeat action: continue current phase thread until phase closeout, then
-  create or request a new phase thread and retarget the heartbeat
+  create or request a new phase thread and retarget the heartbeat. Before any
+  local repo edits or release decision, verify the local branch/worktree is
+  synchronized with `origin/main`.
 Last updated: 2026-07-15
 ```
 

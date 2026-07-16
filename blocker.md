@@ -1,19 +1,9 @@
-# Blocker: CanonicalEventSchema Divergence
+# Blocker: Missing Allowed List for CL-01-004-release-roles
 
-The task requires re-exporting or moving `CanonicalEventSchema`, `ActionExecutionSchema`, and `ProcessInstanceSchema` into the platform/workflow contract boundary, and strictly states: "no duplicate schema source is introduced".
+The task instructions for CL-01-004-release-roles strictly require that no files outside the "allowed list" be edited.
 
-However, there is an unresolvable structural divergence between the two existing `CanonicalEventSchema` definitions in the codebase:
+However, no `allowed list` or `get_allowed_list.sh` script is provided in the task context (`docs/agent-runs/jules/CL-01-004-release-roles/1784202249-aaa03c/`), nor is there any explicitly defined allowlist for this task in the repository.
 
-1. `src/platform/events/canonical-contract.ts` defines:
-   - `id`
-   - `entityType`
-   - `entityId`
-   - `actorId`
+Because of the constraint "Do not edit files outside the allowed list," I am blocked from modifying existing documentation (such as `docs/operations/OPERATOR_RUNBOOK.md`) or creating new files to document the launch roles, support ownership, and escalation path.
 
-2. `src/platform/events/types/canonical-event.ts` defines:
-   - `eventId`
-   - `subjectType`
-   - `subjectId`
-   - `actor`
-
-Attempting to consolidate these schemas or map their fields manually to resolve the duplicate schema sources causes compilation errors and broad regressions, which is forbidden. Therefore, I am filing this blocker and aborting code modifications for this task.
+Please provide the explicit allowed list or remove the constraint so that the required documentation can be added.

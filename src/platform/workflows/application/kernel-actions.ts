@@ -1,3 +1,5 @@
+import { instantiateFromPublication } from "../infra/flow-runner-service";
+import { PublicationResultEnvelope } from "../contracts";
 import { eq, desc, and } from "drizzle-orm";
 import { getRuntimeDb } from "@/db";
 import {
@@ -19,10 +21,13 @@ type SaveProcessDefinitionInput = {
   workspaceId: string;
   key: string;
   name: string;
-  definition: any;
+  definition: {
+    nodes?: unknown[];
+    edges?: unknown[];
+  } | unknown;
 };
 
-export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefinitionInput, any> = {
+export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefinitionInput, unknown> = {
   key: "processes.save_definition",
   moduleKey: "workflow",
   description: "Salva a definição de um processo de negócio (BPM).",
@@ -68,8 +73,8 @@ export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefi
       .returning();
 
     // Simple state/transition persistence from UI definition
-    const nodes = input.definition.nodes || [];
-    const edges = input.definition.edges || [];
+    const nodes = (input.definition as { nodes?: unknown[] })?.nodes || [];
+    const edges = (input.definition as { edges?: unknown[] })?.edges || [];
 
     // Clear existing for this version (simplified)
     await db.delete(actions).where(eq(actions.processVersionId, version.id));
@@ -78,7 +83,8 @@ export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefi
 
     const stateMap = new Map();
 
-    for (const node of nodes) {
+    for (const n of nodes) {
+      const node = n as { id: string, type?: string, data?: { label?: string } };
       if (node.type === "process" || node.type === "state") {
         const [state] = await db
           .insert(states)
@@ -93,7 +99,8 @@ export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefi
       }
     }
 
-    for (const edge of edges) {
+    for (const e of edges) {
+      const edge = e as { source: string, target: string, id: string, label?: string };
       const fromId = stateMap.get(edge.source);
       const toId = stateMap.get(edge.target);
       if (fromId && toId) {
@@ -119,14 +126,32 @@ export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefi
       }
     }
 
+
+    const publication: PublicationResultEnvelope = {
+      ok: true,
+      data: {
+        processDefinitionId: saved.id,
+        processVersionId: version.id,
+        status: "published",
+        publishedAt: new Date().toISOString(),
+      },
+    };
+
+    const instantiationResult = instantiateFromPublication(publication, input.workspaceId, (input as unknown as { actorId?: string }).actorId);
+
     return {
       success: true,
-      data: saved,
+      data: {
+        ...saved,
+        instance: instantiationResult.instance,
+        timeline: instantiationResult.timeline,
+      },
     };
   },
 };
 
-export const getProcessDefinitionKernelAction: ActionDefinition<{ key: string }, any> = {
+
+export const getProcessDefinitionKernelAction: ActionDefinition<{ key: string }, unknown> = {
   key: "processes.get_definition",
   moduleKey: "workflow",
   description: "Recupera a definição de um processo.",
@@ -145,10 +170,10 @@ type SaveFlowDefinitionInput = {
   workspaceId: string;
   key: string;
   name: string;
-  definition: any;
+  definition: unknown;
 };
 
-export const saveFlowDefinitionKernelAction: ActionDefinition<SaveFlowDefinitionInput, any> = {
+export const saveFlowDefinitionKernelAction: ActionDefinition<SaveFlowDefinitionInput, unknown> = {
   key: "flows.save_definition",
   moduleKey: "workflow",
   description: "Salva a definição de um fluxo de automação.",
@@ -191,7 +216,7 @@ export const saveFlowDefinitionKernelAction: ActionDefinition<SaveFlowDefinition
   },
 };
 
-export const publishFlowKernelAction: ActionDefinition<{ workspaceId: string; key: string }, any> = {
+export const publishFlowKernelAction: ActionDefinition<{ workspaceId: string; key: string }, unknown> = {
   key: "flows.publish",
   moduleKey: "workflow",
   description: "Publica um fluxo de automação para execução.",
@@ -224,7 +249,7 @@ export const publishFlowKernelAction: ActionDefinition<{ workspaceId: string; ke
   },
 };
 
-export const deleteFlowKernelAction: ActionDefinition<{ workspaceId: string; key: string }, any> = {
+export const deleteFlowKernelAction: ActionDefinition<{ workspaceId: string; key: string }, unknown> = {
   key: "flows.delete",
   moduleKey: "workflow",
   description: "Remove um fluxo de automação.",
@@ -260,7 +285,7 @@ type GetFlowDefinitionInput = {
   workspaceId?: string;
 };
 
-export const getFlowDefinitionKernelAction: ActionDefinition<GetFlowDefinitionInput, any> = {
+export const getFlowDefinitionKernelAction: ActionDefinition<GetFlowDefinitionInput, unknown> = {
   key: "flows.get_definition",
   moduleKey: "workflow",
   description: "Recupera a definição de um fluxo.",

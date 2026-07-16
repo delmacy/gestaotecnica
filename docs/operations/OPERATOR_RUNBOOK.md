@@ -42,3 +42,21 @@ In the event that a restore fails or corrupts the test environment:
 
 ## Support Lookup
 *Support lookup procedures pending operational evidence.*
+
+## Support Ownership and Escalation Path
+
+### Roles
+- **L1 Support (Tier 1):** First responders for alerts, user queries, and initial triage. Responsible for verifying the issue and performing basic mitigation.
+- **L2 Operations (Tier 2):** Infrastructure and advanced platform support. Responsible for resolving complex operational issues, database interventions, and configuration changes.
+- **L3 Engineering (Tier 3):** Core development team. Responsible for code-level bug fixes, architectural escalations, and critical system failures.
+
+### Escalation Path
+1. **Initial Report:** Alerts or user reports are routed to L1 Support.
+2. **L1 Triage:** L1 investigates. If the issue cannot be resolved within 15 minutes, or if it involves a critical system failure, it is escalated to L2 Operations.
+3. **L2 Intervention:** L2 Operations investigates infrastructure and database logs. If the issue requires a code patch or deep system debugging, it is escalated to L3 Engineering.
+4. **L3 Resolution:** L3 Engineering provides a hotfix or architectural guidance.
+
+### Launch Roles
+- **Release Manager:** Approves the final deployment to production, ensuring all gates (Architecture, Persistence, Operational) are met.
+- **Deployment Engineer:** Executes the deployment, monitors Vercel previews, and verifies post-deployment logs.
+- **QA Lead:** Validates post-deployment readiness and confirms the system is operational.

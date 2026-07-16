@@ -22,8 +22,8 @@ type SaveProcessDefinitionInput = {
   key: string;
   name: string;
   definition: {
-    nodes?: any[];
-    edges?: any[];
+    nodes?: unknown[];
+    edges?: unknown[];
   } | unknown;
 };
 
@@ -73,8 +73,8 @@ export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefi
       .returning();
 
     // Simple state/transition persistence from UI definition
-    const nodes = (input.definition as { nodes?: any[] })?.nodes || [];
-    const edges = (input.definition as { edges?: any[] })?.edges || [];
+    const nodes = (input.definition as { nodes?: unknown[] })?.nodes || [];
+    const edges = (input.definition as { edges?: unknown[] })?.edges || [];
 
     // Clear existing for this version (simplified)
     await db.delete(actions).where(eq(actions.processVersionId, version.id));
@@ -83,7 +83,8 @@ export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefi
 
     const stateMap = new Map();
 
-    for (const node of nodes) {
+    for (const n of nodes) {
+      const node = n as { id: string, type?: string, data?: { label?: string } };
       if (node.type === "process" || node.type === "state") {
         const [state] = await db
           .insert(states)
@@ -98,7 +99,8 @@ export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefi
       }
     }
 
-    for (const edge of edges) {
+    for (const e of edges) {
+      const edge = e as { source: string, target: string, id: string, label?: string };
       const fromId = stateMap.get(edge.source);
       const toId = stateMap.get(edge.target);
       if (fromId && toId) {

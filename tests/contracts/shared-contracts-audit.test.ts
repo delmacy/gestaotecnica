@@ -24,7 +24,7 @@ describe("Shared Contracts Audit Suite", () => {
       ];
 
       expectedSchemas.forEach((schema) => {
-        assert.ok((Contracts as any)[schema], `Missing exported schema: ${schema}`);
+        assert.ok((Contracts as Record<string, unknown>)[schema], `Missing exported schema: ${schema}`);
       });
     });
 

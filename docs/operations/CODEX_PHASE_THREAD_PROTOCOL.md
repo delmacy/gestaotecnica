@@ -79,6 +79,10 @@ Every heartbeat should:
 
 - Read `state/state.json`, `logs/heartbeat.log`,
   `logs/governor-decisions.jsonl`, and `logs/jules-questions.jsonl`.
+- Verify that any local repo branch/worktree used by Codex for review,
+  documentation, or corrective changes is synchronized with `origin/main`
+  before edits or release decisions. If the branch is stale or cannot
+  fast-forward, report the blocker instead of continuing from stale state.
 - Compare the active sprint/phase in state with the thread purpose.
 - Run `python3 scripts/supervisor.py flow-heartbeat` only when it is safe and no
   recent lock is active.
@@ -115,6 +119,8 @@ handoff.
 
 Before releasing the next phase or retargeting heartbeat ownership, verify:
 
+- The local repo branch/worktree has fetched `origin/main` and is either on the
+  expected branch with a known base SHA or explicitly documented as stale.
 - Jules sessions are not duplicated and match the state file.
 - GitHub PR status, checks, comments, reviews, and merge state match local state.
 - OpenCode review is present for relevant PRs.

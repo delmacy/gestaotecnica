@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const SaveBuilderDraftOfficialInputSchema = z.object({
   workspaceId: z.string(),
-  draft: z.any(), // Uses BuilderDraft in runtime
+  draft: z.unknown(), // Uses BuilderDraft in runtime
   createdBy: z.string().optional(),
 }).strict();
 export type SaveBuilderDraftOfficialInput = Readonly<z.infer<typeof SaveBuilderDraftOfficialInputSchema>>;
@@ -74,9 +74,9 @@ export const LoadSavedProcessResultSchema = z.discriminatedUnion("ok", [
   z.object({
     ok: z.literal(true),
     data: z.object({
-      processDefinition: z.any(),
-      latestVersion: z.any().optional(),
-      draft: z.any().optional(),
+      processDefinition: z.unknown(),
+      latestVersion: z.unknown().optional(),
+      draft: z.unknown().optional(),
     }).strict(),
   }).strict(),
   z.object({

@@ -1,24 +1,5 @@
-export type PublishBuilderProcessInput = {
-  workspaceId: string;
-  processDefinitionId: string;
-  processVersionId: string;
-  publishedBy?: string;
-};
+import type { PublishBuilderProcessInputContract, PublishBuilderProcessResultContract } from "@/platform/contracts/builder-client";
 
-export type PublishBuilderProcessResult =
-  | {
-      ok: true;
-      data: {
-        processDefinitionId: string;
-        processVersionId: string;
-        status: "published";
-        publishedAt: string;
-      };
-    }
-  | {
-      ok: false;
-      error: {
-        code: string;
-        message: string;
-      };
-    };
+export type PublishBuilderProcessInput = PublishBuilderProcessInputContract;
+
+export type PublishBuilderProcessResult = PublishBuilderProcessResultContract;

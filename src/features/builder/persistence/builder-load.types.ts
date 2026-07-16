@@ -1,34 +1,17 @@
+import type { ListSavedProcessesInputContract, ListSavedProcessesResultContract, LoadSavedProcessInputContract, LoadSavedProcessResultContract, SavedProcessListItemContract } from "@/platform/contracts/builder-client";
 import type { BuilderDraft } from "../types";
 import type {
   ProcessDefinitionRecord,
   ProcessVersionRecord,
 } from "@/features/workflow/definitions";
 
-export type SavedProcessListItem = {
-  id: string;
-  key: string;
-  name: string;
-  description?: string | null;
-  status: string;
-  updatedAt?: string;
-  createdAt?: string;
-};
+export type SavedProcessListItem = SavedProcessListItemContract;
 
-export type ListSavedProcessesInput = {
-  workspaceId: string;
-  status?: "draft" | "published" | "archived";
-  limit?: number;
-  offset?: number;
-};
+export type ListSavedProcessesInput = ListSavedProcessesInputContract;
 
-export type ListSavedProcessesResult =
-  | { ok: true; data: { items: SavedProcessListItem[] } }
-  | { ok: false; error: { code: string; message: string } };
+export type ListSavedProcessesResult = ListSavedProcessesResultContract;
 
-export type LoadSavedProcessInput = {
-  workspaceId: string;
-  processDefinitionId: string;
-};
+export type LoadSavedProcessInput = LoadSavedProcessInputContract;
 
 export type LoadSavedProcessResult =
   | {

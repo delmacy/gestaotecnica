@@ -1,3 +1,5 @@
+import { instantiateFromPublication } from "../infra/flow-runner-service";
+import { PublicationResultEnvelope } from "../contracts";
 import { eq, desc, and } from "drizzle-orm";
 import { getRuntimeDb } from "@/db";
 import {
@@ -119,12 +121,30 @@ export const saveProcessDefinitionKernelAction: ActionDefinition<SaveProcessDefi
       }
     }
 
+
+    const publication: PublicationResultEnvelope = {
+      ok: true,
+      data: {
+        processDefinitionId: saved.id,
+        processVersionId: version.id,
+        status: "published",
+        publishedAt: new Date().toISOString(),
+      },
+    };
+
+    const instantiationResult = instantiateFromPublication(publication, input.workspaceId, input.actorId);
+
     return {
       success: true,
-      data: saved,
+      data: {
+        ...saved,
+        instance: instantiationResult.instance,
+        timeline: instantiationResult.timeline,
+      },
     };
   },
 };
+
 
 export const getProcessDefinitionKernelAction: ActionDefinition<{ key: string }, any> = {
   key: "processes.get_definition",

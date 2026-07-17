@@ -240,7 +240,7 @@ type InstallCapabilityInput = {
   name: string;
 };
 
-export const installCapabilityKernelAction: ActionDefinition<InstallCapabilityInput, any> = {
+export const installCapabilityKernelAction: ActionDefinition<InstallCapabilityInput, unknown> = {
   key: "workspaces.install_capability",
   moduleKey: "workspace",
   description: "Instala uma capacidade do Registry em um workspace específico.",
@@ -281,7 +281,7 @@ type PublishWorkspaceInput = {
   workspaceId: string;
 };
 
-export const publishWorkspaceKernelAction: ActionDefinition<PublishWorkspaceInput, any> = {
+export const publishWorkspaceKernelAction: ActionDefinition<PublishWorkspaceInput, unknown> = {
   key: "workspaces.publish",
   moduleKey: "workspace",
   description: "Publica e finaliza a configuração de um workspace para uso em produção.",
@@ -314,7 +314,7 @@ type CreateEntityInput = {
   fields: Array<{ key: string; name: string; type: string }>;
 };
 
-export const createEntityKernelAction: ActionDefinition<CreateEntityInput, any> = {
+export const createEntityKernelAction: ActionDefinition<CreateEntityInput, unknown> = {
   key: "entities.create",
   moduleKey: "workspace",
   description: "Define uma nova entidade de dados dinâmica no workspace.",
@@ -359,10 +359,10 @@ export const createEntityKernelAction: ActionDefinition<CreateEntityInput, any> 
 type SaveRecordInput = {
   workspaceId: string;
   entityKey: string;
-  data: any;
+  data: unknown;
 };
 
-export const saveDynamicRecordKernelAction: ActionDefinition<SaveRecordInput, any> = {
+export const saveDynamicRecordKernelAction: ActionDefinition<SaveRecordInput, unknown> = {
   key: "records.save",
   moduleKey: "workspace",
   description: "Salva um registro de uma entidade dinâmica.",

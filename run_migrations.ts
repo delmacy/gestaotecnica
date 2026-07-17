@@ -1,31 +1,16 @@
-import "dotenv/config";
+import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
 
-const sql = postgres(process.env.DATABASE_URL!);
-async function run() {
-  await sql`CREATE SCHEMA IF NOT EXISTS "workspace"`;
-  await sql`CREATE SCHEMA IF NOT EXISTS "workflow"`;
-  await sql`CREATE SCHEMA IF NOT EXISTS "identity"`;
-  await sql`CREATE SCHEMA IF NOT EXISTS "registry"`;
-  await sql`CREATE SCHEMA IF NOT EXISTS "documents"`;
-  await sql`CREATE SCHEMA IF NOT EXISTS "storage"`;
-  await sql`CREATE SCHEMA IF NOT EXISTS "blueprints"`;
-  await sql`CREATE SCHEMA IF NOT EXISTS "builder"`;
-
-  await sql`CREATE TABLE IF NOT EXISTS "builder"."process_candidates" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"workspace_id" uuid NOT NULL,
-	"name" text NOT NULL,
-	"description" text,
-	"status" text DEFAULT 'draft' NOT NULL,
-	"origin" text DEFAULT 'manual' NOT NULL,
-	"proposed_definition" jsonb,
-	"evidence" jsonb,
-	"created_by_id" uuid DEFAULT '00000000-0000-0000-0000-000000000000' NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-  )`;
-
-  process.exit(0);
+async function main() {
+    const client = postgres("postgresql://postgres:postgres@localhost:5432/tec_db", { max: 1 });
+    const db = drizzle(client);
+    try {
+        await client`CREATE SCHEMA IF NOT EXISTS agent_work`;
+        await migrate(db, { migrationsFolder: "./drizzle-agent-work", migrationsTable: "__drizzle_migrations", migrationsSchema: "agent_work" });
+    } catch(e) {
+        console.error(e);
+    }
+    await client.end();
 }
-run();
+main().catch(console.error);

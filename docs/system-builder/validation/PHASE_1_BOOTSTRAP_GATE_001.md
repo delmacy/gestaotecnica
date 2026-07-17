@@ -1,6 +1,7 @@
 # PHASE 1 BOOTSTRAP GATE 001 - Validation Report
 
 ## Contexto
+
 **Issue:** #297 - RETRY CLEAN
 **Objetivo:** Validar e, quando seguro, corrigir o gate de bootstrap/persistência (banco de dados, migrações, workspace e eventos) da Fase 1, relatando comandos reprodutíveis e bloqueios.
 

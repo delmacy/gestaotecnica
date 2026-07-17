@@ -6,7 +6,9 @@ import {
   entityDefinitions,
   fieldDefinitions,
   dynamicRecords,
+  workspaceMembers,
 } from "@/db/runtime/schema/workspace";
+import { usersTable } from "@/db/runtime/schema/identity";
 import { workspaceModuleConfigs } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
 import {
@@ -54,6 +56,64 @@ export const createOrganizationKernelAction: ActionDefinition<CreateOrganization
     return {
       success: true,
       data: org,
+    };
+  },
+};
+
+type InviteUserInput = {
+  workspaceId: string;
+  email: string;
+  name?: string;
+};
+
+export const inviteUserKernelAction: ActionDefinition<InviteUserInput, { userId: string; workspaceId: string }> = {
+  key: "workspaces.invite_user",
+  moduleKey: "workspace",
+  description: "Convida (ou cria via admin) um usuário para o workspace.",
+  callableBy: ["ui", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      workspaceId: uuidProperty("ID do workspace."),
+      email: stringProperty("E-mail do usuário."),
+      name: stringProperty("Nome opcional do usuário."),
+    },
+    ["workspaceId", "email"]
+  ),
+  async handler(input) {
+    const db = getRuntimeDb();
+    const normalizedEmail = input.email.toLowerCase().trim();
+
+    // Upsert the user using onConflictDoUpdate
+    const [user] = await db
+      .insert(usersTable)
+      .values({
+        email: normalizedEmail,
+        name: input.name ?? null,
+      })
+      .onConflictDoUpdate({
+        target: usersTable.email,
+        set: {
+          ...(input.name ? { name: input.name } : {}),
+          updatedAt: new Date(),
+        },
+      })
+      .returning({ id: usersTable.id });
+
+    // Ensure they are a member of the workspace
+    await db
+      .insert(workspaceMembers)
+      .values({
+        workspaceId: input.workspaceId,
+        userId: user.id,
+      })
+      .onConflictDoNothing();
+
+    return {
+      success: true,
+      data: {
+        userId: user.id,
+        workspaceId: input.workspaceId,
+      },
     };
   },
 };

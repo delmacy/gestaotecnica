@@ -58,4 +58,29 @@ test('Invite User Kernel Action', async (t) => {
       workspaceId: 'ws-123',
     });
   });
+
+  await t.test('should successfully insert user with no name', async () => {
+    const context = {
+      workspaceId: 'ctx-workspace-1',
+      workspaceKey: 'ws1',
+      actor: { type: 'system' as const },
+      source: 'system' as const,
+      enabledModules: ['workspace'],
+      scopes: ['*'],
+      correlationId: 'test-123',
+    };
+
+    const input = {
+      workspaceId: 'ws-123',
+      email: 'test-existing@example.com',
+    };
+
+    const result = await inviteUserKernelAction.handler(input, context as unknown);
+
+    assert.strictEqual(result.success, true);
+    assert.deepStrictEqual(result.data, {
+      userId: 'mock-user-id',
+      workspaceId: 'ws-123',
+    });
+  });
 });

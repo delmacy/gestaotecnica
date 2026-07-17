@@ -8,12 +8,14 @@
 ## Issue and PR Status
 
 ### Open Issues
+
 - `#291` - current task (Final Clean Retry).
 - `#297` - in progress/retry.
 - `#298` - final integrator pending.
 - `#296` - resolved by merged `#303`.
 
 ### Pull Requests
+
 - **Merged:**
   - `#299` - Action Registry smoke validation
   - `#301` - Phase 1 Actions/env/doc/hygiene
@@ -26,6 +28,7 @@
 ## GitHub Actions Workflows
 
 Present workflows (`.github/workflows/`):
+
 - `agent-work-governance.yml`
 - `agent-work-integration.yml`
 - `architecture-check.yml`
@@ -33,6 +36,7 @@ Present workflows (`.github/workflows/`):
 ## Package Scripts Overview
 
 Key scripts defined in `package.json`:
+
 - **Agent Work:** `agent-work`, `agent-work:dry-run`, `agent-work:db:check`
 - **Build/Run:** `dev`, `build`, `start`
 - **Code Quality:** `lint`, `check:architecture`

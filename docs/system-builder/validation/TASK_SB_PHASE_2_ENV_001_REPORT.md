@@ -1,9 +1,11 @@
 # TASK-SB-PHASE-2-ENV-001 - Proof of Environment Blocker Report
 
 ## Status
+
 `blocked/review`
 
 ## Overview
+
 The gate `ENV-001` (fresh DB integration proof) remains blocked because of integration test failures and database cleanup sequence violations during the testing pipeline. While partial proof has been established (CI can provision Postgres, run `db:migrate-ci` / `db:bootstrap`, validate architecture, typecheck, and build), the final pipeline steps for `test:integration` and `test:e2e` fail on a fresh CI Postgres database.
 
 ## Details of the Blocker
@@ -23,6 +25,7 @@ The gate `ENV-001` (fresh DB integration proof) remains blocked because of integ
 ## Recommended Next Steps / Follow-up Task
 
 Create a follow-up task to narrowly address the schema integration and cleanup:
+
 1. **Fix Test Cleanup Sequence:** Update the testing teardown logic to ensure `traceability.receipts` (and any other dependencies) are cleared before attempting to delete `workspace.workspaces`.
 2. **Investigate Agent Gateway Persistence:** Debug `processAgentSubmissionWithMetadata` inside `agent-gateway-idempotency.integration.test.ts` to identify why candidates and submissions are not persisting as expected when evaluated against the real `traceability.receipts` schema in CI.
 

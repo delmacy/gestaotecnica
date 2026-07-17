@@ -33,7 +33,7 @@ export async function cleanLaunchDemo(dbPlatform: any /* explicit-any-ok */, dbR
 
   // 3. Delete Module Capabilities
   const modRecords = await dbPlatform.select().from(modules).where(inArray(modules.key, moduleKeys));
-  const modIds = modRecords.map((m: any /* explicit-any-ok */) => m.id);
+  const modIds = modRecords.map((m: { id: string }) => m.id);
   if (modIds.length > 0) {
     await dbPlatform.delete(moduleCapabilities).where(inArray(moduleCapabilities.moduleId, modIds));
     console.log(`[Clean] Deleted module capabilities links`);

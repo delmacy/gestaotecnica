@@ -10,8 +10,8 @@ import { LAUNCH_DEMO } from "./constants";
 
 
 export async function seedLaunchDemo(
-  dbPlatform: any, // explicit-any-ok
-  dbRuntime: any // explicit-any-ok
+  dbPlatform: ReturnType<typeof import("../../db").getPlatformDb>,
+  dbRuntime: ReturnType<typeof import("../../db").getRuntimeDb>
 ) {
   console.log(`Starting seed for Launch Demo`);
 

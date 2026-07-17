@@ -8,8 +8,8 @@ import { processCandidates } from "../../db/platform/schema/candidates";
 import { workspaceModuleConfigs } from "../../db/legacy/schema";
 import { LAUNCH_DEMO } from "./constants";
 
-// explicit-any-ok
-export async function cleanLaunchDemo(dbPlatform: any /* explicit-any-ok */, dbRuntime: any /* explicit-any-ok */) {
+
+export async function cleanLaunchDemo(dbPlatform: any, dbRuntime: any) { // explicit-any-ok
   console.log(`Starting cleanup for Launch Demo`);
 
   const workspaceKeys = [LAUNCH_DEMO.workspace.key];

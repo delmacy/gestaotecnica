@@ -8,7 +8,7 @@ import { processCandidates } from "../../db/platform/schema/candidates";
 import { workspaceModuleConfigs } from "../../db/legacy/schema";
 import { LAUNCH_DEMO } from "./constants";
 
-export async function cleanLaunchDemo(dbPlatform: any, dbRuntime: any) // explicit-any-ok {
+export async function cleanLaunchDemo(dbPlatform: any /* explicit-any-ok */, dbRuntime: any /* explicit-any-ok */) {
   console.log(`Starting cleanup for Launch Demo`);
 
   const workspaceKeys = [LAUNCH_DEMO.workspace.key];
@@ -19,7 +19,7 @@ export async function cleanLaunchDemo(dbPlatform: any, dbRuntime: any) // explic
 
   // 1. Delete Process Candidates
   const wsRecords = await dbRuntime.select().from(workspaces).where(inArray(workspaces.key, workspaceKeys));
-  const wsIds = wsRecords.map((w: any /* explicit-any-ok */) => w.id);
+  const wsIds = wsRecords.map((w: { id: string }) => w.id);
   if (wsIds.length > 0) {
     await dbPlatform.delete(processCandidates).where(inArray(processCandidates.workspaceId, wsIds));
     console.log(`[Clean] Deleted process candidates for workspaces`);
@@ -65,6 +65,7 @@ export async function cleanLaunchDemo(dbPlatform: any, dbRuntime: any) // explic
 async function runCleanScript() {
   if (process.env.NODE_ENV !== "test" && !process.env.ALLOW_SEED) {
     console.warn("Clean script can only run with ALLOW_SEED=true or NODE_ENV=test.");
+    process.exit(1);
   }
   try {
     const dbPlatform = getPlatformDb();

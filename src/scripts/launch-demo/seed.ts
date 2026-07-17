@@ -8,7 +8,7 @@ import { processCandidates } from "../../db/platform/schema/candidates";
 import { workspaceModuleConfigs } from "../../db/legacy/schema";
 import { LAUNCH_DEMO } from "./constants";
 
-export async function seedLaunchDemo(dbPlatform: any, dbRuntime: any) // explicit-any-ok {
+export async function seedLaunchDemo(dbPlatform: any /* explicit-any-ok */, dbRuntime: any /* explicit-any-ok */) {
   console.log(`Starting seed for Launch Demo`);
 
   // 1. Organization
@@ -119,7 +119,7 @@ export async function seedLaunchDemo(dbPlatform: any, dbRuntime: any) // explici
   const existingCandidates = await dbPlatform.select().from(processCandidates)
     .where(eq(processCandidates.workspaceId, workspaceId));
 
-  const candidateExists = existingCandidates.find((c: any /* explicit-any-ok */) => c.name === LAUNCH_DEMO.candidate.name);
+  const candidateExists = existingCandidates.find((c: { name: string }) => c.name === LAUNCH_DEMO.candidate.name);
 
   if (!candidateExists) {
       const [candidate] = await dbPlatform.insert(processCandidates).values({
@@ -141,6 +141,7 @@ export async function seedLaunchDemo(dbPlatform: any, dbRuntime: any) // explici
 async function runSeedScript() {
   if (process.env.NODE_ENV !== "test" && !process.env.ALLOW_SEED) {
     console.warn("Seed script can only run with ALLOW_SEED=true or NODE_ENV=test.");
+    process.exit(1);
   }
   try {
     const dbPlatform = getPlatformDb();

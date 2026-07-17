@@ -1,7 +1,7 @@
 import { getRuntimeDb } from "@/db";
 import { processDefinitions, processVersions } from "@/db/runtime/schema/workflow";
 import { eq, and } from "drizzle-orm";
-import { ProcessDefinition, ProcessVersion } from "../contracts/process-definition";
+import { ProcessDefinition, ProcessVersion, ProcessDefinitionStatus, ProcessVersionStatus } from "../contracts/process-definition";
 import { WorkflowPersistencePort } from "../persistence/ports/workflow-persistence.port";
 
 export class WorkflowRepository implements WorkflowPersistencePort {
@@ -21,7 +21,7 @@ export class WorkflowRepository implements WorkflowPersistencePort {
       workspaceId: row.workspaceId,
       key: row.key,
       name: row.name,
-      status: (row as any).status || "draft",
+      status: "draft" as ProcessDefinitionStatus, // processDefinitions schema does not have a status column in runtime, default to draft
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
       createdById: row.createdById || "00000000-0000-0000-0000-000000000000",
@@ -70,12 +70,12 @@ export class WorkflowRepository implements WorkflowPersistencePort {
       .from(processDefinitions)
       .where(eq(processDefinitions.workspaceId, workspaceId));
 
-    return results.map((row: any) => ({
+    return results.map((row: typeof processDefinitions.$inferSelect) => ({
       id: row.id,
       workspaceId: row.workspaceId,
       key: row.key,
       name: row.name,
-      status: (row as any).status || "draft",
+      status: "draft" as ProcessDefinitionStatus,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
       createdById: row.createdById || "00000000-0000-0000-0000-000000000000",
@@ -98,7 +98,7 @@ export class WorkflowRepository implements WorkflowPersistencePort {
     if (existing) {
       await db.update(processVersions)
         .set({
-          definition: version.definition as any,
+          definition: version.definition as unknown as string, // Temporary cast, usually definition is JSON in Drizzle
           status: version.status,
           updatedAt: new Date(version.updatedAt),
         })
@@ -111,7 +111,7 @@ export class WorkflowRepository implements WorkflowPersistencePort {
         id: version.id,
         processDefinitionId: version.processDefinitionId,
         version: version.version,
-        definition: version.definition as any,
+        definition: version.definition as unknown as string,
         status: version.status,
         createdAt: new Date(version.createdAt),
         updatedAt: new Date(version.updatedAt),
@@ -143,11 +143,11 @@ export class WorkflowRepository implements WorkflowPersistencePort {
       workspaceId: workspaceId,
       processDefinitionId: row.processDefinitionId,
       version: row.version,
-      status: row.status as any,
+      status: row.status as ProcessVersionStatus,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
       createdById: "00000000-0000-0000-0000-000000000000",
-      definition: row.definition as any,
+      definition: row.definition as unknown as ProcessVersion["definition"],
     };
   }
 
@@ -162,16 +162,16 @@ export class WorkflowRepository implements WorkflowPersistencePort {
       .from(processVersions)
       .where(eq(processVersions.processDefinitionId, definitionId));
 
-    return results.map((row: any) => ({
+    return results.map((row: typeof processVersions.$inferSelect) => ({
       id: row.id,
       workspaceId: workspaceId,
       processDefinitionId: row.processDefinitionId,
       version: row.version,
-      status: row.status as any,
+      status: row.status as ProcessVersionStatus,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
       createdById: "00000000-0000-0000-0000-000000000000",
-      definition: row.definition as any,
+      definition: row.definition as unknown as ProcessVersion["definition"],
     }));
   }
 }

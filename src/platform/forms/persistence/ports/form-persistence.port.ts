@@ -1,4 +1,4 @@
-import { FormDefinition } from "../contracts/form-definition-contract";
+import { FormDefinition } from "../../contracts/form-definition";
 
 export interface FormPersistencePort {
   saveDraft(workspaceId: string, form: FormDefinition): Promise<void>;

@@ -59,7 +59,7 @@ export function GovernancePermissionCell({ permission, isSelected, onClick }: Go
     <div
       className={`w-full h-10 border rounded flex items-center justify-center cursor-pointer transition-colors ${bgClass} ${isSelected ? 'ring-2 ring-primary shadow-sm' : ''}`}
       onClick={onClick}
-      title={`Effect: ${effect}`}
+      title={`Effect: ${effect}. ${effect === 'denied' ? 'Access blocked: You do not have permission.' : ''}`}
     >
       {icon}
     </div>

@@ -13,8 +13,8 @@ describe("Authorization checks", () => {
     try {
       await requireCurrentUser();
       assert.fail("Should have redirected");
-    } catch (e: any) {
-      if (e.message !== "NEXT_REDIRECT") throw e;
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message !== "NEXT_REDIRECT") throw e;
     }
     assert.strictEqual(redirectCalledWith, "/auth/login");
   });
@@ -41,8 +41,8 @@ describe("Authorization checks", () => {
     try {
       await requireAccessProfile(["admin", "builder"]);
       assert.fail("Should have redirected");
-    } catch (e: any) {
-      if (e.message !== "NEXT_REDIRECT") throw e;
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message !== "NEXT_REDIRECT") throw e;
     }
     assert.strictEqual(redirectCalledWith, "/auth/login");
   });

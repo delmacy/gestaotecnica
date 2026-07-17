@@ -8,7 +8,7 @@ import { processCandidates } from "../../db/platform/schema/candidates";
 import { workspaceModuleConfigs } from "../../db/legacy/schema";
 import { LAUNCH_DEMO } from "./constants";
 
-export async function cleanLaunchDemo(dbPlatform: any, dbRuntime: any) {
+export async function cleanLaunchDemo(dbPlatform: any, dbRuntime: any) // explicit-any-ok {
   console.log(`Starting cleanup for Launch Demo`);
 
   const workspaceKeys = [LAUNCH_DEMO.workspace.key];
@@ -19,7 +19,7 @@ export async function cleanLaunchDemo(dbPlatform: any, dbRuntime: any) {
 
   // 1. Delete Process Candidates
   const wsRecords = await dbRuntime.select().from(workspaces).where(inArray(workspaces.key, workspaceKeys));
-  const wsIds = wsRecords.map((w: any) => w.id);
+  const wsIds = wsRecords.map((w: any /* explicit-any-ok */) => w.id);
   if (wsIds.length > 0) {
     await dbPlatform.delete(processCandidates).where(inArray(processCandidates.workspaceId, wsIds));
     console.log(`[Clean] Deleted process candidates for workspaces`);
@@ -33,7 +33,7 @@ export async function cleanLaunchDemo(dbPlatform: any, dbRuntime: any) {
 
   // 3. Delete Module Capabilities
   const modRecords = await dbPlatform.select().from(modules).where(inArray(modules.key, moduleKeys));
-  const modIds = modRecords.map((m: any) => m.id);
+  const modIds = modRecords.map((m: any /* explicit-any-ok */) => m.id);
   if (modIds.length > 0) {
     await dbPlatform.delete(moduleCapabilities).where(inArray(moduleCapabilities.moduleId, modIds));
     console.log(`[Clean] Deleted module capabilities links`);

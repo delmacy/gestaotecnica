@@ -7,8 +7,8 @@ This document defines the exact first-sale demo path from login to executed work
 - Target: Workflow Architect and System Administrator.
 
 ## Demo Reset / Reseed Note
-**Blocker/Fallback:** The demo reset/reseed functionality is not yet implemented.
-**Demo Note:** Between demos, the tenant environment state is currently persistent. To reset, an Administrator must manually clear runtime records via the database or start from a fresh tenant.
+**Blocker/Fallback:** None. The demo reset/reseed functionality is now fully implemented.
+**Demo Note:** Between demos, the tenant environment state is persistent. To safely reset and reseed the demo environment, an Administrator can run the `npm run db:seed:launch-demo:clean` followed by `npm run db:seed:launch-demo` scripts, which clear all runtime records for the demo tenant.
 
 ## Step 1: Login and Workspace Access
 - **Action:** User logs in as Workflow Architect.

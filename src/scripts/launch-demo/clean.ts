@@ -5,6 +5,7 @@ import { usersTable } from "../../db/runtime/schema/identity";
 import { organizations, workspaces } from "../../db/runtime/schema/workspace";
 import { modules, capabilities, moduleCapabilities } from "../../db/platform/schema/registry";
 import { processCandidates } from "../../db/platform/schema/candidates";
+import { processDefinitions, processVersions, processInstances, processPayloads, actionExecutions, events } from "../../db/runtime/schema/workflow";
 import { workspaceModuleConfigs } from "../../db/legacy/schema";
 import { LAUNCH_DEMO } from "./constants";
 
@@ -21,10 +22,25 @@ export async function cleanLaunchDemo(
   const capabilityKeys = LAUNCH_DEMO.capabilities.map(c => c.key);
   const userEmails = [LAUNCH_DEMO.user.email];
 
-  // 1. Delete Process Candidates
   const wsRecords = await dbRuntime.select().from(workspaces).where(inArray(workspaces.key, workspaceKeys));
   const wsIds = wsRecords.map((w: { id: string }) => w.id);
+
   if (wsIds.length > 0) {
+    // 0. Delete Workflow Runtime Data
+    await dbRuntime.delete(events).where(inArray(events.workspaceId, wsIds));
+    await dbRuntime.delete(actionExecutions).where(inArray(actionExecutions.workspaceId, wsIds));
+    await dbRuntime.delete(processPayloads).where(inArray(processPayloads.workspaceId, wsIds));
+    await dbRuntime.delete(processInstances).where(inArray(processInstances.workspaceId, wsIds));
+
+    const processDefinitionsToDelete = await dbRuntime.select({ id: processDefinitions.id }).from(processDefinitions).where(inArray(processDefinitions.workspaceId, wsIds));
+    const defIds = processDefinitionsToDelete.map((d: { id: string }) => d.id);
+    if(defIds.length > 0) {
+      await dbRuntime.delete(processVersions).where(inArray(processVersions.processDefinitionId, defIds));
+      await dbRuntime.delete(processDefinitions).where(inArray(processDefinitions.id, defIds));
+    }
+    console.log(`[Clean] Deleted workflow runtime data`);
+
+    // 1. Delete Process Candidates
     await dbPlatform.delete(processCandidates).where(inArray(processCandidates.workspaceId, wsIds));
     console.log(`[Clean] Deleted process candidates for workspaces`);
   }

@@ -1,5 +1,5 @@
-import { FormDefinition } from "../contracts/form-definition-contract";
-import { FormPersistencePort } from "./form-persistence-port";
+import { FormDefinition } from "../../contracts/form-definition";
+import { FormPersistencePort } from "../ports/form-persistence.port";
 import { WorkspaceDivergenceError } from "./errors";
 
 export class InMemoryFormPersistence implements FormPersistencePort {

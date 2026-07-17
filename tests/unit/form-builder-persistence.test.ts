@@ -1,8 +1,8 @@
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
-import { InMemoryFormPersistence } from '../../src/components/builder/form-builder/persistence/in-memory-form-persistence';
-import { FormDefinition } from '../../src/components/builder/form-builder/contracts/form-definition-contract';
-import { WorkspaceDivergenceError } from '../../src/components/builder/form-builder/persistence/errors';
+import { InMemoryFormPersistence } from '../../src/platform/forms/persistence/repositories/in-memory-form.repository';
+import { FormDefinition } from '../../src/platform/forms/contracts/form-definition';
+import { WorkspaceDivergenceError } from '../../src/platform/forms/persistence/repositories/errors';
 
 describe('Form Builder Persistence - Workspace Isolation', () => {
   let persistence: InMemoryFormPersistence;

@@ -13,7 +13,8 @@ export async function requireCurrentUser() {
 export async function requireAccessProfile(allowedProfiles: AccessProfile[]) {
   const user = await requireCurrentUser();
   if (!allowedProfiles.includes(user.accessProfile as AccessProfile)) {
-    redirect("/auth/login"); // or a friendly 403 page
+    const required = allowedProfiles.join(", ");
+    redirect("/blocked?role=" + encodeURIComponent(required));
   }
   return user;
 }

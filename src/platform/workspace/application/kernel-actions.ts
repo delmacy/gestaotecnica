@@ -6,7 +6,9 @@ import {
   entityDefinitions,
   fieldDefinitions,
   dynamicRecords,
+  workspaceMembers,
 } from "@/db/runtime/schema/workspace";
+import { usersTable } from "@/db/runtime/schema/identity";
 import { workspaceModuleConfigs } from "@/db/schema";
 import type { ActionDefinition } from "@/platform/actions";
 import {
@@ -54,6 +56,72 @@ export const createOrganizationKernelAction: ActionDefinition<CreateOrganization
     return {
       success: true,
       data: org,
+    };
+  },
+};
+
+type InviteUserInput = {
+  workspaceId: string;
+  email: string;
+  name?: string;
+};
+
+export const inviteUserKernelAction: ActionDefinition<InviteUserInput, { userId: string; workspaceId: string }> = {
+  key: "workspaces.invite_user",
+  moduleKey: "workspace",
+  description: "Convida (ou cria via admin) um usuário para o workspace.",
+  callableBy: ["ui", "system"],
+  inputSchema: actionObjectSchema(
+    {
+      workspaceId: uuidProperty("ID do workspace."),
+      email: stringProperty("E-mail do usuário."),
+      name: stringProperty("Nome opcional do usuário."),
+    },
+    ["workspaceId", "email"]
+  ),
+  async handler(input, context) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(input.email)) {
+      return {
+        success: false,
+        error: { code: "INVALID_EMAIL", message: "O e-mail fornecido não é válido." },
+      };
+    }
+
+    const db = getRuntimeDb();
+    const normalizedEmail = input.email.toLowerCase().trim();
+
+    // Upsert the user using onConflictDoUpdate
+    const [user] = await db
+      .insert(usersTable)
+      .values({
+        email: normalizedEmail,
+        name: input.name ?? null,
+      })
+      .onConflictDoUpdate({
+        target: usersTable.email,
+        set: {
+          ...(input.name ? { name: input.name } : {}),
+          updatedAt: new Date(),
+        },
+      })
+      .returning({ id: usersTable.id });
+
+    // Ensure they are a member of the workspace
+    await db
+      .insert(workspaceMembers)
+      .values({
+        workspaceId: input.workspaceId,
+        userId: user.id,
+      })
+      .onConflictDoNothing();
+
+    return {
+      success: true,
+      data: {
+        userId: user.id,
+        workspaceId: input.workspaceId,
+      },
     };
   },
 };
@@ -180,7 +248,7 @@ type InstallCapabilityInput = {
   name: string;
 };
 
-export const installCapabilityKernelAction: ActionDefinition<InstallCapabilityInput, any> = {
+export const installCapabilityKernelAction: ActionDefinition<InstallCapabilityInput, unknown> = {
   key: "workspaces.install_capability",
   moduleKey: "workspace",
   description: "Instala uma capacidade do Registry em um workspace específico.",
@@ -221,7 +289,7 @@ type PublishWorkspaceInput = {
   workspaceId: string;
 };
 
-export const publishWorkspaceKernelAction: ActionDefinition<PublishWorkspaceInput, any> = {
+export const publishWorkspaceKernelAction: ActionDefinition<PublishWorkspaceInput, unknown> = {
   key: "workspaces.publish",
   moduleKey: "workspace",
   description: "Publica e finaliza a configuração de um workspace para uso em produção.",
@@ -254,7 +322,7 @@ type CreateEntityInput = {
   fields: Array<{ key: string; name: string; type: string }>;
 };
 
-export const createEntityKernelAction: ActionDefinition<CreateEntityInput, any> = {
+export const createEntityKernelAction: ActionDefinition<CreateEntityInput, unknown> = {
   key: "entities.create",
   moduleKey: "workspace",
   description: "Define uma nova entidade de dados dinâmica no workspace.",
@@ -299,10 +367,10 @@ export const createEntityKernelAction: ActionDefinition<CreateEntityInput, any> 
 type SaveRecordInput = {
   workspaceId: string;
   entityKey: string;
-  data: any;
+  data: unknown;
 };
 
-export const saveDynamicRecordKernelAction: ActionDefinition<SaveRecordInput, any> = {
+export const saveDynamicRecordKernelAction: ActionDefinition<SaveRecordInput, unknown> = {
   key: "records.save",
   moduleKey: "workspace",
   description: "Salva um registro de uma entidade dinâmica.",

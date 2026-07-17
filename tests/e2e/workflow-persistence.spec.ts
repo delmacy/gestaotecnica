@@ -71,7 +71,7 @@ test.describe("Workflow Persistence E2E", () => {
         await db.delete(processInstances).where(eq(processInstances.workspaceId, workspaceId));
 
         const defs = await db.select({ id: processDefinitions.id }).from(processDefinitions).where(eq(processDefinitions.workspaceId, workspaceId));
-        const defIds = defs.map((d) => d.id);
+        const defIds = defs.map((d: { id: string }) => d.id);
         if (defIds.length > 0) {
           await db.delete(processVersions).where(inArray(processVersions.processDefinitionId, defIds));
           await db.delete(processDefinitions).where(inArray(processDefinitions.id, defIds));
@@ -81,7 +81,7 @@ test.describe("Workflow Persistence E2E", () => {
         await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
         await db.delete(organizations).where(eq(organizations.id, orgId));
       }
-    } catch (e) {
+    } catch (_e) {
       // ignore
     }
   });

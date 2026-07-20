@@ -9,6 +9,8 @@ import { DocsItem } from "./docs-types";
 import { DocsFilters } from "./DocsFilters";
 import { DocsItemCard } from "./DocsItemCard";
 import { DocsDetailPanel } from "./DocsDetailPanel";
+import { EmptyState } from "../shared/EmptyState";
+import { SearchX, FileText } from "lucide-react";
 
 export function DocsViewer() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,9 +60,11 @@ export function DocsViewer() {
           <ScrollArea className="flex-1">
             <div className="p-4 space-y-3">
               {filteredDocs.length === 0 ? (
-                <div className="text-center p-8 text-sm text-muted-foreground">
-                  No documents found matching the filters.
-                </div>
+                <EmptyState
+                  icon={SearchX}
+                  title="Nenhum documento encontrado"
+                  description="Nenhum documento atende aos filtros atuais."
+                />
               ) : (
                 filteredDocs.map((doc) => (
                   <DocsItemCard
@@ -77,7 +81,17 @@ export function DocsViewer() {
 
         {/* Right Panel: Document Details */}
         <div className="flex-1 overflow-hidden bg-background">
-          <DocsDetailPanel item={selectedDoc} />
+          {selectedDoc ? (
+            <DocsDetailPanel item={selectedDoc} />
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <EmptyState
+                icon={FileText}
+                title="Nenhum documento selecionado"
+                description="Selecione um documento na lista para ler os detalhes."
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

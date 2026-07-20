@@ -11,9 +11,10 @@ import {
 import { CapabilityCard } from "./CapabilityCard";
 import { CapabilityFilters } from "./CapabilityFilters";
 import { CapabilityDetailPanel } from "./CapabilityDetailPanel";
-import { AlertCircle, FlaskConical } from "lucide-react";
+import { AlertCircle, FlaskConical, FilterX } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/builder/shared/EmptyState";
 
 export function CapabilityExplorer() {
   const [capabilities, setCapabilities] = useState<CapabilityItem[]>(MOCK_CAPABILITIES);
@@ -103,16 +104,16 @@ export function CapabilityExplorer() {
 
       {/* Main Content Area */}
       {filteredCapabilities.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-lg border border-dashed shadow-sm">
-          <FlaskConical className="h-10 w-10 text-muted-foreground mb-4 opacity-20" />
-          <h3 className="text-lg font-medium">No capabilities found</h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            Try adjusting your search or filters to find what you&apos;re looking for.
-          </p>
-          <Button variant="outline" className="mt-4" onClick={handleClearFilters}>
-            Clear Filters
-          </Button>
-        </div>
+        <EmptyState
+          icon={FilterX}
+          title="Nenhuma capability encontrada"
+          description="Tente ajustar sua busca ou filtros para encontrar o que procura."
+          action={
+            <Button variant="outline" onClick={handleClearFilters}>
+              Limpar Filtros
+            </Button>
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredCapabilities.map(capability => (

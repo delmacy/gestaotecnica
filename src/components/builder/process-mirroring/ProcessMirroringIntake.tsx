@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { mockPilots } from './process-mirroring-data';
 import { ProcessPilotList } from './ProcessPilotList';
 import { ProcessPilotDetail } from './ProcessPilotDetail';
+import { EmptyState } from '../shared/EmptyState';
+import { Search } from 'lucide-react';
 
 export function ProcessMirroringIntake() {
   const [selectedPilotId, setSelectedPilotId] = useState<string | null>(mockPilots[0]?.id || null);
@@ -29,8 +31,12 @@ export function ProcessMirroringIntake() {
           {selectedPilot ? (
             <ProcessPilotDetail pilot={selectedPilot} />
           ) : (
-            <div className="flex items-center justify-center h-full text-slate-500">
-              Select a pilot to view details
+            <div className="flex items-center justify-center h-full">
+              <EmptyState
+                icon={Search}
+                title="Nenhum piloto selecionado"
+                description="Selecione um piloto para visualizar os detalhes"
+              />
             </div>
           )}
         </div>

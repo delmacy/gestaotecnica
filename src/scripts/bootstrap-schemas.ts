@@ -1,5 +1,6 @@
 import "dotenv/config";
 import postgres from "postgres";
+import { setupDatabaseRoles } from "./db/setup-roles";
 
 async function main() {
   console.log("Starting database schema bootstrap...");
@@ -28,6 +29,10 @@ async function main() {
       console.log(`Creating schema if not exists: ${schema}`);
       await sql.unsafe(`CREATE SCHEMA IF NOT EXISTS "${schema}";`);
     }
+
+    console.log("Schemas created. Setting up roles...");
+    await setupDatabaseRoles();
+
     console.log("Bootstrap complete.");
   } catch (error) {
     console.error("Error creating schemas:", error);

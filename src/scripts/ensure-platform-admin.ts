@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { authAccounts, users } from "@/db/legacy/schema";
 import { hashPassword } from "@/modules/auth/crypto";
 import { randomBytes } from "crypto";
@@ -22,10 +23,37 @@ async function ensurePlatformAdmin() {
     }
   }
 
+  const databaseUrl =
+    process.env.SEED_MAINTENANCE_DATABASE_URL ||
+    process.env.MAINTENANCE_DATABASE_URL ||
+    process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    console.error(
+      "Erro: DATABASE_URL, MAINTENANCE_DATABASE_URL, ou SEED_MAINTENANCE_DATABASE_URL não configurada."
+    );
+    process.exit(1);
+  }
+
+  let sql: postgres.Sql | null = null;
+
   try {
-    const db = getDb();
+    sql = postgres(databaseUrl, { max: 1, prepare: false });
+    const db = drizzle(sql);
 
     console.log(`Verificando administrador plataforma: ${email}`);
+
+    try {
+      await sql`SELECT 1 FROM users LIMIT 1`;
+    } catch (err: any) {
+      if (err.code === "42P01") {
+        console.error(
+          "Erro: Tabela 'users' não existe. O esquema do banco de dados está ausente ou não foi migrado."
+        );
+        process.exit(1);
+      }
+      throw err;
+    }
 
     // Insert or update user
     const [user] = await db
@@ -87,9 +115,13 @@ async function ensurePlatformAdmin() {
     console.log("Rota inicial (Builder): /builder");
     console.log("=======================================");
 
+    await sql.end();
     process.exit(0);
   } catch (error) {
     console.error("Erro ao configurar superusuário da plataforma:", error);
+    if (sql) {
+      await sql.end();
+    }
     process.exit(1);
   }
 }

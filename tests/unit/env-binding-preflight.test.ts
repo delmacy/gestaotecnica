@@ -30,7 +30,7 @@ describe('env-binding-preflight', () => {
 
   it('throws an error if user is superuser', async () => {
     const mockSql = Object.assign(
-      mock.fn(async (query: any) => {
+      mock.fn(async (query: string[]) => {
         const qStr = query[0].trim();
         if (qStr.includes('SELECT current_user')) {
           return [{ current_user: 'test_user' }];
@@ -66,7 +66,7 @@ describe('env-binding-preflight', () => {
 
   it('throws an error if missing schemas', async () => {
     const mockSql = Object.assign(
-      mock.fn(async (query: any, ...args: any[]) => {
+      mock.fn(async (query: string[], ...args: unknown[]) => {
         const qStr = query[0].trim();
         if (qStr.includes('SELECT current_user')) {
           return [{ current_user: 'test_user' }];
@@ -105,7 +105,7 @@ describe('env-binding-preflight', () => {
 
   it('throws an error if missing USAGE on a schema', async () => {
     const mockSql = Object.assign(
-      mock.fn(async (query: any, ...args: any[]) => {
+      mock.fn(async (query: string[], ...args: unknown[]) => {
         const qStr = query[0].trim();
         if (qStr.includes('SELECT current_user')) {
           return [{ current_user: 'test_user' }];
@@ -161,7 +161,7 @@ describe('env-binding-preflight', () => {
 
   it('passes if all checks succeed', async () => {
     const mockSql = Object.assign(
-      mock.fn(async (query: any, ...args: any[]) => {
+      mock.fn(async (query: string[], ...args: unknown[]) => {
         const qStr = query[0].trim();
         if (qStr.includes('SELECT current_user')) {
           return [{ current_user: 'test_user' }];

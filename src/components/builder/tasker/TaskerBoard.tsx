@@ -137,8 +137,10 @@ export function TaskerBoard() {
                     />
                   ))}
                   {columnTasks.length === 0 && (
-                    <div className="text-center text-muted-foreground text-xs py-8 border-2 border-dashed rounded-lg">
-                      No tasks
+                    <div className="flex items-center justify-center p-4">
+                      <div className="text-center text-muted-foreground text-xs py-8 border-2 border-dashed rounded-lg w-full flex flex-col items-center gap-2">
+                        <span className="opacity-50">Nenhuma tarefa</span>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -7,7 +7,8 @@ import { UiContractFilters } from "./UiContractFilters";
 import { UiContractImplementationMatrix } from "./UiContractImplementationMatrix";
 import { MOCK_UI_CONTRACTS_INDEX } from "./ui-contracts-data";
 import { UiContractGroup } from "./ui-contracts-types";
-import { AlertTriangle, LayoutTemplate } from "lucide-react";
+import { AlertTriangle, LayoutTemplate, SearchX } from "lucide-react";
+import { EmptyState } from "../shared/EmptyState";
 
 export function UiContractsViewer() {
   const contracts = MOCK_UI_CONTRACTS_INDEX.contracts;
@@ -93,11 +94,19 @@ export function UiContractsViewer() {
                 Indexed Contracts ({filteredContracts.length})
               </div>
               <div className="flex-1 overflow-hidden p-2">
-                 <UiContractList
-                  contracts={filteredContracts}
-                  selectedId={selectedContractId}
-                  onSelect={setSelectedContractId}
-                />
+                 {filteredContracts.length === 0 ? (
+                    <EmptyState
+                        icon={SearchX}
+                        title="Nenhum contrato encontrado"
+                        description="Tente ajustar sua busca ou filtros."
+                    />
+                 ) : (
+                    <UiContractList
+                      contracts={filteredContracts}
+                      selectedId={selectedContractId}
+                      onSelect={setSelectedContractId}
+                    />
+                 )}
               </div>
             </div>
 
@@ -107,8 +116,11 @@ export function UiContractsViewer() {
                 <UiContractDetailPanel contract={activeContract} />
               ) : (
                 <div className="h-full border rounded-xl bg-background shadow-sm flex flex-col items-center justify-center text-muted-foreground">
-                  <div title="Layout"><LayoutTemplate className="h-12 w-12 mb-4 opacity-20" /></div>
-                  <p>Selecione um contrato para visualizar os detalhes.</p>
+                  <EmptyState
+                    icon={LayoutTemplate}
+                    title="Nenhum contrato selecionado"
+                    description="Selecione um contrato para visualizar os detalhes."
+                  />
                 </div>
               )}
             </div>

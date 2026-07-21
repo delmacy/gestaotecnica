@@ -1,8 +1,15 @@
+import React from 'react';
+import { EmptyState } from '@/components/builder/shared/EmptyState';
+import { Settings } from 'lucide-react';
+
 export default function SettingsPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-      <h1 className="text-2xl font-bold mb-2">Settings</h1>
-      <p className="text-muted-foreground">Este módulo está sendo construído (Mock State).</p>
+    <div className="h-full flex items-center justify-center p-8">
+      <EmptyState
+        icon={Settings}
+        title="Settings"
+        description="Este módulo está sendo construído (Mock State)."
+      />
     </div>
   );
 }

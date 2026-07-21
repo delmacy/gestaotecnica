@@ -1,5 +1,7 @@
 import { ACTIVE_MODULES, FUTURE_MODULES } from "@/components/builder/shell/shell-data";
+import { EmptyState } from "@/components/builder/shared/EmptyState";
 import Link from "next/link";
+import { Blocks } from "lucide-react";
 
 export default function Page() {
   // We remove the old BuilderPage load, and replace it with the new Dashboard.
@@ -25,26 +27,34 @@ export default function Page() {
 
       <div>
         <h2 className="text-xl font-semibold mb-4">Módulos Ativos</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ACTIVE_MODULES.filter(m => m.href !== "/builder").map((module) => {
-             const Icon = module.icon;
-             return (
-               <Link
-                 href={module.href}
-                 key={module.label}
-                 className="flex items-center gap-4 p-4 border rounded-lg bg-card hover:bg-muted/50 hover:shadow-sm transition-all"
-               >
-                 <div className="p-3 bg-primary/10 rounded-md text-primary">
-                   <Icon className="w-6 h-6" />
-                 </div>
-                 <div>
-                   <h3 className="font-medium">{module.label}</h3>
-                   <p className="text-xs text-muted-foreground mt-1">Acesso Mockado</p>
-                 </div>
-               </Link>
-             )
-          })}
-        </div>
+        {ACTIVE_MODULES.filter(m => m.href !== "/builder").length === 0 ? (
+          <EmptyState
+            icon={Blocks}
+            title="Nenhum módulo ativo"
+            description="Não há módulos ativos disponíveis no momento."
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {ACTIVE_MODULES.filter(m => m.href !== "/builder").map((module) => {
+              const Icon = module.icon;
+              return (
+                <Link
+                  href={module.href}
+                  key={module.label}
+                  className="flex items-center gap-4 p-4 border rounded-lg bg-card hover:bg-muted/50 hover:shadow-sm transition-all"
+                >
+                  <div className="p-3 bg-primary/10 rounded-md text-primary">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">{module.label}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Acesso Mockado</p>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       <div>

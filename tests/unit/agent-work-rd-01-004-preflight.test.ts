@@ -13,8 +13,8 @@ describe("Preflight Script Syntax and Behavior", () => {
     const preflight = await import("../../src/scripts/db/preflight-env-binding");
 
     // Mock the sql execution returning missing schemas
-    const mockSql = async (strings: any, ...values: any[]) => {
-      const q = strings[0].trim();
+    const mockSql = async (strings: unknown, ...values: unknown[]) => {
+      const q = (strings as string[])[0].trim();
       if (q.startsWith("SELECT schema_name")) {
         return [{ schema_name: "public" }]; // Missing others
       }
@@ -22,7 +22,7 @@ describe("Preflight Script Syntax and Behavior", () => {
     };
 
     await assert.rejects(
-      preflight.runPreflightChecks(mockSql as any),
+      preflight.runPreflightChecks(mockSql as unknown as import("postgres").Sql),
       /BLOCKER: Missing required schemas: identity, workspace, workflow, registry, documents, storage, blueprints, builder/
     );
   });
@@ -31,10 +31,10 @@ describe("Preflight Script Syntax and Behavior", () => {
     const preflight = await import("../../src/scripts/db/preflight-env-binding");
 
     // Mock the sql execution returning all schemas, but user is superuser
-    const mockSql = async (strings: any, ...values: any[]) => {
-      const q = strings[0].trim();
+    const mockSql = async (strings: unknown, ...values: unknown[]) => {
+      const q = (strings as string[])[0].trim();
       if (q.startsWith("SELECT schema_name")) {
-        return preflight.REQUIRED_SCHEMAS.map(s => ({ schema_name: s }));
+        return preflight.REQUIRED_SCHEMAS.map((s: string) => ({ schema_name: s }));
       }
       if (q.startsWith("SELECT current_user")) {
         return [{ current_user: "admin" }];
@@ -46,7 +46,7 @@ describe("Preflight Script Syntax and Behavior", () => {
     };
 
     await assert.rejects(
-      preflight.runPreflightChecks(mockSql as any),
+      preflight.runPreflightChecks(mockSql as unknown as import("postgres").Sql),
       /BLOCKER: Runtime database user 'admin' is a superuser/
     );
   });
@@ -55,10 +55,10 @@ describe("Preflight Script Syntax and Behavior", () => {
     const preflight = await import("../../src/scripts/db/preflight-env-binding");
 
     // Mock the sql execution returning schemas, non-super, but has CREATE on 'builder'
-    const mockSql = async (strings: any, ...values: any[]) => {
-      const q = strings[0].trim();
+    const mockSql = async (strings: unknown, ...values: unknown[]) => {
+      const q = (strings as string[])[0].trim();
       if (q.startsWith("SELECT schema_name")) {
-        return preflight.REQUIRED_SCHEMAS.map(s => ({ schema_name: s }));
+        return preflight.REQUIRED_SCHEMAS.map((s: string) => ({ schema_name: s }));
       }
       if (q.startsWith("SELECT current_user")) {
         return [{ current_user: "app_user" }];
@@ -67,7 +67,7 @@ describe("Preflight Script Syntax and Behavior", () => {
         return [{ rolsuper: false }];
       }
       if (q.startsWith("SELECT has_schema_privilege")) {
-         const schema = values[1];
+         const schema = values[1] as string;
          if (schema === "builder") {
              return [{ can_create: true }];
          }
@@ -77,7 +77,7 @@ describe("Preflight Script Syntax and Behavior", () => {
     };
 
     await assert.rejects(
-      preflight.runPreflightChecks(mockSql as any),
+      preflight.runPreflightChecks(mockSql as unknown as import("postgres").Sql),
       /BLOCKER: Runtime user 'app_user' has CREATE privileges on 'builder' schema/
     );
   });
@@ -86,10 +86,10 @@ describe("Preflight Script Syntax and Behavior", () => {
     const preflight = await import("../../src/scripts/db/preflight-env-binding");
 
     // Mock the sql execution returning schemas, non-super, no CREATE privileges
-    const mockSql = async (strings: any, ...values: any[]) => {
-      const q = strings[0].trim();
+    const mockSql = async (strings: unknown, ...values: unknown[]) => {
+      const q = (strings as string[])[0].trim();
       if (q.startsWith("SELECT schema_name")) {
-        return preflight.REQUIRED_SCHEMAS.map(s => ({ schema_name: s }));
+        return preflight.REQUIRED_SCHEMAS.map((s: string) => ({ schema_name: s }));
       }
       if (q.startsWith("SELECT current_user")) {
         return [{ current_user: "app_user" }];
@@ -103,7 +103,7 @@ describe("Preflight Script Syntax and Behavior", () => {
       return [];
     };
 
-    await preflight.runPreflightChecks(mockSql as any); // Should not throw
+    await preflight.runPreflightChecks(mockSql as unknown as import("postgres").Sql); // Should not throw
     assert.ok(true);
   });
 });

@@ -37,6 +37,7 @@ export const ACTIVE_MODULES = [
   { href: "/builder", label: "Dashboard / Home", icon: Home, status: "active" },
   { href: "/builder/tasker", label: "Tasker", icon: ListTodo, status: "active" },
   { href: "/builder/capabilities", label: "Capabilities", icon: Bot, status: "active" },
+  { href: "/builder/form-builder", label: "Form Builder", icon: FormInput, status: "active" },
   { href: "/builder/registry", label: "Registry", icon: Library, status: "active" },
   { href: "/builder/process-mirroring", label: "Process Mirroring", icon: Search, status: "active" },
   { href: "/builder/docs", label: "Docs", icon: FileText, status: "active" },
@@ -66,7 +67,6 @@ export function buildActiveModules(enabledModuleKeys?: string[]): BuilderModule[
 
 export const FUTURE_MODULES = [
   { href: "#", label: "Workflow Builder", icon: Workflow, status: "coming_soon" },
-  { href: "#", label: "Form Builder", icon: FormInput, status: "coming_soon" },
   { href: "#", label: "View Builder", icon: MonitorPlay, status: "coming_soon" },
   { href: "#", label: "Runtime", icon: Zap, status: "blocked" },
   { href: "#", label: "Integrations", icon: Plug, status: "coming_soon" },

@@ -4,21 +4,44 @@
 import React from "react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { buildActiveModules } from "./shell-data";
 import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
 import { BuilderBreadcrumb } from "./breadcrumb-types";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 export function BuilderShell({ children, enabledModuleKeys }: { children: React.ReactNode; enabledModuleKeys?: string[] }) {
   const activeModules = buildActiveModules(enabledModuleKeys);
+
+  const mobileNav = (
+    <div className="md:hidden flex items-center">
+      <Sheet>
+        <SheetTrigger asChild>
+          <button
+            title="Open Menu"
+            className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm transition-colors"
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Open Menu</span>
+          </button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64 p-0">
+          <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+          <SheetDescription className="sr-only">Access modules and future features</SheetDescription>
+          <Sidebar activeModules={activeModules} className="flex border-none w-full md:flex" />
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+
 
   // Client component inside for breadcrumbs, or we can just render standard wrapper here
   // We'll wrap children with a simple Client component for the Breadcrumb to work correctly
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <Topbar />
+      <Topbar mobileNavigation={mobileNav} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar activeModules={activeModules} />
         <main className="flex-1 overflow-y-auto bg-muted/10 relative">

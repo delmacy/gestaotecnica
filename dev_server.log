@@ -1,0 +1,130 @@
+
+> gestaotecnica@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 507ms
+
+○ Compiling /builder ...
+⨯ Error: Failed query: select "id", "key", "adaptation_key" from "workspace"."workspaces" where ("workspace"."workspaces"."key" in ($1, $2) and "workspace"."workspaces"."status" = $3) limit $4
+params: sala-tecnica,secao-tecnica,active,1
+    at async resolveWorkspaceContext (src/platform/workspace/resolve-workspace-context.ts:51:21)
+    at async BuilderLayout (src/app/(builder)/builder/layout.tsx:16:19)
+  49 |   const db = getDb();
+  50 |
+> 51 |   let [workspace] = await db
+     |                     ^
+  52 |     .select({
+  53 |       id: workspaces.id,
+  54 |       key: workspaces.key, {
+  query: 'select "id", "key", "adaptation_key" from "workspace"."workspaces" where ("workspace"."workspaces"."key" in ($1, $2) and "workspace"."workspaces"."status" = $3) limit $4',
+  params: [ 'sala-tecnica', 'secao-tecnica', 'active', 1 ],
+  digest: '3399855257',
+  [cause]: Error [PostgresError]: relation "workspace.workspaces" does not exist
+      at ignore-listed frames {
+    severity_local: 'ERROR',
+    severity: 'ERROR',
+    code: '42P01',
+    position: '43',
+    file: 'parse_relation.c',
+    line: '1445',
+    routine: 'parserOpenTable'
+  }
+}
+⨯ Error: Failed query: select "id", "key", "adaptation_key" from "workspace"."workspaces" where ("workspace"."workspaces"."key" in ($1, $2) and "workspace"."workspaces"."status" = $3) limit $4
+params: sala-tecnica,secao-tecnica,active,1
+    at async resolveWorkspaceContext (src/platform/workspace/resolve-workspace-context.ts:51:21)
+    at async Page (src/app/(builder)/builder/page.tsx:8:19)
+  49 |   const db = getDb();
+  50 |
+> 51 |   let [workspace] = await db
+     |                     ^
+  52 |     .select({
+  53 |       id: workspaces.id,
+  54 |       key: workspaces.key, {
+  query: 'select "id", "key", "adaptation_key" from "workspace"."workspaces" where ("workspace"."workspaces"."key" in ($1, $2) and "workspace"."workspaces"."status" = $3) limit $4',
+  params: [ 'sala-tecnica', 'secao-tecnica', 'active', 1 ],
+  digest: '3405918404',
+  [cause]: Error [PostgresError]: relation "workspace.workspaces" does not exist
+      at ignore-listed frames {
+    severity_local: 'ERROR',
+    severity: 'ERROR',
+    code: '42P01',
+    position: '43',
+    file: 'parse_relation.c',
+    line: '1445',
+    routine: 'parserOpenTable'
+  }
+}
+ GET /builder 500 in 6.3s (next.js: 4.5s, proxy.ts: 236ms, application-code: 1507ms)
+[browser] Platform Error Digest: 3399855257
+    at ErrorPage.useEffect (src/app/error.tsx:19:17)
+  17 |     // Next.js fornece o 'digest' no mode production.
+  18 |     if (error.digest) {
+> 19 |         console.error("Platform Error Digest:", error.digest);
+     |                 ^
+  20 |     }
+  21 |   }, [error]);
+  22 | (src/app/error.tsx:19:17)
+⨯ Error: Failed query: select "id", "key", "adaptation_key" from "workspace"."workspaces" where ("workspace"."workspaces"."key" in ($1, $2) and "workspace"."workspaces"."status" = $3) limit $4
+params: sala-tecnica,secao-tecnica,active,1
+    at async resolveWorkspaceContext (src/platform/workspace/resolve-workspace-context.ts:51:21)
+    at async Page (src/app/(builder)/builder/page.tsx:8:19)
+  49 |   const db = getDb();
+  50 |
+> 51 |   let [workspace] = await db
+     |                     ^
+  52 |     .select({
+  53 |       id: workspaces.id,
+  54 |       key: workspaces.key, {
+  query: 'select "id", "key", "adaptation_key" from "workspace"."workspaces" where ("workspace"."workspaces"."key" in ($1, $2) and "workspace"."workspaces"."status" = $3) limit $4',
+  params: [ 'sala-tecnica', 'secao-tecnica', 'active', 1 ],
+  digest: '3405918404',
+  [cause]: Error [PostgresError]: relation "workspace.workspaces" does not exist
+      at ignore-listed frames {
+    severity_local: 'ERROR',
+    severity: 'ERROR',
+    code: '42P01',
+    position: '43',
+    file: 'parse_relation.c',
+    line: '1445',
+    routine: 'parserOpenTable'
+  }
+}
+⨯ Error: Failed query: select "id", "key", "adaptation_key" from "workspace"."workspaces" where ("workspace"."workspaces"."key" in ($1, $2) and "workspace"."workspaces"."status" = $3) limit $4
+params: sala-tecnica,secao-tecnica,active,1
+    at async resolveWorkspaceContext (src/platform/workspace/resolve-workspace-context.ts:51:21)
+    at async BuilderLayout (src/app/(builder)/builder/layout.tsx:16:19)
+  49 |   const db = getDb();
+  50 |
+> 51 |   let [workspace] = await db
+     |                     ^
+  52 |     .select({
+  53 |       id: workspaces.id,
+  54 |       key: workspaces.key, {
+  query: 'select "id", "key", "adaptation_key" from "workspace"."workspaces" where ("workspace"."workspaces"."key" in ($1, $2) and "workspace"."workspaces"."status" = $3) limit $4',
+  params: [ 'sala-tecnica', 'secao-tecnica', 'active', 1 ],
+  digest: '3399855257',
+  [cause]: Error [PostgresError]: relation "workspace.workspaces" does not exist
+      at ignore-listed frames {
+    severity_local: 'ERROR',
+    severity: 'ERROR',
+    code: '42P01',
+    position: '43',
+    file: 'parse_relation.c',
+    line: '1445',
+    routine: 'parserOpenTable'
+  }
+}
+ GET /builder 500 in 453ms (next.js: 6ms, proxy.ts: 9ms, application-code: 439ms)
+[browser] Platform Error Digest: 3399855257
+    at ErrorPage.useEffect (src/app/error.tsx:19:17)
+  17 |     // Next.js fornece o 'digest' no mode production.
+  18 |     if (error.digest) {
+> 19 |         console.error("Platform Error Digest:", error.digest);
+     |                 ^
+  20 |     }
+  21 |   }, [error]);
+  22 | (src/app/error.tsx:19:17)

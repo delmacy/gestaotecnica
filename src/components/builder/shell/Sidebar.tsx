@@ -6,12 +6,12 @@ import { ACTIVE_MODULES, FUTURE_MODULES } from "./shell-data";
 import { cn } from "@/lib/utils";
 import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
 
-export function Sidebar({ activeModules = ACTIVE_MODULES }: { activeModules?: BuilderModule[] }) {
+export function Sidebar({ activeModules = ACTIVE_MODULES, className }: { activeModules?: BuilderModule[], className?: string }) {
   const pathname = usePathname();
   const activeModule = getActiveBuilderSection(pathname, activeModules);
 
   return (
-    <aside className="w-64 border-r bg-muted/40 flex flex-col overflow-y-auto">
+    <aside className={cn("w-64 border-r bg-muted/40 hidden md:flex flex-col overflow-y-auto", className)}>
       <div className="p-4 border-b">
         <h2 className="font-semibold text-sm tracking-tight text-foreground">Navigation</h2>
       </div>

@@ -34,7 +34,8 @@
     "test:golden-e2e": "npx tsx --test tests/integration/golden-cycle.test.ts",
     "db:verify-ci": "npx tsx src/scripts/db/verify-schema-ci.ts",
     "db:migrate-ci": "npx drizzle-kit migrate",
-    "db:setup-roles": "npx tsx src/scripts/db/setup-roles.ts"
+    "db:setup-roles": "npx tsx src/scripts/db/setup-roles.ts",
+    "db:preflight": "npx tsx src/scripts/db/env-binding-preflight.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

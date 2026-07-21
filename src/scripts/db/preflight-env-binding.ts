@@ -28,7 +28,7 @@ export async function runPreflight() {
       FROM information_schema.schemata
       WHERE schema_name = ANY(${requiredSchemas})
     `;
-    const foundSchemas = schemasRes.map((r: { schema_name: string }) => r.schema_name);
+    const foundSchemas = schemasRes.map((r: postgres.Row) => r.schema_name);
     const missingSchemas = requiredSchemas.filter((s) => !foundSchemas.includes(s));
 
     if (missingSchemas.length > 0) {

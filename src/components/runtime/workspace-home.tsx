@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { LayoutDashboard, Settings, FileText, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, Settings, FileText, Blocks, ArrowRight } from 'lucide-react';
 
 interface WorkspaceHomeProps {
   workspaceKey: string;
@@ -42,6 +42,21 @@ export function WorkspaceHome({ workspaceKey }: WorkspaceHomeProps) {
           <CardContent>
             <Button asChild className="w-full">
               <Link href={`/${workspaceKey}/case-management`} className="flex justify-between items-center">
+                Acessar <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <Blocks className="w-8 h-8 text-primary mb-2" />
+            <CardTitle>Capabilities</CardTitle>
+            <CardDescription>Explore e selecione capabilities para o seu workspace.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link href="/builder/capabilities" className="flex justify-between items-center">
                 Acessar <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>

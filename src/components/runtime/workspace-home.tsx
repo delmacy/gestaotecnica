@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { LayoutDashboard, Settings, FileText, Blocks, ArrowRight, FormInput } from 'lucide-react';
+import { LayoutDashboard, Settings, FileText, Blocks, ArrowRight, FormInput, Workflow } from 'lucide-react';
 
 interface WorkspaceHomeProps {
   workspaceKey: string;
@@ -27,6 +27,21 @@ export function WorkspaceHome({ workspaceKey }: WorkspaceHomeProps) {
           <CardContent>
             <Button asChild className="w-full">
               <Link href="/builder/form-builder" className="flex justify-between items-center">
+                Acessar <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <Workflow className="w-8 h-8 text-primary mb-2" />
+            <CardTitle>Workflow Builder</CardTitle>
+            <CardDescription>Design and structure capability workflows.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link href="/builder/workflow-builder" className="flex justify-between items-center">
                 Acessar <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>

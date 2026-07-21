@@ -25,4 +25,6 @@ test('WorkspaceHome structural render test', () => {
   assert.ok(stringified.includes('/builder/capabilities'), 'Capabilities link should be present');
   assert.ok(stringified.includes('Form Builder'), 'Form Builder title should be present');
   assert.ok(stringified.includes('/builder/form-builder'), 'Form Builder link should be present');
+  assert.ok(stringified.includes('Workflow Builder'), 'Workflow Builder title should be present');
+  assert.ok(stringified.includes('/builder/workflow-builder'), 'Workflow Builder link should be present');
 });

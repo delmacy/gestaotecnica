@@ -38,7 +38,10 @@ export const ACTIVE_MODULES = [
   { href: "/builder/process-mirroring", label: "Process Mirroring", icon: Search, status: "active" },
   { href: "/builder/docs", label: "Docs", icon: FileText, status: "active" },
   { href: "/builder/ui-contracts", label: "UI Contracts", icon: FileCode2, status: "active" },
+  { href: "/builder/governance-matrix", label: "Governance Matrix", icon: ShieldAlert, status: "active" },
+  { href: "/builder/operator-guide", label: "Operator Guide", icon: GraduationCap, status: "active" },
   { href: "/builder/settings", label: "Settings / Workspace", icon: Settings, status: "active" },
+  { href: "/builder/enterprise-map", label: "Enterprise Map", icon: Network, status: "active" },
 ];
 
 export const FUTURE_MODULES = [

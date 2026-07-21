@@ -3,12 +3,12 @@ import assert from "node:assert/strict";
 import { getActiveBuilderSection, BuilderModule } from "../../../../../src/components/builder/shell/shell-utils";
 
 describe("getActiveBuilderSection", () => {
-  const MOCK_MODULES: BuilderModule[] = [
+  const MOCK_MODULES = [
     { href: "/builder", label: "Dashboard", icon: null, status: "active" },
     { href: "/builder/tasker", label: "Tasker", icon: null, status: "active" },
     { href: "/builder/process-mirroring", label: "Process Mirroring", icon: null, status: "active" },
     { href: "/builder/settings", label: "Settings", icon: null, status: "active" },
-  ];
+  ] as unknown as BuilderModule[];
 
   test("should return undefined if pathname is null", () => {
     const result = getActiveBuilderSection(null, MOCK_MODULES);
@@ -51,10 +51,10 @@ describe("getActiveBuilderSection", () => {
   });
 
   test("should prefer longer match", () => {
-    const MOCK_MODULES_WITH_NESTED: BuilderModule[] = [
+    const MOCK_MODULES_WITH_NESTED = [
       ...MOCK_MODULES,
       { href: "/builder/process-mirroring/nested", label: "Nested Mirroring", icon: null, status: "active" },
-    ];
+    ] as unknown as BuilderModule[];
 
     const result = getActiveBuilderSection("/builder/process-mirroring/nested/item", MOCK_MODULES_WITH_NESTED);
     assert.equal(result?.href, "/builder/process-mirroring/nested");

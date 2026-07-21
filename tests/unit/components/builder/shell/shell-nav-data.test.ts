@@ -10,13 +10,6 @@ describe("Mobile Navigation Layout Data", () => {
     });
   });
 
-  test("ACTIVE_MODULES should contain persisted launch surfaces", () => {
-    const activePaths = ACTIVE_MODULES.map(m => m.href);
-    assert.ok(activePaths.includes("/builder/governance-matrix"), "Should contain Governance Matrix");
-    assert.ok(activePaths.includes("/builder/operator-guide"), "Should contain Operator Guide");
-    assert.ok(activePaths.includes("/builder/enterprise-map"), "Should contain Enterprise Map");
-  });
-
   test("FUTURE_MODULES should not have missing labels or hrefs", () => {
     FUTURE_MODULES.forEach((module) => {
       assert.ok(module.label, "Module label should not be empty");

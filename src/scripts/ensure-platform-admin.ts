@@ -45,8 +45,9 @@ async function ensurePlatformAdmin() {
 
     try {
       await sql`SELECT 1 FROM users LIMIT 1`;
-    } catch (err: any) {
-      if (err.code === "42P01") {
+    } catch (err: unknown) {
+      const isPgError = err && typeof err === "object" && "code" in err;
+      if (isPgError && err.code === "42P01") {
         console.error(
           "Erro: Tabela 'users' não existe. O esquema do banco de dados está ausente ou não foi migrado."
         );

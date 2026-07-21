@@ -6,12 +6,13 @@ import { CURRENT_WORKSPACE, MOCK_USER, ACTIVE_MODULES } from "./shell-data";
 import React from "react";
 
 
-export function Topbar() {
+export function Topbar({ mobileNavigation }: { mobileNavigation?: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
       <div className="flex flex-1 items-center gap-4">
+        {mobileNavigation}
 
         {/* Workspace Context Indicator Mock */}
         <div className="hidden md:flex items-center gap-2 border rounded-md px-3 py-1.5 bg-muted/30">
@@ -26,7 +27,7 @@ export function Topbar() {
             <input
               type="search"
               placeholder="Search..."
-              className="w-full md:w-[300px] bg-muted/50 rounded-md border border-input pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full sm:w-[200px] md:w-[300px] bg-muted/50 rounded-md border border-input pl-9 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               disabled
             />
           </div>
@@ -45,10 +46,10 @@ export function Topbar() {
 
       {/* Quick Actions / Help / Profile */}
       <div className="flex items-center gap-3 border-l pl-4 ml-2">
-        <button className="text-muted-foreground hover:text-foreground transition-colors" title="Help & Documentation">
+        <button className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm transition-colors" title="Help & Documentation">
           <HelpCircle className="h-5 w-5" />
         </button>
-        <button className="text-muted-foreground hover:text-foreground transition-colors" title="Notifications">
+        <button className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm transition-colors" title="Notifications">
           <Bell className="h-5 w-5" />
         </button>
         <div className="flex items-center gap-2 pl-2">

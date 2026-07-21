@@ -1,10 +1,12 @@
-import { ACTIVE_MODULES, FUTURE_MODULES } from "@/components/builder/shell/shell-data";
+import { buildActiveModules, FUTURE_MODULES } from "@/components/builder/shell/shell-data";
 import { EmptyState } from "@/components/builder/shared/EmptyState";
 import Link from "next/link";
 import { Blocks } from "lucide-react";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 
-export default function Page() {
-  // We remove the old BuilderPage load, and replace it with the new Dashboard.
+export default async function Page() {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const activeModules = buildActiveModules(context.enabledModules);
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -27,7 +29,7 @@ export default function Page() {
 
       <div>
         <h2 className="text-xl font-semibold mb-4">Módulos Ativos</h2>
-        {ACTIVE_MODULES.filter(m => m.href !== "/builder").length === 0 ? (
+        {activeModules.filter(m => m.href !== "/builder").length === 0 ? (
           <EmptyState
             icon={Blocks}
             title="Nenhum módulo ativo"
@@ -35,7 +37,7 @@ export default function Page() {
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {ACTIVE_MODULES.filter(m => m.href !== "/builder").map((module) => {
+            {activeModules.filter(m => m.href !== "/builder").map((module) => {
               const Icon = module.icon;
               return (
                 <Link
@@ -61,7 +63,7 @@ export default function Page() {
         <h2 className="text-xl font-semibold mb-4 text-muted-foreground">Módulos Futuros</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {FUTURE_MODULES.map((module) => {
-             const Icon = module.icon;
+             const Icon = module.icon as React.ElementType;
              return (
                <div
                  key={module.label}

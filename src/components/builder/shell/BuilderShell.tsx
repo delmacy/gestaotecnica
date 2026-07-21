@@ -6,11 +6,13 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { ACTIVE_MODULES } from "./shell-data";
-import { getActiveBuilderSection } from "./shell-utils";
+import { buildActiveModules } from "./shell-data";
+import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
 import { BuilderBreadcrumb } from "./breadcrumb-types";
 
-export function BuilderShell({ children }: { children: React.ReactNode }) {
+export function BuilderShell({ children, enabledModuleKeys }: { children: React.ReactNode; enabledModuleKeys?: string[] }) {
+  const activeModules = buildActiveModules(enabledModuleKeys);
+
   // Client component inside for breadcrumbs, or we can just render standard wrapper here
   // We'll wrap children with a simple Client component for the Breadcrumb to work correctly
 
@@ -18,10 +20,10 @@ export function BuilderShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <Topbar />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
+        <Sidebar activeModules={activeModules} />
         <main className="flex-1 overflow-y-auto bg-muted/10 relative">
 
-          <BreadcrumbHeader />
+          <BreadcrumbHeader activeModules={activeModules} />
 
           <div className="p-6">
             {children}
@@ -33,7 +35,7 @@ export function BuilderShell({ children }: { children: React.ReactNode }) {
 }
 
 // Extract breadcrumb header to standard component to read pathname
-function BreadcrumbHeader() {
+function BreadcrumbHeader({ activeModules }: { activeModules: BuilderModule[] }) {
     const pathname = usePathname();
     if (!pathname) return null;
 
@@ -43,7 +45,7 @@ function BreadcrumbHeader() {
         }
 
         const paths = pathname.split("/").filter(Boolean);
-        const currentModule = getActiveBuilderSection(pathname, ACTIVE_MODULES);
+        const currentModule = getActiveBuilderSection(pathname, activeModules);
 
         return paths.map((p, index) => {
             const isLast = index === paths.length - 1;

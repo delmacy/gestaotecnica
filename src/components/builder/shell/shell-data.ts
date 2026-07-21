@@ -30,6 +30,9 @@ export const MOCK_WORKSPACES = [
 
 export const CURRENT_WORKSPACE = MOCK_WORKSPACES[2];
 
+import type { WorkspaceContext } from "@/platform/workspace";
+import type { BuilderModule } from "./shell-utils";
+
 export const ACTIVE_MODULES = [
   { href: "/builder", label: "Dashboard / Home", icon: Home, status: "active" },
   { href: "/builder/tasker", label: "Tasker", icon: ListTodo, status: "active" },
@@ -40,6 +43,26 @@ export const ACTIVE_MODULES = [
   { href: "/builder/ui-contracts", label: "UI Contracts", icon: FileCode2, status: "active" },
   { href: "/builder/settings", label: "Settings / Workspace", icon: Settings, status: "active" },
 ];
+
+const persistedSurfaceMap: Record<string, BuilderModule> = {
+  "governance-matrix": { href: "/builder/governance-matrix", label: "Governance Matrix", icon: ShieldAlert, status: "active" },
+  "operator-guide": { href: "/builder/operator-guide", label: "Operator Guide", icon: GraduationCap, status: "active" },
+  "enterprise-map": { href: "/builder/enterprise-map", label: "Enterprise Map", icon: Network, status: "active" },
+};
+
+export function buildActiveModules(enabledModuleKeys?: string[]): BuilderModule[] {
+  const baseModules = [...ACTIVE_MODULES];
+
+  if (!enabledModuleKeys) {
+    return baseModules;
+  }
+
+  const persistedModules = enabledModuleKeys
+    .map(key => persistedSurfaceMap[key])
+    .filter(Boolean);
+
+  return [...baseModules, ...persistedModules];
+}
 
 export const FUTURE_MODULES = [
   { href: "#", label: "Workflow Builder", icon: Workflow, status: "coming_soon" },

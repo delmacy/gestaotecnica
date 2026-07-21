@@ -1,7 +1,9 @@
+import type React from "react";
+
 export interface BuilderModule {
   href: string;
   label: string;
-  icon: unknown;
+  icon: React.ElementType;
   status: string;
 }
 

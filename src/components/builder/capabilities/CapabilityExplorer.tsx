@@ -11,7 +11,7 @@ import {
 import { CapabilityCard } from "./CapabilityCard";
 import { CapabilityFilters } from "./CapabilityFilters";
 import { CapabilityDetailPanel } from "./CapabilityDetailPanel";
-import { AlertCircle, FlaskConical, FilterX } from "lucide-react";
+import { AlertCircle, Boxes, FilterX } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/builder/shared/EmptyState";
@@ -67,29 +67,27 @@ export function CapabilityExplorer() {
   return (
     <div className="flex flex-col h-full w-full max-w-7xl mx-auto space-y-6">
 
-      {/* Header & Warning */}
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-3xl font-bold tracking-tight">Capability Explorer</h1>
-          <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
-            <FlaskConical className="w-3 h-3 mr-1" />
-            Mock Data
+          <h1 className="text-3xl font-bold tracking-tight">Capabilities globais</h1>
+          <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-700/10">
+            <Boxes className="w-3 h-3 mr-1" />
+            Catalogo reutilizavel
           </span>
         </div>
         <p className="text-muted-foreground mb-4">
-          Universal catalog of System Builder capabilities. Browse, inspect boundaries, and simulate requests.
+          Catalogo universal de dominios, entidades, processos e eventos que podem ser instalados nos workspaces dos clientes.
         </p>
 
         <Alert variant="default" className="bg-amber-50 border-amber-200 text-amber-800">
           <AlertCircle className="h-4 w-4 text-amber-600" />
-          <AlertTitle className="text-amber-800 font-semibold">Synthetic/Mock Mode Active</AlertTitle>
+          <AlertTitle className="text-amber-800 font-semibold">Catalogo base em consolidacao</AlertTitle>
           <AlertDescription className="text-amber-700/90 text-sm">
-            This surface is currently using synthetic data. Actions such as &quot;Request Install&quot; will only simulate state changes locally. No actual workspace configuration, database records, or markdown files will be altered.
+            Esta superficie apresenta capabilities globais reutilizaveis. As instalacoes por workspace ainda passam pelo fluxo controlado antes de alterar configuracao, banco de dados ou arquivos publicados.
           </AlertDescription>
         </Alert>
       </div>
 
-      {/* Filters */}
       <CapabilityFilters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -102,15 +100,14 @@ export function CapabilityExplorer() {
         onClear={handleClearFilters}
       />
 
-      {/* Main Content Area */}
       {filteredCapabilities.length === 0 ? (
         <EmptyState
           icon={FilterX}
           title="Nenhuma capability encontrada"
-          description="Tente ajustar sua busca ou filtros para encontrar o que procura."
+          description="Ajuste a busca ou os filtros para localizar outro dominio reutilizavel."
           action={
             <Button variant="outline" onClick={handleClearFilters}>
-              Limpar Filtros
+              Limpar filtros
             </Button>
           }
         />
@@ -127,7 +124,6 @@ export function CapabilityExplorer() {
         </div>
       )}
 
-      {/* Detail Panel */}
       <CapabilityDetailPanel
         capability={selectedCapability}
         isOpen={selectedCapabilityId !== null}

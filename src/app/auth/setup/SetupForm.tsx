@@ -13,7 +13,7 @@ export function SetupForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Criar administrador</CardTitle>
+        <CardTitle>Criar administrador <span className="ml-2 text-xs font-normal text-muted-foreground">(Real Environment)</span></CardTitle>
       </CardHeader>
       <CardContent>
         {state?.status === "error" && state.message && (

@@ -14,7 +14,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Entrar</CardTitle>
+          <CardTitle>Entrar <span className="ml-2 text-xs font-normal text-muted-foreground">(Real Environment)</span></CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4 text-sm text-muted-foreground text-center">

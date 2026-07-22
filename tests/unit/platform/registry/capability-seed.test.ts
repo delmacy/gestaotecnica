@@ -10,7 +10,6 @@ import { inArray } from "drizzle-orm";
 
 test("capability seeding and catalog tests", async (t) => {
   // Use isolated test database mode
-  process.env.NODE_ENV = "test";
   const db = getPlatformDb();
 
   await t.test("seedCapabilities() inserts rows correctly", async () => {
@@ -38,7 +37,7 @@ test("capability seeding and catalog tests", async (t) => {
     const catalog = await getCapabilityCatalog();
 
     assert.ok(catalog.length >= 4, "Catalog should have at least the 4 seeded capabilities");
-    const keys = catalog.map(c => c.key);
+    const keys = catalog.map((c: { key: string }) => c.key);
     assert.ok(keys.includes("capability_intake"));
     assert.ok(keys.includes("capability_approval"));
     assert.ok(keys.includes("capability_organization"));

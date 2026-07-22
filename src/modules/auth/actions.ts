@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { getDb, DbClient } from "@/db";
+import { getDb } from "@/db";
 import { authAccounts, authSessions, users } from "@/db/legacy/schema";
 import {
   createSessionToken,

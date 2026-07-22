@@ -5,12 +5,14 @@ import { LAUNCH_ALPHA } from "../../src/scripts/launch-alpha/constants";
 test("Launch Alpha Seed Configuration", async (t) => {
     await t.test("should not contain any PII", () => {
         // Assert email is a local example address
-        assert.ok(LAUNCH_ALPHA.user.email.endsWith("@example.local"), "Email should be a local/example address");
-        assert.ok(LAUNCH_ALPHA.user.name.includes("Alpha Real User"), "Name should indicate real alpha user");
-
-        // Assert no real phone numbers, CPF, etc. exist in the config
-        assert.ok(!("phone" in LAUNCH_ALPHA.user), "Should not contain phone numbers");
-        assert.ok(!("cpf" in LAUNCH_ALPHA.user), "Should not contain CPF");
+        // Assert emails are local example addresses
+        Object.values(LAUNCH_ALPHA.users).forEach((user) => {
+            assert.ok(user.email.endsWith("@example.com"), "Email should be a local/example address");
+            assert.ok(user.name.includes("Alpha Real"), "Name should indicate real alpha user");
+            // Assert no real phone numbers, CPF, etc. exist in the config
+            assert.ok(!("phone" in user), "Should not contain phone numbers");
+            assert.ok(!("cpf" in user), "Should not contain CPF");
+        });
     });
 
     await t.test("should distinguish real-data from demo behavior", () => {

@@ -31,6 +31,8 @@
     "db:seed:golden-e2e:clean": "npx tsx src/scripts/golden-e2e/clean.ts",
     "db:seed:launch-demo": "npx tsx src/scripts/launch-demo/seed.ts",
     "db:seed:launch-demo:clean": "npx tsx src/scripts/launch-demo/clean.ts",
+    "db:seed:launch-alpha": "npx tsx src/scripts/launch-alpha/seed.ts",
+    "db:seed:launch-alpha:clean": "npx tsx src/scripts/launch-alpha/clean.ts",
     "test:golden-e2e": "npx tsx --test tests/integration/golden-cycle.test.ts",
     "db:preflight": "npx tsx src/scripts/db/preflight-env-binding.ts",
     "db:verify-ci": "npx tsx src/scripts/db/verify-schema-ci.ts",

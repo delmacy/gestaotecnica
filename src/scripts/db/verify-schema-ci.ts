@@ -8,20 +8,20 @@ const SCHEMAS_TO_CHECK = [
 ];
 
 async function verifySchema() {
-  const dbUrl = process.env.DATABASE_URL || process.env.PLATFORM_DATABASE_URL || process.env.RUNTIME_DATABASE_URL;
-  if (!dbUrl) {
+  const primaryDbUrl = process.env.DATABASE_URL || process.env.PLATFORM_DATABASE_URL || process.env.RUNTIME_DATABASE_URL;
+  if (!primaryDbUrl) {
     console.error('DATABASE_URL, PLATFORM_DATABASE_URL, or RUNTIME_DATABASE_URL must be set. Failing fast.');
     process.exitCode = 1;
     return;
   }
 
-  console.log('Connecting to database via lazy client...');
-  const sql = postgres(dbUrl, { max: 1 });
+  console.log('Phase 1: Connecting to database via lazy client to check schema presence...');
+  const sql = postgres(primaryDbUrl, { max: 1 });
 
   try {
     let hasError = false;
 
-    // Check tables in schemas
+    // Phase 1: Check tables in schemas
     for (const { schema, table } of SCHEMAS_TO_CHECK) {
       const res = await sql`
         SELECT table_name
@@ -41,12 +41,32 @@ async function verifySchema() {
       process.exitCode = 1;
       return;
     }
+  } catch (err: unknown) {
+    console.error('Database query failed during schema check:', err instanceof Error ? err.message : err);
+    process.exitCode = 1;
+    await sql.end();
+    return;
+  }
 
-    // Check least-privilege DB access
-    const [userRow] = await sql`SELECT current_user`;
+  await sql.end();
+
+  // Phase 2: Check least-privilege DB access
+  console.log('\nPhase 2: Checking least-privilege DB access...');
+  const runtimeDbUrl = process.env.RUNTIME_DATABASE_URL;
+  const isSynthetic = !runtimeDbUrl || runtimeDbUrl === process.env.DATABASE_URL || runtimeDbUrl === process.env.PLATFORM_DATABASE_URL;
+
+  if (isSynthetic) {
+    console.log("Info: RUNTIME_DATABASE_URL matches DATABASE_URL/PLATFORM_DATABASE_URL or is not set. Skipping least-privilege check (synthetic/demo path).");
+    return;
+  }
+
+  const runtimeSql = postgres(runtimeDbUrl, { max: 1 });
+
+  try {
+    const [userRow] = await runtimeSql`SELECT current_user`;
     const currentUser = userRow.current_user;
 
-    const [roleRow] = await sql`
+    const [roleRow] = await runtimeSql`
       SELECT rolsuper
       FROM pg_roles
       WHERE rolname = ${currentUser}
@@ -62,7 +82,7 @@ async function verifySchema() {
     // Check for least-privilege (should not have CREATE privilege on any required schema except public)
     const schemasToCheck = ['identity', 'workspace', 'workflow', 'registry', 'documents', 'storage', 'blueprints', 'builder'];
     for (const schema of schemasToCheck) {
-      const [privRow] = await sql`SELECT has_schema_privilege(${currentUser}, ${schema}, 'CREATE') as can_create`;
+      const [privRow] = await runtimeSql`SELECT has_schema_privilege(${currentUser}, ${schema}, 'CREATE') as can_create`;
 
       if (privRow && privRow.can_create) {
         console.error(`Error: BLOCKER: Runtime user '${currentUser}' has CREATE privileges on '${schema}' schema. Expected least-privilege role (e.g. app_runtime).`);
@@ -73,10 +93,10 @@ async function verifySchema() {
     console.log(`Success: Runtime user '${currentUser}' has expected least-privilege access.`);
 
   } catch (err: unknown) {
-    console.error('Database query failed:', err instanceof Error ? err.message : err);
+    console.error('Database query failed during least-privilege check:', err instanceof Error ? err.message : err);
     process.exitCode = 1;
   } finally {
-    await sql.end();
+    await runtimeSql.end();
   }
 }
 

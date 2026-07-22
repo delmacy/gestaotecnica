@@ -70,7 +70,7 @@ export async function runPreflight() {
   try {
     await runPreflightChecks(sql);
   } catch (error: unknown) {
-    console.error(error instanceof Error ? error.message : error);
+    if (error instanceof Error) { console.error(error.message || error); } else { console.error(error); }
     process.exit(1);
   } finally {
     await sql.end();

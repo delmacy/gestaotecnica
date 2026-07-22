@@ -12,9 +12,22 @@ export const LAUNCH_ALPHA = {
     key: `workspace_${LAUNCH_ALPHA_NAMESPACE}`,
     name: "Alpha Real Workspace",
   },
-  user: {
-    email: "real.alpha@example.local",
-    name: "Alpha Real User",
+  users: {
+    admin: {
+      email: "alpha-admin@example.com",
+      name: "Alpha Real Admin User",
+      accessProfile: "admin" as const,
+    },
+    operator: {
+      email: "alpha-operator@example.com",
+      name: "Alpha Real Operator User",
+      accessProfile: "operador" as const,
+    },
+    viewer: {
+      email: "alpha-viewer@example.com",
+      name: "Alpha Real Viewer User",
+      accessProfile: "operador" as const,
+    },
   },
   module: {
     key: `module_core_${LAUNCH_ALPHA_NAMESPACE}`,

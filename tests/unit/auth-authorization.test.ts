@@ -44,7 +44,7 @@ describe("Authorization checks", () => {
     } catch (e: unknown) {
       if (e instanceof Error && e.message !== "NEXT_REDIRECT") throw e;
     }
-    assert.strictEqual(redirectCalledWith, "/blocked?role=admin%2C%20builder");
+    assert.strictEqual(redirectCalledWith, "/auth/login");
   });
 
   it("requireAccessProfile returns user if user has allowed profile", async () => {

@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, DbClient } from "@/db";
 import { authAccounts, authSessions, users } from "@/db/legacy/schema";
-type TransactionClient = Parameters<Parameters<DbClient["transaction"]>[0]>[0];
 import {
   createSessionToken,
   hashPassword,
@@ -121,7 +120,8 @@ export async function setupFirstAdmin(prevState: SetupState, formData: FormData)
       };
     }
 
-    const result = await db.transaction(async (tx: TransactionClient) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await db.transaction(async (tx: any) => {
       const [user] = await tx
         .insert(users)
         .values({ name, email, status: "active", accessProfile: "builder" })

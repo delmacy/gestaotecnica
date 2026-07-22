@@ -22,8 +22,9 @@ describe("Admin Path Least-Privilege Verification", () => {
         { encoding: "utf-8", stdio: "pipe" }
       );
       assert.fail("Should have thrown an error due to insufficient privileges");
-    } catch (error: any) {
-      assert(error.stderr?.includes("permission denied") || error.stdout?.includes("must be owner"), "Operation should be blocked by Postgres due to missing privileges");
+    } catch (error: unknown) {
+      const err = error as { stderr?: string; stdout?: string };
+      assert(err.stderr?.includes("permission denied") || err.stdout?.includes("must be owner"), "Operation should be blocked by Postgres due to missing privileges");
     }
   });
 });

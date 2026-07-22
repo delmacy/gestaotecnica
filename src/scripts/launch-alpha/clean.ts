@@ -5,7 +5,7 @@ import { usersTable } from "../../db/runtime/schema/identity";
 import { organizations, workspaces } from "../../db/runtime/schema/workspace";
 import { modules, capabilities, moduleCapabilities } from "../../db/platform/schema/registry";
 import { processCandidates } from "../../db/platform/schema/candidates";
-import { processDefinitions, processVersions, processInstances, processPayloads, actionExecutions, events } from "../../db/runtime/schema/workflow";
+import { processDefinitions, processVersions, processInstances, processPayloads, actionExecutions, events, forms, fieldDefinitions, formFields } from "../../db/runtime/schema/workflow";
 import { workspaceModuleConfigs } from "../../db/legacy/schema";
 import { LAUNCH_ALPHA } from "./constants";
 
@@ -39,6 +39,16 @@ export async function cleanLaunchAlpha(
       await dbRuntime.delete(processDefinitions).where(inArray(processDefinitions.id, defIds));
     }
     console.log(`[Clean] Deleted workflow runtime data`);
+
+    // 0.1 Delete Forms and Fields
+    const formsToDelete = await dbRuntime.select({ id: forms.id }).from(forms).where(inArray(forms.workspaceId, wsIds));
+    const formIds = formsToDelete.map((f: { id: string }) => f.id);
+    if(formIds.length > 0) {
+        await dbRuntime.delete(formFields).where(inArray(formFields.formId, formIds));
+        await dbRuntime.delete(forms).where(inArray(forms.id, formIds));
+    }
+    await dbRuntime.delete(fieldDefinitions).where(inArray(fieldDefinitions.workspaceId, wsIds));
+    console.log(`[Clean] Deleted forms and field definitions`);
 
     // 1. Delete Process Candidates
     await dbPlatform.delete(processCandidates).where(inArray(processCandidates.workspaceId, wsIds));

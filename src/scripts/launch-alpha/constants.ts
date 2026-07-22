@@ -60,4 +60,25 @@ export const LAUNCH_ALPHA = {
     { id: "e-review-approve", source: "review", target: "approve" },
     { id: "e-approve-end", source: "approve", target: "end" },
   ],
+  forms: [
+    {
+      key: `form_request_${LAUNCH_ALPHA_NAMESPACE}`,
+      name: "Real Service Request Form",
+      description: "Initial request form for real service orders",
+      fields: [
+        {
+          key: "title",
+          label: "Request Title",
+          type: "text",
+          required: true,
+        },
+        {
+          key: "description",
+          label: "Detailed Description",
+          type: "textarea",
+          required: true,
+        },
+      ],
+    },
+  ],
 };

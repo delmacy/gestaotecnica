@@ -33,4 +33,17 @@ test("Launch Alpha Seed Configuration", async (t) => {
         assert.ok(Object.keys(LAUNCH_ALPHA.nodes).length > 0, "Candidate must have nodes");
         assert.ok(LAUNCH_ALPHA.edges.length > 0, "Candidate must have edges");
     });
+
+    await t.test("should define valid form definitions", () => {
+        assert.ok(LAUNCH_ALPHA.forms.length > 0, "Must have at least one form defined");
+        LAUNCH_ALPHA.forms.forEach((form) => {
+            assert.ok(form.key.startsWith("form_"), "Form key should follow naming convention");
+            assert.ok(form.name.includes("Real"), "Form name should clearly indicate it is for real processes");
+            assert.ok(form.fields.length > 0, "Form must have fields");
+            form.fields.forEach((field) => {
+                assert.ok(field.key, "Field must have a key");
+                assert.ok(field.type, "Field must have a type");
+            });
+        });
+    });
 });

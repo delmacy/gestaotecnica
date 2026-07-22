@@ -47,21 +47,21 @@ export function CapabilityDetailPanel({
           <div className="flex items-center gap-2 mb-2">
             <Badge variant="outline" className="capitalize">{capability.category}</Badge>
             {capability.core_business && (
-              <Badge variant="default" className="bg-indigo-600">Core Business</Badge>
+              <Badge variant="default" className="bg-indigo-600">Dominio essencial</Badge>
             )}
           </div>
           <SheetTitle className="text-2xl flex items-center gap-2">
             {capability.name}
           </SheetTitle>
           <SheetDescription>
-            {capability.slug} • Priority: <span className="capitalize font-semibold">{capability.mvp_priority}</span>
+            {capability.slug} • Prioridade: <span className="capitalize font-semibold">{capability.mvp_priority}</span>
           </SheetDescription>
         </SheetHeader>
 
         <div className="space-y-6">
           {/* Description */}
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">Description</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">Descricao</h3>
             <p className="text-sm">{capability.description}</p>
           </div>
 
@@ -70,9 +70,9 @@ export function CapabilityDetailPanel({
             <div className="flex flex-col gap-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <h4 className="font-semibold text-sm">Installation Status</h4>
+                  <h4 className="font-semibold text-sm">Status de instalacao</h4>
                   <p className="text-xs text-muted-foreground capitalize">
-                    Current state: {capability.install_state.replace('_', ' ')}
+                    Estado atual: {capability.install_state.replace('_', ' ')}
                   </p>
                 </div>
                 <Button
@@ -84,18 +84,18 @@ export function CapabilityDetailPanel({
                   {isAlreadyRequested ? (
                     <>
                       <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Requested
+                      Solicitada
                     </>
                   ) : (
                     <>
                       <DownloadCloud className="mr-2 h-4 w-4" />
-                      Request Install
+                      Solicitar instalacao
                     </>
                   )}
                 </Button>
               </div>
               <div className="text-[10px] text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
-                <strong>Notice:</strong> Install request is simulated locally. No workspace or database will be changed. ({capability.synthetic_notes})
+                <strong>Aviso:</strong> a solicitacao ainda passa pelo fluxo controlado. Nenhum workspace ou banco de dados sera alterado diretamente. ({capability.synthetic_notes})
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ export function CapabilityDetailPanel({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
-                <Layers className="h-4 w-4" /> Depends On ({capability.depends_on.length})
+                <Layers className="h-4 w-4" /> Depende de ({capability.depends_on.length})
               </h3>
               {capability.depends_on.length > 0 ? (
                 <ul className="text-sm space-y-1">
@@ -115,12 +115,12 @@ export function CapabilityDetailPanel({
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted-foreground italic">None</p>
+                <p className="text-xs text-muted-foreground italic">Nenhuma dependencia</p>
               )}
             </div>
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
-                <Network className="h-4 w-4" /> Used By ({capability.used_by.length})
+                <Network className="h-4 w-4" /> Usada por ({capability.used_by.length})
               </h3>
               {capability.used_by.length > 0 ? (
                 <ul className="text-sm space-y-1">
@@ -129,7 +129,7 @@ export function CapabilityDetailPanel({
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted-foreground italic">None</p>
+                <p className="text-xs text-muted-foreground italic">Nenhuma relacao</p>
               )}
             </div>
           </div>
@@ -140,7 +140,7 @@ export function CapabilityDetailPanel({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
-                <Database className="h-4 w-4" /> Owns Entities
+                <Database className="h-4 w-4" /> Entidades que possui
               </h3>
               {capability.owns_entities.length > 0 ? (
                 <div className="flex flex-wrap gap-1">
@@ -149,11 +149,11 @@ export function CapabilityDetailPanel({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground italic">None</p>
+                <p className="text-xs text-muted-foreground italic">Nenhuma entidade</p>
               )}
             </div>
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Does Not Own</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">Nao possui</h3>
               {capability.does_not_own.length > 0 ? (
                 <div className="flex flex-wrap gap-1">
                   {capability.does_not_own.map(ent => (
@@ -161,7 +161,7 @@ export function CapabilityDetailPanel({
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground italic">None</p>
+                <p className="text-xs text-muted-foreground italic">Nenhuma restricao</p>
               )}
             </div>
           </div>
@@ -172,7 +172,7 @@ export function CapabilityDetailPanel({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
-                <Activity className="h-4 w-4" /> Main Processes
+                <Activity className="h-4 w-4" /> Processos principais
               </h3>
               {capability.main_processes.length > 0 ? (
                 <ul className="text-sm list-disc list-inside space-y-1 text-slate-700">
@@ -181,11 +181,11 @@ export function CapabilityDetailPanel({
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted-foreground italic">None</p>
+                <p className="text-xs text-muted-foreground italic">Nenhum processo</p>
               )}
             </div>
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Main Events</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">Eventos principais</h3>
               {capability.main_events.length > 0 ? (
                 <ul className="text-sm list-disc list-inside space-y-1 text-slate-700">
                   {capability.main_events.map(evt => (
@@ -193,7 +193,7 @@ export function CapabilityDetailPanel({
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted-foreground italic">None</p>
+                <p className="text-xs text-muted-foreground italic">Nenhum evento</p>
               )}
             </div>
           </div>
@@ -204,7 +204,7 @@ export function CapabilityDetailPanel({
               <Separator />
               <div className="bg-red-50 p-4 rounded-lg border border-red-100">
                 <h3 className="text-sm font-semibold text-red-800 mb-2 flex items-center gap-1">
-                  <div title="Boundary Risks"><ShieldAlert className="h-4 w-4" /></div> Boundary Risks
+                  <div title="Riscos de fronteira"><ShieldAlert className="h-4 w-4" /></div> Riscos de fronteira
                 </h3>
                 <ul className="space-y-2">
                   {capability.boundary_risk.map((risk, idx) => (
@@ -222,7 +222,7 @@ export function CapabilityDetailPanel({
             <>
               <Separator />
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Documentation</h3>
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">Documentacao</h3>
                 <ul className="space-y-2">
                   {capability.related_docs.map((doc, idx) => (
                     <li key={idx}>

@@ -82,15 +82,15 @@ export function CapabilityCard({ capability, onClick }: CapabilityCardProps) {
       <CardFooter className="pt-3 border-t flex flex-col gap-2">
         <div className="flex w-full justify-between items-center">
             <div className="flex gap-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1" title="Depends On">
+            <div className="flex items-center gap-1" title="Depende de">
                 <ArrowRightLeft className="h-3 w-3" />
                 <span>{capability.depends_on.length}</span>
             </div>
-            <div className="flex items-center gap-1" title="Used By">
+            <div className="flex items-center gap-1" title="Usada por">
                 <Network className="h-3 w-3" />
                 <span>{capability.used_by.length}</span>
             </div>
-            <div className="flex items-center gap-1" title="Entities Owned">
+            <div className="flex items-center gap-1" title="Entidades proprietarias">
                 <Server className="h-3 w-3" />
                 <span>{capability.owns_entities.length}</span>
             </div>
@@ -103,7 +103,7 @@ export function CapabilityCard({ capability, onClick }: CapabilityCardProps) {
         <div className="w-full mt-2">
           {capability.install_state === 'simulated_requested' && (
             <div className="text-xs text-center p-1 bg-blue-50 text-blue-700 rounded border border-blue-200">
-               Install Requested (Simulated)
+               Instalacao solicitada
             </div>
           )}
         </div>

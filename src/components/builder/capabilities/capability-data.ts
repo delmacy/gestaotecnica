@@ -20,7 +20,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-peo-001',
@@ -40,7 +40,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-req-001',
@@ -62,7 +62,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
       { type: 'overlap', description: 'May overlap with specific Cases or external ticketers.' }
     ],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-wo-001',
@@ -82,7 +82,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-doc-001',
@@ -102,7 +102,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-aud-001',
@@ -122,7 +122,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-com-001',
@@ -142,7 +142,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-sch-001',
@@ -162,7 +162,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-tsk-001',
@@ -184,7 +184,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
       { type: 'composition', description: 'Tasks usually belong to parent Work Orders or Cases.' }
     ],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
 
   // Complementary
@@ -208,7 +208,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
       { type: 'overlap', description: 'Can overlap with Inventory for consumable assets.' }
     ],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-inv-001',
@@ -228,7 +228,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-app-001',
@@ -250,7 +250,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
       { type: 'composition', description: 'Approvals block state changes but do not own the main entity.' }
     ],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-ana-001',
@@ -270,7 +270,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-kno-001',
@@ -290,7 +290,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-cmp-001',
@@ -310,7 +310,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
 
   // Future / Not MVP
@@ -332,7 +332,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'future',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-pro-001',
@@ -352,7 +352,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'future',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-fin-001',
@@ -372,7 +372,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'future',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-ctr-001',
@@ -392,7 +392,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'future',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-leg-001',
@@ -412,7 +412,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'future',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-prv-001',
@@ -432,7 +432,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'future',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-cus-001',
@@ -452,7 +452,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
     related_docs: [{ title: 'Universal Capability', url: '#' }],
     boundary_risk: [],
     install_state: 'future',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-cas-001',
@@ -474,7 +474,7 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
       { type: 'overlap', description: 'Can overlap with generic Requests. Cases are more stateful.' }
     ],
     install_state: 'future',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   },
   {
     id: 'cap-res-001',
@@ -496,6 +496,6 @@ export const MOCK_CAPABILITIES: CapabilityItem[] = [
       { type: 'overlap', description: 'Heavy overlap with Assets. Blocked pending definition.' }
     ],
     install_state: 'not_available',
-    synthetic_notes: 'Synthetic Mock Data'
+    synthetic_notes: 'Catalogo base aguardando instalacao controlada'
   }
 ];

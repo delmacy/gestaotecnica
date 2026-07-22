@@ -7,7 +7,7 @@ import { organizations, workspaces, workspaceMembers } from "../../db/runtime/sc
 import { modules, capabilities, moduleCapabilities } from "../../db/platform/schema/registry";
 import { processCandidates } from "../../db/platform/schema/candidates";
 
-import { processDefinitions, processVersions, processInstances, processPayloads, actionExecutions, events } from "../../db/runtime/schema/workflow";
+import { processDefinitions, processVersions, processInstances, processPayloads, actionExecutions, events, forms, fieldDefinitions, formFields } from "../../db/runtime/schema/workflow";
 import { workspaceModuleConfigs, authAccounts, users as legacyUsers } from "../../db/legacy/schema";
 import { hashPassword } from "../../modules/auth/crypto";
 import { randomBytes } from "crypto";
@@ -241,6 +241,45 @@ export async function seedLaunchAlpha(
       console.log(`[Seed] Created Process Payload for Instance`);
   } else {
       console.log(`[Seed] Process Instance already exists: ${existingInstances[0].id}`);
+  }
+
+  // 8. Forms
+  for (const formData of LAUNCH_ALPHA.forms) {
+      let formId: string;
+      const [form] = await dbRuntime.insert(forms).values({
+          workspaceId: workspaceId,
+          key: formData.key,
+          name: formData.name,
+          description: formData.description,
+      }).onConflictDoUpdate({
+          target: [forms.workspaceId, forms.key],
+          set: { name: formData.name, description: formData.description }
+      }).returning({ id: forms.id });
+      formId = form.id;
+      console.log(`[Seed] Upserted Form: ${formId}`);
+
+      let sortOrder = 0;
+      for (const field of formData.fields) {
+          const fieldKey = `${formData.key}_${field.key}`;
+          const [fieldDef] = await dbRuntime.insert(fieldDefinitions).values({
+              workspaceId: workspaceId,
+              key: fieldKey,
+              label: field.label,
+              type: field.type,
+              config: { required: field.required }
+          }).returning({ id: fieldDefinitions.id });
+          console.log(`[Seed] Upserted Field Definition: ${fieldDef.id}`);
+
+          // Link form and field
+          await dbRuntime.insert(formFields).values({
+              formId: formId,
+              fieldDefinitionId: fieldDef.id,
+              sortOrder: sortOrder++,
+              isRequired: field.required ? "true" : "false",
+              config: {}
+          });
+      }
+      console.log(`[Seed] Created Field Links for Form`);
   }
 
   console.log(`Seed finished for Launch Alpha`);

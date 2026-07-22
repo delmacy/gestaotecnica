@@ -120,9 +120,8 @@ export async function setupFirstAdmin(prevState: SetupState, formData: FormData)
       };
     }
 
-    // explicit-any-ok
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await db.transaction(async (tx: any) => {
+    const result = await db.transaction(async (tx: any) => { // explicit-any-ok
       const [user] = await tx
         .insert(users)
         .values({ name, email, status: "active", accessProfile: "builder" })

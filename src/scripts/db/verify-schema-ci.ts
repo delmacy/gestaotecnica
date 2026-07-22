@@ -72,8 +72,8 @@ async function verifySchema() {
     }
     console.log(`Success: Runtime user '${currentUser}' has expected least-privilege access.`);
 
-  } catch (err: any) {
-    console.error('Database query failed:', err.message);
+  } catch (err: unknown) {
+    console.error('Database query failed:', err instanceof Error ? err.message : err);
     process.exitCode = 1;
   } finally {
     await sql.end();

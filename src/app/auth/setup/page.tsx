@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getDb } from "@/db";
 import { authAccounts } from "@/db/legacy/schema";
 import { SetupForm } from "./SetupForm";
+import { parseDatabaseError } from "@/modules/auth/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -12,14 +13,31 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function SetupPage() {
-  const db = getDb();
-  const existingAccounts = await db.select({ id: authAccounts.id }).from(authAccounts).limit(1);
+  let hasAccount = false;
+  let dbBlockerMessage: string | null = null;
 
-  const hasAccount = existingAccounts.length > 0;
+  try {
+    const db = getDb();
+    const existingAccounts = await db.select({ id: authAccounts.id }).from(authAccounts).limit(1);
+    hasAccount = existingAccounts.length > 0;
+  } catch (err: unknown) {
+    dbBlockerMessage = await parseDatabaseError(err) || `BLOCKER: Database connection failed. Contact support.`;
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
-      {hasAccount ? (
+      {dbBlockerMessage ? (
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-destructive">Erro de Ambiente</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded bg-destructive/15 p-3 text-sm text-destructive font-mono whitespace-pre-wrap">
+              {dbBlockerMessage}
+            </div>
+          </CardContent>
+        </Card>
+      ) : hasAccount ? (
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Configuração já concluída</CardTitle>

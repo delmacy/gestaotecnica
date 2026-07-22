@@ -3,8 +3,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
+import { getDb, DbClient } from "@/db";
 import { authAccounts, authSessions, users } from "@/db/legacy/schema";
+type TransactionClient = Parameters<Parameters<DbClient["transaction"]>[0]>[0];
 import {
   createSessionToken,
   hashPassword,
@@ -120,14 +121,14 @@ export async function setupFirstAdmin(prevState: SetupState, formData: FormData)
       };
     }
 
-    const result = await db.transaction(async (tx: unknown) => {
-      const [user] = await (tx as any)
+    const result = await db.transaction(async (tx: TransactionClient) => {
+      const [user] = await tx
         .insert(users)
         .values({ name, email, status: "active", accessProfile: "builder" })
         .returning({ id: users.id });
 
       const passwordData = hashPassword(password);
-      await (tx as any).insert(authAccounts).values({
+      await tx.insert(authAccounts).values({
         userId: user.id,
         passwordHash: passwordData.hash,
         passwordSalt: passwordData.salt,

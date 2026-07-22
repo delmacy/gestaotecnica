@@ -44,6 +44,27 @@ async function createSession(userId: string) {
 }
 
 
+export function parseDatabaseError(err: unknown): string | null {
+  const message = err instanceof Error ? err.message : String(err);
+  const code = (err as { code?: unknown })?.code;
+
+  if (message.includes("is required")) {
+    return "BLOCKER: DATABASE_URL is missing. Please check your environment variables.";
+  } else if (code === "42P01") {
+    return "BLOCKER: Database schema is missing required tables. Please run database migrations.";
+  } else if (code === "42501" || message.includes("permission denied")) {
+    return "BLOCKER: Insufficient privileges. Ensure the connection uses a least-privilege role (not a superuser).";
+  } else if (code === "ECONNREFUSED" || message.includes("ECONNREFUSED")) {
+    return "BLOCKER: Could not connect to the database. Ensure the database server is running.";
+  } else if (message.includes("does not exist") || message.includes("no password supplied")) {
+    return "BLOCKER: Invalid database credentials or database does not exist.";
+  } else if (message.includes("failed to connect") || message.includes("timeout")) {
+    return "BLOCKER: Database connection failed. Contact support.";
+  }
+
+  return null;
+}
+
 export type SetupState = {
   status: "idle" | "error" | "success";
   message?: string;
@@ -127,6 +148,15 @@ export async function setupFirstAdmin(prevState: SetupState, formData: FormData)
 
   } catch (error) {
     console.error("Setup error", error);
+
+    const dbBlocker = parseDatabaseError(error);
+    if (dbBlocker) {
+      return {
+        status: "error",
+        message: dbBlocker,
+      };
+    }
+
     return {
       status: "error",
       message: "Erro inesperado ao criar a conta. Tente novamente mais tarde.",
@@ -179,6 +209,12 @@ export async function login(prevState: any, formData: FormData) {
     if ((err as Error).message === "NEXT_REDIRECT") {
       throw err;
     }
+
+    const dbBlocker = parseDatabaseError(err);
+    if (dbBlocker) {
+      return { error: dbBlocker };
+    }
+
     return { error: "Erro ao realizar login." };
   }
 }

@@ -26,7 +26,7 @@ export const LAUNCH_ALPHA = {
     viewer: {
       email: "alpha-viewer@example.com",
       name: "Alpha Real Viewer User",
-      accessProfile: "operador" as const,
+      accessProfile: "builder" as const,
     },
   },
   module: {

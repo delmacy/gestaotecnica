@@ -84,6 +84,7 @@ describe("Preflight Script Syntax and Behavior", () => {
 
   test("runPreflightChecks passes on correct setup", async () => {
     const preflight = await import("../../src/scripts/db/preflight-env-binding");
+    const checkedPrivileges: string[] = [];
 
     // Mock the sql execution returning schemas, non-super, no CREATE privileges
     const mockSql = async (strings: unknown, ...values: unknown[]) => {
@@ -98,12 +99,16 @@ describe("Preflight Script Syntax and Behavior", () => {
         return [{ rolsuper: false }];
       }
       if (q.startsWith("SELECT has_schema_privilege")) {
+         checkedPrivileges.push(values[1] as string);
          return [{ can_create: false }];
       }
       return [];
     };
 
     await preflight.runPreflightChecks(mockSql as unknown as import("postgres").Sql); // Should not throw
-    assert.ok(true);
+    assert.deepStrictEqual(
+      checkedPrivileges,
+      preflight.REQUIRED_SCHEMAS.filter((schema: string) => schema !== "public")
+    );
   });
 });

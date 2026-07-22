@@ -17,10 +17,7 @@ test.describe("Auth Admin Smoke Paths under Runtime Constraints", () => {
     // Teardown any leftover test data
     const db = getRuntimeDb();
 
-    // Explicit assertion for PR review:
-    // The test explicitly uses getRuntimeDb() which connects using RUNTIME_DATABASE_URL
-    // configured for the app_runtime role (least-privilege). This ensures we are not
-    // relying on postgres superuser access for the runtime path.
+    // Using getRuntimeDb() with RUNTIME_DATABASE_URL (app_runtime role, least-privilege).
     const existingUsers = await db.select({ id: users.id }).from(users).where(eq(users.email, TEST_EMAIL));
 
     if (existingUsers.length > 0) {

@@ -21,6 +21,7 @@ The operation must have a clearly defined target environment (e.g., `staging`, `
 Do not run raw SQL commands directly. All operations must use verified scripts, such as:
 - `npm run db:seed:golden-e2e:clean` (with specific env guards)
 - Dedicated reset scripts under `src/scripts/`
+- `npm run db:break-glass:teardown` (for complete schema wipe, defaults to dry-run)
 
 ### 3. Dry-Run Evidence
 Before executing any destructive change, a dry-run or verification command must be executed to confirm the target and scope.

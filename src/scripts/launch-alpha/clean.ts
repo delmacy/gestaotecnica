@@ -20,7 +20,7 @@ export async function cleanLaunchAlpha(
   const orgKeys = [LAUNCH_ALPHA.organization.key];
   const moduleKeys = [LAUNCH_ALPHA.module.key];
   const capabilityKeys = LAUNCH_ALPHA.capabilities.map(c => c.key);
-  const userEmails = [LAUNCH_ALPHA.user.email];
+  const userEmails = Object.values(LAUNCH_ALPHA.users).map((u) => u.email);
 
   const wsRecords = await dbRuntime.select().from(workspaces).where(inArray(workspaces.key, workspaceKeys));
   const wsIds = wsRecords.map((w: { id: string }) => w.id);

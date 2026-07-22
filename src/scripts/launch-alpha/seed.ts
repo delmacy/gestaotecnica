@@ -1,17 +1,16 @@
-import { LAUNCH_ALPHA_NAMESPACE } from "./constants";
+import { LAUNCH_ALPHA_NAMESPACE, LAUNCH_ALPHA } from "./constants";
 import "dotenv/config";
 import { getPlatformDb, closeDatabaseConnections, getRuntimeDb } from "../../db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { usersTable } from "../../db/runtime/schema/identity";
-import { organizations, workspaces } from "../../db/runtime/schema/workspace";
+import { organizations, workspaces, workspaceMembers } from "../../db/runtime/schema/workspace";
 import { modules, capabilities, moduleCapabilities } from "../../db/platform/schema/registry";
 import { processCandidates } from "../../db/platform/schema/candidates";
 
 import { processDefinitions, processVersions, processInstances, processPayloads, actionExecutions, events } from "../../db/runtime/schema/workflow";
-import { workspaceModuleConfigs } from "../../db/legacy/schema";
-import { LAUNCH_ALPHA } from "./constants";
-
-
+import { workspaceModuleConfigs, authAccounts, users as legacyUsers } from "../../db/legacy/schema";
+import { hashPassword } from "../../modules/auth/crypto";
+import { randomBytes } from "crypto";
 
 export async function seedLaunchAlpha(
   dbPlatform: ReturnType<typeof import("../../db").getPlatformDb>,
@@ -47,18 +46,77 @@ export async function seedLaunchAlpha(
     workspaceId = workspace.id;
     console.log(`[Seed] Upserted Workspace: ${workspaceId}`);
 
-  // 3. User
-  let userId: string;
-  const [user] = await dbRuntime.insert(usersTable).values({
-      email: LAUNCH_ALPHA.user.email,
-      name: LAUNCH_ALPHA.user.name,
-      status: "active",
-    }).onConflictDoUpdate({
-      target: usersTable.email,
-      set: { name: LAUNCH_ALPHA.user.name }
-    }).returning({ id: usersTable.id });
-    userId = user.id;
-    console.log(`[Seed] Upserted User: ${userId}`);
+  // 3. Users and Memberships
+  let adminUserId: string = "";
+  for (const [role, userDef] of Object.entries(LAUNCH_ALPHA.users)) {
+      // Upsert runtime user
+      const [user] = await dbRuntime.insert(usersTable).values({
+          email: userDef.email,
+          name: userDef.name,
+          status: "active",
+        }).onConflictDoUpdate({
+          target: usersTable.email,
+          set: { name: userDef.name }
+        }).returning({ id: usersTable.id });
+        console.log(`[Seed] Upserted Runtime User (${role}): ${user.id}`);
+
+      if (role === 'admin') adminUserId = user.id;
+
+      // Ensure user exists in legacy schema (for auth)
+      const [legacyUser] = await dbRuntime.insert(legacyUsers).values({
+          id: user.id, // Keep IDs in sync
+          name: userDef.name,
+          email: userDef.email,
+          status: "active",
+          accessProfile: userDef.accessProfile,
+      }).onConflictDoUpdate({
+          target: legacyUsers.email,
+          set: {
+              name: userDef.name,
+              accessProfile: userDef.accessProfile
+          }
+      }).returning({ id: legacyUsers.id });
+
+      // Generate non-production credentials
+      const tempPassword = randomBytes(32).toString('hex');
+      const { hash, salt } = hashPassword(tempPassword);
+
+      // Upsert Auth Account
+      const existingAccount = await dbRuntime.select().from(authAccounts).where(eq(authAccounts.userId, user.id));
+      if (existingAccount.length > 0) {
+        await dbRuntime.update(authAccounts).set({
+            passwordHash: hash,
+            passwordSalt: salt,
+            isActive: true,
+            updatedAt: new Date(),
+        }).where(eq(authAccounts.id, existingAccount[0].id));
+      } else {
+        await dbRuntime.insert(authAccounts).values({
+            userId: user.id,
+            passwordHash: hash,
+            passwordSalt: salt,
+            isActive: true,
+        });
+      }
+
+      console.log(`[Seed] Created/Updated credentials for ${userDef.email} (Non-production)`);
+
+      // Workspace Membership
+      const existingMembership = await dbRuntime.select().from(workspaceMembers)
+        .where(and(eq(workspaceMembers.workspaceId, workspaceId), eq(workspaceMembers.userId, user.id)));
+
+      if (existingMembership.length === 0) {
+          await dbRuntime.insert(workspaceMembers).values({
+              workspaceId: workspaceId,
+              userId: user.id,
+              status: "active",
+          });
+          console.log(`[Seed] Added ${role} to workspace memberships.`);
+      } else {
+          console.log(`[Seed] ${role} already in workspace memberships.`);
+      }
+  }
+
 
   // 4. Modules
   let moduleId: string;
@@ -123,7 +181,7 @@ export async function seedLaunchAlpha(
           description: LAUNCH_ALPHA.candidate.description,
           status: "waiting_review",
           proposedDefinition: proposedDefinition,
-          createdById: userId
+          createdById: adminUserId
       }).returning({ id: processCandidates.id });
       candidateId = candidate.id;
       console.log(`[Seed] Created Process Candidate: ${candidate.id}`);
@@ -140,7 +198,7 @@ export async function seedLaunchAlpha(
           name: LAUNCH_ALPHA.candidate.name,
           description: LAUNCH_ALPHA.candidate.description,
           sourceCandidateId: candidateId,
-          createdById: userId
+          createdById: adminUserId
       }).onConflictDoUpdate({
           target: [processDefinitions.workspaceId, processDefinitions.key],
           set: { name: LAUNCH_ALPHA.candidate.name }
@@ -168,7 +226,7 @@ export async function seedLaunchAlpha(
           workspaceId: workspaceId,
           processVersionId: versionId,
           status: "active",
-          createdById: userId
+          createdById: adminUserId
       }).returning({ id: processInstances.id });
       console.log(`[Seed] Created Process Instance: ${inst.id}`);
 

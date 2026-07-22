@@ -44,7 +44,7 @@ async function createSession(userId: string) {
 }
 
 
-export function parseDatabaseError(err: unknown): string | null {
+export async function parseDatabaseError(err: unknown): Promise<string | null> {
   const message = err instanceof Error ? err.message : String(err);
   const code = (err as { code?: unknown })?.code;
 
@@ -120,14 +120,14 @@ export async function setupFirstAdmin(prevState: SetupState, formData: FormData)
       };
     }
 
-    const result = await db.transaction(async (tx: any) => {
-      const [user] = await tx
+    const result = await db.transaction(async (tx: unknown) => {
+      const [user] = await (tx as any)
         .insert(users)
         .values({ name, email, status: "active", accessProfile: "builder" })
         .returning({ id: users.id });
 
       const passwordData = hashPassword(password);
-      await tx.insert(authAccounts).values({
+      await (tx as any).insert(authAccounts).values({
         userId: user.id,
         passwordHash: passwordData.hash,
         passwordSalt: passwordData.salt,
@@ -149,7 +149,7 @@ export async function setupFirstAdmin(prevState: SetupState, formData: FormData)
   } catch (error) {
     console.error("Setup error", error);
 
-    const dbBlocker = parseDatabaseError(error);
+    const dbBlocker = await parseDatabaseError(error);
     if (dbBlocker) {
       return {
         status: "error",
@@ -166,7 +166,7 @@ export async function setupFirstAdmin(prevState: SetupState, formData: FormData)
   redirect(getDefaultRouteForProfile("builder"));
 }
 
-export async function login(prevState: any, formData: FormData) {
+export async function login(prevState: unknown, formData: FormData) {
   try {
     const email = readRequiredText(formData, "email").toLowerCase();
     const password = readRequiredText(formData, "password");
@@ -210,7 +210,7 @@ export async function login(prevState: any, formData: FormData) {
       throw err;
     }
 
-    const dbBlocker = parseDatabaseError(err);
+    const dbBlocker = await parseDatabaseError(err);
     if (dbBlocker) {
       return { error: dbBlocker };
     }

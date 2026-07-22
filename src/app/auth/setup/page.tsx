@@ -21,7 +21,7 @@ export default async function SetupPage() {
     const existingAccounts = await db.select({ id: authAccounts.id }).from(authAccounts).limit(1);
     hasAccount = existingAccounts.length > 0;
   } catch (err: unknown) {
-    dbBlockerMessage = parseDatabaseError(err) || `BLOCKER: Database connection failed. Contact support.`;
+    dbBlockerMessage = await parseDatabaseError(err) || `BLOCKER: Database connection failed. Contact support.`;
   }
 
   return (

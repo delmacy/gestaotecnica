@@ -19,12 +19,12 @@ test.describe('Builder Navigation API Endpoint', () => {
     expect(['real', 'synthetic', 'demo']).toContain(data.environmentMode);
 
     // Verify Dashboard is always present in active modules
-    const dashboard = data.activeModules.find((m: any) => m.href === '/builder');
+    const dashboard = data.activeModules.find((m: { href: string; label?: string; status?: string }) => m.href === '/builder');
     expect(dashboard).toBeDefined();
     expect(dashboard.label).toBe('Dashboard / Home');
 
     // Verify some future modules
-    const workflowBuilder = data.futureModules.find((m: any) => m.href === '/builder/workflow-builder');
+    const workflowBuilder = data.futureModules.find((m: { href: string; label?: string; status?: string }) => m.href === '/builder/workflow-builder');
     expect(workflowBuilder).toBeDefined();
     expect(['blocked', 'coming_soon']).toContain(workflowBuilder.status);
   });

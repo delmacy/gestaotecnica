@@ -5,7 +5,7 @@ import { createPlatformError } from "@/platform/errors";
 
 export async function GET(request: NextRequest) {
   try {
-    const context = await resolveWorkspaceContext({ source: "api" });
+    const context = await resolveWorkspaceContext({ source: "system" });
     const inventory = resolveNavigationInventory(context);
 
     return NextResponse.json(inventory, { status: 200 });

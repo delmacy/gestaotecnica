@@ -1,14 +1,14 @@
-# Vercel Hourly Deploy Policy
+# Vercel Hourly Preview Promote Policy
 
 ## Objective
 
-Limit Vercel production deployments to at most one deploy per hour while preserving GitHub PR validation with `npm run build`.
+Limit Vercel production promotions to at most one per hour while preserving GitHub PR preview builds and validation with `npm run build`.
 
 ## Required Vercel Setting
 
-Disable automatic Git deployments for the `gestaotecnica` Vercel project, or configure the Vercel ignored build step to skip branch and PR deployments.
+Keep Git preview deployments enabled for PR/branch validation when available. The hourly GitHub Actions workflow remains the controlled production path.
 
-The GitHub Actions workflow `.github/workflows/vercel-hourly-deploy.yml` becomes the production deploy path.
+The GitHub Actions workflow `.github/workflows/vercel-hourly-deploy.yml` builds a production candidate, deploys it first as a preview deployment, then promotes that same preview artifact to production.
 
 ## GitHub Secret
 
@@ -25,16 +25,17 @@ The workflow already contains the Vercel org and project ids:
 
 - Runs every hour at minute 7.
 - Checks out `main`.
-- Skips deploy when the same `main` commit was already deployed by this workflow.
+- Skips deploy/promote when the same `main` commit was already deployed by this workflow.
 - Pulls production Vercel env vars.
 - Runs `npm run build` before deployment.
 - Runs `vercel build --prod`.
-- Deploys only the prebuilt artifact with `vercel deploy --prebuilt --prod`.
+- Deploys the prebuilt artifact as a preview candidate with `vercel deploy --prebuilt`.
+- Promotes the candidate with `vercel promote <preview-url>`.
 
 ## Manual Deploy
 
-Use the `workflow_dispatch` trigger and set `force_deploy=true` when a redeploy of the same commit is intentionally needed.
+Use the `workflow_dispatch` trigger and set `force_deploy=true` when a rebuild/repromotion of the same commit is intentionally needed.
 
 ## Agent Rule
 
-Jules and OpenCode PRs should rely on GitHub Actions checks for validation. Vercel preview deployments are not required for microtasks and should not be treated as a blocker when disabled by this policy.
+Jules and OpenCode PRs should rely on GitHub Actions checks for validation. Vercel preview deployments are useful for visual validation, but Vercel rate limits/free-tier skips remain non-code blockers unless the required GitHub checks fail.

@@ -1,4 +1,4 @@
-name: Vercel hourly production deploy
+name: Vercel hourly preview promote
 
 on:
   schedule:
@@ -19,12 +19,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: vercel-hourly-production
+  group: vercel-hourly-preview-promote
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy latest main to Vercel
+    name: Build preview candidate and promote latest main
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -148,32 +148,83 @@ jobs:
         if: steps.deploy_gate.outputs.deploy == 'true'
         run: vercel build --prod --token="$VERCEL_TOKEN"
 
-      - name: Deploy prebuilt artifact to production
+      - name: Deploy prebuilt artifact as preview candidate
+        id: preview_deploy
         if: steps.deploy_gate.outputs.deploy == 'true'
         run: |
           set -euo pipefail
 
           deploy_log="$(mktemp)"
           set +e
-          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN" >"$deploy_log" 2>&1
+          vercel deploy --prebuilt --token="$VERCEL_TOKEN" >"$deploy_log" 2>&1
           deploy_status=$?
           set -e
 
           cat "$deploy_log"
 
           if [ "$deploy_status" -eq 0 ]; then
+            preview_url="$(awk '/https:\\/\\// { url=$NF } END { print url }' "$deploy_log")"
+            if [ -z "$preview_url" ]; then
+              echo "::error::Vercel preview deploy succeeded but no deployment URL was found."
+              exit 1
+            fi
+            echo "preview_url=$preview_url" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Vercel preview candidate"
+              echo
+              echo "- Preview: $preview_url"
+              echo "- Commit: $GITHUB_SHA"
+            } >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
 
           if grep -Eiq "(rate[- ]?limit|too many requests|http 429|\\b429\\b|deployment limit|deployments limit|exceeded.*deploy|limit.*deploy)" "$deploy_log"; then
-            echo "::warning::Vercel deploy skipped because Vercel returned a deployment/rate limit. Build validation passed, so this workflow remains successful."
+            echo "::warning::Vercel preview deploy skipped because Vercel returned a deployment/rate limit. Build validation passed, so this workflow remains successful."
             {
               echo "### Vercel deploy skipped"
               echo
-              echo "The production build passed, but Vercel refused the deployment because of a deployment/rate limit."
+              echo "The production build passed, but Vercel refused the preview candidate deployment because of a deployment/rate limit."
               echo "This is treated as a soft deploy skip so CI can remain green."
             } >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
 
           exit "$deploy_status"
+
+      - name: Promote preview candidate to production
+        if: steps.deploy_gate.outputs.deploy == 'true' && steps.preview_deploy.outputs.preview_url != ''
+        run: |
+          set -euo pipefail
+
+          promote_log="$(mktemp)"
+          set +e
+          vercel promote "${{ steps.preview_deploy.outputs.preview_url }}" --yes --token="$VERCEL_TOKEN" >"$promote_log" 2>&1
+          promote_status=$?
+          set -e
+
+          cat "$promote_log"
+
+          if [ "$promote_status" -eq 0 ]; then
+            {
+              echo
+              echo "### Vercel production promotion"
+              echo
+              echo "- Promoted: ${{ steps.preview_deploy.outputs.preview_url }}"
+              echo "- Commit: $GITHUB_SHA"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if grep -Eiq "(rate[- ]?limit|too many requests|http 429|\\b429\\b|deployment limit|deployments limit|exceeded.*deploy|limit.*deploy)" "$promote_log"; then
+            echo "::warning::Vercel promote skipped because Vercel returned a deployment/rate limit. Preview candidate is available."
+            {
+              echo
+              echo "### Vercel promote skipped"
+              echo
+              echo "Preview candidate exists, but Vercel refused production promotion because of a deployment/rate limit."
+              echo "Preview: ${{ steps.preview_deploy.outputs.preview_url }}"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          exit "$promote_status"

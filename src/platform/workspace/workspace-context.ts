@@ -13,6 +13,7 @@ export type WorkspaceContext = {
     name?: string;
   };
   source: ExecutionSource;
+  environmentMode: "real" | "synthetic" | "demo";
   enabledModules: string[];
   scopes: string[];
   correlationId: string;

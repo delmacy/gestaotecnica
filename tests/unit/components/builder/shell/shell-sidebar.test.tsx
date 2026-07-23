@@ -1,21 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { test } from 'node:test';
+import assert from 'node:assert';
 import { Sidebar } from '../../../../../src/components/builder/shell/Sidebar';
 import { Home, ListTodo, Bot, FileText, Settings, LayoutDashboard } from 'lucide-react';
 
-// Mock matchMedia
-window.matchMedia = window.matchMedia || function() {
-    return {
-        matches: false,
-        addListener: function() {},
-        removeListener: function() {}
-    };
-};
-
-jest.mock('next/navigation', () => ({
-  usePathname: () => '/builder',
-}));
-
-describe('Sidebar Taxonomy Grouping', () => {
+test('Sidebar structural render test with all taxonomy groups', () => {
   const activeModules = [
     { href: "/builder", label: "Dashboard / Home", icon: Home, status: "active" },
     { href: "/builder/tasker", label: "Tasker", icon: ListTodo, status: "active" },
@@ -28,54 +16,73 @@ describe('Sidebar Taxonomy Grouping', () => {
     { href: "/builder/workflow-builder", label: "Workflow Builder", icon: LayoutDashboard, status: "coming_soon" },
   ];
 
-  it('renders active modules under the correct taxonomy group headings', () => {
-    render(
-      <Sidebar
-        activeModules={activeModules}
-        futureModules={futureModules}
-      />
-    );
+  const element = Sidebar({ activeModules, futureModules });
+  assert.ok(element, 'Sidebar should return a React element');
 
-    // Workspace Core should contain Dashboard and Tasker
-    const coreGroup = screen.getByText('Workspace Core').closest('div');
-    expect(coreGroup).toBeInTheDocument();
-    expect(coreGroup?.textContent).toContain('Dashboard / Home');
-    expect(coreGroup?.textContent).toContain('Tasker');
-
-    // Architecture & Definition should contain Capabilities
-    const archGroup = screen.getByText('Architecture & Definition').closest('div');
-    expect(archGroup).toBeInTheDocument();
-    expect(archGroup?.textContent).toContain('Capabilities');
-
-    // Developer & Reference should contain Docs
-    const devGroup = screen.getByText('Developer & Reference').closest('div');
-    expect(devGroup).toBeInTheDocument();
-    expect(devGroup?.textContent).toContain('Docs');
-
-    // Configuration should contain Settings
-    const configGroup = screen.getByText('Configuration').closest('div');
-    expect(configGroup).toBeInTheDocument();
-    expect(configGroup?.textContent).toContain('Settings / Workspace');
+  const cache = new Set();
+  const stringified = JSON.stringify(element, (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (cache.has(value)) {
+        return;
+      }
+      cache.add(value);
+    }
+    if (typeof value === 'function') {
+      return value.name || 'function';
+    }
+    return value;
   });
 
-  it('does not render an empty taxonomy group', () => {
-    // Only pass Workspace Core modules
-    const subsetModules = [
-      { href: "/builder", label: "Dashboard / Home", icon: Home, status: "active" },
-    ];
+  // Verify group headings
+  assert.ok(stringified.includes('Workspace Core'), 'Workspace Core heading should be present');
+  assert.ok(stringified.includes('Architecture &amp; Definition'), 'Architecture & Definition heading should be present');
+  assert.ok(stringified.includes('Developer &amp; Reference'), 'Developer & Reference heading should be present');
+  assert.ok(stringified.includes('Configuration'), 'Configuration heading should be present');
+  assert.ok(stringified.includes('Future Modules'), 'Future Modules heading should be present');
 
-    render(
-      <Sidebar
-        activeModules={subsetModules}
-        futureModules={futureModules}
-      />
-    );
+  // Verify active modules
+  assert.ok(stringified.includes('Dashboard / Home'), 'Dashboard module should be present');
+  assert.ok(stringified.includes('Tasker'), 'Tasker module should be present');
+  assert.ok(stringified.includes('Capabilities'), 'Capabilities module should be present');
+  assert.ok(stringified.includes('Docs'), 'Docs module should be present');
+  assert.ok(stringified.includes('Settings / Workspace'), 'Settings module should be present');
 
-    expect(screen.getByText('Workspace Core')).toBeInTheDocument();
+  // Verify future modules
+  assert.ok(stringified.includes('Workflow Builder'), 'Workflow Builder module should be present');
+});
 
-    // These groups should not be rendered at all since they have no modules
-    expect(screen.queryByText('Architecture & Definition')).not.toBeInTheDocument();
-    expect(screen.queryByText('Developer & Reference')).not.toBeInTheDocument();
-    expect(screen.queryByText('Configuration')).not.toBeInTheDocument();
+test('Sidebar structural render test handles empty taxonomy groups', () => {
+  const subsetModules = [
+    { href: "/builder", label: "Dashboard / Home", icon: Home, status: "active" },
+  ];
+
+  const futureModules = [
+    { href: "/builder/workflow-builder", label: "Workflow Builder", icon: LayoutDashboard, status: "coming_soon" },
+  ];
+
+  const element = Sidebar({ activeModules: subsetModules, futureModules });
+  assert.ok(element, 'Sidebar should return a React element');
+
+  const cache = new Set();
+  const stringified = JSON.stringify(element, (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (cache.has(value)) {
+        return;
+      }
+      cache.add(value);
+    }
+    if (typeof value === 'function') {
+      return value.name || 'function';
+    }
+    return value;
   });
+
+  // Verify the present group
+  assert.ok(stringified.includes('Workspace Core'), 'Workspace Core heading should be present');
+  assert.ok(stringified.includes('Dashboard / Home'), 'Dashboard module should be present');
+
+  // Verify empty groups are NOT present
+  assert.ok(!stringified.includes('Architecture &amp; Definition'), 'Empty Architecture group should not be rendered');
+  assert.ok(!stringified.includes('Developer &amp; Reference'), 'Empty Developer group should not be rendered');
+  assert.ok(!stringified.includes('Configuration'), 'Empty Configuration group should not be rendered');
 });

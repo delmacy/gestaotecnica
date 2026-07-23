@@ -16,7 +16,8 @@ The following artifacts have been created and merged during the CL-01 preparator
 - [CL-01-007: Risk Triage](../operations/VERTICAL_PHASE_RISK_REGISTER.md)
 - [CL-01-008: Analytics Plan](CL-01-ANALYTICS-PLAN.md)
 - [CL-01-009: Customer-Ready Definition](CL-01-CUSTOMER-READY-DEFINITION.md)
-- [CL-01-010: Launch Index](CL-01-LAUNCH-EVIDENCE-INDEX.md) (This document)
+- [CL-01-010: Alpha Dataset](CL-01-ALPHA-DATASET.md)
+- [CL-01-011: Launch Index](CL-01-LAUNCH-EVIDENCE-INDEX.md) (This document)
 
 ## Gate Status Matrix
 
@@ -31,6 +32,7 @@ The following artifacts have been created and merged during the CL-01 preparator
 | **Risk Triage** | [VERTICAL_PHASE_RISK_REGISTER.md](../operations/VERTICAL_PHASE_RISK_REGISTER.md) | `alpha_ready` | V-01 and MVP risks triaged. |
 | **Analytics** | [CL-01-ANALYTICS-PLAN.md](CL-01-ANALYTICS-PLAN.md) | `alpha_ready` | Activation metrics defined. |
 | **Readiness Definition** | [CL-01-CUSTOMER-READY-DEFINITION.md](CL-01-CUSTOMER-READY-DEFINITION.md) | `alpha_ready` | Deterministic gate states established. |
+| **Alpha Dataset** | [CL-01-ALPHA-DATASET.md](CL-01-ALPHA-DATASET.md) | `alpha_ready` | Demo data credentials and boundaries documented. |
 | **Handoff** | [CL-01-LAUNCH-EVIDENCE-INDEX.md](CL-01-LAUNCH-EVIDENCE-INDEX.md) | `draft` | Index generated. Transitions to alpha_ready upon PR review. |
 
 ## Do Not Release CL-02 Until

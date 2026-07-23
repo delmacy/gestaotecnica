@@ -8,7 +8,7 @@ Limit Vercel production promotions to at most one per hour while preserving GitH
 
 Keep Git preview deployments enabled for PR/branch validation when available. The hourly GitHub Actions workflow remains the controlled production path.
 
-The GitHub Actions workflow `.github/workflows/vercel-hourly-deploy.yml` builds a production candidate, deploys it first as a preview deployment, then promotes that same preview artifact to production.
+The GitHub Actions workflow `.github/workflows/vercel-hourly-deploy.yml` builds a preview candidate, deploys it as a preview deployment, then promotes that same preview artifact to production.
 
 ## GitHub Secret
 
@@ -28,7 +28,7 @@ The workflow already contains the Vercel org and project ids:
 - Skips deploy/promote when the same `main` commit was already deployed by this workflow.
 - Pulls production Vercel env vars.
 - Runs `npm run build` before deployment.
-- Runs `vercel build --prod`.
+- Runs `vercel build` to produce a preview-compatible prebuilt artifact.
 - Deploys the prebuilt artifact as a preview candidate with `vercel deploy --prebuilt`.
 - Promotes the candidate with `vercel promote <preview-url>`.
 

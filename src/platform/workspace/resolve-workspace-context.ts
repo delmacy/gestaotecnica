@@ -14,6 +14,7 @@ type ResolveWorkspaceContextInput = {
     name?: string;
   };
   source?: ExecutionSource;
+  environmentMode?: "real" | "synthetic" | "demo";
   scopes?: string[];
   correlationId?: string;
 };
@@ -97,6 +98,7 @@ export async function resolveWorkspaceContext(
       name: input.actor?.name,
     },
     source: input.source ?? "system",
+    environmentMode: input.environmentMode ?? "real",
     enabledModules: enabledModules.length > 0 ? enabledModules : fallbackEnabledModules,
     scopes: input.scopes ?? ["*"],
     correlationId: input.correlationId ?? createCorrelationId(),

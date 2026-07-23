@@ -31,6 +31,7 @@ function createMockContext(workspace: { id: string, key: string }, actorId: stri
       name: "Test User",
     },
     source: "ui",
+    environmentMode: "real",
     enabledModules: ["events"],
     scopes: ["*"],
     correlationId: `test-corr-${randomUUID()}`,
@@ -246,7 +247,7 @@ describe("EventWriter - Concurrent Idempotency", () => {
     };
 
     await assert.rejects(async () => {
-      await EventWriter.appendDomainEventInternal(invalidEvent as any, ctx1);
+      await EventWriter.appendDomainEventInternal(invalidEvent as unknown as Parameters<typeof EventWriter.appendDomainEventInternal>[0], ctx1);
     });
 
     const validEvent = {
@@ -265,14 +266,14 @@ describe("EventWriter - Concurrent Idempotency", () => {
       entityId: randomUUID(),
       payload: {},
     };
-    const badCtx = { ...ctx1, workspaceId: undefined } as any;
+    const badCtx = { ...ctx1, workspaceId: undefined } as unknown as WorkspaceContext;
 
     try {
         await EventWriter.appendDomainEventInternal(event, badCtx);
         assert.fail("Should have thrown MISSING_WORKSPACE_CONTEXT");
-    } catch (e: any) {
+    } catch (e: unknown) {
         assert.ok(e instanceof EventStoreError);
-        assert.strictEqual(e.code, "MISSING_WORKSPACE_CONTEXT");
+        assert.strictEqual((e as EventStoreError).code, "MISSING_WORKSPACE_CONTEXT");
     }
   });
 
@@ -288,24 +289,24 @@ describe("EventWriter - Concurrent Idempotency", () => {
     try {
         await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: "" }, ctx1);
         assert.fail("Should have thrown EMPTY_IDEMPOTENCY_KEY");
-    } catch (e: any) {
-        assert.strictEqual(e.code, "EMPTY_IDEMPOTENCY_KEY");
+    } catch (e: unknown) {
+        assert.strictEqual((e as EventStoreError).code, "EMPTY_IDEMPOTENCY_KEY");
     }
 
     // Invalid type
     try {
-        await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: 123 as any }, ctx1);
+        await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: 123 as unknown as string }, ctx1);
         assert.fail("Should have thrown INVALID_IDEMPOTENCY_KEY_TYPE");
-    } catch (e: any) {
-        assert.strictEqual(e.code, "INVALID_IDEMPOTENCY_KEY_TYPE");
+    } catch (e: unknown) {
+        assert.strictEqual((e as EventStoreError).code, "INVALID_IDEMPOTENCY_KEY_TYPE");
     }
 
     // Too long
     try {
         await EventWriter.appendDomainEventInternal({ ...eventBase, idempotencyKey: "a".repeat(256) }, ctx1);
         assert.fail("Should have thrown IDEMPOTENCY_KEY_TOO_LONG");
-    } catch (e: any) {
-        assert.strictEqual(e.code, "IDEMPOTENCY_KEY_TOO_LONG");
+    } catch (e: unknown) {
+        assert.strictEqual((e as EventStoreError).code, "IDEMPOTENCY_KEY_TOO_LONG");
     }
   });
 
@@ -319,7 +320,7 @@ describe("EventWriter - Concurrent Idempotency", () => {
       workspaceId: maliciousWorkspaceId, // Attempt to override
     };
 
-    const result = await EventWriter.appendDomainEvent(event as any, ctx1);
+    const result = await EventWriter.appendDomainEvent(event as unknown as Parameters<typeof EventWriter.appendDomainEvent>[0], ctx1);
     assert.strictEqual(result.workspaceId, ctx1.workspaceId);
     assert.notStrictEqual(result.workspaceId, maliciousWorkspaceId);
   });
@@ -356,9 +357,9 @@ describe("EventWriter - Concurrent Idempotency", () => {
     try {
         await EventWriter.appendDomainEvent(event2, ctx1);
         assert.fail("Should have rejected invalid 36-char string");
-    } catch (e: any) {
+    } catch (e: unknown) {
         assert.ok(e instanceof EventStoreError);
-        assert.strictEqual(e.code, "INVALID_ENTITY_ID");
+        assert.strictEqual((e as EventStoreError).code, "INVALID_ENTITY_ID");
     }
 
     // Case 3: Short invalid string -> Should throw INVALID_ENTITY_ID
@@ -371,9 +372,9 @@ describe("EventWriter - Concurrent Idempotency", () => {
     try {
         await EventWriter.appendDomainEvent(event3, ctx1);
         assert.fail("Should have rejected short string");
-    } catch (e: any) {
+    } catch (e: unknown) {
         assert.ok(e instanceof EventStoreError);
-        assert.strictEqual(e.code, "INVALID_ENTITY_ID");
+        assert.strictEqual((e as EventStoreError).code, "INVALID_ENTITY_ID");
     }
 
     // Case 4: Invalid Actor ID in context
@@ -387,9 +388,9 @@ describe("EventWriter - Concurrent Idempotency", () => {
     try {
         await EventWriter.appendDomainEvent(event4, badActorCtx);
         assert.fail("Should have rejected invalid actorId in context");
-    } catch (e: any) {
+    } catch (e: unknown) {
         assert.ok(e instanceof EventStoreError);
-        assert.strictEqual(e.code, "INVALID_ACTOR_ID");
+        assert.strictEqual((e as EventStoreError).code, "INVALID_ACTOR_ID");
     }
 
     // Verify zero lines persisted for failures
@@ -411,6 +412,6 @@ describe("EventWriter - Concurrent Idempotency", () => {
     assert.ok(!json.cause, "JSON representation should not include cause");
 
     // 3. Ensure it is accessible programmatically for internal debugging
-    assert.deepStrictEqual((error as any).cause, { secret: "db_detail" });
+    assert.deepStrictEqual((error as unknown as Record<string, unknown>).cause, { secret: "db_detail" });
   });
 });

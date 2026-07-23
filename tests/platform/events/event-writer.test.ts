@@ -126,7 +126,7 @@ describe("EventWriter", () => {
     };
 
     await assert.rejects(async () => {
-      await EventWriter.appendDomainEvent(invalidEvent as any, ctx1);
+      await EventWriter.appendDomainEvent(invalidEvent as unknown as Parameters<typeof EventWriter.appendDomainEvent>[0], ctx1);
     });
   });
 

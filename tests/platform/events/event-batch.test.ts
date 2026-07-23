@@ -99,14 +99,14 @@ describe("EventWriter - Transactional Batch", () => {
     }));
     await assert.rejects(
       EventWriter.appendDomainEventBatch(batch, ctx1),
-      (err: any) => err instanceof EventStoreError && err.code === "BATCH_LIMIT_EXCEEDED"
+      (err: unknown) => err instanceof EventStoreError && err.code === "BATCH_LIMIT_EXCEEDED"
     );
   });
 
   it("should reject empty batch", async () => {
     await assert.rejects(
       EventWriter.appendDomainEventBatch([], ctx1),
-      (err: any) => err instanceof EventStoreError && err.code === "EMPTY_BATCH"
+      (err: unknown) => err instanceof EventStoreError && err.code === "EMPTY_BATCH"
     );
   });
 
@@ -115,7 +115,7 @@ describe("EventWriter - Transactional Batch", () => {
       { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} },
       { eventType: "valid", entityType: "ent", entityId: randomUUID(), payload: {} },
     ];
-    await assert.rejects(EventWriter.appendDomainEventBatch(batch as any, ctx1));
+    await assert.rejects(EventWriter.appendDomainEventBatch(batch as unknown as Parameters<typeof EventWriter.appendDomainEventBatch>[0], ctx1));
   });
 
   it("should fail and rollback if middle event is invalid", async () => {
@@ -124,7 +124,7 @@ describe("EventWriter - Transactional Batch", () => {
       { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} },
       { eventType: "valid2", entityType: "ent", entityId: randomUUID(), payload: {} },
     ];
-    await assert.rejects(EventWriter.appendDomainEventBatch(batch as any, ctx1));
+    await assert.rejects(EventWriter.appendDomainEventBatch(batch as unknown as Parameters<typeof EventWriter.appendDomainEventBatch>[0], ctx1));
   });
 
   it("should fail and rollback if last event is invalid", async () => {
@@ -132,7 +132,7 @@ describe("EventWriter - Transactional Batch", () => {
       { eventType: "valid1", entityType: "ent", entityId: randomUUID(), payload: {} },
       { eventType: "", entityType: "ent", entityId: randomUUID(), payload: {} },
     ];
-    await assert.rejects(EventWriter.appendDomainEventBatch(batch as any, ctx1));
+    await assert.rejects(EventWriter.appendDomainEventBatch(batch as unknown as Parameters<typeof EventWriter.appendDomainEventBatch>[0], ctx1));
   });
 
   it("should rollback all events if a database failure occurs mid-batch (trigger proof)", async () => {
@@ -179,7 +179,7 @@ describe("EventWriter - Transactional Batch", () => {
         // 6. Valide EventStoreError.code === "TRANSACTION_FAILURE"
         await assert.rejects(
             EventWriter.appendDomainEventBatch(batch, ctx1),
-            (err: any) => err instanceof EventStoreError && err.code === "TRANSACTION_FAILURE"
+            (err: unknown) => err instanceof EventStoreError && err.code === "TRANSACTION_FAILURE"
         );
 
     } finally {
@@ -200,28 +200,28 @@ describe("EventWriter - Transactional Batch", () => {
 
   it("should reject if workspace context is missing", async () => {
     await assert.rejects(
-      EventWriter.appendDomainEventBatch([{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {} }], {} as any),
-      (err: any) => err instanceof EventStoreError && err.code === "MISSING_WORKSPACE_CONTEXT"
+      EventWriter.appendDomainEventBatch([{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {} }], {} as unknown as WorkspaceContext),
+      (err: unknown) => err instanceof EventStoreError && err.code === "MISSING_WORKSPACE_CONTEXT"
     );
   });
 
   it("should reject if actor ID is invalid UUID", async () => {
-    const badCtx = { ...ctx1, actor: { ...ctx1.actor, id: "not-a-uuid" } } as any;
+    const badCtx = { ...ctx1, actor: { ...ctx1.actor, id: "not-a-uuid" } } as unknown as WorkspaceContext;
     await assert.rejects(
       EventWriter.appendDomainEventBatch([{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {} }], badCtx),
-      (err: any) => err instanceof EventStoreError && err.code === "INVALID_ACTOR_ID"
+      (err: unknown) => err instanceof EventStoreError && err.code === "INVALID_ACTOR_ID"
     );
   });
 
   it("should ignore workspaceId in payload and use context instead", async () => {
-    const event: any = {
+    const event: unknown = {
         eventType: "e",
         entityType: "ent",
         entityId: randomUUID(),
         payload: { workspaceId: "malicious-id" },
         workspaceId: "other-id"
     };
-    const results = await EventWriter.appendDomainEventBatch([event], ctx1);
+    const results = await EventWriter.appendDomainEventBatch([event as Parameters<typeof EventWriter.appendDomainEventBatch>[0][number]], ctx1);
     assert.strictEqual(results[0].workspaceId, ctx1.workspaceId);
   });
 
@@ -254,8 +254,8 @@ describe("EventWriter - Transactional Batch", () => {
     const resA = await EventWriter.appendDomainEventBatch(batchA, ctx1);
     const resB = await EventWriter.appendDomainEventBatch(batchB, ctx1);
 
-    const batchIdA = (resA[0].metadata as any).batchId;
-    const batchIdB = (resB[0].metadata as any).batchId;
+    const batchIdA = (resA[0].metadata as Record<string, unknown>).batchId;
+    const batchIdB = (resB[0].metadata as Record<string, unknown>).batchId;
 
     assert.ok(batchIdA);
     assert.ok(batchIdB);
@@ -280,7 +280,7 @@ describe("EventWriter - Transactional Batch", () => {
       const results = await EventWriter.appendDomainEventBatch(batch, ctx1);
       assert.strictEqual(results[0].correlationId, ctx1.correlationId);
 
-      const ctxNoCorr = { ...ctx1, correlationId: "" } as any;
+      const ctxNoCorr = { ...ctx1, correlationId: "" } as unknown as WorkspaceContext;
       const results2 = await EventWriter.appendDomainEventBatch(batch, ctxNoCorr);
       assert.strictEqual(results2[0].correlationId, corrId);
   });
@@ -305,7 +305,7 @@ describe("EventWriter - Transactional Batch", () => {
     const results = await EventWriter.appendDomainEventBatch([event, event], ctx1);
     assert.strictEqual(results[0].id, results[1].id, "Should return same event ID for duplicate idempotency key in batch");
 
-    const results2 = await EventWriter.appendDomainEventBatch([event], ctx1);
+    const results2 = await EventWriter.appendDomainEventBatch([event as Parameters<typeof EventWriter.appendDomainEventBatch>[0][number]], ctx1);
     assert.strictEqual(results2[0].id, results[0].id, "Should return same event ID for duplicate idempotency key across batches");
   });
 
@@ -319,9 +319,9 @@ describe("EventWriter - Transactional Batch", () => {
     try {
         await EventWriter.appendDomainEventBatch([], ctx1);
         assert.fail("Should have thrown");
-    } catch (e: any) {
+    } catch (e: unknown) {
         assert.ok(e instanceof EventStoreError);
-        assert.strictEqual(e.code, "EMPTY_BATCH");
+        assert.strictEqual((e as EventStoreError).code, "EMPTY_BATCH");
     }
   });
 });

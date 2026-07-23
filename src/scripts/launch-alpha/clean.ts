@@ -77,9 +77,15 @@ export async function cleanLaunchAlpha(
   await dbPlatform.delete(modules).where(inArray(modules.key, moduleKeys));
   console.log(`[Clean] Deleted modules`);
 
+  // 5.5 Delete Workspace Members
+  if (wsIds.length > 0) {
+    await dbRuntime.delete(workspaceMembers).where(inArray(workspaceMembers.workspaceId, wsIds));
+    console.log(`[Clean] Deleted workspace members`);
+  }
+
   // 6. Delete Users
   const legacyUsersToDelete = await dbRuntime.select({ id: legacyUsers.id }).from(legacyUsers).where(inArray(legacyUsers.email, userEmails));
-  const legacyUserIds = legacyUsersToDelete.map(u => u.id);
+  const legacyUserIds = legacyUsersToDelete.map((u: { id: string }) => u.id);
   if (legacyUserIds.length > 0) {
     await dbRuntime.delete(authAccounts).where(inArray(authAccounts.userId, legacyUserIds));
     await dbRuntime.delete(legacyUsers).where(inArray(legacyUsers.email, userEmails));
@@ -87,12 +93,6 @@ export async function cleanLaunchAlpha(
 
   await dbRuntime.delete(usersTable).where(inArray(usersTable.email, userEmails));
   console.log(`[Clean] Deleted users`);
-
-  // 6.5 Delete Workspace Members
-  if (wsIds.length > 0) {
-    await dbRuntime.delete(workspaceMembers).where(inArray(workspaceMembers.workspaceId, wsIds));
-    console.log(`[Clean] Deleted workspace members`);
-  }
 
   // 7. Delete Workspaces
   await dbRuntime.delete(workspaces).where(inArray(workspaces.key, workspaceKeys));

@@ -11,7 +11,6 @@ export interface NavigationModule {
 }
 
 const GROUP_A_ROUTES: Array<Omit<NavigationModule, "status">> = [
-  { href: "/builder/commercial-map", label: "Commercial Map", iconName: "Map", moduleKey: "workspace" },
   { href: "/builder", label: "Dashboard / Home", iconName: "Home" },
   { href: "/builder/tasker", label: "Tasker", iconName: "ListTodo", moduleKey: "work-items" },
   { href: "/builder/capabilities", label: "Capabilities", iconName: "Bot", moduleKey: "registry" },

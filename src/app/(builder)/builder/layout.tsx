@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BuilderShell } from "@/components/builder/shell/BuilderShell";
 import { resolveWorkspaceContext } from "@/platform/workspace";
+import { resolveNavigationInventory } from "@/platform/builder/contracts/navigation-inventory";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -14,9 +15,10 @@ export default async function BuilderLayout({
   children: React.ReactNode;
 }) {
   const context = await resolveWorkspaceContext({ source: "ui" });
+  const inventory = resolveNavigationInventory(context);
 
   return (
-    <BuilderShell enabledModuleKeys={context.enabledModules}>
+    <BuilderShell context={context} inventory={inventory}>
       {children}
     </BuilderShell>
   );

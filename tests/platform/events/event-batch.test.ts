@@ -30,6 +30,7 @@ function createMockContext(workspace: { id: string, key: string }): WorkspaceCon
       name: "Test User",
     },
     source: "ui",
+    environmentMode: "real",
     enabledModules: ["events"],
     scopes: ["*"],
     correlationId: `test-corr-${randomUUID()}`,

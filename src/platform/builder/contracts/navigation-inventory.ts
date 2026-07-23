@@ -41,7 +41,7 @@ export function resolveNavigationInventory(context: WorkspaceContext): {
     const isEnabled = !route.moduleKey || context.enabledModules.includes(route.moduleKey);
     return {
       ...route,
-      status: isEnabled ? "active" : "blocked",
+      status: (isEnabled ? "active" : "blocked") as ModuleStatus,
     };
   }).filter((route) => route.status === "active");
 

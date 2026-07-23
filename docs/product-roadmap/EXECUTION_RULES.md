@@ -40,9 +40,12 @@ Qualquer arquivo fora de `Diretórios permitidos` deve ser removido, salvo autor
 
 - Ambiente obrigatório: usar Node.js 24.x para instalar dependências, rodar scripts,
   testes, typecheck e build. Antes de qualquer implementação, executar
-  `node --version` e registrar o resultado nas evidências da task/PR. Node.js 20
-  ou 22 não é aceito como ambiente de execução para novas tasks Jules; se o
-  ambiente montar em outra versão, parar e reportar blocker em vez de prosseguir.
+  `node --version` e registrar o resultado nas evidências da task/PR. Se o
+  ambiente iniciar com Node.js 20 ou 22, o agente deve primeiro tentar ativar
+  Node.js 24 com o gerenciador disponível no ambiente (`nvm`, `fnm`, `volta`,
+  `mise`, `asdf`) ou instalar/usar Node.js 24 de forma local e não destrutiva.
+  Só registrar blocker se a troca para Node.js 24 falhar, incluindo os comandos
+  tentados e a saída exata.
 - Não confiar em tenant, actor, role ou ownership vindos de input público.
 - Não criar fallback global para contornar falta de contexto.
 - Não duplicar domínio existente sob outro nome.

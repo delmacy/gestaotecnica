@@ -5,6 +5,7 @@ import { usersTable } from "../../db/runtime/schema/identity";
 import { organizations, workspaces } from "../../db/runtime/schema/workspace";
 import { modules, capabilities, moduleCapabilities } from "../../db/platform/schema/registry";
 import { processCandidates } from "../../db/platform/schema/candidates";
+import { workItems } from "../../db/legacy/schema";
 import { processDefinitions, processVersions, processInstances, processPayloads, forms, fieldDefinitions, formFields } from "../../db/runtime/schema/workflow";
 import { workspaceModuleConfigs } from "../../db/legacy/schema";
 import { WORKFLOW_SEED, WORKFLOW_SEED_NAMESPACE } from "./constants";
@@ -194,6 +195,29 @@ export async function seedWorkflowSeed(
       console.log(`[Seed] Created Process Payload for Instance`);
   } else {
       console.log(`[Seed] Process Instance already exists: ${existingInstances[0].id}`);
+  }
+
+
+  // 7.5. Work Items
+  let workItemId: string;
+  const existingWorkItems = await dbRuntime.select().from(workItems).where(eq(workItems.title, "Workflow Seed Demanda"));
+  if (existingWorkItems.length === 0) {
+      const [wi] = await dbRuntime.insert(workItems).values({
+          title: "Workflow Seed Demanda",
+          type: "solicitacao",
+          status: "open",
+          priority: "medium",
+
+          payload: {
+              source: "seed_workflow_seed",
+              real_data: true
+          }
+      }).returning({ id: workItems.id });
+      workItemId = wi.id;
+      console.log(`[Seed] Created Work Item: ${workItemId}`);
+  } else {
+      workItemId = existingWorkItems[0].id;
+      console.log(`[Seed] Work Item already exists: ${workItemId}`);
   }
 
   // 8. Forms

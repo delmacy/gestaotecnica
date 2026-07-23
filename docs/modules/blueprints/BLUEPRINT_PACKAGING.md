@@ -31,5 +31,10 @@ The **`platform-blueprints-channels`** module acts as the secure boundary for bl
 - **Dry-run**: Import requests support a `dryRun` boolean flag (defaulting to safe/true) to simulate compatibility checks without side effects.
 - **Redaction**: Export requests can specify redaction options to strip sensitive fields before returning the payload, ensuring runtime customer data or secrets are never exposed.
 
+## Federated Instance Projection
+Blueprint packages are the preferred portability unit for future federated instances. A parent, delegated, emancipated, or peer instance should exchange capabilities, forms, views, workflows, policies, and seed metadata through this package boundary rather than through direct database access.
+
+Future federation work must add provenance fields such as source instance, issuer, federation contract, signature, compatibility matrix, and revocation status before packages can be trusted across installations. Runtime customer data and secrets remain excluded unless a separate, explicit export/import contract authorizes them.
+
 ## Non-Goals
 - **Import Execution**: The actual execution or hydration of importing blueprint packages into the runtime system or database is strictly considered future work.

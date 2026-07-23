@@ -14,6 +14,7 @@ O System Builder é uma plataforma orientada a processos para modelar, configura
 - **Capability:** módulo instalável com contrato, versão, dependências e limites próprios.
 - **Process Definition:** modelo versionado e publicável.
 - **Process Instance:** execução concreta de um processo publicado.
+- **Federated Instance:** instalação independente ou semi-independente do System Builder, vinculada por contrato explícito de confiança, suporte, distribuição de pacotes ou portabilidade.
 
 ## Decisões arquiteturais vigentes
 
@@ -27,6 +28,8 @@ O System Builder é uma plataforma orientada a processos para modelar, configura
 8. Cada capability é responsável por suas próprias entidades e regras.
 9. Integrações entre módulos devem ocorrer por contratos, adapters, events ou services públicos, evitando imports internos cruzados.
 10. Publicações e migrações devem ser versionadas, validadas, reversíveis e observáveis.
+11. Federação de instâncias é uma camada acima de tenant/workspace: nenhuma instância remota herda superuser da plataforma principal e todo vínculo precisa de contrato, escopo, revogação e auditoria.
+12. Clientes devem poder operar como instância gerenciada, delegada, emancipada ou federada sem perder portabilidade de blueprints, dados autorizados e histórico essencial.
 
 ## Estado atual resumido
 
@@ -60,3 +63,7 @@ Uma task funcional só é considerada concluída quando possui:
 ## Prioridade comercial
 
 O objetivo das próximas sprints é fechar uma vertical comercial completa antes de ampliar o catálogo de módulos. A ordem prioritária é: governança → eventos → onboarding → capabilities → Builder → módulos → integração → persistência → observabilidade → distribuição.
+
+## Escopo futuro de federação
+
+A projeção de federação de instâncias está documentada em `FEDERATED_INSTANCE_SCOPE.md`. Ela deve ser tratada como trilha futura gated: primeiro fechar o caminho de dados reais e a navegação completa; depois materializar contratos de `Instance Registry`, `Federation Contract`, distribuição de blueprints, suporte remoto, emancipação/export e observabilidade federada.

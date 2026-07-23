@@ -50,3 +50,9 @@ O executor deve receber somente o ID e o caminho da sprint. Exemplo:
 ## Índice rápido
 
 Consulte `TASK_INDEX.md` para localizar qualquer task por ID, sprint, tipo ou dependência.
+
+## Trilhas futuras
+
+- `FEDERATED_INSTANCE_SCOPE.md` projeta a abertura de escopo para instâncias federadas, filhas gerenciadas, operadores delegados, emancipação de clientes, portabilidade por blueprints e suporte remoto auditável. Essa trilha é futura e gated: não deve iniciar antes do caminho de dados reais, UX Navigation, RBAC, auditoria e blueprint packaging estarem maduros.
+- `UX_NAVIGATION_EXTENSION_TASKS.md` adiciona duas sprints seriais de 50 tasks (`UX-NAV-06` e `UX-NAV-07`) para contrato visual de navegação, Capability Marketplace, simulação antes de publicar, Blueprint Diff, Policy Studio, Instance Registry UX, suporte remoto, Data Lineage, Instance Handoff Pack e Exit Readiness.
+- `REAL_DATA_PATH_POST_UX_REMODEL.md` remodela `RD-03` a `RD-06` para dependerem de `UX-NAV-07` e provarem dados reais dentro da experiencia projetada, nao em telas soltas.

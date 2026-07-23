@@ -16,10 +16,7 @@ on:
     - cron: "*/20 * * * *"
   workflow_run:
     workflows:
-      - "Agent Work Governance"
-      - "Architecture Check"
       - "Phase 2 Environment Validation"
-      - "Schema CI Gate"
     types:
       - completed
 
@@ -119,18 +116,82 @@ jobs:
               "$@"
           }
 
+          active_task_count() {
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          active_statuses = {
+              "ready",
+              "jules_running",
+              "pr_open",
+              "opencode_reviewing",
+              "approved_waiting_merge",
+              "changes_requested",
+              "review_failed",
+              "needs_codex",
+              "failed",
+          }
+          state = json.loads(Path("state/state.json").read_text())
+          active = state.get("sprintPlan", {}).get("activeSprint")
+          sprint = active.get("id") if isinstance(active, dict) else active
+          count = 0
+          for task in state.get("tasks", {}).values():
+              if task.get("sprint") == sprint and task.get("status") in active_statuses:
+                  count += 1
+          print(count)
+          PY
+          }
+
+          ready_task_count() {
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          state = json.loads(Path("state/state.json").read_text())
+          active = state.get("sprintPlan", {}).get("activeSprint")
+          sprint = active.get("id") if isinstance(active, dict) else active
+          print(sum(1 for task in state.get("tasks", {}).values() if task.get("sprint") == sprint and task.get("status") == "ready"))
+          PY
+          }
+
+          maybe_start_single_ready_task() {
+            active_count="$(active_task_count)"
+            ready_count="$(ready_task_count)"
+
+            if [ "$active_count" -eq 0 ]; then
+              echo "No active task was released by governor tick."
+              return 0
+            fi
+
+            if [ "$active_count" -eq 1 ] && [ "$ready_count" -eq 1 ]; then
+              run_in_governor_container python3 scripts/supervisor.py flow-heartbeat
+              return 0
+            fi
+
+            echo "::warning::Governor found $active_count active task(s) after tick ($ready_count ready). Skipping session creation to preserve serial execution."
+          }
+
           case "$GOVERNOR_MODE" in
             dry-run)
               run_in_governor_container python3 scripts/opencode_governor.py tick --dry-run
               ;;
             tick)
+              if [ "$(active_task_count)" -gt 0 ]; then
+                echo "Active task already exists before tick; skipping governor release to avoid duplicate Jules sessions."
+                exit 0
+              fi
               run_in_governor_container python3 scripts/opencode_governor.py tick
-              run_in_governor_container python3 scripts/supervisor.py flow-heartbeat
+              maybe_start_single_ready_task
               ;;
             heartbeat)
               run_in_governor_container python3 scripts/supervisor.py flow-heartbeat
+              if [ "$(active_task_count)" -gt 0 ]; then
+                echo "Active task exists after refresh; skipping governor release/session creation."
+                exit 0
+              fi
               run_in_governor_container python3 scripts/opencode_governor.py tick
-              run_in_governor_container python3 scripts/supervisor.py flow-heartbeat
+              maybe_start_single_ready_task
               ;;
             *)
               echo "::error::Unsupported GOVERNOR_MODE=$GOVERNOR_MODE"

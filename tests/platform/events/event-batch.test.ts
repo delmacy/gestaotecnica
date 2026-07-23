@@ -99,14 +99,14 @@ describe("EventWriter - Transactional Batch", () => {
     }));
     await assert.rejects(
       EventWriter.appendDomainEventBatch(batch, ctx1),
-      (err: unknown) => err instanceof EventStoreError && err.code === "BATCH_LIMIT_EXCEEDED"
+      (err: unknown) => err instanceof EventStoreError && (err as EventStoreError).code === "BATCH_LIMIT_EXCEEDED"
     );
   });
 
   it("should reject empty batch", async () => {
     await assert.rejects(
       EventWriter.appendDomainEventBatch([], ctx1),
-      (err: unknown) => err instanceof EventStoreError && err.code === "EMPTY_BATCH"
+      (err: unknown) => err instanceof EventStoreError && (err as EventStoreError).code === "EMPTY_BATCH"
     );
   });
 
@@ -179,7 +179,7 @@ describe("EventWriter - Transactional Batch", () => {
         // 6. Valide EventStoreError.code === "TRANSACTION_FAILURE"
         await assert.rejects(
             EventWriter.appendDomainEventBatch(batch, ctx1),
-            (err: unknown) => err instanceof EventStoreError && err.code === "TRANSACTION_FAILURE"
+            (err: unknown) => err instanceof EventStoreError && (err as EventStoreError).code === "TRANSACTION_FAILURE"
         );
 
     } finally {
@@ -201,7 +201,7 @@ describe("EventWriter - Transactional Batch", () => {
   it("should reject if workspace context is missing", async () => {
     await assert.rejects(
       EventWriter.appendDomainEventBatch([{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {} }], {} as unknown as WorkspaceContext),
-      (err: unknown) => err instanceof EventStoreError && err.code === "MISSING_WORKSPACE_CONTEXT"
+      (err: unknown) => err instanceof EventStoreError && (err as EventStoreError).code === "MISSING_WORKSPACE_CONTEXT"
     );
   });
 
@@ -209,7 +209,7 @@ describe("EventWriter - Transactional Batch", () => {
     const badCtx = { ...ctx1, actor: { ...ctx1.actor, id: "not-a-uuid" } } as unknown as WorkspaceContext;
     await assert.rejects(
       EventWriter.appendDomainEventBatch([{ eventType: "e", entityType: "ent", entityId: randomUUID(), payload: {} }], badCtx),
-      (err: unknown) => err instanceof EventStoreError && err.code === "INVALID_ACTOR_ID"
+      (err: unknown) => err instanceof EventStoreError && (err as EventStoreError).code === "INVALID_ACTOR_ID"
     );
   });
 
@@ -261,8 +261,8 @@ describe("EventWriter - Transactional Batch", () => {
     assert.ok(batchIdB);
     assert.notStrictEqual(batchIdA, batchIdB);
 
-    const recoveredA = await EventWriter.getBatch(batchIdA, ctx1);
-    const recoveredB = await EventWriter.getBatch(batchIdB, ctx1);
+    const recoveredA = await EventWriter.getBatch(batchIdA as string, ctx1);
+    const recoveredB = await EventWriter.getBatch(batchIdB as string, ctx1);
 
     assert.strictEqual(recoveredA.length, 2);
     assert.strictEqual(recoveredA[0].payload.i, 0);

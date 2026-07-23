@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getDb } from "@/db";
 import { workspaces } from "@/db/runtime/schema/workspace";
 import { workspaceModuleConfigs } from "@/db/schema";
@@ -11,11 +11,11 @@ import {
 import { createPlatformError } from "@/platform/errors";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { workspaceId: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ workspaceId: string }> }
 ) {
   try {
-    const { workspaceId } = params;
+    const { workspaceId } = await params;
     const db = getDb();
 
     // 1. Verify workspace exists

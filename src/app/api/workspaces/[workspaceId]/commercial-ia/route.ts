@@ -8,7 +8,7 @@ import {
   type CommercialCapability,
   type CapabilityStatus,
 } from "@/platform/commercial/contracts/commercial-ia-map";
-import { ErrorFactory } from "@/platform/errors";
+import { createPlatformError } from "@/platform/errors";
 
 export async function GET(
   request: Request,
@@ -39,11 +39,10 @@ export async function GET(
       .where(eq(workspaceModuleConfigs.workspaceId, workspace.id));
 
     const activeKeys = new Set(
-      moduleConfigs.filter((m) => m.isEnabled).map((m) => m.moduleKey)
+      moduleConfigs.filter((m: { isEnabled: boolean | null }) => m.isEnabled).map((m: { moduleKey: string }) => m.moduleKey)
     );
 
     // 3. Map to commercial capabilities contract
-    // We map known modules to commercial capabilities.
     const knownModules: Array<Omit<CommercialCapability, "status"> & { isCommercial: boolean }> = [
       { id: "mod_workforce", name: "Workforce Configuration", description: "Manage workforce roles and permissions", category: "Core Operations", isCommercial: true },
       { id: "mod_inventory", name: "Inventory Management", description: "Track items, stock, and locations", category: "Core Operations", isCommercial: true },
@@ -52,20 +51,16 @@ export async function GET(
     ];
 
     const activeCapabilities: CommercialCapability[] = knownModules
-      .filter(m => m.isCommercial)
-      .map((mod) => {
-        // Map abstract module IDs to underlying config keys.
-        // For simplicity, we use the id prefix as the key match or exact matches if mapped.
+      .filter((m: Omit<CommercialCapability, "status"> & { isCommercial: boolean }) => m.isCommercial)
+      .map((mod: Omit<CommercialCapability, "status"> & { isCommercial: boolean }) => {
         let isEnabled = false;
 
-        // mapping logic for mock vs real module keys
         if (mod.id === "mod_workforce" && (activeKeys.has("workforce") || activeKeys.has("workspace"))) isEnabled = true;
         if (mod.id === "mod_inventory" && activeKeys.has("assets")) isEnabled = true;
         if (mod.id === "mod_approvals" && activeKeys.has("approvals")) isEnabled = true;
         if (mod.id === "mod_reports" && activeKeys.has("reports")) isEnabled = true;
 
         let status: CapabilityStatus = isEnabled ? "active" : "blocked";
-        // Optionally map logic for pending_setup, coming_soon if metadata exists
 
         return {
           id: mod.id,
@@ -93,10 +88,13 @@ export async function GET(
     return NextResponse.json(payload, { status: 200 });
 
   } catch (error: unknown) {
-    const errorEnvelope = ErrorFactory.createSystemError({
+    const errorEnvelope = createPlatformError({
+      code: "PLATFORM.API.INTERNAL_ERROR",
+      category: "unexpected",
+      severity: "error",
       message: "Failed to resolve commercial context",
-      cause: error,
-    });
+      details: {},
+    }, { id: crypto.randomUUID(), timestamp: new Date().toISOString() });
     return NextResponse.json(errorEnvelope, { status: 500 });
   }
 }

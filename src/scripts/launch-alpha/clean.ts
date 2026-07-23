@@ -2,11 +2,11 @@ import "dotenv/config";
 import { getPlatformDb, closeDatabaseConnections, getRuntimeDb } from "../../db";
 import { eq, inArray } from "drizzle-orm";
 import { usersTable } from "../../db/runtime/schema/identity";
-import { organizations, workspaces } from "../../db/runtime/schema/workspace";
+import { organizations, workspaces, workspaceMembers } from "../../db/runtime/schema/workspace";
 import { modules, capabilities, moduleCapabilities } from "../../db/platform/schema/registry";
 import { processCandidates } from "../../db/platform/schema/candidates";
 import { processDefinitions, processVersions, processInstances, processPayloads, actionExecutions, events, forms, fieldDefinitions, formFields } from "../../db/runtime/schema/workflow";
-import { workspaceModuleConfigs } from "../../db/legacy/schema";
+import { workspaceModuleConfigs, authAccounts, users as legacyUsers } from "../../db/legacy/schema";
 import { LAUNCH_ALPHA } from "./constants";
 
 
@@ -77,7 +77,20 @@ export async function cleanLaunchAlpha(
   await dbPlatform.delete(modules).where(inArray(modules.key, moduleKeys));
   console.log(`[Clean] Deleted modules`);
 
+  // 5.5 Delete Workspace Members
+  if (wsIds.length > 0) {
+    await dbRuntime.delete(workspaceMembers).where(inArray(workspaceMembers.workspaceId, wsIds));
+    console.log(`[Clean] Deleted workspace members`);
+  }
+
   // 6. Delete Users
+  const legacyUsersToDelete = await dbRuntime.select({ id: legacyUsers.id }).from(legacyUsers).where(inArray(legacyUsers.email, userEmails));
+  const legacyUserIds = legacyUsersToDelete.map((u: { id: string }) => u.id);
+  if (legacyUserIds.length > 0) {
+    await dbRuntime.delete(authAccounts).where(inArray(authAccounts.userId, legacyUserIds));
+    await dbRuntime.delete(legacyUsers).where(inArray(legacyUsers.email, userEmails));
+  }
+
   await dbRuntime.delete(usersTable).where(inArray(usersTable.email, userEmails));
   console.log(`[Clean] Deleted users`);
 

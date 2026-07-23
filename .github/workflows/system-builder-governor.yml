@@ -1,0 +1,148 @@
+name: System Builder Governor
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Governor mode to run"
+        required: true
+        default: "heartbeat"
+        type: choice
+        options:
+          - heartbeat
+          - tick
+          - dry-run
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_run:
+    workflows:
+      - "Agent Work Governance"
+      - "Architecture Check"
+      - "Phase 2 Environment Validation"
+      - "Schema CI Gate"
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: read
+  actions: read
+
+concurrency:
+  group: system-builder-governor
+  cancel-in-progress: false
+
+jobs:
+  governor:
+    name: Run governor heartbeat
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success' ||
+      github.event.workflow_run.conclusion == 'failure' ||
+      github.event.workflow_run.conclusion == 'cancelled'
+    env:
+      GOVERNOR_MODE: ${{ github.event.inputs.mode || 'heartbeat' }}
+      GOVERNOR_HOST: ${{ secrets.OPENCODE_GOVERNOR_HOST }}
+      GOVERNOR_USER: ${{ secrets.OPENCODE_GOVERNOR_USER }}
+      GOVERNOR_PASSWORD: ${{ secrets.OPENCODE_GOVERNOR_PASSWORD }}
+      GOVERNOR_PORT: ${{ secrets.OPENCODE_GOVERNOR_PORT || '22' }}
+      GOVERNOR_GITHUB_TOKEN: ${{ secrets.OPENCODE_GOVERNOR_GITHUB_TOKEN || github.token }}
+      GOVERNOR_JULES_API_KEY: ${{ secrets.OPENCODE_GOVERNOR_JULES_API_KEY }}
+      GOVERNOR_ROOT: "/opt/delmacy/system-builder-orchestrator"
+      GOVERNOR_CONTAINER: "opencode-supervisor"
+    steps:
+      - name: Validate governor secrets
+        run: |
+          missing=0
+          for name in GOVERNOR_HOST GOVERNOR_USER GOVERNOR_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is required for the GitHub-hosted governor heartbeat."
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Install SSH password client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Run remote governor
+        env:
+          SSHPASS: ${{ env.GOVERNOR_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          sshpass -e ssh \
+            -p "$GOVERNOR_PORT" \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o ConnectTimeout=20 \
+            "$GOVERNOR_USER@$GOVERNOR_HOST" \
+            "GITHUB_TOKEN='$GOVERNOR_GITHUB_TOKEN' JULES_API_KEY='$GOVERNOR_JULES_API_KEY' GOVERNOR_MODE='$GOVERNOR_MODE' GOVERNOR_ROOT='$GOVERNOR_ROOT' GOVERNOR_CONTAINER='$GOVERNOR_CONTAINER' bash -s" <<'REMOTE'
+          set -euo pipefail
+
+          cd "$GOVERNOR_ROOT"
+
+          if ! docker ps --format '{{.Names}}' | grep -Fxq "$GOVERNOR_CONTAINER"; then
+            echo "::error::Container $GOVERNOR_CONTAINER is not running."
+            exit 1
+          fi
+
+          if [ -f state/heartbeat.lock ]; then
+            lock_age="$(python3 - <<'PY'
+          import os, time
+          print(int(time.time() - os.path.getmtime("state/heartbeat.lock")))
+          PY
+          )"
+            if [ "$lock_age" -lt 900 ]; then
+              echo "Recent heartbeat lock is active (${lock_age}s); skipping to avoid duplicate Jules sessions."
+              exit 0
+            fi
+          fi
+
+          case "$GOVERNOR_MODE" in
+            dry-run)
+              docker exec "$GOVERNOR_CONTAINER" python3 scripts/opencode_governor.py tick --dry-run
+              ;;
+            tick)
+              docker exec \
+                -e GITHUB_TOKEN="$GITHUB_TOKEN" \
+                -e JULES_API_KEY="$JULES_API_KEY" \
+                "$GOVERNOR_CONTAINER" \
+                python3 scripts/opencode_governor.py tick
+              docker exec \
+                -e GITHUB_TOKEN="$GITHUB_TOKEN" \
+                -e JULES_API_KEY="$JULES_API_KEY" \
+                "$GOVERNOR_CONTAINER" \
+                python3 scripts/supervisor.py flow-heartbeat
+              ;;
+            heartbeat)
+              docker exec \
+                -e GITHUB_TOKEN="$GITHUB_TOKEN" \
+                -e JULES_API_KEY="$JULES_API_KEY" \
+                "$GOVERNOR_CONTAINER" \
+                python3 scripts/supervisor.py flow-heartbeat
+              docker exec \
+                -e GITHUB_TOKEN="$GITHUB_TOKEN" \
+                -e JULES_API_KEY="$JULES_API_KEY" \
+                "$GOVERNOR_CONTAINER" \
+                python3 scripts/opencode_governor.py tick
+              docker exec \
+                -e GITHUB_TOKEN="$GITHUB_TOKEN" \
+                -e JULES_API_KEY="$JULES_API_KEY" \
+                "$GOVERNOR_CONTAINER" \
+                python3 scripts/supervisor.py flow-heartbeat
+              ;;
+            *)
+              echo "::error::Unsupported GOVERNOR_MODE=$GOVERNOR_MODE"
+              exit 1
+              ;;
+          esac
+          REMOTE

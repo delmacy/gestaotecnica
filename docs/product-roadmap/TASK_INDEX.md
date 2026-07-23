@@ -61,3 +61,4 @@
 - A trilha futura `FED-*` está projetada em `FEDERATED_INSTANCE_SCOPE.md` e cobre federação de instâncias, distribuição de blueprints, suporte remoto, emancipação e observabilidade multi-instância. Ela ainda não altera a numeração das 50 tasks principais.
 - A extensão `UX_NAVIGATION_EXTENSION_TASKS.md` adiciona `UX-NAV-06` e `UX-NAV-07`, cada uma com 50 tasks seriais. Essas sprints aumentam o plano de UI/UX sem alterar a numeração `SB-S01` a `SB-S10`.
 - `REAL_DATA_PATH_POST_UX_REMODEL.md` registra que `RD-03` a `RD-06` devem ser remodeladas, mantendo IDs existentes, para consumir os contratos de UX e federacao antes de demonstrar o caminho de dados reais completo.
+- `GITHUB_GOVERNOR_RUNBOOK.md` registra a migração do despertar operacional do governor para GitHub Actions, mantendo a state machine do supervisor/governor como autoridade e reduzindo dependência do cron puro no servidor.

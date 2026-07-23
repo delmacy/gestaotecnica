@@ -1,5 +1,16 @@
 # Operator Runbook
 
+## GitHub Governor
+
+The System Builder governor can be triggered by GitHub Actions instead of relying only on the server cron. See `docs/operations/GITHUB_GOVERNOR_RUNBOOK.md`.
+
+Operational intent:
+
+1. GitHub checks complete for a Jules PR.
+2. `.github/workflows/system-builder-governor.yml` wakes the remote supervisor/governor.
+3. The existing state machine decides whether to comment, hold, merge, or release the next Jules session.
+4. A recent `state/heartbeat.lock` makes the workflow exit without duplicating work.
+
 ## Deploy
 *Deploy procedures pending operational evidence.*
 

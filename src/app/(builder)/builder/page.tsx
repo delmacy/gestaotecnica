@@ -1,12 +1,13 @@
-import { buildActiveModules, FUTURE_MODULES } from "@/components/builder/shell/shell-data";
+import { getIcon } from "@/components/builder/shell/shell-data";
 import { EmptyState } from "@/components/builder/shared/EmptyState";
 import Link from "next/link";
 import { Blocks } from "lucide-react";
 import { resolveWorkspaceContext } from "@/platform/workspace";
+import { resolveNavigationInventory } from "@/platform/builder/contracts/navigation-inventory";
 
 export default async function Page() {
   const context = await resolveWorkspaceContext({ source: "ui" });
-  const activeModules = buildActiveModules(context.enabledModules);
+  const inventory = resolveNavigationInventory(context);
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -16,20 +17,22 @@ export default async function Page() {
           Markdown primeiro. Contrato depois. Código por último.
         </p>
 
-        <div className="bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800 rounded-md p-4 flex items-start gap-3">
-            <span className="text-xl">⚠️</span>
-            <div>
-              <p className="font-semibold text-sm">Synthetic/Demo Mode Ativo</p>
-              <p className="text-sm mt-1">
-                Gestão Técnica e fontes reais permanecem em fase futura. Operações de banco de dados e autenticação real estão simuladas ou desabilitadas nesta visualização.
-              </p>
-            </div>
-        </div>
+        {(context.environmentMode === "demo" || context.environmentMode === "synthetic") && (
+          <div className="bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800 rounded-md p-4 flex items-start gap-3">
+              <span className="text-xl">⚠️</span>
+              <div>
+                <p className="font-semibold text-sm uppercase">{context.environmentMode} Mode Ativo</p>
+                <p className="text-sm mt-1">
+                  Gestão Técnica e fontes reais permanecem em fase futura. Operações de banco de dados e autenticação real estão simuladas ou desabilitadas nesta visualização.
+                </p>
+              </div>
+          </div>
+        )}
       </div>
 
       <div>
         <h2 className="text-xl font-semibold mb-4">Módulos Ativos</h2>
-        {activeModules.filter(m => m.href !== "/builder").length === 0 ? (
+        {inventory.activeModules.filter(m => m.href !== "/builder").length === 0 ? (
           <EmptyState
             icon={Blocks}
             title="Nenhum módulo ativo"
@@ -37,8 +40,8 @@ export default async function Page() {
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {activeModules.filter(m => m.href !== "/builder").map((module) => {
-              const Icon = module.icon;
+            {inventory.activeModules.filter(m => m.href !== "/builder").map((module) => {
+              const Icon = getIcon(module.iconName);
               return (
                 <Link
                   href={module.href}
@@ -50,7 +53,9 @@ export default async function Page() {
                   </div>
                   <div>
                     <h3 className="font-medium">{module.label}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Acesso Mockado</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {context.environmentMode === "real" ? "Acesso Autorizado" : "Acesso Mockado"}
+                    </p>
                   </div>
                 </Link>
               )
@@ -62,8 +67,8 @@ export default async function Page() {
       <div>
         <h2 className="text-xl font-semibold mb-4 text-muted-foreground">Módulos Futuros</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {FUTURE_MODULES.map((module) => {
-             const Icon = module.icon as React.ElementType;
+          {inventory.futureModules.map((module) => {
+             const Icon = getIcon(module.iconName);
              return (
                <div
                  key={module.label}

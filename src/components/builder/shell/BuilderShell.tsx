@@ -6,13 +6,26 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { ChevronRight, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { buildActiveModules } from "./shell-data";
 import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
 import { BuilderBreadcrumb } from "./breadcrumb-types";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import type { WorkspaceContext } from "@/platform/workspace";
+import type { resolveNavigationInventory } from "@/platform/builder/contracts/navigation-inventory";
+import { getIcon } from "./shell-data";
 
-export function BuilderShell({ children, enabledModuleKeys }: { children: React.ReactNode; enabledModuleKeys?: string[] }) {
-  const activeModules = buildActiveModules(enabledModuleKeys);
+export function BuilderShell({
+  children,
+  context,
+  inventory
+}: {
+  children: React.ReactNode;
+  context: WorkspaceContext;
+  inventory: ReturnType<typeof resolveNavigationInventory>;
+}) {
+  const activeModules: BuilderModule[] = inventory.activeModules.map(m => ({
+    ...m,
+    icon: getIcon(m.iconName)
+  }));
 
   const mobileNav = (
     <div className="md:hidden flex items-center">
@@ -29,21 +42,24 @@ export function BuilderShell({ children, enabledModuleKeys }: { children: React.
         <SheetContent side="left" className="w-64 p-0">
           <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
           <SheetDescription className="sr-only">Access modules and future features</SheetDescription>
-          <Sidebar activeModules={activeModules} className="flex border-none w-full md:flex" />
+          <Sidebar
+            activeModules={activeModules}
+            futureModules={inventory.futureModules.map(m => ({ ...m, icon: getIcon(m.iconName) }))}
+            className="flex border-none w-full md:flex"
+          />
         </SheetContent>
       </Sheet>
     </div>
   );
 
-
-  // Client component inside for breadcrumbs, or we can just render standard wrapper here
-  // We'll wrap children with a simple Client component for the Breadcrumb to work correctly
-
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <Topbar mobileNavigation={mobileNav} />
+      <Topbar mobileNavigation={mobileNav} context={context} />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar activeModules={activeModules} />
+        <Sidebar
+          activeModules={activeModules}
+          futureModules={inventory.futureModules.map(m => ({ ...m, icon: getIcon(m.iconName) }))}
+        />
         <main className="flex-1 overflow-y-auto bg-muted/10 relative">
 
           <BreadcrumbHeader activeModules={activeModules} />

@@ -2,11 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ACTIVE_MODULES, FUTURE_MODULES } from "./shell-data";
 import { cn } from "@/lib/utils";
 import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
 
-export function Sidebar({ activeModules = ACTIVE_MODULES, className }: { activeModules?: BuilderModule[], className?: string }) {
+export function Sidebar({
+  activeModules,
+  futureModules,
+  className
+}: {
+  activeModules: BuilderModule[];
+  futureModules: BuilderModule[];
+  className?: string
+}) {
   const pathname = usePathname();
   const activeModule = getActiveBuilderSection(pathname, activeModules);
 
@@ -52,7 +59,7 @@ export function Sidebar({ activeModules = ACTIVE_MODULES, className }: { activeM
             Future Modules
           </h3>
           <ul className="space-y-1">
-            {FUTURE_MODULES.map((module) => {
+            {futureModules.map((module) => {
               const Icon = module.icon as React.ElementType;
 
               return (

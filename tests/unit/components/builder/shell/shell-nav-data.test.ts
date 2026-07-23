@@ -1,38 +1,59 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { ACTIVE_MODULES, FUTURE_MODULES, buildActiveModules } from "../../../../../src/components/builder/shell/shell-data";
+import { resolveNavigationInventory } from "../../../../../src/platform/builder/contracts/navigation-inventory";
+import { getIcon } from "../../../../../src/components/builder/shell/shell-data";
 
 describe("Mobile Navigation Layout Data", () => {
-  test("ACTIVE_MODULES should not have missing labels or hrefs", () => {
-    ACTIVE_MODULES.forEach((module) => {
+  const mockContext = {
+    workspaceId: "ws-test",
+    workspaceKey: "test",
+    actor: { type: "user" as const },
+    source: "ui" as const,
+    environmentMode: "synthetic" as const,
+    enabledModules: [],
+    scopes: [],
+    correlationId: "test",
+  };
+
+  test("resolveNavigationInventory should return active modules with no missing labels or hrefs", () => {
+    const inventory = resolveNavigationInventory(mockContext);
+    inventory.activeModules.forEach((module) => {
       assert.ok(module.label, "Module label should not be empty");
       assert.ok(module.href, "Module href should not be empty");
+      assert.ok(getIcon(module.iconName), "Module should resolve to a valid icon");
     });
   });
 
-  test("buildActiveModules should include base modules", () => {
-    const modules = buildActiveModules(undefined);
-    assert.equal(modules.length, ACTIVE_MODULES.length);
+  test("resolveNavigationInventory should include base modules", () => {
+    const inventory = resolveNavigationInventory(mockContext);
+    assert.ok(inventory.activeModules.length > 0);
+    // Dashboard should always be present
+    const dashboard = inventory.activeModules.find(m => m.href === "/builder");
+    assert.ok(dashboard);
   });
 
-  test("buildActiveModules should inject persisted surfaces based on enabled keys", () => {
-    const enabledModules = ["governance-matrix", "operator-guide", "enterprise-map", "unknown-module"];
+  test("resolveNavigationInventory should inject persisted surfaces based on enabled keys", () => {
+    const contextWithModules = {
+      ...mockContext,
+      enabledModules: ["registry", "form-builder", "unknown-module"]
+    };
 
-    const modules = buildActiveModules(enabledModules);
-    const activePaths = modules.map(m => m.href);
+    const inventory = resolveNavigationInventory(contextWithModules);
+    const activePaths = inventory.activeModules.map(m => m.href);
 
-    assert.ok(activePaths.includes("/builder/governance-matrix"), "Should contain Governance Matrix");
-    assert.ok(activePaths.includes("/builder/operator-guide"), "Should contain Operator Guide");
-    assert.ok(activePaths.includes("/builder/enterprise-map"), "Should contain Enterprise Map");
+    assert.ok(activePaths.includes("/builder/capabilities"), "Should contain Capabilities (registry module)");
+    assert.ok(activePaths.includes("/builder/form-builder"), "Should contain Form Builder");
 
     // Unknown modules from context shouldn't crash or be added randomly if they don't map to a builder surface
     assert.ok(!activePaths.includes("/builder/unknown-module"));
   });
 
-  test("FUTURE_MODULES should not have missing labels or hrefs", () => {
-    FUTURE_MODULES.forEach((module) => {
+  test("future modules should not have missing labels or hrefs", () => {
+    const inventory = resolveNavigationInventory(mockContext);
+    inventory.futureModules.forEach((module) => {
       assert.ok(module.label, "Module label should not be empty");
       assert.ok(module.href, "Module href should not be empty");
+      assert.ok(getIcon(module.iconName), "Module should resolve to a valid icon");
     });
   });
 });

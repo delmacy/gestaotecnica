@@ -1,19 +1,39 @@
-# Blocker: CanonicalEventSchema Divergence
+# Blocker Report
 
-The task requires re-exporting or moving `CanonicalEventSchema`, `ActionExecutionSchema`, and `ProcessInstanceSchema` into the platform/workflow contract boundary, and strictly states: "no duplicate schema source is introduced".
+## Issue
 
-However, there is an unresolvable structural divergence between the two existing `CanonicalEventSchema` definitions in the codebase:
+The integration tests under `tests/integration/agent-work-launch.test.ts` require executing `seedWave01` which contains destructive DDL operations on the database. Specifically, `seedWave01` executes:
 
-1. `src/platform/events/canonical-contract.ts` defines:
-   - `id`
-   - `entityType`
-   - `entityId`
-   - `actorId`
+```typescript
+await db.execute(require("drizzle-orm").sql`DELETE FROM agent_work.agent_review_receipts`);
+```
 
-2. `src/platform/events/types/canonical-event.ts` defines:
-   - `eventId`
-   - `subjectType`
-   - `subjectId`
-   - `actor`
+This operation fails because the schema `agent_work` and the corresponding table `agent_review_receipts` do not exist in the database, even after running the normal `db:bootstrap` and `db:push` scripts.
 
-Attempting to consolidate these schemas or map their fields manually to resolve the duplicate schema sources causes compilation errors and broad regressions, which is forbidden. Therefore, I am filing this blocker and aborting code modifications for this task.
+The schema definitions and migrations for the `agent_work` module are missing or not properly executed in the automated testing pipeline using the provided `AGENT_WORK_TEST_DATABASE_URL`. It attempts to connect to local or remote postgres databases and fails or finds them without the proper schemas bootstrapped. The tables cannot be queried or mutated since the correct schema isn't fully bootstrapped on the test database instance, and no test database with superuser privileges is accessible.
+
+## Context
+
+Task RD-02-010-seed-closeout states:
+"If a real environment/database is unavailable, fail with exact blocker evidence instead of mocking success."
+
+The test failure is directly caused by a missing/inaccessible DB structure.
+
+## Evidence
+
+The execution of `npm run test:agent-work:launch` yields:
+```
+# Subtest: Agent Work Launch Integration
+    # Subtest: should execute full lifecycle for a package
+    not ok 1 - should execute full lifecycle for a package
+      ---
+      duration_ms: 135.066341
+      type: 'test'
+      location: '/app/tests/integration/agent-work-launch.test.ts:2:1695'
+      failureType: 'testCodeFailure'
+      error: |-
+        Failed query: DELETE FROM agent_work.agent_review_receipts
+        params:
+```
+
+Because of this blocker, we cannot fully test and close out the real seed gate successfully.

@@ -1,10 +1,11 @@
 import "dotenv/config";
 import { getPlatformDb, closeDatabaseConnections, getRuntimeDb } from "../../db";
-import { inArray } from "drizzle-orm";
+import { inArray, eq } from "drizzle-orm";
 import { usersTable } from "../../db/runtime/schema/identity";
 import { organizations, workspaces } from "../../db/runtime/schema/workspace";
 import { modules, capabilities, moduleCapabilities } from "../../db/platform/schema/registry";
 import { processCandidates } from "../../db/platform/schema/candidates";
+import { workItems } from "../../db/legacy/schema";
 import { processDefinitions, processVersions, processInstances, processPayloads, actionExecutions, events, forms, fieldDefinitions, formFields } from "../../db/runtime/schema/workflow";
 import { workspaceModuleConfigs } from "../../db/legacy/schema";
 import { WORKFLOW_SEED } from "./constants";
@@ -26,6 +27,9 @@ export async function cleanWorkflowSeed(
 
   if (wsIds.length > 0) {
     // 0. Delete Workflow Runtime Data
+        await dbRuntime.delete(workItems).where(eq(workItems.title, "Workflow Seed Demanda"));
+    console.log(`[Clean] Deleted workflow runtime data (workItems)`);
+
     await dbRuntime.delete(events).where(inArray(events.workspaceId, wsIds));
     await dbRuntime.delete(actionExecutions).where(inArray(actionExecutions.workspaceId, wsIds));
     await dbRuntime.delete(processPayloads).where(inArray(processPayloads.workspaceId, wsIds));

@@ -16,6 +16,16 @@ Triggers:
 - `schedule` every 20 minutes.
 - `workflow_run` after the repository's governance, architecture, environment, and schema gates complete.
 
+Delivery path:
+
+1. Jules opens or updates a PR.
+2. Repository checks run normally.
+3. The completed check workflow wakes `system-builder-governor.yml`.
+4. The workflow runs the existing supervisor/governor in the `opencode-supervisor` container.
+5. If OpenCode review approves and merge gates are clean, the workflow enables bot approval and auto-merge through the existing state machine.
+6. After merge, the next heartbeat/tick releases exactly one next serial task/session.
+7. If review requests changes, the supervisor comments on the PR with an `@jules` repair instruction and keeps the task out of the merge path.
+
 Concurrency:
 
 - The workflow uses a single global group, `system-builder-governor`.
@@ -46,6 +56,7 @@ Manual mode options:
 - Do not restart `paperclip-app`.
 - Do not create Jules sessions outside the supervisor/state machine.
 - Do not merge if the governor or supervisor marks the task as `needs_codex`, `failed`, `review_failed`, `changes_requested`, or `AWAITING_USER_FEEDBACK`.
+- Bot approval and auto-merge are only enabled inside the remote supervisor/governor process with `AUTO_APPROVE_WITH_BOT=true`, `AUTO_MERGE=true`, and `REQUIRE_MERGE_BEFORE_NEXT=true`; the workflow itself does not bypass review logic.
 - Questions from Jules must be answered through the supervisor log path or commented back to Jules/PR with concrete repair instructions.
 - If the remote container is not running, the workflow fails loudly instead of attempting infrastructure recovery.
 

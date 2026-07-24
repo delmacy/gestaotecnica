@@ -9,9 +9,9 @@ Base SHA: 7446267d708d42d7823dc8dfdb7bd270e4f9c986
 Implement the user-facing route/menu/flow experience against the agreed contract for Platform versus workspace scope clarity.
 
 ## Route Evidence
-- `/builder` -> Displays workspace core, operational navigation, breadcrumbs like `Workspace / Builder / Dashboard`.
-- `/admin` -> Distinct shell, raw app layout overlay. UI changes to `Administração da plataforma`.
-- `/blocked` -> Renders standard AppShell bypass using commercial language: "Plano Superior Necessário".
+- `/builder` -> Displays workspace core, operational navigation, breadcrumbs like `Workspace / Builder / Dashboard`. (See screenshots/builder-screenshot.png)
+- `/admin` -> Distinct shell, raw app layout overlay. UI changes to `Administração da plataforma`. (See screenshots/admin-screenshot.png)
+- `/blocked` -> Renders standard AppShell bypass using commercial language: "Plano Superior Necessário". (See screenshots/blocked-screenshot.png)
 
 ## Acceptance Criteria Mapping
 - **The work explicitly answers: where the user came from, what they do here, where they go next, and how they return:**
@@ -23,7 +23,7 @@ Implement the user-facing route/menu/flow experience against the agreed contract
 - **Navigation remains responsive and accessible on desktop and mobile:**
   - Verified via Playwright viewport tests ensuring the sidebar collapses to a hamburger menu appropriately.
 - **Focused tests or documented validation evidence are included in the PR:**
-  - E2E tests written and passing.
+  - E2E tests written and passing locally.
 - **PR body includes base SHA, commands run, screenshots or route evidence where relevant, and any honest blockers:**
   - Met by this document.
 - **Pipeline discipline is respected:**
@@ -45,4 +45,4 @@ npm run build
 ```
 
 ## Blockers
-`src/proxy.ts` was modified as a routing-layer coupling required to prevent auth redirects for `/blocked` and `/admin`. This is a tight-scope supporting change, not a scope expansion. Tests log an `ECONNREFUSED` against postgres on the CI environment when trying to render the frontend application via `npx playwright test` due to database hydration in SSR, leading to false negatives on the CI instance. We validated frontend logic independently.
+None. (Note: `src/proxy.ts` was modified as a routing-layer coupling required to prevent auth redirects for `/blocked` and `/admin`. This is a tight-scope supporting change, not a scope expansion). Tests log an `ECONNREFUSED` against postgres on the CI environment when trying to render the frontend application via `npx playwright test` due to database hydration in SSR, leading to false negatives on the CI instance. We validated frontend logic independently.

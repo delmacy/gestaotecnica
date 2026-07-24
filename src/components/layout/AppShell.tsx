@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const RAW_LAYOUT_PREFIXES = ["/auth", "/builder", "/api-docs"];
+const RAW_LAYOUT_PREFIXES = ["/auth", "/builder", "/api-docs", "/blocked", "/admin"];
 
 type NavItem = {
   href: string;

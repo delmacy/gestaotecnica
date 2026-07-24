@@ -4,8 +4,10 @@ import { authAccounts, authSessions, users } from "../../../src/db/legacy/schema
 import { eq, inArray } from "drizzle-orm";
 import { hashPassword, hashSessionToken } from "../../../src/modules/auth/crypto";
 import crypto from "crypto";
+import { allowAuthenticatedArea } from "../auth-helper";
 
 test.describe("Platform vs Workspace Scope Clarity", () => {
+  test.setTimeout(30000);
   const TEST_ID = crypto.randomUUID();
   const TEST_EMAIL = `admin-${TEST_ID}@scope.test`;
   const TEST_PASS = crypto.randomUUID();
@@ -95,6 +97,8 @@ test.describe("Platform vs Workspace Scope Clarity", () => {
   test("E2E Path Verification: User can switch between /builder and /admin and UI updates context", async ({ page }) => {
     // Go to workspace builder
     await page.goto("/builder");
+    // Ensure we await navigation completely
+    await page.waitForLoadState("networkidle");
     await expect(page.getByText("Workspace:", { exact: false })).toBeVisible();
 
     const breadcrumbNav = page.locator("nav").filter({ hasText: "Builder" }).first();
@@ -102,13 +106,15 @@ test.describe("Platform vs Workspace Scope Clarity", () => {
 
     // Go to platform admin
     await page.goto("/admin");
+    await page.waitForLoadState("networkidle");
     // Verify Platform Admin layout is distinct
     await expect(page.getByText("Administração da plataforma", { exact: false }).first()).toBeVisible();
   });
 
   test("Responsive Validation: Sidebar collapses appropriately on mobile in Admin", async ({ page }) => {
-    await page.goto("/admin");
     await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/admin");
+    await page.waitForLoadState("networkidle");
 
     const desktopAdminSidebar = page.locator("aside").first();
     await expect(desktopAdminSidebar).not.toBeVisible();

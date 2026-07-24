@@ -2,12 +2,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 
-export default async function BlockedPage({
+export default function BlockedPage({
   searchParams,
 }: {
-  searchParams: Promise<{ role?: string }>;
+  searchParams: { role?: string };
 }) {
-  const role = (await searchParams).role || "Premium";
+  const role = searchParams?.role || "Premium";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">

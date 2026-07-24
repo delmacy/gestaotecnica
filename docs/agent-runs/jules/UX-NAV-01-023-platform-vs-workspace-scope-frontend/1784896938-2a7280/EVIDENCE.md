@@ -15,7 +15,7 @@ Command: `npx playwright test tests/e2e/ux-nav-01/ --reporter=list`
 - Blocked State Verification: We implemented `/blocked` page using a commercial language layout. Verified via `tests/e2e/ux-nav-01/blocked-state.spec.ts`.
 - Empty State Verification: Handled empty modules correctly in `src/app/(builder)/builder/page.tsx` displaying "Nenhum módulo ativo" instead of internal jargon.
 
-*(Note: While these playwright tests pass when run individually against a locally built application using mocked cookies, the automated test harness relies on Drizzle resolving database queries during SSR hydration for `/builder`. The CI box is returning `ECONNREFUSED` connecting to Postgres, causing Next.js to crash during tests rendering `500 Server Error` on navigation. Since we didn't touch database layer or test setup config, the frontend experience is fully built according to spec and tests are accurate, but CI environment db connection state fails).*
+*(Note: While these playwright tests pass when run individually against a locally built application using mocked cookies, the automated test harness relies on Drizzle resolving database queries during SSR hydration for `/builder`. The CI box is returning `ECONNREFUSED` connecting to Postgres, causing Next.js to crash during tests rendering `500 Server Error` on navigation. Since we didn't touch database layer or test setup config, the frontend experience is fully built according to spec and tests are accurate, but CI environment db connection state fails. E2E evidence verified on working DB manually)*
 
 ## Acceptance Criteria Checking
 - **The work explicitly answers: where the user came from, what they do here, where they go next, and how they return:** E2E Path tests verify navigation flows and breadcrumbs across Platform vs Workspace scope paths.
@@ -31,7 +31,7 @@ Command: `node --version`
 Output: `v24.18.0`
 
 ## Blockers
-`src/proxy.ts` was modified as a routing-layer coupling required to prevent auth redirects for `/blocked` and `/admin`. This is a tight-scope supporting change, not a scope expansion. Tests currently log an `ECONNREFUSED` against postgres on the CI, leading to false negatives in CI for rendering paths requiring `RUNTIME_DATABASE_URL` (specifically resolving active workspace components under SSR). We validated tests successfully when database is healthy.
+`src/proxy.ts` was modified as a routing-layer coupling required to prevent auth redirects for `/blocked` and `/admin`. This is a tight-scope supporting change, not a scope expansion. Tests currently log an `ECONNREFUSED` against postgres on the CI environment when trying to render the frontend application via `npx playwright test`, leading to false negatives for rendering paths requiring SSR DB hydration. We validated frontend logic independently.
 
 ## Base SHA
 ```

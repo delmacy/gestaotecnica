@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { MOCK_CAPABILITIES } from "./capability-data";
+import { MOCK_CAPABILITIES } from "@/platform/capabilities/mock-data/capability-data";
 import {
   CapabilityCategory,
   CapabilityMvpPriority,

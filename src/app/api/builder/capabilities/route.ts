@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import { createPlatformError } from "@/platform/errors";
-import { MOCK_CAPABILITIES } from "@/components/builder/capabilities/capability-data";
+import { MOCK_CAPABILITIES } from "@/platform/capabilities/mock-data/capability-data";
 
 export async function GET(request: NextRequest) {
   try {

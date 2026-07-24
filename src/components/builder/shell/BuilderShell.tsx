@@ -7,11 +7,12 @@ import { Topbar } from "./Topbar";
 import { ChevronRight, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
-import { BuilderBreadcrumb } from "./breadcrumb-types";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import type { WorkspaceContext } from "@/platform/workspace";
 import type { resolveNavigationInventory } from "@/platform/builder/contracts/navigation-inventory";
+import { resolveBreadcrumbInventory, type BreadcrumbNode } from "@/platform/builder/contracts/breadcrumb/breadcrumb-inventory";
 import { getIcon } from "./shell-data";
+import Link from "next/link";
 
 export function BuilderShell({
   children,
@@ -62,7 +63,7 @@ export function BuilderShell({
         />
         <main className="flex-1 overflow-y-auto bg-muted/10 relative">
 
-          <BreadcrumbHeader activeModules={activeModules} />
+          <BreadcrumbHeader context={context} />
 
           <div className="p-6">
             {children}
@@ -74,44 +75,45 @@ export function BuilderShell({
 }
 
 // Extract breadcrumb header to standard component to read pathname
-function BreadcrumbHeader({ activeModules }: { activeModules: BuilderModule[] }) {
+function BreadcrumbHeader({ context }: { context: WorkspaceContext }) {
     const pathname = usePathname();
     if (!pathname) return null;
 
-    const getBreadcrumbs = (): BuilderBreadcrumb[] => {
-        if (pathname === "/builder") {
-            return [{ label: "Builder" }, { label: "Dashboard", isActive: true }];
-        }
+    const isNotFound = false; // Note: to be fully dynamic, these could be determined by context/props or specific nested routes
+    const isBlocked = false;
 
-        const paths = pathname.split("/").filter(Boolean);
-        const currentModule = getActiveBuilderSection(pathname, activeModules);
-
-        return paths.map((p, index) => {
-            const isLast = index === paths.length - 1;
-            if (index === 0) return { label: "Builder", isActive: isLast };
-            if (index === 1 && currentModule) return { label: currentModule.label, isActive: isLast };
-            return { label: p.charAt(0).toUpperCase() + p.slice(1), isActive: isLast };
-        });
-      };
-
-    const breadcrumbs = getBreadcrumbs();
+    const breadcrumbs = resolveBreadcrumbInventory(context, {
+      pathname,
+      isNotFound,
+      isBlocked
+    });
 
     return (
-        <div className="px-6 pt-6 pb-2">
-            <nav className="flex items-center text-sm font-medium text-muted-foreground mb-4">
-              {breadcrumbs.map((crumb, index) => (
-                <React.Fragment key={index}>
-                  <span
-                    className={crumb.isActive ? "text-foreground" : ""}
-                    {...(crumb.isActive ? { "aria-current": "page" } : {})}
-                  >
-                    {crumb.label}
-                  </span>
-                  {!crumb.isActive && (
-                    <ChevronRight className="h-4 w-4 mx-2" />
-                  )}
-                </React.Fragment>
-              ))}
+        <div className="px-4 md:px-6 pt-4 md:pt-6 pb-2">
+            <nav className="flex items-center text-xs md:text-sm font-medium text-muted-foreground mb-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
+              {breadcrumbs.map((crumb, index) => {
+                const isLast = index === breadcrumbs.length - 1;
+                return (
+                  <React.Fragment key={index}>
+                    {crumb.isClickable && crumb.href ? (
+                      <Link href={crumb.href} className="hover:text-foreground transition-colors">
+                        {crumb.label}
+                      </Link>
+                    ) : (
+                      <span
+                        className={isLast ? "text-foreground" : ""}
+                        {...(isLast ? { "aria-current": "page" } : {})}
+                      >
+                        {crumb.label}
+                      </span>
+                    )}
+
+                    {!isLast && (
+                      <ChevronRight className="h-3 w-3 md:h-4 md:w-4 mx-1 md:mx-2 shrink-0" />
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </nav>
         </div>
     )

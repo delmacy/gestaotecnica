@@ -39,9 +39,9 @@ test.describe("Builder Navigation E2E", () => {
     // Verify URL
     await expect(page).toHaveURL(/\/builder\/tasker$/);
 
-    // Verify Breadcrumbs. The BreadcrumbHeader component outputs "Builder" and the module label
-    const breadcrumbNav = page.locator("nav").filter({ hasText: "Builder" }).last();
-    await expect(breadcrumbNav.getByText("Builder")).toBeVisible();
+    // Verify Breadcrumbs. The BreadcrumbHeader component outputs "Workspace" and the module label
+    const breadcrumbNav = page.locator("nav").filter({ hasText: "Workspace" }).last();
+    await expect(breadcrumbNav.getByText("Workspace")).toBeVisible();
     await expect(breadcrumbNav.getByText("Tasker")).toBeVisible();
   });
 

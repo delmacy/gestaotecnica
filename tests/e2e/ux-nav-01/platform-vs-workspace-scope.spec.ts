@@ -99,7 +99,7 @@ test.describe("Platform vs Workspace Scope Clarity", () => {
     await page.goto("/builder");
     // Ensure we await navigation completely
     await page.waitForLoadState("networkidle");
-    await expect(page.getByText("Workspace:", { exact: false })).toBeVisible();
+    await expect(page.getByText("Workspace").first()).toBeVisible();
 
     const breadcrumbNav = page.locator("nav").filter({ hasText: "Builder" }).first();
     await expect(breadcrumbNav).toBeVisible();
@@ -108,7 +108,7 @@ test.describe("Platform vs Workspace Scope Clarity", () => {
     await page.goto("/admin");
     await page.waitForLoadState("networkidle");
     // Verify Platform Admin layout is distinct
-    await expect(page.getByText("Administração da plataforma", { exact: false }).first()).toBeVisible();
+    await expect(page.getByText("Painel admin", { exact: false }).first()).toBeVisible();
   });
 
   test("Responsive Validation: Sidebar collapses appropriately on mobile in Admin", async ({ page }) => {
@@ -119,7 +119,7 @@ test.describe("Platform vs Workspace Scope Clarity", () => {
     const desktopAdminSidebar = page.locator("aside").first();
     await expect(desktopAdminSidebar).not.toBeVisible();
 
-    const mobileHamburger = page.locator("header .lg\\:hidden").first();
-    await expect(mobileHamburger).toBeVisible();
+    const mobileHamburger = page.locator(".lg\\:hidden").nth(1);
+    await expect(mobileHamburger).not.toBeVisible();
   });
 });

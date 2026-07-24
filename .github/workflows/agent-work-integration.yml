@@ -45,8 +45,9 @@ jobs:
         with:
           node-version: "24"
           cache: npm
+          cache-dependency-path: package-lock.json
       - name: Install
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --fund=false
       - name: Migrate Agent Work
         run: npm run agent-work -- db:migrate
       - name: Seed Wave 01 with real main SHA

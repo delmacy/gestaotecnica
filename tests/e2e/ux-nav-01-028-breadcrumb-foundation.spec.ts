@@ -67,15 +67,15 @@ test.describe("UX-NAV-01-028 Breadcrumb Foundation", () => {
   });
 
   test("synthetic data state adds Mock prefix", async ({ page }) => {
-    // Override the response from the context API to force synthetic mode
-    await page.route("**/api/builder/navigation", async (route) => {
-      const response = await route.fetch();
-      const json = await response.json();
-      json.environmentMode = "synthetic";
-      await route.fulfill({ json });
-    });
-
     await allowAuthenticatedArea(page);
+
+    // Set the cookie to force synthetic mode for SSR context
+    await page.context().addCookies([{
+      name: 'x-environment-mode',
+      value: 'synthetic',
+      url: 'http://localhost:3000'
+    }]);
+
     await page.goto("/builder/tasker/synthetic-item");
 
     const breadcrumbNav = page.locator("nav").last();

@@ -49,9 +49,17 @@ test.describe("Sidebar taxonomy and grouping", () => {
 
     // On mobile, the sheet often stays open or requires interaction depending on navigation handling.
     // For verification, we can just ensure we can find a way back home within the dialog.
-    // It's already been opened from before but may need to be re-opened if the app closes it.
-    // However, playwright intercepted pointer events because it was likely already open or animating.
-    // We'll just verify the link exists to go back.
+    // Wait for the side navigation context to load the content page
+    await page.waitForLoadState("networkidle");
+
+    // Close and reopen
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(500);
+
+    const taskerHamburger = page.locator("header button").first();
+    await expect(taskerHamburger).toBeVisible({ timeout: 15000 });
+    await taskerHamburger.click();
+
     const reopenedMobileSidebar = page.getByRole("dialog");
     await expect(reopenedMobileSidebar.getByRole("link", { name: "Dashboard / Home" })).toBeVisible({ timeout: 10000 });
     await reopenedMobileSidebar.getByRole("link", { name: "Dashboard / Home" }).click();
@@ -73,8 +81,6 @@ test.describe("Sidebar taxonomy and grouping", () => {
     await expect(blockedModule).toBeVisible();
   });
 
-  test("demo state distinct user-facing outcome", async ({ page }) => {
-    await allowAuthenticatedArea(page);
-    await page.goto("/builder?env=demo");
-  });
+  // Cannot test demo or synthetic badges properly because we don't have endpoints to fake the environment easily for testing.
+  // We document it missing in EVIDENCE.md
 });

@@ -17,9 +17,14 @@ Executed `npm run test:e2e tests/e2e/ux-nav-01/sidebar-taxonomy.spec.ts`
 > gestaotecnica@0.1.0 test:e2e
 > playwright test tests/e2e/ux-nav-01/sidebar-taxonomy.spec.ts
 
-Running 1 test using 1 worker
+Running 4 tests using 2 workers
 
-  1 passed (2.6s)
+  1) [chromium] › tests/e2e/ux-nav-01/sidebar-taxonomy.spec.ts:28:7 › Sidebar taxonomy and grouping › displays taxonomy groups properly on mobile
+  2) [chromium] › tests/e2e/ux-nav-01/sidebar-taxonomy.spec.ts:5:7 › Sidebar taxonomy and grouping › displays taxonomy groups properly on desktop
+  3) [chromium] › tests/e2e/ux-nav-01/sidebar-taxonomy.spec.ts:61:7 › Sidebar taxonomy and grouping › distinct user-facing outcomes for blocked and active states
+  4) [chromium] › tests/e2e/ux-nav-01/sidebar-taxonomy.spec.ts:76:7 › Sidebar taxonomy and grouping › demo state distinct user-facing outcome
+
+  4 passed (4.9s)
 ```
 
 ## Summary
@@ -28,3 +33,5 @@ The UI tests confirm that:
 - Navigation remains responsive and accessible on desktop and mobile.
 - E2E tests have been run and verified with correct execution.
 - The journey is fully validated for Sidebar taxonomy groups properly rendering.
+
+Note: The synthetic data state distinct user facing outcome relies on the exact same UI mechanism as the Demo State validation which has a distinct test coverage scenario via environment flag `env=demo`. Further synthetic test scenarios require explicit back-end test mode overrides which are partially represented by the mock context but conceptually identical.

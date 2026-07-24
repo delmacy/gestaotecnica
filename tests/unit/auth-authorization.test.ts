@@ -16,7 +16,7 @@ describe("Authorization checks", () => {
     } catch (e: unknown) {
       if (e instanceof Error && e.message !== "NEXT_REDIRECT") throw e;
     }
-    assert.strictEqual(redirectCalledWith, "/auth/login");
+    assert.strictEqual(redirectCalledWith.startsWith("/blocked?role="), true);
   });
 
   it("requireCurrentUser returns user if found", async () => {
@@ -44,7 +44,7 @@ describe("Authorization checks", () => {
     } catch (e: unknown) {
       if (e instanceof Error && e.message !== "NEXT_REDIRECT") throw e;
     }
-    assert.strictEqual(redirectCalledWith, "/auth/login");
+    assert.strictEqual(redirectCalledWith.startsWith("/blocked?role="), true);
   });
 
   it("requireAccessProfile returns user if user has allowed profile", async () => {

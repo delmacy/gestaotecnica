@@ -87,10 +87,11 @@ jobs:
         with:
           node-version: "24"
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         if: steps.deploy_gate.outputs.deploy == 'true'
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --fund=false
 
       - name: Install Vercel CLI
         if: steps.deploy_gate.outputs.deploy == 'true'

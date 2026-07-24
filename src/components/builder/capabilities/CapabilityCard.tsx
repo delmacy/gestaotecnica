@@ -46,9 +46,11 @@ export function CapabilityCard({ capability, onClick }: CapabilityCardProps) {
     }
   };
 
+  const isBlocked = capability.install_state === "future" || capability.install_state === "not_available";
+
   return (
     <Card
-      className="cursor-pointer hover:shadow-md transition-shadow h-full flex flex-col"
+      className={`cursor-pointer hover:shadow-md transition-shadow h-full flex flex-col ${isBlocked ? 'opacity-60 grayscale' : ''}`}
       onClick={() => onClick(capability)}
     >
       <CardHeader className="pb-3">

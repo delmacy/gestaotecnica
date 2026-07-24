@@ -17,6 +17,25 @@ export function Sidebar({
   const pathname = usePathname();
   const activeModule = getActiveBuilderSection(pathname, activeModules);
 
+  const taxonomyGroups = [
+    {
+      title: "Workspace Core",
+      hrefs: ["/builder", "/builder/tasker"],
+    },
+    {
+      title: "Architecture & Definition",
+      hrefs: ["/builder/capabilities", "/builder/process-mirroring", "/builder/registry", "/builder/form-builder"],
+    },
+    {
+      title: "Developer & Reference",
+      hrefs: ["/builder/docs", "/builder/ui-contracts"],
+    },
+    {
+      title: "Configuration",
+      hrefs: ["/builder/settings"],
+    },
+  ];
+
   return (
     <aside className={cn("w-64 border-r bg-muted/40 hidden md:flex flex-col overflow-y-auto", className)}>
       <div className="p-4 border-b">
@@ -24,35 +43,43 @@ export function Sidebar({
       </div>
 
       <nav className="flex-1 p-4 space-y-6">
-        <div>
-          <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Active Modules
-          </h3>
-          <ul className="space-y-1">
-            {activeModules.map((module) => {
-              const Icon = module.icon;
-              const isActive = activeModule?.href === module.href;
+        {taxonomyGroups.map((group) => {
+          const groupModules = activeModules.filter((m) => group.hrefs.includes(m.href));
 
-              return (
-                <li key={module.href}>
-                  <Link
-                    href={module.href}
-                    className={cn(
-                      "flex items-center gap-3 px-2 py-2 rounded-md text-sm transition-colors",
-                      isActive
-                        ? "bg-primary text-primary-foreground font-medium"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {module.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+          if (groupModules.length === 0) return null;
+
+          return (
+            <div key={group.title}>
+              <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                {group.title}
+              </h3>
+              <ul className="space-y-1">
+                {groupModules.map((module) => {
+                  const Icon = module.icon;
+                  const isActive = activeModule?.href === module.href;
+
+                  return (
+                    <li key={module.href}>
+                      <Link
+                        href={module.href}
+                        className={cn(
+                          "flex items-center gap-3 px-2 py-2 rounded-md text-sm transition-colors",
+                          isActive
+                            ? "bg-primary text-primary-foreground font-medium"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                        aria-current={isActive ? "page" : undefined}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {module.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
 
         <div>
           <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">

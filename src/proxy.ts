@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { AUTH_COOKIE } from "@/modules/auth/constants";
 
-const publicPrefixes = ["/auth"];
+const publicPrefixes = ["/auth", "/blocked"];
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;

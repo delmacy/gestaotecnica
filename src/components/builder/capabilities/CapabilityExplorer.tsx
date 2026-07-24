@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { MOCK_CAPABILITIES } from "@/platform/capabilities/mock-data/capability-data";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   CapabilityCategory,
   CapabilityMvpPriority,
@@ -17,7 +16,27 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/builder/shared/EmptyState";
 
 export function CapabilityExplorer() {
-  const [capabilities, setCapabilities] = useState<CapabilityItem[]>(MOCK_CAPABILITIES);
+  const [capabilities, setCapabilities] = useState<CapabilityItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [globalState, setGlobalState] = useState<string>("real");
+
+  useEffect(() => {
+    async function fetchCapabilities() {
+      try {
+        const res = await fetch("/api/builder/capabilities");
+        if (res.ok) {
+          const payload = (await res.json()) as { state: string; capabilities: CapabilityItem[] };
+          setCapabilities(payload.capabilities || []);
+          setGlobalState(payload.state || "real");
+        }
+      } catch (err: unknown) {
+        // Fallback gracefully on fetch error
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchCapabilities();
+  }, []);
 
   // Filters state
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,13 +98,15 @@ export function CapabilityExplorer() {
           Catalogo universal de dominios, entidades, processos e eventos que podem ser instalados nos workspaces dos clientes.
         </p>
 
-        <Alert variant="default" className="bg-amber-50 border-amber-200 text-amber-800">
-          <AlertCircle className="h-4 w-4 text-amber-600" />
-          <AlertTitle className="text-amber-800 font-semibold">Catalogo base em consolidacao</AlertTitle>
-          <AlertDescription className="text-amber-700/90 text-sm">
-            Esta superficie apresenta capabilities globais reutilizaveis. As instalacoes por workspace ainda passam pelo fluxo controlado antes de alterar configuracao, banco de dados ou arquivos publicados.
-          </AlertDescription>
-        </Alert>
+        {globalState === "synthetic" && (
+          <Alert variant="default" className="bg-amber-50 border-amber-200 text-amber-800">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertTitle className="text-amber-800 font-semibold">Synthetic Mode</AlertTitle>
+            <AlertDescription className="text-amber-700/90 text-sm">
+              Catalogo base em consolidacao. Esta superficie apresenta capabilities ilustrativas e operacoes de solicitacao nao tem persistencia real no banco de dados.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       <CapabilityFilters
@@ -100,7 +121,11 @@ export function CapabilityExplorer() {
         onClear={handleClearFilters}
       />
 
-      {filteredCapabilities.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center p-12 text-muted-foreground">
+          Carregando capabilities...
+        </div>
+      ) : filteredCapabilities.length === 0 ? (
         <EmptyState
           icon={FilterX}
           title="Nenhuma capability encontrada"

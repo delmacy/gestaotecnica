@@ -1,0 +1,29 @@
+
+> gestaotecnica@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 1088ms
+
+○ Compiling /auth/login ...
+ GET /auth/login?next=%2Fbuilder%2Fcapabilities 200 in 12.5s (next.js: 12.0s, proxy.ts: 30ms, application-code: 524ms)
+ GET /builder/capabilities 200 in 3.1s (next.js: 1576ms, proxy.ts: 9ms, application-code: 1467ms)
+ GET /api/builder/capabilities 200 in 2.6s (next.js: 1474ms, application-code: 1103ms)
+ GET /builder/capabilities 200 in 642ms (next.js: 6ms, proxy.ts: 9ms, application-code: 627ms)
+ GET /api/builder/capabilities 200 in 479ms (next.js: 4ms, application-code: 475ms)
+ GET /auth/login?next=%2Fbuilder%2Fcapabilities 200 in 84ms (next.js: 4ms, proxy.ts: 7ms, application-code: 73ms)
+ GET /auth/login?next=%2Fbuilder%2Fcapabilities 200 in 75ms (next.js: 4ms, proxy.ts: 6ms, application-code: 66ms)
+ GET /auth/login 200 in 81ms (next.js: 4ms, proxy.ts: 7ms, application-code: 70ms)
+ POST /auth/login 200 in 284ms (next.js: 4ms, proxy.ts: 9ms, application-code: 271ms)
+  └─ ƒ login({"error":""}, {}) in 241ms src/modules/auth/actions.ts
+ GET /auth/login?next=%2Fbuilder%2Fcapabilities 200 in 103ms (next.js: 6ms, proxy.ts: 6ms, application-code: 92ms)
+ GET /auth/login?next=%2Fbuilder%2Fcapabilities 200 in 73ms (next.js: 4ms, proxy.ts: 5ms, application-code: 63ms)
+ GET /auth/login?next=%2Fbuilder%2Fcapabilities 200 in 73ms (next.js: 4ms, proxy.ts: 5ms, application-code: 64ms)
+ GET /builder/capabilities 200 in 690ms (next.js: 11ms, proxy.ts: 12ms, application-code: 667ms)
+ GET /api/builder/capabilities 200 in 473ms (next.js: 3ms, application-code: 471ms)
+ GET /builder/capabilities 200 in 614ms (next.js: 4ms, proxy.ts: 6ms, application-code: 604ms)
+ GET /api/builder/capabilities 200 in 472ms (next.js: 3ms, application-code: 469ms)
+ GET /builder/capabilities 200 in 623ms (next.js: 3ms, proxy.ts: 5ms, application-code: 614ms)
+ GET /api/builder/capabilities 200 in 476ms (next.js: 3ms, application-code: 473ms)

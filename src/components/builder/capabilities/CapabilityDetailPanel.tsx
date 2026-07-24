@@ -39,6 +39,7 @@ export function CapabilityDetailPanel({
 
   const isInstallable = ['available', 'simulated_requested'].includes(capability.install_state);
   const isAlreadyRequested = capability.install_state === 'simulated_requested';
+  const isBlocked = capability.install_state === 'future' || capability.install_state === 'not_available';
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -75,24 +76,30 @@ export function CapabilityDetailPanel({
                     Estado atual: {capability.install_state.replace('_', ' ')}
                   </p>
                 </div>
-                <Button
-                  disabled={!isInstallable || isAlreadyRequested}
-                  onClick={() => onRequestInstall(capability.id)}
-                  size="sm"
-                  className={isAlreadyRequested ? "bg-green-600 text-white hover:bg-green-700" : ""}
-                >
-                  {isAlreadyRequested ? (
-                    <>
-                      <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Solicitada
-                    </>
-                  ) : (
-                    <>
-                      <DownloadCloud className="mr-2 h-4 w-4" />
-                      Solicitar instalacao
-                    </>
-                  )}
-                </Button>
+                {isBlocked ? (
+                  <Badge variant="outline" className="bg-slate-100 text-slate-700 py-1">
+                    Em Breve / Coming Soon
+                  </Badge>
+                ) : (
+                  <Button
+                    disabled={!isInstallable || isAlreadyRequested}
+                    onClick={() => onRequestInstall(capability.id)}
+                    size="sm"
+                    className={isAlreadyRequested ? "bg-green-600 text-white hover:bg-green-700" : ""}
+                  >
+                    {isAlreadyRequested ? (
+                      <>
+                        <CheckCircle2 className="mr-2 h-4 w-4" />
+                        Solicitada
+                      </>
+                    ) : (
+                      <>
+                        <DownloadCloud className="mr-2 h-4 w-4" />
+                        Solicitar instalacao
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
               <div className="text-[10px] text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
                 <strong>Aviso:</strong> a solicitacao ainda passa pelo fluxo controlado. Nenhum workspace ou banco de dados sera alterado diretamente. ({capability.synthetic_notes})

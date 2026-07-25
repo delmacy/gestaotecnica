@@ -19,12 +19,13 @@ export function PrimaryAction({ intent, className, size = "default", variant = "
 
   if (isBlocked || !intent.href) {
     return (
-        <div className="inline-block" title={intent.tooltipMessage}>
+        <div className="inline-block">
             <Button
               disabled={isBlocked}
               className={className}
               size={size}
               variant={variant}
+              title={intent.tooltipMessage}
             >
               {intent.label}
             </Button>

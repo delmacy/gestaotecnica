@@ -9,14 +9,14 @@ export interface BuilderModule {
 
 export function getActiveBuilderSection(
   pathname: string | null,
-  activeModules: BuilderModule[]
+  modules: BuilderModule[]
 ): BuilderModule | undefined {
   if (!pathname) {
     return undefined;
   }
 
   // Exact match
-  const exactMatch = activeModules.find((m) => m.href === pathname);
+  const exactMatch = modules.find((m) => m.href === pathname);
   if (exactMatch) {
     return exactMatch;
   }
@@ -26,7 +26,7 @@ export function getActiveBuilderSection(
   let bestMatch: BuilderModule | undefined = undefined;
   let maxMatchLength = 0;
 
-  for (const mod of activeModules) {
+  for (const mod of modules) {
     // Only consider as a prefix if it starts with the href and is followed by a slash (or is the exact root)
     if (pathname.startsWith(mod.href) && pathname.charAt(mod.href.length) === "/") {
       if (mod.href.length > maxMatchLength) {

@@ -3,6 +3,9 @@
 import { Search, ChevronRight, UserCircle, Bell, HelpCircle } from "lucide-react";
 import React from "react";
 import type { WorkspaceContext } from "@/platform/workspace";
+import { resolvePrimaryAction } from "@/platform/builder/contracts/primary-action/resolve-primary-action";
+import { PrimaryAction } from "@/components/builder/shared/PrimaryAction";
+import { usePathname } from "next/navigation";
 
 
 export function Topbar({
@@ -12,6 +15,14 @@ export function Topbar({
   mobileNavigation?: React.ReactNode;
   context: WorkspaceContext;
 }) {
+  const pathname = usePathname() || "";
+
+  // Extract moduleKey directly from pathname as Topbar does not receive inventory.
+  // E.g. /builder/registry/new -> registry
+  const match = pathname.match(/^\/builder\/([^/]+)/);
+  const activeModuleKey = match ? match[1] : undefined;
+
+  const intent = activeModuleKey ? resolvePrimaryAction(context, { moduleKey: activeModuleKey, routeContext: "topbar" }) : undefined;
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
@@ -47,6 +58,13 @@ export function Topbar({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
           </span>
           {context.environmentMode.toUpperCase()} MODE
+        </div>
+      )}
+
+      {/* Primary Action Button */}
+      {intent && intent.state !== "hidden" && (
+        <div className="hidden sm:flex ml-2">
+          <PrimaryAction intent={intent} size="sm" />
         </div>
       )}
 

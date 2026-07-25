@@ -9,8 +9,8 @@ test.describe('Builder Navigation API Endpoint', () => {
     const data = await response.json();
 
     // Check structure based on the contract
-    expect(data).toHaveProperty('activeModules');
-    expect(Array.isArray(data.activeModules)).toBeTruthy();
+    expect(data).toHaveProperty('modules');
+    expect(Array.isArray(data.modules)).toBeTruthy();
 
     expect(data).toHaveProperty('futureModules');
     expect(Array.isArray(data.futureModules)).toBeTruthy();
@@ -19,7 +19,7 @@ test.describe('Builder Navigation API Endpoint', () => {
     expect(['real', 'synthetic', 'demo']).toContain(data.environmentMode);
 
     // Verify Dashboard is always present in active modules
-    const dashboard = data.activeModules.find((m: { href: string; label?: string; status?: string }) => m.href === '/builder');
+    const dashboard = data.modules.find((m: { href: string; label?: string; status?: string }) => m.href === '/builder');
     expect(dashboard).toBeDefined();
     expect(dashboard.label).toBe('Dashboard / Home');
 

@@ -15,9 +15,14 @@ test.describe("Builder Navigation E2E", () => {
     await expect(sidebar.getByRole("link", { name: "Dashboard / Home" })).toBeVisible();
     await expect(sidebar.getByRole("link", { name: "Tasker" })).toBeVisible();
     await expect(sidebar.getByRole("link", { name: "Capabilities" })).toBeVisible();
-    // Form Builder is not in fallbackEnabledModules, so it might be disabled by default in E2E
-    // await expect(sidebar.getByRole("link", { name: "Form Builder" })).toBeVisible();
     await expect(sidebar.getByRole("link", { name: "Registry" })).toBeVisible();
+
+    // Form Builder is blocked in the default E2E payload (not in enabledModules)
+    // Verify it is rendered as a non-link with restricted interaction according to the contract
+    const formBuilderBlocked = sidebar.locator('div[title="Pro Feature"]', { hasText: "Form Builder" });
+    await expect(formBuilderBlocked).toBeVisible();
+    // Ensure it's not a link
+    await expect(sidebar.getByRole("link", { name: "Form Builder" })).not.toBeVisible();
 
     // Based on the contract, we can also check that some active items are in the main area's module grid
     // For example, Tasker should have a visible link card if it's active

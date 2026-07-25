@@ -6,16 +6,16 @@ import { cn } from "@/lib/utils";
 import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
 
 export function Sidebar({
-  activeModules,
+  modules,
   futureModules,
   className
 }: {
-  activeModules: BuilderModule[];
+  modules: BuilderModule[];
   futureModules: BuilderModule[];
   className?: string
 }) {
   const pathname = usePathname();
-  const activeModule = getActiveBuilderSection(pathname, activeModules);
+  const activeModule = getActiveBuilderSection(pathname, modules);
 
   const taxonomyGroups = [
     {
@@ -44,7 +44,7 @@ export function Sidebar({
 
       <nav className="flex-1 p-4 space-y-6">
         {taxonomyGroups.map((group) => {
-          const groupModules = activeModules.filter((m) => group.hrefs.includes(m.href));
+          const groupModules = modules.filter((m) => group.hrefs.includes(m.href));
 
           if (groupModules.length === 0) return null;
 
@@ -60,19 +60,29 @@ export function Sidebar({
 
                   return (
                     <li key={module.href}>
-                      <Link
-                        href={module.href}
-                        className={cn(
-                          "flex items-center gap-3 px-2 py-2 rounded-md text-sm transition-colors",
-                          isActive
-                            ? "bg-primary text-primary-foreground font-medium"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        )}
-                        aria-current={isActive ? "page" : undefined}
-                      >
-                        <Icon className="w-4 h-4" />
-                        {module.label}
-                      </Link>
+                      {module.status === "blocked" ? (
+                        <div
+                          className="flex items-center gap-3 px-2 py-2 rounded-md text-sm text-muted-foreground opacity-50 cursor-not-allowed"
+                          title="Pro Feature"
+                        >
+                          <Icon className="w-4 h-4" />
+                          {module.label}
+                        </div>
+                      ) : (
+                        <Link
+                          href={module.href}
+                          className={cn(
+                            "flex items-center gap-3 px-2 py-2 rounded-md text-sm transition-colors",
+                            isActive
+                              ? "bg-primary text-primary-foreground font-medium"
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          )}
+                          aria-current={isActive ? "page" : undefined}
+                        >
+                          <Icon className="w-4 h-4" />
+                          {module.label}
+                        </Link>
+                      )}
                     </li>
                   );
                 })}

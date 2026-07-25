@@ -19,3 +19,23 @@ The error on the destination page (`/builder/capabilities/new`) simply confirms 
 
 ## E2E Test Execution
 Tests were implemented in `tests/e2e/primary-action.spec.ts` covering blocked state in demo mode and active state routing.
+
+## Build Check
+```
+> gestaotecnica@0.1.0 build
+> next build
+
+▲ Next.js 16.2.6 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 30.3s
+  Running TypeScript ...
+  Finished TypeScript in 31.1s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/16) ...
+  Generating static pages using 3 workers (4/16)
+  Generating static pages using 3 workers (8/16)
+  Generating static pages using 3 workers (12/16)
+✓ Generating static pages using 3 workers (16/16) in 786ms
+  Finalizing page optimization ...
+```

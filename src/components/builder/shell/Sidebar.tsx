@@ -6,16 +6,16 @@ import { cn } from "@/lib/utils";
 import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
 
 export function Sidebar({
-  activeModules,
+  modules,
   futureModules,
   className
 }: {
-  activeModules: BuilderModule[];
+  modules: BuilderModule[];
   futureModules: BuilderModule[];
   className?: string
 }) {
   const pathname = usePathname();
-  const activeModule = getActiveBuilderSection(pathname, activeModules);
+  const activeModule = getActiveBuilderSection(pathname, modules);
 
   const taxonomyGroups = [
     {
@@ -44,7 +44,7 @@ export function Sidebar({
 
       <nav className="flex-1 p-4 space-y-6">
         {taxonomyGroups.map((group) => {
-          const groupModules = activeModules.filter((m) => group.hrefs.includes(m.href));
+          const groupModules = modules.filter((m) => group.hrefs.includes(m.href));
 
           if (groupModules.length === 0) return null;
 

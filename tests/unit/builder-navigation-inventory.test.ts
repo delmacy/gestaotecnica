@@ -19,9 +19,9 @@ describe('Navigation Inventory Contract API', () => {
     const result = resolveNavigationInventory(mockContext);
 
     // Should include Dashboard and UI Contracts by default (no moduleKey required), plus Tasker, Capabilities, Registry
-    assert.equal(result.activeModules.length, 5, 'Should have 5 active modules');
+    assert.equal(result.modules.length, 9, 'Should have 9 modules (some active, some blocked)');
 
-    const activeHrefs = result.activeModules.map((m) => m.href);
+    const activeHrefs = result.modules.map((m) => m.href);
     assert.ok(activeHrefs.includes('/builder'));
     assert.ok(activeHrefs.includes('/builder/ui-contracts'));
     assert.ok(activeHrefs.includes('/builder/tasker'));
@@ -29,8 +29,9 @@ describe('Navigation Inventory Contract API', () => {
     assert.ok(activeHrefs.includes('/builder/registry'));
 
     // Should not include modules that are not enabled
-    assert.ok(!activeHrefs.includes('/builder/form-builder'));
-    assert.ok(!activeHrefs.includes('/builder/settings'));
+    assert.equal(result.modules.find(m => m.href === '/builder/form-builder').status, 'blocked');
+    assert.equal(result.modules.find(m => m.href === '/builder/settings').status, 'blocked');
+    assert.equal(result.modules.find(m => m.href === '/builder/tasker').status, 'active');
 
     // Should contain future modules
     assert.ok(result.futureModules.length > 0, 'Should return future modules');

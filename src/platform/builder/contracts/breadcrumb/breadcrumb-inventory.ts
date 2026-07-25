@@ -44,13 +44,13 @@ export function resolveBreadcrumbInventory(
 
   const segments = pathWithoutPrefix.split("/").filter(Boolean);
   const inventory = resolveNavigationInventory(context);
-  const activeModules = inventory.activeModules;
+  const modules = inventory.modules;
 
   // Process Level 1: Module Level
   if (segments.length > 0) {
     const moduleSegment = segments[0];
     const modulePath = `${prefixPath}/${moduleSegment}`;
-    const moduleConfig = activeModules.find((m) => m.href === modulePath);
+    const moduleConfig = modules.find((m) => m.href === modulePath);
 
     if (moduleConfig) {
       nodes.push({

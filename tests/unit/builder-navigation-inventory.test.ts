@@ -29,9 +29,9 @@ describe('Navigation Inventory Contract API', () => {
     assert.ok(activeHrefs.includes('/builder/registry'));
 
     // Should not include modules that are not enabled
-    assert.equal(result.modules.find(m => m.href === '/builder/form-builder').status, 'blocked');
-    assert.equal(result.modules.find(m => m.href === '/builder/settings').status, 'blocked');
-    assert.equal(result.modules.find(m => m.href === '/builder/tasker').status, 'active');
+    assert.equal(result.modules.find(m => m.href === '/builder/form-builder')?.status, 'blocked');
+    assert.equal(result.modules.find(m => m.href === '/builder/settings')?.status, 'blocked');
+    assert.equal(result.modules.find(m => m.href === '/builder/tasker')?.status, 'active');
 
     // Should contain future modules
     assert.ok(result.futureModules.length > 0, 'Should return future modules');

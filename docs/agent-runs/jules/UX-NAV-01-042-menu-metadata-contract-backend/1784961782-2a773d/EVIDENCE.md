@@ -36,3 +36,6 @@ These failing tests were already failing on main and are unrelated to the curren
 
 ## Post Code-Review Fixes
 - `activeModules` property inside `NavigationInventory` and everywhere it's used was renamed to `modules` to better reflect that it includes both active and blocked items.
+
+## Post CI-Failure Fixes
+- Reverted modifications to `src/app/(builder)/builder/page.tsx`, `src/components/builder/shell/BuilderShell.tsx`, `src/components/builder/shell/Sidebar.tsx`, and `tests/unit/components/builder/shell/shell-sidebar.test.tsx` based on the PR feedback, limiting the scope strictly to the backend/data binding stage.

@@ -43,7 +43,7 @@ export function resolveNavigationInventory(context: WorkspaceContext): {
       ...route,
       status: (isEnabled ? "active" : "blocked") as ModuleStatus,
     };
-  }).filter((route) => route.status === "active");
+  }); // Removed the filter to adhere to the contract for empty/blocked states.
 
   const futureModules: NavigationModule[] = FUTURE_ROUTES.map((route) => ({
     href: route.href,

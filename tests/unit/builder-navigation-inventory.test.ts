@@ -4,7 +4,7 @@ import { resolveNavigationInventory } from '../../src/platform/builder/contracts
 import type { WorkspaceContext } from '../../src/platform/workspace/workspace-context';
 
 describe('Navigation Inventory Contract API', () => {
-  it('should return active modules and future modules based on workspace context', () => {
+  it('should return all modules and reflect blocked status based on workspace context', () => {
     const mockContext: WorkspaceContext = {
       workspaceId: 'test-ws-id',
       workspaceKey: 'test-ws-key',
@@ -18,19 +18,23 @@ describe('Navigation Inventory Contract API', () => {
 
     const result = resolveNavigationInventory(mockContext);
 
-    // Should include Dashboard and UI Contracts by default (no moduleKey required), plus Tasker, Capabilities, Registry
-    assert.equal(result.activeModules.length, 5, 'Should have 5 active modules');
+    // Group A has 9 routes. Now none are filtered out.
+    assert.equal(result.activeModules.length, 9, 'Should have 9 modules in activeModules (some may be blocked)');
 
-    const activeHrefs = result.activeModules.map((m) => m.href);
-    assert.ok(activeHrefs.includes('/builder'));
-    assert.ok(activeHrefs.includes('/builder/ui-contracts'));
-    assert.ok(activeHrefs.includes('/builder/tasker'));
-    assert.ok(activeHrefs.includes('/builder/capabilities'));
-    assert.ok(activeHrefs.includes('/builder/registry'));
+    const dashboard = result.activeModules.find((m) => m.href === '/builder');
+    assert.equal(dashboard?.status, 'active');
 
-    // Should not include modules that are not enabled
-    assert.ok(!activeHrefs.includes('/builder/form-builder'));
-    assert.ok(!activeHrefs.includes('/builder/settings'));
+    const uiContracts = result.activeModules.find((m) => m.href === '/builder/ui-contracts');
+    assert.equal(uiContracts?.status, 'active');
+
+    const tasker = result.activeModules.find((m) => m.href === '/builder/tasker');
+    assert.equal(tasker?.status, 'active');
+
+    const formBuilder = result.activeModules.find((m) => m.href === '/builder/form-builder');
+    assert.equal(formBuilder?.status, 'blocked');
+
+    const settings = result.activeModules.find((m) => m.href === '/builder/settings');
+    assert.equal(settings?.status, 'blocked');
 
     // Should contain future modules
     assert.ok(result.futureModules.length > 0, 'Should return future modules');

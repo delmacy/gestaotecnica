@@ -5,7 +5,10 @@ import { createPlatformError } from "@/platform/errors";
 
 export async function GET(request: NextRequest) {
   try {
-    const context = await resolveWorkspaceContext({ source: "system" });
+    const environmentModeCookie = request.cookies.get("x-environment-mode")?.value;
+    const environmentMode = (environmentModeCookie === "synthetic" || environmentModeCookie === "demo") ? environmentModeCookie : "real";
+
+    const context = await resolveWorkspaceContext({ source: "system", environmentMode });
     const inventory = resolveNavigationInventory(context);
 
     return NextResponse.json(inventory, { status: 200 });

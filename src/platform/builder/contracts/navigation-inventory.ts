@@ -31,11 +31,11 @@ const FUTURE_ROUTES: Array<Omit<NavigationModule, "status"> & { fallbackStatus: 
 ];
 
 export function resolveNavigationInventory(context: WorkspaceContext): {
-  activeModules: NavigationModule[];
+  modules: NavigationModule[];
   futureModules: NavigationModule[];
   environmentMode: "real" | "synthetic" | "demo";
 } {
-  const activeModules: NavigationModule[] = GROUP_A_ROUTES.map((route) => {
+  const modules: NavigationModule[] = GROUP_A_ROUTES.map((route) => {
     // If the route doesn't require a specific moduleKey, or the moduleKey is enabled, it's active.
     // Dashboard and UI Contracts are always active as per contract.
     const isEnabled = !route.moduleKey || context.enabledModules.includes(route.moduleKey);
@@ -43,7 +43,7 @@ export function resolveNavigationInventory(context: WorkspaceContext): {
       ...route,
       status: (isEnabled ? "active" : "blocked") as ModuleStatus,
     };
-  }).filter((route) => route.status === "active");
+  });
 
   const futureModules: NavigationModule[] = FUTURE_ROUTES.map((route) => ({
     href: route.href,
@@ -53,7 +53,7 @@ export function resolveNavigationInventory(context: WorkspaceContext): {
   }));
 
   return {
-    activeModules,
+    modules,
     futureModules,
     environmentMode: context.environmentMode,
   };

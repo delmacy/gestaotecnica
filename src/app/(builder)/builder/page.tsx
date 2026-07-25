@@ -32,7 +32,7 @@ export default async function Page() {
 
       <div>
         <h2 className="text-xl font-semibold mb-4">Módulos Ativos</h2>
-        {inventory.activeModules.filter(m => m.href !== "/builder").length === 0 ? (
+        {inventory.modules.filter((m) => m.href !== "/builder").length === 0 ? (
           <EmptyState
             icon={Blocks}
             title="Nenhum módulo ativo"
@@ -40,7 +40,7 @@ export default async function Page() {
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {inventory.activeModules.filter(m => m.href !== "/builder").map((module) => {
+            {inventory.modules.filter((m) => m.href !== "/builder").map((module) => {
               const Icon = getIcon(module.iconName);
               return (
                 <Link

@@ -17,7 +17,7 @@ describe("Mobile Navigation Layout Data", () => {
 
   test("resolveNavigationInventory should return active modules with no missing labels or hrefs", () => {
     const inventory = resolveNavigationInventory(mockContext);
-    inventory.activeModules.forEach((module) => {
+    inventory.modules.forEach((module) => {
       assert.ok(module.label, "Module label should not be empty");
       assert.ok(module.href, "Module href should not be empty");
       assert.ok(getIcon(module.iconName), "Module should resolve to a valid icon");
@@ -26,9 +26,9 @@ describe("Mobile Navigation Layout Data", () => {
 
   test("resolveNavigationInventory should include base modules", () => {
     const inventory = resolveNavigationInventory(mockContext);
-    assert.ok(inventory.activeModules.length > 0);
+    assert.ok(inventory.modules.length > 0);
     // Dashboard should always be present
-    const dashboard = inventory.activeModules.find(m => m.href === "/builder");
+    const dashboard = inventory.modules.find(m => m.href === "/builder");
     assert.ok(dashboard);
   });
 
@@ -39,12 +39,13 @@ describe("Mobile Navigation Layout Data", () => {
     };
 
     const inventory = resolveNavigationInventory(contextWithModules);
-    const activePaths = inventory.activeModules.map(m => m.href);
+    const activePaths = inventory.modules.map(m => m.href);
 
     assert.ok(activePaths.includes("/builder/capabilities"), "Should contain Capabilities (registry module)");
     assert.ok(activePaths.includes("/builder/form-builder"), "Should contain Form Builder");
 
     // Unknown modules from context shouldn't crash or be added randomly if they don't map to a builder surface
+    // Ensure an unknown module is not magically added to activePaths
     assert.ok(!activePaths.includes("/builder/unknown-module"));
   });
 

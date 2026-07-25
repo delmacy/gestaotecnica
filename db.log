@@ -1,0 +1,103 @@
+
+> gestaotecnica@0.1.0 db:bootstrap
+> npx tsx src/scripts/bootstrap-schemas.ts
+
+Starting database schema bootstrap...
+Creating schema if not exists: identity
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P06',
+  message: 'schema "identity" already exists, skipping',
+  file: 'schemacmds.c',
+  line: '132',
+  routine: 'CreateSchemaCommand'
+}
+Creating schema if not exists: workspace
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P06',
+  message: 'schema "workspace" already exists, skipping',
+  file: 'schemacmds.c',
+  line: '132',
+  routine: 'CreateSchemaCommand'
+}
+Creating schema if not exists: workflow
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P06',
+  message: 'schema "workflow" already exists, skipping',
+  file: 'schemacmds.c',
+  line: '132',
+  routine: 'CreateSchemaCommand'
+}
+Creating schema if not exists: registry
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P06',
+  message: 'schema "registry" already exists, skipping',
+  file: 'schemacmds.c',
+  line: '132',
+  routine: 'CreateSchemaCommand'
+}
+Creating schema if not exists: documents
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P06',
+  message: 'schema "documents" already exists, skipping',
+  file: 'schemacmds.c',
+  line: '132',
+  routine: 'CreateSchemaCommand'
+}
+Creating schema if not exists: storage
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P06',
+  message: 'schema "storage" already exists, skipping',
+  file: 'schemacmds.c',
+  line: '132',
+  routine: 'CreateSchemaCommand'
+}
+Creating schema if not exists: blueprints
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P06',
+  message: 'schema "blueprints" already exists, skipping',
+  file: 'schemacmds.c',
+  line: '132',
+  routine: 'CreateSchemaCommand'
+}
+Creating schema if not exists: builder
+{
+  severity_local: 'NOTICE',
+  severity: 'NOTICE',
+  code: '42P06',
+  message: 'schema "builder" already exists, skipping',
+  file: 'schemacmds.c',
+  line: '132',
+  routine: 'CreateSchemaCommand'
+}
+Schemas created. Setting up roles...
+Starting database role setup...
+Ensuring role exists: owner_migration
+Ensuring role exists: app_runtime
+Ensuring role exists: app_readonly
+Ensuring role exists: seed_maintenance
+Ensuring role exists: break_glass
+Granting privileges for schema: public
+Granting privileges for schema: identity
+Granting privileges for schema: workspace
+Granting privileges for schema: workflow
+Granting privileges for schema: registry
+Granting privileges for schema: documents
+Granting privileges for schema: storage
+Granting privileges for schema: blueprints
+Granting privileges for schema: builder
+Database roles and privileges setup complete.
+Bootstrap complete.

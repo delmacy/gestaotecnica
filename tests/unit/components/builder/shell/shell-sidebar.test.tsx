@@ -16,7 +16,7 @@ test('Sidebar structural render test with all taxonomy groups', () => {
     { href: "/builder/workflow-builder", label: "Workflow Builder", icon: LayoutDashboard, status: "coming_soon" },
   ];
 
-  const element = Sidebar({ activeModules, futureModules });
+  const element = Sidebar({ modules: activeModules, futureModules });
   assert.ok(element, 'Sidebar should return a React element');
 
   const cache = new Set();
@@ -60,7 +60,7 @@ test('Sidebar structural render test handles empty taxonomy groups', () => {
     { href: "/builder/workflow-builder", label: "Workflow Builder", icon: LayoutDashboard, status: "coming_soon" },
   ];
 
-  const element = Sidebar({ activeModules: subsetModules, futureModules });
+  const element = Sidebar({ modules: subsetModules, futureModules });
   assert.ok(element, 'Sidebar should return a React element');
 
   const cache = new Set();

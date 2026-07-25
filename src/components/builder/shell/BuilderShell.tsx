@@ -23,7 +23,7 @@ export function BuilderShell({
   context: WorkspaceContext;
   inventory: ReturnType<typeof resolveNavigationInventory>;
 }) {
-  const activeModules: BuilderModule[] = inventory.activeModules.map(m => ({
+  const activeModules: BuilderModule[] = inventory.modules.map((m) => ({
     ...m,
     icon: getIcon(m.iconName)
   }));
@@ -45,7 +45,7 @@ export function BuilderShell({
           <SheetDescription className="sr-only">Access modules and future features</SheetDescription>
           <Sidebar
             activeModules={activeModules}
-            futureModules={inventory.futureModules.map(m => ({ ...m, icon: getIcon(m.iconName) }))}
+            futureModules={inventory.futureModules.map((m) => ({ ...m, icon: getIcon(m.iconName) }))}
             className="flex border-none w-full md:flex"
           />
         </SheetContent>
@@ -59,7 +59,7 @@ export function BuilderShell({
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           activeModules={activeModules}
-          futureModules={inventory.futureModules.map(m => ({ ...m, icon: getIcon(m.iconName) }))}
+          futureModules={inventory.futureModules.map((m) => ({ ...m, icon: getIcon(m.iconName) }))}
         />
         <main className="flex-1 overflow-y-auto bg-muted/10 relative">
 

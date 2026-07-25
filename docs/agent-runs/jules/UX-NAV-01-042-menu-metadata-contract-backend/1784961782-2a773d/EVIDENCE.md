@@ -39,3 +39,7 @@ These failing tests were already failing on main and are unrelated to the curren
 
 ## Post CI-Failure Fixes
 - Reverted modifications to `src/app/(builder)/builder/page.tsx`, `src/components/builder/shell/BuilderShell.tsx`, `src/components/builder/shell/Sidebar.tsx`, and `tests/unit/components/builder/shell/shell-sidebar.test.tsx` based on the PR feedback, limiting the scope strictly to the backend/data binding stage.
+
+## Post CI-Failure Fixes 2
+- The previous PR feedback asked to revert the UI files because the task scope was backend only. However, reverting them caused a TypeScript build failure in CI because the UI files still referenced `activeModules` on the `NavigationInventory` return type, which had been renamed to `modules`.
+- To fix the build, I updated `src/app/(builder)/builder/page.tsx` and `src/components/builder/shell/BuilderShell.tsx` to use the correct `modules` property. This was necessary to ensure the project passes strict type checking.

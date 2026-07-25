@@ -10,24 +10,28 @@ import {
 import { CapabilityCard } from "./CapabilityCard";
 import { CapabilityFilters } from "./CapabilityFilters";
 import { CapabilityDetailPanel } from "./CapabilityDetailPanel";
-import { AlertCircle, Boxes, FilterX } from "lucide-react";
+import { AlertCircle, Boxes, FilterX, Lock } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/builder/shared/EmptyState";
+import Link from "next/link";
+import { ViewStateOutcome } from "@/platform/builder/contracts/empty-state";
 
 export function CapabilityExplorer() {
   const [capabilities, setCapabilities] = useState<CapabilityItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [globalState, setGlobalState] = useState<string>("real");
+  const [viewStateOutcome, setViewStateOutcome] = useState<ViewStateOutcome | null>(null);
 
   useEffect(() => {
     async function fetchCapabilities() {
       try {
         const res = await fetch("/api/builder/capabilities");
         if (res.ok) {
-          const payload = (await res.json()) as { state: string; capabilities: CapabilityItem[] };
+          const payload = (await res.json()) as { state: string; capabilities: CapabilityItem[], viewStateOutcome?: ViewStateOutcome };
           setCapabilities(payload.capabilities || []);
           setGlobalState(payload.state || "real");
+          setViewStateOutcome(payload.viewStateOutcome || null);
         }
       } catch (err: unknown) {
         // Fallback gracefully on fetch error
@@ -98,18 +102,46 @@ export function CapabilityExplorer() {
           Catalogo universal de dominios, entidades, processos e eventos que podem ser instalados nos workspaces dos clientes.
         </p>
 
-        {globalState === "synthetic" && (
-          <Alert variant="default" className="bg-amber-50 border-amber-200 text-amber-800">
+        {(globalState === "demo" || globalState === "synthetic") && (
+          <Alert variant="default" className="bg-amber-50 border-amber-200 text-amber-800 mb-6">
             <AlertCircle className="h-4 w-4 text-amber-600" />
-            <AlertTitle className="text-amber-800 font-semibold">Synthetic Mode</AlertTitle>
+            <AlertTitle className="text-amber-800 font-semibold">{viewStateOutcome?.title || "Synthetic Mode"}</AlertTitle>
             <AlertDescription className="text-amber-700/90 text-sm">
-              Catalogo base em consolidacao. Esta superficie apresenta capabilities ilustrativas e operacoes de solicitacao nao tem persistencia real no banco de dados.
+              {viewStateOutcome?.description || "Catalogo base em consolidacao. Esta superficie apresenta capabilities ilustrativas e operacoes de solicitacao nao tem persistencia real no banco de dados."}
             </AlertDescription>
           </Alert>
         )}
       </div>
 
-      <CapabilityFilters
+      {globalState === "blocked" ? (
+        <EmptyState
+          icon={Lock}
+          title={viewStateOutcome?.title || "Module Unavailable"}
+          description={viewStateOutcome?.description || "This configuration requires additional privileges or is not enabled for your workspace. Contact your administrator to request access."}
+          action={
+            <Button asChild variant="outline">
+              <Link href="/builder">Back to Dashboard</Link>
+            </Button>
+          }
+        />
+      ) : globalState === "empty" ? (
+         <EmptyState
+          icon={Boxes}
+          title={viewStateOutcome?.title || "Get Started"}
+          description={viewStateOutcome?.description || "Streamline your operations. Create your first record."}
+          action={
+            viewStateOutcome?.isActionAllowed && viewStateOutcome?.primaryActionLabel ? (
+              <Button asChild>
+                <Link href={viewStateOutcome?.primaryActionHref || "/builder/capabilities/new"}>
+                  {viewStateOutcome?.primaryActionLabel}
+                </Link>
+              </Button>
+            ) : undefined
+          }
+        />
+      ) : (
+        <>
+          <CapabilityFilters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         categoryFilter={categoryFilter}
@@ -147,6 +179,8 @@ export function CapabilityExplorer() {
             </div>
           ))}
         </div>
+      )}
+      </>
       )}
 
       <CapabilityDetailPanel

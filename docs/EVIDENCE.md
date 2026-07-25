@@ -1,28 +1,28 @@
-# Execution Evidence
-
-## Objective
-Implement or expose the minimal real data/API/server-action support required by the agreed contract, without UI scope creep. Focus area: Empty and unavailable state taxonomy.
+# UX-NAV-01-038 Empty State Taxonomy Frontend Experience Evidence
 
 ## Base SHA
-```
-ea6ecea60f1472eae6c6c50f7a5b16b4dfcd84cb
-```
+`61206cf64ccc703226aa2773b0fd0cb28ed9657b`
 
-## Journey and Contract Validation
-The implementation introduces `resolveViewState` per the `EMPTY_STATE_TAXONOMY_CONTRACT.md`. This function consumes `WorkspaceContext` and `EmptyStateContext` (module logic like `hasData`) to determine the appropriate `ViewStateOutcome`.
+## Commands Run
+1. `npm install`
+2. `npx playwright install --with-deps`
+3. `npm run build` (Passed, verifying typechecking and compilation)
+4. `npx playwright test tests/e2e/ux-nav-01-038-empty-state-taxonomy-frontend.spec.ts` (Passed, validating the empty/blocked states tests)
 
-Tests were implemented and executed validating:
-- **Empty State**: Shows distinct user-facing outcome indicating the user should execute a primary action (e.g. 'Create Capability'). Commercial-oriented language is respected ("Streamline your operations").
-- **Blocked State**: Displays when a module is not active in the workspace configuration, informing the user about required privileges securely.
-- **Demo State**: Displays an explicit banner for demonstration modes and blocks active modification/creation where appropriate.
-- **Real-data State**: Baseline operational mode.
+## Journey Outcomes & Acceptance Criteria
 
-Playwright API tests executed successfully verifying that `/api/builder/capabilities` exposes the proper contract payloads:
-```
-npx playwright test tests/e2e/ux-nav-01-037-empty-state-taxonomy-backend.spec.ts
-```
+- **Origin/Action/Next/Return Pathways:** Handled per the `viewStateOutcome` backend payload. The empty state links to the primary action. The blocked state provides a clear return to the dashboard.
+- **Distinct Outcomes per State:** Addressed. We intercept and mock the states (`blocked`, `empty`, `synthetic`, `real_data`) directly from the `/api/builder/capabilities` route, feeding into `CapabilityExplorer.tsx` to render distinctly different `EmptyState` setups or UI alerts.
+- **Commercial Language:** Preserved text from the backend payload (`viewStateOutcome.title` and `viewStateOutcome.description`). Fallbacks correspond strictly to commercial/product-oriented terminology.
+- **Responsive Navigation:** Included desktop (`1280x720`) and mobile (`375x812`) screenshots for all mocked states using Playwright automation.
 
-Node tests executed successfully verifying `resolveViewState` business logic:
-```
-npx tsx --test tests/empty-state.test.ts
-```
+## Screenshots/Route Evidence
+Screenshots successfully captured via the Frontend Verification flow demonstrating distinct states (Empty, Blocked, Synthetic, Real Data) in both desktop and mobile viewports.
+
+* `blocked_desktop.png` / `blocked_mobile.png`
+* `empty_desktop.png` / `empty_mobile.png`
+* `synthetic_desktop.png` / `synthetic_mobile.png`
+* `real_data_desktop.png` / `real_data_mobile.png`
+
+## Honest Blockers
+None. The frontend implementation was completely able to fulfill the contract described in `EMPTY_STATE_TAXONOMY_CONTRACT.md`. All logic relied cleanly on the provided backend `viewStateOutcome`.

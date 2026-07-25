@@ -33,8 +33,8 @@ test.describe('Global Capabilities Entry Experience', () => {
 
   test('synthetic state has distinct user-facing outcome', async ({ page }) => {
     // Check for the synthetic mode alert banner
-    await expect(page.locator('div', { hasText: 'Synthetic Mode' }).first()).toBeVisible();
-    await expect(page.locator('div', { hasText: 'Catalogo base em consolidacao. Esta superficie apresenta capabilities ilustrativas e operacoes de solicitacao nao tem persistencia real no banco de dados.' }).first()).toBeVisible();
+    await expect(page.locator('div', { hasText: 'Explore registry' }).first()).toBeVisible();
+    await expect(page.locator('div', { hasText: 'You are exploring the Demo environment. Changes made here will not affect your production workspace.' }).first()).toBeVisible();
   });
 
   test('blocked state has distinct user-facing outcome (Coming Soon badge)', async ({ page }) => {

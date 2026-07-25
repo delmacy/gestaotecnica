@@ -25,7 +25,6 @@ export function PrimaryAction({ intent, className, size = "default", variant = "
               className={className}
               size={size}
               variant={variant}
-              title={intent.tooltipMessage}
             >
               {intent.label}
             </Button>

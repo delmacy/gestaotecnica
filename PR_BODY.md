@@ -1,18 +1,18 @@
-### Base SHA
-`494dea0eb0bb019b941df7ca5d0b9ebd277380e3`
+Base SHA: dbe0863192ce8a828202e2ed9c8ddc690280e0cd
 
-### Work done
-* Established the Workspace and Client Context Switching Contract documentation at `docs/ui/surfaces/navigation/WORKSPACE_SWITCHING_CONTRACT.md` correctly answering required acceptance criteria.
-* Stored backend typescript resolution functions for the schema under `src/app/api/builder/navigation/workspace-switching-contract`.
-* Added basic unit test at `tests/platform/builder/contracts/workspace-switching.test.ts` to verify typescript typing and contract expectations.
-* Corrected typescript contract exports from `src/platform/builder/contracts/workspace-switching` directly to `src/app/api/builder/navigation/workspace-switching-contract` allowing typings and TS checks to resolve fully.
+## Description
+This PR implements the Journey Validation test for the **Builder to Runtime Handoff** flow.
 
-### Testing commands run
-* `npm run check:architecture`
-* `npm run check:no-explicit-any`
-* `npx tsc --noEmit`
-* `npm run test tests/platform/builder/contracts/workspace-switching.test.ts`
-* `npx playwright test`
+It covers all acceptance criteria:
+- **Where the user came from:** Simulates user having finished configuration from Builder UI (`/builder/ui-contracts/handoff-test`).
+- **What they do here:** User initiates "Deploy" actions using the UI testing testbed for the different scenarios.
+- **Distinct user-facing outcomes:** Validates the Empty, Blocked, Demo, Synthetic, and Live data states distinct UI rendering and backend resolution.
+- **Where they go next & How they return:** Successfully asserts that after deployment (Demo, Synthetic, Live), clicking "View in Runtime" seamlessly routes the user to the runtime environments (`/runtime/app/[appId]`, `/runtime/demo/`, `/runtime/synthetic/`).
+- **Tests Execution:** The Playwright test script correctly validates the end-to-end journey without relying on synthetic mocked responses, by invoking the native `/api/builder/handoff` resolutions mapped into UI.
 
-### Blockers
-* No blockers encountered.
+Commands run:
+- Node.js validation: `nvm install 24 || nvm use 24 && node --version` (Node v24.18.0)
+- `npx playwright test tests/e2e/ux-nav-02/ux-nav-02-029-builder-runtime-handoff-e2e.spec.ts` (All 5 tests pass)
+- `npm run check:architecture` (Passed)
+- `npm run check:no-explicit-any` (No new issues introduced)
+- `npx tsc --noEmit` (Passed)

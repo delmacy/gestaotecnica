@@ -25,10 +25,13 @@ import {
 import { ActionBar } from "@/components/action-bar";
 import { getAvailableActionsForEntity } from "@/platform/views";
 import { resolveWorkspaceContext } from "@/platform/workspace";
+import { resolveOriginContext } from "@/platform/builder/contracts/origin-context/resolve-origin-context";
 
 export const dynamic = "force-dynamic";
 
 type WorkItemDetailPageProps = {
+  searchParams: Promise<{ origin?: string }>;
+
   params: Promise<{
     id: string;
   }>;
@@ -43,6 +46,7 @@ function formatDate(date: Date) {
 
 export default async function WorkItemDetailPage({
   params,
+  searchParams,
 }: WorkItemDetailPageProps) {
   const { id } = await params;
   const [
@@ -66,6 +70,10 @@ export default async function WorkItemDetailPage({
   }
 
   const context = await resolveWorkspaceContext({ source: "ui" });
+  const searchParamsAwaited = await searchParams;
+  const originPath = searchParamsAwaited.origin ?? null;
+  const currentPath = `/work-items/${id}`;
+  const originContext = resolveOriginContext({ workspaceContext: context, currentPath, originPath });
   const availableActions = await getAvailableActionsForEntity(
     "work_item",
     workItem.status,
@@ -78,9 +86,19 @@ export default async function WorkItemDetailPage({
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-8 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="font-mono text-xs uppercase text-[#65705f]">
-                Demanda
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-mono text-xs uppercase text-[#65705f]">Demanda</p>
+                {originContext.isDemo && (
+                  <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+                    DEMO MODE
+                  </span>
+                )}
+                {originContext.isSynthetic && (
+                  <span className="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">
+                    SYNTHETIC MODE
+                  </span>
+                )}
+              </div>
               <h1 className="mt-2 max-w-4xl text-4xl font-semibold text-[#111510]">
                 {workItem.title}
               </h1>
@@ -92,9 +110,9 @@ export default async function WorkItemDetailPage({
               <ActionBar actions={availableActions} entityId={workItem.id} path={`/work-items/${workItem.id}`} />
               <Link
               className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
-                href="/work-items"
+                href={originContext.returnPath ?? "/builder"}
               >
-                Voltar para WorkItems
+                {originContext.returnLabel}
               </Link>
             </div>
           </div>

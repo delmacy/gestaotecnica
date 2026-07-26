@@ -39,10 +39,13 @@ import { WorkflowInstancePanel } from "@/modules/workflow-engine/workflow-instan
 import { ActionBar } from "@/components/action-bar";
 import { getAvailableActionsForEntity } from "@/platform/views";
 import { resolveWorkspaceContext } from "@/platform/workspace";
+import { resolveOriginContext } from "@/platform/builder/contracts/origin-context/resolve-origin-context";
 
 export const dynamic = "force-dynamic";
 
 type ServiceOrderDetailPageProps = {
+  searchParams: Promise<{ origin?: string }>;
+
   params: Promise<{
     id: string;
   }>;
@@ -59,6 +62,7 @@ function formatDate(date: Date | null) {
 
 export default async function ServiceOrderDetailPage({
   params,
+  searchParams,
 }: ServiceOrderDetailPageProps) {
   const { id } = await params;
   const [
@@ -94,6 +98,10 @@ export default async function ServiceOrderDetailPage({
   }
 
   const context = await resolveWorkspaceContext({ source: "ui" });
+  const searchParamsAwaited = await searchParams;
+  const originPath = searchParamsAwaited.origin ?? null;
+  const currentPath = `/service-orders/${id}`;
+  const originContext = resolveOriginContext({ workspaceContext: context, currentPath, originPath });
   const availableActions = await getAvailableActionsForEntity(
     "service_order",
     serviceOrder.status,
@@ -116,9 +124,9 @@ export default async function ServiceOrderDetailPage({
               <ActionBar actions={availableActions} entityId={serviceOrder.id} path={`/service-orders/${serviceOrder.id}`} />
               <Link
               className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
-                href="/service-orders"
+                href={originContext.returnPath ?? "/builder"}
               >
-                Voltar para OS
+                {originContext.returnLabel}
               </Link>
             </div>
           </div>

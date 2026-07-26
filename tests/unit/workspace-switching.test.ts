@@ -6,7 +6,7 @@ import { NextRequest } from "next/server";
 describe('Workspace Switching API Routes (route.ts)', () => {
 
     it("GET parses valid payload and invokes handler correctly", async () => {
-      (global as any).mockDbResult = [];
+      (global as unknown as { mockDbResult: unknown[] }).mockDbResult = [];
       const req = new Request("http://localhost/api/builder/navigation/workspace-switching?userId=u1");
       const res = await GET(req as NextRequest);
       assert.strictEqual(res.status, 200);
@@ -15,7 +15,7 @@ describe('Workspace Switching API Routes (route.ts)', () => {
     });
 
     it("POST validates targetWorkspaceId and resolves", async () => {
-      (global as any).mockDbResult = [{ id: 'ws-1' }];
+      (global as unknown as { mockDbResult: unknown[] }).mockDbResult = [{ id: 'ws-1' }];
       const req = new Request("http://localhost/api/builder/navigation/workspace-switching", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

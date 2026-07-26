@@ -6,6 +6,7 @@ import type { WorkspaceContext } from "@/platform/workspace";
 import { resolvePrimaryAction } from "@/platform/builder/contracts/primary-action/resolve-primary-action";
 import { PrimaryAction } from "@/components/builder/shared/PrimaryAction";
 import { usePathname } from "next/navigation";
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 
 
 export function Topbar({
@@ -29,10 +30,9 @@ export function Topbar({
       <div className="flex flex-1 items-center gap-4">
         {mobileNavigation}
 
-        {/* Workspace Context Indicator */}
-        <div className="hidden md:flex items-center gap-2 border rounded-md px-3 py-1.5 bg-muted/30">
-          <span className="text-xs text-muted-foreground font-medium">Workspace:</span>
-          <span className="text-sm font-semibold">{context.workspaceId || "System"}</span>
+        {/* Workspace Switcher */}
+        <div className="hidden md:flex items-center">
+          <WorkspaceSwitcher context={context} />
         </div>
 
         {/* Search Placeholder */}

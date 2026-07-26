@@ -1,5 +1,8 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import type { PrimaryActionIntent } from "@/platform/builder/contracts/primary-action/primary-action-contract";
 
@@ -11,6 +14,8 @@ export interface PrimaryActionProps {
 }
 
 export function PrimaryAction({ intent, className, size = "default", variant = "default" }: PrimaryActionProps) {
+  const pathname = usePathname();
+
   if (intent.state === "hidden") {
     return null;
   }
@@ -33,9 +38,14 @@ export function PrimaryAction({ intent, className, size = "default", variant = "
     );
   }
 
+  // Safely append origin path to href
+  const hasQuery = intent.href.includes("?");
+  const separator = hasQuery ? "&" : "?";
+  const hrefWithOrigin = `${intent.href}${separator}origin=${encodeURIComponent(pathname || "/")}`;
+
   return (
     <Button asChild size={size} variant={variant} className={className}>
-      <Link href={intent.href}>
+      <Link href={hrefWithOrigin}>
         {intent.label}
       </Link>
     </Button>

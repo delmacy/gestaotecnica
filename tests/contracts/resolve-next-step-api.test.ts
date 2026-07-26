@@ -1,11 +1,11 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { NextNextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import { POST } from '../../src/app/api/builder/navigation/next-step/route';
 
 describe('Next Step Resolution API', () => {
   it('should return bad request for invalid outcome', async () => {
-    // We create a minimal mock request for NextNextRequest
+    // We create a minimal mock request for NextRequest
     const req = {
       json: async () => ({ outcome: 'INVALID_STUFF', moduleKey: 'registry' })
     } as unknown as NextRequest;

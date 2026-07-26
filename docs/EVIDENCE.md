@@ -33,8 +33,8 @@ Enhanced Empty State test constraint to explicitly assert the specific distinct 
 ## UX-NAV-02-012-success-next-step-backend
 **Base State**
 Synced with origin/main.
-Base SHA: $(git rev-parse HEAD)
-Node version: $(node --version)
+Base SHA: 6e396a97573c123bffa68268f5c0f56d5ce237df
+Node version: v24.18.0
 
 **Commands Run**
 - `nvm install 24 && nvm use 24`

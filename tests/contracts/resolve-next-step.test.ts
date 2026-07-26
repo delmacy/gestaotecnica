@@ -7,7 +7,14 @@ import { OriginContext } from '../../src/platform/builder/contracts/origin-conte
 describe('Next Step Resolution Contract', () => {
   const baseWorkspaceContext: WorkspaceContext = {
     workspaceId: 'ws-123',
-    tenantId: 'tenant-456',
+    workspaceKey: 'ws-123',
+    actor: {
+      type: 'user',
+      id: 'u-123',
+    },
+    source: 'ui',
+    correlationId: 'c-123',
+    scopes: [],
     environmentMode: 'real',
     enabledModules: ['registry', 'work-items', 'process-mirroring']
   };

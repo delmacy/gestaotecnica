@@ -16,7 +16,7 @@ export function BuilderCanvas({
   onUpdateItem,
   onCreateChild,
 }: {
-  activeItem: any; // explicit-any-ok
+  activeItem: any; /* explicit-any-ok */
   activeWorkspaceId: string | null;
   onUpdateItem?: (id: string, updates: any /* explicit-any-ok */) => void;
   onCreateChild?: (parentId: string) => void;
@@ -75,7 +75,7 @@ export function BuilderCanvas({
       case 'view':
         // For simplicity, let's treat some views as forms in the assembler
         if (activeItem.id?.includes('form')) {
-          return <FormBuilder entityId={activeItem.id} />;
+          return <FormBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />;
         }
         return <ViewBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />;
 

@@ -64,7 +64,7 @@ export function CommercialMap({ workspaceId }: { workspaceId: string }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {activeCapabilities.map((cap) => (
-          <Card key={cap.id} className={cap.status === "blocked" ? "opacity-75" : ""}>
+          <Card key={cap.id} className={cap.status === "blocked" ? "opacity-75" : ""} title={cap.status === "blocked" ? "Pro Feature" : undefined}>
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
               <div className="space-y-1">
                 <CardTitle className="text-base font-semibold">{cap.name}</CardTitle>

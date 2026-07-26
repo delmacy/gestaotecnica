@@ -1,7 +1,7 @@
 "use client";
 
-import type { NextStepOutcome, NextStepResolution } from "../contracts/next-step/next-step-contract";
-import type { OriginContext } from "../contracts/origin-context/origin-context-contract";
+import type { NextStepOutcome, NextStepResolution } from "@/platform/builder/contracts/next-step/next-step-contract";
+import type { OriginContext } from "@/platform/builder/contracts/origin-context/origin-context-contract";
 
 export interface HandleNextStepArgs {
     outcome: NextStepOutcome;

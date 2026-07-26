@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { NextStepResolution } from "@/platform/builder/contracts/next-step/next-step-contract";
-import { resolveNextStepViaApi, type HandleNextStepArgs } from "@/platform/builder/actions/handle-next-step";
+import { resolveNextStepViaApi, type HandleNextStepArgs } from "@/components/builder/shared/actions/handle-next-step";
 
 export function useNextStep() {
     const [resolution, setResolution] = useState<NextStepResolution | null>(null);

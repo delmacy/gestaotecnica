@@ -25,7 +25,7 @@ test.describe("Primary Action Model", () => {
     await page.goto("/builder/registry");
 
     const button = page.locator("a:has-text('Define Capability')");
-    await expect(button).toHaveAttribute("href", "/builder/capabilities/new");
+    await expect(button).toHaveAttribute("href", "/builder/capabilities/new?origin=%2Fbuilder%2Fregistry");
 
     await button.click();
     await expect(page).toHaveURL(/.*\/builder\/capabilities\/new/);

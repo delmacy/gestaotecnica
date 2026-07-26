@@ -18,7 +18,7 @@ export function ContextualReturn({ context }: ContextualReturnProps) {
         </p>
         <div className="mt-4">
           <Button asChild variant="default">
-            <Link href={context.returnPath || "/"}>{context.returnLabel || "Return Home"}</Link>
+            <Link href={context.returnPath || "/builder/dashboard"}>{context.returnLabel || "Return Home"}</Link>
           </Button>
         </div>
       </div>

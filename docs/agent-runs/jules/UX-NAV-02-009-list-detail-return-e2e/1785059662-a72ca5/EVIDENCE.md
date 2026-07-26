@@ -40,10 +40,10 @@ $ npx playwright test tests/e2e/ux-nav-02/ux-nav-02-009-list-detail-return.spec.
 
 Running 2 tests using 2 workers
 
-  ✓  1 [chromium] › tests/e2e/ux-nav-02/ux-nav-02-009-list-detail-return.spec.ts:9:7 › UX-NAV-02-009 List/Detail/Create/Edit Return Paths › Detail Back action returns to List (1.5s)
-  ✓  2 [chromium] › tests/e2e/ux-nav-02/ux-nav-02-009-list-detail-return.spec.ts:22:7 › UX-NAV-02-009 List/Detail/Create/Edit Return Paths › Create Cancel action returns to List (1.5s)
+  ✓  1 [chromium] › tests/e2e/ux-nav-02/ux-nav-02-009-list-detail-return.spec.ts:9:7 › UX-NAV-02-009 List/Detail/Create/Edit Return Paths › Detail Back action returns to List (3.6s)
+  ✓  2 [chromium] › tests/e2e/ux-nav-02/ux-nav-02-009-list-detail-return.spec.ts:22:7 › UX-NAV-02-009 List/Detail/Create/Edit Return Paths › Create Cancel action returns to List (4.1s)
 
-  2 passed (3.0s)
+  2 passed (7.8s)
 \`\`\`
 
 ### Unit Tests Output

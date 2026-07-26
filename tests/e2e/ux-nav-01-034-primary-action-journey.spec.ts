@@ -19,8 +19,8 @@ test.describe("UX-NAV-01-034: Primary Action and Next-Step Journey Validation", 
     await expect(page).toHaveURL(/.*\/builder\/capabilities\/new/);
     await expect(page.locator("h1", { hasText: "Create New Capability" })).toBeVisible();
 
-    // 4. How they return (Return)
-    const cancelBtn = page.locator("a:has-text('Return')");
+    // 4. How they return (Cancel and Return)
+    const cancelBtn = page.locator("a:has-text('Cancel and Return')");
     await cancelBtn.click();
     await expect(page).toHaveURL(/.*\/builder\/registry/);
   });

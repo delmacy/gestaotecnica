@@ -78,7 +78,6 @@ export function WorkspaceSwitcher({ context, className }: WorkspaceSwitcherProps
       if (data.status === "success" && data.redirectUrl) {
         document.cookie = `x-workspace-id=${workspace.workspaceId}; path=/`;
         router.push(data.redirectUrl);
-        router.refresh();
       } else {
         toast.error("Access Denied", {
           description: data.message || "You do not have access to this workspace.",
@@ -96,10 +95,6 @@ export function WorkspaceSwitcher({ context, className }: WorkspaceSwitcherProps
   };
 
   const currentWorkspaceName = workspaces.find((w) => w.workspaceId === context.workspaceId)?.name || context.workspaceId || "System Workspace";
-
-  if (workspaces.length <= 1 && !loading && open) {
-    // handled in UI below
-  }
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>

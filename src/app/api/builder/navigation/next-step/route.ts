@@ -27,7 +27,13 @@ export async function POST(request: NextRequest) {
     const { outcome, moduleKey, entityId, jobId, pathname, hasDestinationAccess } = parsed.data;
 
     const workspaceContext = await resolveWorkspaceContext({ source: "system" });
-    const originContext = resolveOriginContext(workspaceContext, { pathname: pathname ?? `/builder/${moduleKey}` });
+    const currentPath = pathname ?? `/builder/${moduleKey}`;
+    const originContext = resolveOriginContext({
+      workspaceContext,
+      currentPath,
+      originPath: currentPath,
+      moduleKey,
+    });
 
     const resolution = resolveNextStep({
       outcome,

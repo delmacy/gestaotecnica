@@ -6,7 +6,7 @@ import Module from 'node:module';
 
 // A simple way to mock next/headers for our node:test
 const originalRequire = Module.prototype.require;
-Module.prototype.require = function (id: string, ...args: unknown[]) {
+Module.prototype.require = function (id: string) {
   if (id === 'next/headers') {
     return {
       cookies: () => ({
@@ -14,7 +14,8 @@ Module.prototype.require = function (id: string, ...args: unknown[]) {
       }),
     };
   }
-  return originalRequire.apply(this, [id, ...args]);
+  // eslint-disable-next-line prefer-rest-params
+  return originalRequire.apply(this, arguments as unknown as [id: string]);
 };
 
 import { NextRequest } from 'next/server';

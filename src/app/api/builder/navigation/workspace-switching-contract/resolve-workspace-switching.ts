@@ -17,7 +17,7 @@ export async function resolveWorkspaceSwitching(request: WorkspaceSwitchingReque
     .where(eq(workspaces.id, request.targetWorkspaceId))
     .limit(1);
 
-  if (!targetWorkspace && request.targetWorkspaceId !== 'ws-1' && request.targetWorkspaceId !== 'ws-2') {
+  if (!targetWorkspace) {
     return { status: 'not-found', message: 'Workspace not found.' };
   }
 
@@ -45,7 +45,7 @@ export async function resolveWorkspaceList(request: WorkspaceListRequest): Promi
     return { workspaces: dummyWorkspaces };
   }
 
-  const mappedWorkspaces: WorkspaceInfo[] = results.map((ws: { id: string, name: string, status: string, adaptationKey: string | null }) => ({
+  const mappedWorkspaces: WorkspaceInfo[] = results.map((ws: typeof workspaces.$inferSelect) => ({
     workspaceId: ws.id,
     name: ws.name,
     role: 'workspace_member',

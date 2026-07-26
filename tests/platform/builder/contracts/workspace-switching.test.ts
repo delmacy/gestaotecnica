@@ -7,7 +7,7 @@ describe('Workspace Switching Contract', () => {
         // The stubs are now replaced with Drizzle queries that return Promises.
         // The original tests cannot safely unwrap async Promises locally
         // because we don't have db connections mocked in this older test file natively.
-        // They are tested in `tests/unit/workspace-switching.test.ts`.
+        // They are tested in `tests/unit/workspace-switching.test.ts` instead where mock limits don't hang.
         assert.ok(true);
     });
 });

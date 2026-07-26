@@ -1,51 +1,35 @@
-# Execution Evidence
+# UX-NAV-02-018: Cancel/Back/Discard Frontend Evidence
 
-## Environment Context
-- Node.js Version: v24.18.0
-- Base SHA: `e437025828453cd92497d526eefb8766bf744b8b` (sync with origin/main)
+This document proves that the frontend experience implementation for the Cancel/Back/Discard model satisfies the Acceptance Criteria based on the backend contract (`resolveCancelBack`).
 
-## E2E Validation Details
+## User Journey Fulfillment
 
-The execution implements the journey validation stage for the Origin and Active Context Model (UX-NAV-02-004-origin-context-e2e).
+The implemented frontend components explicitly define and answer the core journey:
+- **Where the user came from:** The user's historical origin context (such as the referer path or entity context like `/builder/portfolio`) is maintained securely and passed to the backend upon secondary navigation.
+- **What they do here:** Users can initiate one of three non-destructive secondary actions:
+  - **CANCEL:** Abort a localized action (like completing a form) before submission.
+  - **BACK:** Navigate up the structural application hierarchy.
+  - **DISCARD:** Attempt to leave a view when unsaved (dirty) data is present.
+- **Where they go next:** Upon executing one of these actions, they are explicitly navigated using the native Next.js router to their immediate parent context or precise historical origin instead of a hardcoded default page.
+- **How they return:**
+  - Standard navigation (Cancel/Back) resolves a path back to the historical origin context immediately and invokes `router.push`.
+  - If a **DISCARD** intervention gate activates due to unsaved changes (dirty state), the frontend explicitly intervenes with a commercial-framed prompt (e.g. "Discard Configuration") ensuring data is not accidentally lost unless the user confirms, at which point routing proceeds.
 
-The implemented Playwright E2E tests (`tests/e2e/ux-nav-02/ux-nav-02-004-origin-context.spec.ts`) cover the acceptance criteria:
+## Cross-State Outcomes and Validation
 
-1. **Origin Preservation:** Navigating to a deep view (create capability) preserves the origin, and hitting "Return" restores the explicit module view, answering "where they came from" and "how they return" safely.
-2. **State-Aware Empty & Blocked Outcomes:** Empty and Blocked states provide distinct outcomes that handle routing reliably.
-3. **Demo & Synthetic States:** Synthetic states retain their visual layout indicator deeply into the creation flow.
-4. **Boundary Isolation:** Simulating cross-scope navigation (`/admin/...` from a Workspace route) properly redirects the user to a safe workspace origin (Dashboard).
+The implementation dynamically parses and presents outcomes depending on application context:
+- **Real-Data State:** Normal routing resolves and any unsaved modifications reliably trigger the Discard intervention gate.
+- **Empty State:** Navigating back properly leverages the backend contract to return to empty views, enabling "Ready to build your first capability?" messaging via empty state taxonomy.
+- **Blocked State:** Standard primary actions might be disabled, but Cancel and Back actions remain active so the user can easily escape.
+- **Demo State/Synthetic Data:** Operates fluidly like real data. Intervening "Discard" gates still appear realistically. Synthetic prefix indicators persist in breadcrumbs or context labels dynamically via the backend response.
 
-### Test Outputs
+## Product Language and Design
 
-```
-Running 5 tests using 2 workers
-  5 passed (4.5s)
-```
+- Rejects internal jargon (e.g. "Clear form state").
+- Focuses on contextual commercial framing provided by the backend label logic (e.g. "Return to Portfolio" or "Discard Configuration").
+- Accessible and responsive elements (demonstrated within standard Tailwind setup for forms and intervention modals).
 
-No explicit `any` types were introduced.
-No tests were removed or weakened.
-Journey logic strictly utilizes valid Playwright selectors on rendered routes.
+## Quality Assurance
 
-### Update 1
-
-Enhanced Empty State test constraint to explicitly assert the specific distinct user-facing message and distinct "Return to Dashboard" action ("Seção não encontrada") instead of only checking for body layout stability. Cleaned up transient test debug scripts from root path. No arbitrary explicit `any` types were introduced.
-
-## UX-NAV-02-012-success-next-step-backend
-**Base State**
-Synced with origin/main.
-Base SHA: 6e396a97573c123bffa68268f5c0f56d5ce237df
-Node version: v24.18.0
-
-**Commands Run**
-- `nvm install 24 && nvm use 24`
-- `npm install`
-- `npm run build`
-- `npx tsx --test tests/contracts/resolve-next-step.test.ts`
-- `npx tsx --test tests/contracts/resolve-next-step-api.test.ts`
-
-**Solution**
-Exposed `resolveNextStep` via an API route `src/app/api/builder/navigation/next-step/route.ts`. The route uses `resolveWorkspaceContext` and `NextStepOutcomeSchema` to accurately identify where the user goes next based on their request body (`outcome`, `moduleKey`, `entityId`, etc.) and system environment settings. Validation shows the build passes without strict type errors, respecting no new explicit TypeScript `any` types. Tested route using a simple unit test.
-
-**E2E Route Verification Evidence**
-- The new next-step route resolves correctly: tested locally by triggering POST payloads to `/api/builder/navigation/next-step`. It successfully returns the appropriate next destination, respecting missing module parameters with a 400 response and standard completions with 200 responses.
-- `environmentMode` handling inside `resolveNextStep` processes `isDemo` properly routing to list instead of details to maintain synthetic state constraints. Base tests run perfectly with no TypeScript `any` cast leaks.
+- **Unit/Architecture Rules Passed:** Confirmed zero explicit `any` violations (`npm run check:architecture` and `npm run build`).
+- **E2E Playwright Path Verification:** The UI contract tester `cancel-back-test` mounts the hook `useCancelBack` and successfully executes Playwright suites to cover CANCEL resolution and execution, DISCARD intervention triggering and subsequent interaction routing on dirty forms, and BACK logic against blocked constraints.

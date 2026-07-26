@@ -9,3 +9,5 @@ export * from "./return-paths/return-paths-contract";
 export * from "./return-paths/resolve-return-path";
 export * from "./cancel-back/cancel-back-contract";
 export * from "./cancel-back/resolve-cancel-back";
+export * from "./workspace-switching/workspace-switching-contract";
+export * from "./workspace-switching/resolve-workspace-switching";

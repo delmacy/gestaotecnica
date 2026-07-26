@@ -2,14 +2,21 @@ import { describe, it } from "node:test";
 import assert from "node:assert";
 import { resolveReturnPath } from "../../../src/platform/builder/contracts/return-paths";
 import { WorkspaceContext } from "../../../src/platform/workspace";
-import { OriginContext } from "../../../src/platform/builder/contracts/origin-context";
+import { OriginContext } from "../../../src/platform/builder/contracts/origin-context/origin-context-contract";
 
 describe("resolveReturnPath", () => {
   const baseWorkspaceContext: WorkspaceContext = {
     workspaceId: "ws-1",
-    userId: "u-1",
-    role: "admin",
-    environmentMode: "production",
+    workspaceKey: "ws-1",
+    actor: {
+      type: "user",
+      id: "u-1",
+    },
+    source: "ui",
+    enabledModules: ["portfolio"],
+    scopes: [],
+    correlationId: "123",
+    environmentMode: "real",
   };
 
   const baseOriginContext: OriginContext = {

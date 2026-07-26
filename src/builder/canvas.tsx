@@ -75,18 +75,9 @@ export function BuilderCanvas({
       case 'view':
         // For simplicity, let's treat some views as forms in the assembler
         if (activeItem.id?.includes('form')) {
-          return <FormBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />;
+          return <FormBuilder entityId={activeItem.id} />;
         }
-        return <ViewBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />;
-
-      case 'entity':
-        return (
-          <div className="flex-1 flex flex-col items-center justify-center p-12">
-             <Database className="size-12 text-muted-foreground/20 mb-4" />
-             <h3 className="font-bold text-lg">{activeItem.label}</h3>
-             <p className="text-sm text-muted-foreground">Entidade dinâmica registrada em {activeItem.metadata?.source}</p>
-          </div>
-        );
+        return <ViewBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} /> ;
 
       default:
         return (

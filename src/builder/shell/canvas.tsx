@@ -75,7 +75,7 @@ export function BuilderCanvas({
       case 'view':
         // For simplicity, let's treat some views as forms in the assembler
         if (activeItem.id?.includes('form')) {
-          return <FormBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />;
+          return <FormBuilder entityId={activeItem.id} />;
         }
         return <ViewBuilder activeItem={activeItem} activeWorkspaceId={activeWorkspaceId} />;
 

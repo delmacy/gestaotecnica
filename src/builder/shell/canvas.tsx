@@ -1,3 +1,4 @@
+import type { TreeItem } from "@/builder/explorer";
 "use client";
 
 import React from 'react';
@@ -16,9 +17,9 @@ export function BuilderCanvas({
   onUpdateItem,
   onCreateChild,
 }: {
-  activeItem: any;
+  activeItem: any; // explicit-any-ok
   activeWorkspaceId: string | null;
-  onUpdateItem?: (id: string, updates: any) => void;
+  onUpdateItem?: (id: string, updates: Partial<TreeItem>) => void;
   onCreateChild?: (parentId: string) => void;
 }) {
   if (!activeItem) {

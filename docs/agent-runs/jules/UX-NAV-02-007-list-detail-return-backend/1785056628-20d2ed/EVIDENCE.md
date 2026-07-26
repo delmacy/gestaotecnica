@@ -19,3 +19,6 @@
 - **Focused tests or documented validation evidence are included in the PR:** Check `tests/platform/contracts/resolve-return-path.test.ts`.
 - **PR body includes base SHA, commands run, screenshots or route evidence where relevant, and any honest blockers:** Provided in this doc.
 - **Pipeline discipline is respected:** Only the backend/data binding parts implemented.
+
+## Build Validation
+- Ran `npm run build` locally which completed successfully (`✓ Compiled successfully`).

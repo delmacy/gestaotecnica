@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { resolveReturnPath } from "../../../src/platform/builder/contracts/return-paths";
 import { WorkspaceContext } from "../../../src/platform/workspace";
 import { OriginContext } from "../../../src/platform/builder/contracts/origin-context/origin-context-contract";
+import { ActionOutcome } from "../../../src/platform/builder/contracts/return-paths";
 
 describe("resolveReturnPath", () => {
   const baseWorkspaceContext: WorkspaceContext = {
@@ -75,6 +76,18 @@ describe("resolveReturnPath", () => {
     assert.strictEqual(result.destination, "/builder/portfolio/detail/123");
   });
 
+  it("routes EDIT_CANCEL to detail view", () => {
+    const result = resolveReturnPath({
+      outcome: "EDIT_CANCEL",
+      moduleKey: "portfolio",
+      entityId: "123",
+      workspaceContext: baseWorkspaceContext,
+      originContext: baseOriginContext,
+    });
+    assert.strictEqual(result.destination, "/builder/portfolio/detail/123");
+    assert.strictEqual(result.label, "Cancel Edit");
+  });
+
   it("routes DELETE_SUCCESS to list view", () => {
     const result = resolveReturnPath({
       outcome: "DELETE_SUCCESS",
@@ -84,6 +97,28 @@ describe("resolveReturnPath", () => {
     });
     assert.strictEqual(result.destination, "/builder/portfolio");
     assert.strictEqual(result.label, "Return to Registry");
+  });
+
+  it("routes DETAIL_BACK to safe origin path", () => {
+    const result = resolveReturnPath({
+      outcome: "DETAIL_BACK",
+      moduleKey: "portfolio",
+      workspaceContext: baseWorkspaceContext,
+      originContext: baseOriginContext,
+    });
+    assert.strictEqual(result.destination, "/builder/portfolio");
+    assert.strictEqual(result.label, "Return to Registry");
+  });
+
+  it("routes unknown outcome to list view", () => {
+    const result = resolveReturnPath({
+      outcome: "UNKNOWN_OUTCOME" as ActionOutcome,
+      moduleKey: "portfolio",
+      workspaceContext: baseWorkspaceContext,
+      originContext: baseOriginContext,
+    });
+    assert.strictEqual(result.destination, "/builder/portfolio");
+    assert.strictEqual(result.label, "Return");
   });
 
   it("routes intercepted for blocked state", () => {

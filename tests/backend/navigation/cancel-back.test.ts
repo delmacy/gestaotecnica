@@ -20,10 +20,13 @@ describe("Cancel, Back, and Discard Behavior Backend Contract", () => {
   };
 
   const defaultOriginContext: OriginContext = {
+    originPath: null,
     returnPath: "/builder/portfolio",
     returnLabel: "Return to Portfolio",
     isBlocked: false,
-    emptyStateContext: null
+    isDemo: false,
+    isSynthetic: false,
+    isValidScope: true
   };
 
   it("should return to safe origin when navigating back from a clean state", () => {

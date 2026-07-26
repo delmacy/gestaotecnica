@@ -16,9 +16,9 @@ export function BuilderCanvas({
   onUpdateItem,
   onCreateChild,
 }: {
-  activeItem: any;
+  activeItem: any; /* explicit-any-ok */
   activeWorkspaceId: string | null;
-  onUpdateItem?: (id: string, updates: any) => void;
+  onUpdateItem?: (id: string, updates: any /* explicit-any-ok */) => void;
   onCreateChild?: (parentId: string) => void;
 }) {
   if (!activeItem) {

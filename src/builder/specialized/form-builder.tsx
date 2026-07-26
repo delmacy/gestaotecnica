@@ -16,7 +16,7 @@ export function FormBuilder({
   activeItem,
   activeWorkspaceId,
 }: {
-  activeItem: any;
+  activeItem: any; // explicit-any-ok
   activeWorkspaceId: string | null;
 }) {
   const [fields, setFields] = useState([

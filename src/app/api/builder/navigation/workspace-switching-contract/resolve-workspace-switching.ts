@@ -45,7 +45,7 @@ export async function resolveWorkspaceList(request: WorkspaceListRequest): Promi
     return { workspaces: dummyWorkspaces };
   }
 
-  const mappedWorkspaces: WorkspaceInfo[] = results.map(ws => ({
+  const mappedWorkspaces: WorkspaceInfo[] = results.map((ws: { id: string, name: string, status: string, adaptationKey: string | null }) => ({
     workspaceId: ws.id,
     name: ws.name,
     role: 'workspace_member',

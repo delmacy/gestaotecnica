@@ -68,3 +68,22 @@ ok 1 - Breadcrumb Inventory
 ```
 
 `npx tsc --noEmit` and global `npm run test` verified. No regressions introduced.
+
+## Builder to Runtime Handoff - Frontend Experience (UX-NAV-02-028)
+
+**Where the user came from:**
+The user originated from the Builder environment, typically having just configured an operational process or application. They are on a deployment or testing screen in the Builder where they are ready to launch their work.
+
+**What they do here:**
+The user initiates a "Deploy to Runtime" or "Launch in Runtime" action. Based on the data state and permissions, they encounter distinct experiences:
+- **Production App**: Successful deployment of real configurations to live runtime servers with clear commercial messaging.
+- **Empty App**: Action is blocked/disabled, showing a "No configs to deploy" indicator.
+- **Restricted/Blocked**: Action is restricted due to lack of privileges, grayed out as a "Pro Feature".
+- **Demo App**: Sandboxed deployment to a demo environment.
+- **Synthetic App**: Deployment of synthetic test data to a distinct synthetic runtime, properly badged to avoid confusion with live data.
+
+**Where they go next:**
+Upon a successful handoff execution, a persistent confirmation dialog appears with a "View in Runtime" action. Clicking this uses Next.js routing (`useRouter().push()`) to seamlessly transition the user directly into the active Runtime view for their deployed application.
+
+**How they return:**
+As defined in the runtime contract, from the runtime application, users with builder rights can use a persistent toolbar to "Return to Builder" to edit configurations.

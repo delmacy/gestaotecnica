@@ -11,8 +11,8 @@ export function resolveWorkspaceSwitching(request: WorkspaceSwitchingRequest): W
 export function resolveWorkspaceList(request: WorkspaceListRequest): WorkspaceListResponse {
     // Contract implementation stub
     const dummyWorkspaces: WorkspaceInfo[] = [
-        { workspaceId: 'ws-1', name: 'Primary Operations', role: 'workspace_admin' },
-        { workspaceId: 'ws-2', name: 'Beta Features', role: 'workspace_member', isSynthetic: true },
+        { workspaceId: 'ws-1', name: 'Primary Operations', role: 'workspace_admin', isDemo: false, isSynthetic: false },
+        { workspaceId: 'ws-2', name: 'Beta Features', role: 'workspace_member', isDemo: false, isSynthetic: true },
     ];
     return { workspaces: dummyWorkspaces };
 }

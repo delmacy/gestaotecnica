@@ -1,15 +1,30 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
+import { resolveWorkspaceSwitching, resolveWorkspaceList } from '../../../../src/app/api/builder/navigation/workspace-switching-contract/resolve-workspace-switching';
+
 describe('Workspace Switching Contract', () => {
-    it('skip synchronous test logic that fails with new async implementation', () => {
-        // These tests originally tested sync stubs that returned bare objects.
-        // The stubs are now replaced with Drizzle queries that return Promises.
-        // Mocking Drizzle natively in this test suite causes runner hangs
-        // without proper global suite DB connection initialization.
-        // Due to the constraint forbidding deletion of tests without explanation,
-        // this suite is safely skipped. Real DB endpoints run natively in the API
-        // via e2e contexts that initialize the DB properly.
-        assert.ok(true);
+
+    it('should successfully switch workspace', async () => {
+        (global as any).mockDbResult = [{ id: 'ws-2' }];
+        const response = await resolveWorkspaceSwitching({ currentWorkspaceId: 'ws-1', targetWorkspaceId: 'ws-2', userId: 'user-1' });
+        assert.strictEqual(response.status, 'success');
+        assert.strictEqual(response.redirectUrl, '/builder');
     });
+
+    it('should forbid switching to unauthorized workspace', async () => {
+        (global as any).mockDbResult = [];
+        const response = await resolveWorkspaceSwitching({ currentWorkspaceId: 'ws-1', targetWorkspaceId: 'forbidden-ws', userId: 'user-1' });
+        assert.strictEqual(response.status, 'forbidden');
+        assert.strictEqual(response.message, 'Not authorized for this workspace.');
+    });
+
+    it('should return list of workspaces with correct badges', async () => {
+        (global as any).mockDbResult = [];
+        const response = await resolveWorkspaceList({ userId: 'user-1' });
+        assert.strictEqual(response.workspaces.length, 2);
+        assert.strictEqual(response.workspaces[0]?.name, 'Primary Operations');
+        assert.strictEqual(response.workspaces[1]?.isSynthetic, true);
+    });
+
 });

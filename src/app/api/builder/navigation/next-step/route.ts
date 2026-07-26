@@ -8,6 +8,13 @@ import { OriginContext } from "@/platform/builder/contracts/origin-context/origi
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const cookieHeader = request.cookies.get('x-environment-mode')?.value;
+
+    // Type narrow the cookie value instead of using 'as any'
+    let envMode: "real" | "synthetic" | "demo" | undefined;
+    if (cookieHeader === "real" || cookieHeader === "synthetic" || cookieHeader === "demo") {
+      envMode = cookieHeader;
+    }
 
     // Parse outcome using Zod schema
     const parseResult = NextStepOutcomeSchema.safeParse(body.outcome);
@@ -45,7 +52,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(errorEnvelope, { status: 400 });
     }
 
-    const context = await resolveWorkspaceContext({ source: "system" });
+    const context = await resolveWorkspaceContext({
+      source: "system",
+      environmentMode: envMode,
+    });
 
     const originContext: OriginContext = body.originContext ?? {
       originPath: `/builder/${moduleKey}`,

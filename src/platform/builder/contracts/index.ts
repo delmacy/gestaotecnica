@@ -11,3 +11,5 @@ export * from "./cancel-back/cancel-back-contract";
 export * from "./cancel-back/resolve-cancel-back";
 export * from "./workspace-switching/workspace-switching-contract";
 export * from "./workspace-switching/resolve-workspace-switching";
+export * from "./deep-link-landing/deep-link-landing-contract";
+export * from "./deep-link-landing/resolve-deep-link-landing";

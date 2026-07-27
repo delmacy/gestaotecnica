@@ -87,3 +87,31 @@ Upon a successful handoff execution, a persistent confirmation dialog appears wi
 
 **How they return:**
 As defined in the runtime contract, from the runtime application, users with builder rights can use a persistent toolbar to "Return to Builder" to edit configurations.
+
+## Runtime to Evidence Handoff - Journey Validation (UX-NAV-02-034)
+
+- **Git SHA:** `99c47f6d0c127662fe1c41aa87e97043ebd919b5`
+
+**Where the user came from:**
+Users typically originate from the Runtime environment (e.g., an active task view or executing an operational step). They have just finished executing an operational step, filling out a form, or completing a process that requires a secure audit trail.
+
+**What they do here:**
+The user triggers a "Submit to Record," "Log Evidence," or "Complete Process" action. Based on the payload and environment context, they encounter distinct states:
+- **Official Record Captured (Real-Data State):** Real execution records hand off to the live, immutable production vault. The system explicitly confirms the binding nature of the action.
+- **Submission Restricted (Blocked State):** If the user lacks authority to log evidence or the session expired, the action is blocked, distinctively showing "Submission Restricted".
+- **Logged to Demo Vault (Demo State):** In demo environments, it routes the payload to a sandbox vault, displaying "Logged to Demo Vault" to indicate it's not a permanent record.
+- **Synthetic Record (Synthetic Data State):** Synthetically generated executions hand off to a "Synthetic Evidence" partition, clearly badged as a "Synthetic Record".
+- **Required information missing (Empty State):** If mandatory inputs are not provided, handoff cannot be initiated, showing "Required information missing".
+
+**Where they go next:**
+Upon successful handoff, the user receives a confirmation receipt view with options. Clicking "View Evidence Receipt" pushes the user into the evidence vault to view their immutable record (e.g., `/runtime/evidence/[evidenceId]/receipt`).
+
+**How they return:**
+From the Evidence Receipt view, primary actions such as "Return to Dashboard" or "Next Task" seamlessly route the user back to their active workspace or task queue in the Runtime environment.
+
+**Validation Details:**
+The frontend contract and routes are fully verified through Playwright end-to-end tests ensuring distinct user-facing outcomes for empty, blocked, demo, synthetic, and real-data states, and proper route pushing for subsequent navigation steps.
+
+```sh
+$ npx playwright test tests/e2e/runtime-evidence-handoff.spec.ts
+```

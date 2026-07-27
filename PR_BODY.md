@@ -1,21 +1,18 @@
-# Blocked/Error/Fallback Paths - Frontend Experience
+# feat: UX-NAV-02-039 Blocked/fallback paths journey validation
 
-## Objective
-Implement the user-facing route/menu/flow experience for Blocked, Error, and Fallback Paths according to the predefined contract. This ensures safe interception and provides clear, product-oriented navigation paths back to known safe states for users when errors or authorization failures occur.
+Base SHA: a2a52624e923b0529b25868ed4e06aed38e77eae
 
-## Implementation Details
-1. **Global and Scoped Error Boundaries:** Updated `src/app/error.tsx` and created `src/app/(builder)/builder/error.tsx` to handle 500-level errors with commercial terminology ("Temporary Disruption", "Please try again later or contact support").
-2. **Missing Entity (Not Found) Handling:** Added `src/app/(builder)/builder/not-found.tsx` and updated the catch-all `src/app/(builder)/builder/[...catchAll]/page.tsx` to display "Configuration Unavailable" with a clear fallback action ("Return to Workspace").
-3. **Frontend API Hook (`useBlockedFallback`):** Created a client-side hook in `src/components/builder/shared/hooks/useBlockedFallback.ts` to seamlessly communicate with the backend `/api/builder/navigation/blocked-fallback` endpoint and resolve context-aware safe return paths.
-4. **Journey Validation App Component:** Implemented `src/app/(builder)/builder/ui-contracts/blocked-fallback-test/page.tsx` to natively mount and test the hook against all block cases (Demo restricted, Workspace Access Denied, Not Found, etc.).
+Validation test suite passing outcome:
+```
+Running 3 tests using 2 workers
 
-## Validation
-* E2E Playwright tests explicitly validate the contract conditions.
-* Run: `npx playwright test tests/e2e/builder/blocked-fallback-contract.spec.ts`
-* Output: 4 passed.
-* See `EVIDENCE.md` for specific user journey definitions.
+[1/3] [chromium] › tests/e2e/ux-nav-02/ux-nav-02-039-blocked-fallback-paths.spec.ts:11:9 › UX-NAV-02-039 Blocked Fallback Paths › should resolve forbidden_workspace fallback
+[2/3] [chromium] › tests/e2e/ux-nav-02/ux-nav-02-039-blocked-fallback-paths.spec.ts:29:9 › UX-NAV-02-039 Blocked Fallback Paths › should resolve demo mode restriction without redirect
+[3/3] [chromium] › tests/e2e/ux-nav-02/ux-nav-02-039-blocked-fallback-paths.spec.ts:44:9 › UX-NAV-02-039 Blocked Fallback Paths › should navigate to fallback path when Execute Navigation is clicked
+  3 passed (4.2s)
+```
 
-## Constraints
-* No new explicit `any` types were introduced.
-* No mock data or fake behavior was invented outside of the `blocked-fallback` contract.
-* UI language adheres to the commercial product orientation.
+Evidence execution details:
+Please find the user journey evidence recorded in `docs/agent-runs/jules/UX-NAV-02-039-blocked-fallback-paths-e2e/1785136906-b25104/EVIDENCE.md`
+
+**Blocker Note**: Other tests fail with 'database system is in recovery mode' — a known environment constraint, not caused by this change.

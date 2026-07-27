@@ -24,9 +24,9 @@ export default function ErrorPage({
     <div className="flex h-screen flex-col items-center justify-center p-4">
       <div className="flex flex-col items-center max-w-md text-center space-y-4">
         <AlertCircle className="w-12 h-12 text-destructive" />
-        <h2 className="text-2xl font-bold tracking-tight">Ocorreu um erro inesperado</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Temporary Disruption</h2>
         <p className="text-muted-foreground">
-          Nossa equipe trabalha continuamente para manter a plataforma estável.
+          Please try again later or contact support.
           {error.digest && (
             <span className="block mt-2 text-xs opacity-50">
               Referência do Erro: {error.digest}
@@ -37,7 +37,7 @@ export default function ErrorPage({
           onClick={() => reset()}
           className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md shadow hover:bg-primary/90"
         >
-          Tentar novamente
+          Retry
         </button>
       </div>
     </div>

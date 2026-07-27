@@ -20,11 +20,11 @@ export default function ErrorPage({
     <div className="h-full flex items-center justify-center p-8">
       <EmptyState
         icon={AlertTriangle}
-        title="Ocorreu um erro ao carregar a página"
-        description={error.message || "Não foi possível exibir esta página devido a um erro interno."}
+        title="Temporary Disruption"
+        description={error.message || "Please try again later or contact support."}
         action={
           <Button variant="outline" onClick={() => reset()}>
-            Tentar novamente
+            Retry
           </Button>
         }
       />

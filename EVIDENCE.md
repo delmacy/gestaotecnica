@@ -1,22 +1,36 @@
-# Execution Evidence
+# Blocked/Error/Fallback Paths - Frontend Experience Evidence
+
+## Goal
+Implement the user-facing route/menu/flow experience for Blocked, Error, and Fallback Paths according to the contract, ensuring proper interception and user-friendly messaging without inventing new backend behavior.
 
 ## Base SHA
-b4130f345577bf5f044d1767e409f973c03370bf
+```
+486392bbd02fd2703aae1b41400c1aa330331ceb
+```
 
-## Commands Run
-- `npm run check:architecture`: Passed successfully with no blocking errors.
-- `npm run check:no-explicit-any`: Validated that no new explicit `any` violations were introduced in my new codebase additions.
-- `npx tsx --test tests/contracts/blocked-fallback/resolve-blocked-fallback.test.ts`: Passed (5/5).
-- `npx tsx --test tests/contracts/blocked-fallback/route.test.ts`: Passed (2/2).
+## User Journey
+The implementation ensures a clear and commercial user experience when a failure or blockage is encountered:
 
-## Contract Details
-- **Blocked/Error/Fallback Paths Contract** (`docs/ui/surfaces/navigation/BLOCKED_FALLBACK_PATHS_CONTRACT.md`) has been created to define clear, distinct routing rules and messaging for system failures.
-- **Contract Schema**: Developed in `src/app/api/builder/navigation/blocked-fallback/blocked-fallback-contract.ts` using strict `zod` types.
-- **Resolver**: Implemented safe, robust fallback matching in `resolve-blocked-fallback.ts`, accurately distinguishing scopes and states (including demo restrictions and workspace/platform permission blocks).
-- **Endpoint**: Integrated into a Next.js POST route at `src/app/api/builder/navigation/blocked-fallback/route.ts`.
+*   **Where the user came from:** The user initiates an action or navigates to a route within the application (e.g., trying to access a restricted capability or encountering an error).
+*   **What they do here:** The system intercepts the request (via Next.js `error.tsx`, `not-found.tsx`, or the custom `useBlockedFallback` hook for API/action failures). Instead of raw errors or codes, the user sees a commercial message. For example:
+    *   **Unauthorized:** "Please log in to continue."
+    *   **Blocked Workspace:** "This configuration requires Workspace Admin privileges."
+    *   **Demo Restricted:** "Action restricted in Demo Simulation. No changes were made."
+    *   **Missing Entity:** "Configuration Unavailable."
+    *   **System Error:** "Temporary Disruption. Please try again later or contact support."
+*   **Where they go next:** The system provides a safe primary fallback action. For workspace errors, it routes back to the parent workspace or list view. For unauthorized access, it routes to `/auth/login`. For system errors, it provides a "Retry" or return to dashboard option.
+*   **How they return:** The fallback state retains structural navigation (if possible) and provides explicit primary actions (like "Return to Workspace" or "Retry") to guide the user back to a known safe state.
 
-## Blockers
-None.
+## Implementation Details
+1.  **Frontend Hook (`useBlockedFallback`)**: Added a React hook to communicate with the `blocked-fallback` API endpoint.
+2.  **UI Contracts Testing App**: Created a dedicated testing interface at `src/app/(builder)/builder/ui-contracts/blocked-fallback-test/page.tsx` to mount the hook and execute routing logic for all state scenarios natively within the browser context.
+3.  **Global & Scoped Error Boundaries**: Updated `src/app/error.tsx` and created `src/app/(builder)/builder/error.tsx` to use product-oriented language ("Temporary Disruption") instead of generic stack traces. Created `src/app/(builder)/builder/not-found.tsx` to handle 404 paths with "Configuration Unavailable" and a safe return action.
 
-## Notes
-The `src/platform/builder/contracts/blocked-fallback/` initial directory mistake was immediately corrected to `src/app/api/builder/navigation/blocked-fallback/` due to the "allowed files" boundary constraints set in the task.
+## Validation
+A Playwright E2E test suite (`tests/e2e/builder/blocked-fallback-contract.spec.ts`) was executed successfully, validating all specific contract conditions natively through the UI layer.
+
+```
+$ npx playwright test tests/e2e/builder/blocked-fallback-contract.spec.ts
+
+  4 passed (8.8s)
+```

@@ -21,7 +21,7 @@ describe("Journey Logic Regression Gate", () => {
       journeyId: "j-123",
       moduleKey: "setup",
       workspaceContext: getContext("real"),
-      originContext: { isBlocked: false, returnPath: null, returnLabel: null }
+      originContext: { originPath: null, isBlocked: false, returnPath: null, returnLabel: null, isDemo: false, isSynthetic: false, isValidScope: true }
     });
 
     assert.strictEqual(result.destination, "/builder/setup/journey/j-123/step/1");
@@ -37,7 +37,7 @@ describe("Journey Logic Regression Gate", () => {
       currentStepId: "1",
       moduleKey: "setup",
       workspaceContext: getContext("real"),
-      originContext: { isBlocked: false, returnPath: null, returnLabel: null }
+      originContext: { originPath: null, isBlocked: false, returnPath: null, returnLabel: null, isDemo: false, isSynthetic: false, isValidScope: true }
     });
 
     assert.strictEqual(result.destination, "/builder/setup/journey/j-123/step/2");
@@ -51,7 +51,7 @@ describe("Journey Logic Regression Gate", () => {
       journeyId: "j-123",
       moduleKey: "setup",
       workspaceContext: getContext("real"),
-      originContext: { isBlocked: false, returnPath: "/builder/dashboard", returnLabel: "Dashboard" }
+      originContext: { originPath: null, isBlocked: false, returnPath: "/builder/dashboard", returnLabel: "Dashboard", isDemo: false, isSynthetic: false, isValidScope: true }
     });
 
     assert.strictEqual(result.destination, "/builder/dashboard");
@@ -66,7 +66,7 @@ describe("Journey Logic Regression Gate", () => {
       journeyId: "j-123",
       moduleKey: "setup",
       workspaceContext: getContext("real"),
-      originContext: { isBlocked: false, returnPath: null, returnLabel: null }
+      originContext: { originPath: null, isBlocked: false, returnPath: null, returnLabel: null, isDemo: false, isSynthetic: false, isValidScope: true }
     });
 
     assert.strictEqual(result.destination, "/builder/setup/detail/j-123");
@@ -81,7 +81,7 @@ describe("Journey Logic Regression Gate", () => {
       journeyId: "j-123",
       moduleKey: "setup",
       workspaceContext: getContext("real"),
-      originContext: { isBlocked: true, returnPath: "/builder/settings", returnLabel: null }
+      originContext: { originPath: null, isBlocked: true, returnPath: "/builder/settings", returnLabel: null, isDemo: false, isSynthetic: false, isValidScope: true }
     });
 
     assert.strictEqual(result.destination, "/builder/settings");
@@ -96,7 +96,7 @@ describe("Journey Logic Regression Gate", () => {
       journeyId: "j-123",
       moduleKey: "setup",
       workspaceContext: getContext("demo"),
-      originContext: { isBlocked: false, returnPath: null, returnLabel: null }
+      originContext: { originPath: null, isBlocked: false, returnPath: null, returnLabel: null, isDemo: false, isSynthetic: false, isValidScope: true }
     });
 
     assert.strictEqual(result.status, "demo");

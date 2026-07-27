@@ -48,6 +48,10 @@ export async function POST(req: Request) {
         environmentMode
       },
       originContext: {
+        originPath: null,
+        isDemo: environmentMode === "demo",
+        isSynthetic: environmentMode === "synthetic",
+        isValidScope: true,
         isBlocked: headerBlocked,
         returnPath: returnPath || null,
         returnLabel: returnLabel || null

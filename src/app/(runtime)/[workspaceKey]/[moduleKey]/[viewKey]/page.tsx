@@ -5,11 +5,20 @@ import { forms } from "@/db/runtime/schema/workflow";
 import { eq, and } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default async function DynamicRuntimeViewPage({ params }: { params: { workspaceKey: string, moduleKey: string, viewKey: string } }) {
+export default async function DynamicRuntimeViewPage({
+  params,
+}: {
+  params: Promise<{
+    workspaceKey: string;
+    moduleKey: string;
+    viewKey: string;
+  }>;
+}) {
+  const { workspaceKey, moduleKey, viewKey } = await params;
   const db = getDb();
 
   // 1. Resolve Workspace
-  const [workspace] = await db.select().from(workspaces).where(eq(workspaces.key, params.workspaceKey));
+  const [workspace] = await db.select().from(workspaces).where(eq(workspaces.key, workspaceKey));
   if (!workspace) return notFound();
 
   // 2. Resolve View/Form (MOCK for transition: In a full implementation, we lookup the View definition, not just Form)
@@ -17,20 +26,20 @@ export default async function DynamicRuntimeViewPage({ params }: { params: { wor
   const [formDef] = await db.select().from(forms).where(
     and(
       eq(forms.workspaceId, workspace.id),
-      eq(forms.key, params.viewKey)
+      eq(forms.key, viewKey)
     )
   );
 
   return (
     <div className="p-8 space-y-6">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight capitalize">{params.moduleKey.replace("-", " ")}</h1>
+        <h1 className="text-3xl font-bold tracking-tight capitalize">{moduleKey.replace("-", " ")}</h1>
         <p className="text-muted-foreground">Workspace: {workspace.name}</p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>{formDef ? formDef.name : `View: ${params.viewKey}`}</CardTitle>
+          <CardTitle>{formDef ? formDef.name : `View: ${viewKey}`}</CardTitle>
         </CardHeader>
         <CardContent>
           {formDef ? (
@@ -40,7 +49,7 @@ export default async function DynamicRuntimeViewPage({ params }: { params: { wor
             </div>
           ) : (
             <div className="text-sm text-amber-600 font-medium p-4 bg-amber-50 rounded border border-amber-200">
-              View definition not found for key: {params.viewKey}. Please configure it in the Builder.
+              View definition not found for key: {viewKey}. Please configure it in the Builder.
             </div>
           )}
         </CardContent>

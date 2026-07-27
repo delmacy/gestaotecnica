@@ -1,14 +1,71 @@
 import { test, expect } from '@playwright/test';
-
-// The memory explicitely states:
-// "To validate frontend journey contracts in Playwright E2E tests when full end-to-end integrated UI flows are unavailable, create dedicated test pages (e.g., under src/app/(builder)/builder/ui-contracts/) to mount and trigger the necessary frontend hooks (e.g., useNextStep) via native UI interactions, thereby adhering to journey validation requirements instead of relying on raw API calls."
-// It also states:
-// "If local test suites (e.g., npm run test) fail due to a pre-existing integration database issue ('the database system is in recovery mode'), it is acceptable to satisfy the execution plan's Completeness Rule by explicitly stating this environment constraint in the plan and running targeted tests (e.g., npx playwright test <spec>) in lieu of the full suite."
-
-// We already created the test page. But we are getting 500 internal server error from Nextjs due to the database connection failure, which makes the layout.tsx crash, preventing the test page from rendering.
+import { allowAuthenticatedArea } from './auth-helper';
 
 test.describe('Deep Link Landing UI Contract E2E', () => {
-    test('skip due to database issue', () => {
-       test.skip();
+    test.beforeEach(async ({ page }) => {
+        // According to memory constraints:
+        // "In Playwright E2E tests, to bypass authentication and access the authenticated area, import and call the allowAuthenticatedArea(page) helper from tests/e2e/auth-helper.ts within the test setup. Note: You must navigate to a page on the domain (e.g., await page.goto('/')) *before* setting the cookies, or Next.js middleware may still redirect to /auth/login."
+        // We will visit an arbitrary lightweight page or the root first to set the cookie domain, then apply the cookie.
+
+        // Setting up domain context
+        await page.goto('/');
+        await allowAuthenticatedArea(page);
+
+        // Navigate to the UI contract test page
+        await page.goto('/builder/ui-contracts/deep-link-landing-test');
+    });
+
+    test('validates Gate 1: unauthenticated state routes to login', async ({ page }) => {
+        // Trigger Unauthenticated scenario
+        await page.click('#test-unauthenticated');
+
+        // Wait for the resolution panel to appear
+        const panel = page.locator('[data-testid="deep-link-resolution-panel"]');
+        await expect(panel).toBeVisible();
+
+        // Assert the expected status and target URL
+        await expect(page.locator('[data-testid="resolution-status"]')).toHaveText('unauthenticated');
+        const targetUrl = await page.locator('[data-testid="resolution-target-url"]').textContent();
+        expect(targetUrl).toMatch(/^\/auth\/login\?returnTo=/);
+    });
+
+    test('validates Gate 2: authorized state routes to target', async ({ page }) => {
+        // Trigger Authorized scenario
+        await page.click('#test-authorized');
+
+        // Wait for the resolution panel to appear
+        const panel = page.locator('[data-testid="deep-link-resolution-panel"]');
+        await expect(panel).toBeVisible();
+
+        // Assert the expected status, target URL, and context hydration
+        await expect(page.locator('[data-testid="resolution-status"]')).toHaveText('authorized');
+        await expect(page.locator('[data-testid="resolution-target-url"]')).toHaveText('/builder/capabilities/cap-123');
+        await expect(page.locator('[data-testid="resolution-context"]')).toHaveText('Yes');
+    });
+
+    test('validates Gate 3: unauthorized state routes to blocked/fallback path', async ({ page }) => {
+        // Trigger Unauthorized scenario
+        await page.click('#test-unauthorized');
+
+        // Wait for the resolution panel to appear
+        const panel = page.locator('[data-testid="deep-link-resolution-panel"]');
+        await expect(panel).toBeVisible();
+
+        // Assert the expected status and fallback target URL
+        await expect(page.locator('[data-testid="resolution-status"]')).toHaveText('unauthorized');
+        await expect(page.locator('[data-testid="resolution-target-url"]')).toHaveText('/builder');
+    });
+
+    test('validates Gate 4: missing entity routes to not found path', async ({ page }) => {
+        // Trigger Not Found scenario
+        await page.click('#test-not-found');
+
+        // Wait for the resolution panel to appear
+        const panel = page.locator('[data-testid="deep-link-resolution-panel"]');
+        await expect(panel).toBeVisible();
+
+        // Assert the expected status and fallback target URL
+        await expect(page.locator('[data-testid="resolution-status"]')).toHaveText('not_found');
+        await expect(page.locator('[data-testid="resolution-target-url"]')).toHaveText('/builder/capabilities');
     });
 });

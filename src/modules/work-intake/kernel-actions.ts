@@ -42,7 +42,7 @@ export const captureIntakeKernelAction: ActionDefinition<unknown, unknown> = {
 
     // Validate using the strict schema
     const validated = CreateIntakeInputSchema.parse({
-      ...input,
+      ...(input as Record<string, unknown>),
       workspaceId: context.workspaceId,
     });
 
@@ -100,10 +100,12 @@ export const transitionIntakeKernelAction: ActionDefinition<unknown, unknown> = 
   async handler(input, context) {
     const db = getDb();
 
+    const typedInput = input as { id: string; status: string; reason?: string };
+
     const [current] = await db
       .select()
       .from(processCandidates)
-      .where(eq(processCandidates.id, input.id))
+      .where(eq(processCandidates.id, typedInput.id))
       .limit(1);
 
     if (!current) {
@@ -118,20 +120,20 @@ export const transitionIntakeKernelAction: ActionDefinition<unknown, unknown> = 
     await db
       .update(processCandidates)
       .set({
-        status: input.status,
+        status: typedInput.status,
         updatedAt: new Date(),
       })
-      .where(eq(processCandidates.id, input.id));
+      .where(eq(processCandidates.id, typedInput.id));
 
     return {
       success: true,
-      data: { id: current.id, status: input.status },
+      data: { id: current.id, status: typedInput.status },
       events: [
         {
           eventType: "work_intake.transitioned",
           entityType: "process_candidate",
           entityId: current.id,
-          payload: { from: current.status, to: input.status, reason: input.reason },
+          payload: { from: current.status, to: typedInput.status, reason: typedInput.reason },
         },
       ],
     };

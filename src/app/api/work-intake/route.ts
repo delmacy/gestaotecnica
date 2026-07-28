@@ -3,6 +3,7 @@ import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import { CreateIntakeInputSchema } from "@/modules/work-intake/contracts/intake.schema";
 import { getIntakeRequests } from "@/modules/work-intake/queries";
+import { createReceipt } from "@/platform/events/event-log-service";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +38,10 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, data: result.data }, { status: 201 });
+    const firstEvent = result.events && result.events.length > 0 ? result.events[0] : undefined;
+    const receipt = firstEvent ? createReceipt(firstEvent as unknown as Parameters<typeof createReceipt>[0], "success", { processorId: "work-intake-api" }) : undefined;
+
+    return NextResponse.json({ success: true, data: result.data, receipt }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: { code: "INTERNAL_ERROR", message: "Internal server error" } },

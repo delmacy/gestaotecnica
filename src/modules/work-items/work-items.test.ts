@@ -75,13 +75,24 @@ describe("WorkItemsModule Contracts", () => {
     const item = {
       id: "550e8400-e29b-41d4-a716-446655440000",
       title: "Test Request",
+      description: null,
       status: "open",
       type: "solicitacao",
       priority: "medium",
+      requesterName: null,
+      requesterContact: null,
+      assetId: null,
+      assignedTeamId: null,
+      createdById: null,
       payload: {},
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     const result = WorkItemSchema.safeParse(item);
+    if (!result.success) {
+      console.error(JSON.stringify(result.error.issues, null, 2));
+    }
     assert.strictEqual(result.success, true);
   });
 });

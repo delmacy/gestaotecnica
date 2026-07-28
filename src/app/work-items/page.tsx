@@ -69,7 +69,20 @@ export default async function WorkItemsPage() {
               Listagem das ultimas 50 demandas criadas no sistema.
             </p>
           </div>
-          <WorkItemsTable workItems={workItems} />
+          <WorkItemsTable workItems={workItems.map(wi => ({
+            id: wi.id,
+            title: wi.title,
+            description: wi.description ?? null,
+            type: wi.type,
+            status: wi.status,
+            priority: wi.priority,
+            requesterName: wi.requesterName ?? null,
+            requesterContact: wi.requesterContact ?? null,
+            assetId: wi.assetId ?? null,
+            assetCode: wi.assetCode ?? null,
+            assetName: wi.assetName ?? null,
+            createdAt: wi.createdAt ?? new Date()
+          }))} />
         </div>
 
         <aside>

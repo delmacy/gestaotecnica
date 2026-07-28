@@ -19,25 +19,25 @@ export type WorkItemType = z.infer<typeof WorkItemTypeSchema>;
 
 export const WorkItemSchema = z.object({
   id: z.string().uuid(),
-  title: z.string().min(1).max(255),
-  description: z.string().optional(),
+  title: z.string().trim().min(1).max(255),
+  description: z.string().nullable(),
   type: WorkItemTypeSchema.default("solicitacao"),
   status: WorkItemStatusSchema.default("open"),
   priority: WorkItemPrioritySchema.default("medium"),
-  requesterName: z.string().nullable().optional(),
-  requesterContact: z.string().nullable().optional(),
-  assetId: z.string().uuid().nullable().optional(),
-  assignedTeamId: z.string().uuid().nullable().optional(),
-  createdById: z.string().uuid().nullable().optional(),
+  requesterName: z.string().nullable(),
+  requesterContact: z.string().nullable(),
+  assetId: z.string().uuid().nullable(),
+  assignedTeamId: z.string().uuid().nullable(),
+  createdById: z.string().uuid().nullable(),
   payload: SafeJsonRecordSchema.default({}),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 }).strict();
 
 export type WorkItem = z.infer<typeof WorkItemSchema>;
 
 export const CreateWorkItemInputSchema = z.object({
-  title: z.string().min(1).max(255),
+  title: z.string().trim().min(1).max(255),
   description: z.string().optional(),
   type: z.string().optional().transform(val =>
     workItemTypes.some(t => t.value === val) ? val : "solicitacao"

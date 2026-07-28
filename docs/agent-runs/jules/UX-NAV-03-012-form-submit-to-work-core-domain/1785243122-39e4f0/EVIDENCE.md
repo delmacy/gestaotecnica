@@ -5,7 +5,7 @@ Verified by checking `node --version`: v24.18.0.
 
 ## Route / Screen Affected
 - **Route:** `/work-items` (form submission) and `/work-items/[id]` (detail and status view).
-- **Component:** Core logic backing the frontend components, mainly kernel actions and backend API paths. Fixed type mismatch in pages rendering tables.
+- **Component:** Core logic backing the frontend components, mainly kernel actions and backend API paths. Restored exact layout and integration features in detail view.
 
 ## Database / Persistence / Domain Touched
 - Defined the core domain contract in `src/modules/work-items/contracts/work-item.schema.ts`.
@@ -21,8 +21,8 @@ Verified by checking `node --version`: v24.18.0.
 
 ## Real Data Proof & Blockers
 - Real data testing was conducted using the newly created `src/modules/work-items/work-items.test.ts` to ensure default transitions, schemas, and error boundaries perform correctly without explicit TypeScript `any`.
-- Compiled properly without any build warnings or type errors. Run `npx tsc --noEmit` locally, which resolved to 0 exit code.
+- Compiled properly without any build warnings or type errors. Run `npx tsc --noEmit` locally, which resolved to 0 exit code. The `npm run build` returned cleanly without failures.
 
 ## Base Configuration
-- **Base SHA:** Recorded during sync before applying changes.
+- **Base SHA:** e1ff7c393ebd2c19bb5fc0aab10c53f72b67794a
 - **Dependencies:** Unchanged.

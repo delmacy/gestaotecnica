@@ -13,3 +13,5 @@ export * from "./workspace-switching/workspace-switching-contract";
 export * from "./workspace-switching/resolve-workspace-switching";
 export * from "./deep-link-landing/deep-link-landing-contract";
 export * from "./deep-link-landing/resolve-deep-link-landing";
+export * from "./work-status/work-status-contract";
+export * from "./work-status/resolve-work-status";

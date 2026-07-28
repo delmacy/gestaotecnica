@@ -16,6 +16,7 @@ export const captureIntakeKernelAction: ActionDefinition<unknown, unknown> = {
   key: "work_intake.capture",
   moduleKey: "work-intake",
   description: "Captura uma nova solicitação de entrada.",
+  requiredScopes: ["work_intake.write"],
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {
@@ -83,6 +84,7 @@ export const transitionIntakeKernelAction: ActionDefinition<unknown, unknown> = 
   key: "work_intake.transition",
   moduleKey: "work-intake",
   description: "Transiciona o estado de uma solicitação de entrada.",
+  requiredScopes: ["work_intake.write"],
   callableBy: ["ui", "integration", "automation", "system"],
   inputSchema: actionObjectSchema(
     {

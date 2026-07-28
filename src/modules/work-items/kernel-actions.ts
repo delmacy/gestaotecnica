@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
-import { workItems } from "@/db/schema";
+import { workItems } from "@/db/legacy/schema";
 import type { ActionDefinition } from "@/platform/actions";
 import {
   actionObjectSchema,
@@ -11,6 +11,7 @@ import {
   uuidProperty,
 } from "@/platform/actions/schema-presets";
 import { workItemPriorities, workItemStatuses, workItemTypes } from "./constants";
+import { CreateWorkItemInputSchema, TransitionWorkItemInputSchema } from "./contracts/work-item.schema";
 
 type CreateWorkItemInput = {
   title?: string;
@@ -25,14 +26,6 @@ type TransitionWorkItemInput = {
   status?: string;
   note?: string;
 };
-
-function pickAllowed<T extends string>(
-  value: string | undefined,
-  allowedValues: readonly { value: T }[],
-  fallback: T,
-) {
-  return allowedValues.some((item) => item.value === value) ? (value as T) : fallback;
-}
 
 export const createWorkItemKernelAction: ActionDefinition<CreateWorkItemInput, { id: string; title: string }> = {
   key: "work_items.create",
@@ -52,24 +45,24 @@ export const createWorkItemKernelAction: ActionDefinition<CreateWorkItemInput, {
   outputSchema: idTitleOutputSchema,
   emits: ["work_item.created"],
   async handler(input) {
-    const title = String(input.title ?? "").trim();
-    if (!title) {
+    const parsed = CreateWorkItemInputSchema.safeParse(input);
+    if (!parsed.success) {
       return {
         success: false,
         error: { code: "VALIDATION_ERROR", message: "title e obrigatório." },
       };
     }
 
-    const type = pickAllowed(input.type, workItemTypes, "solicitacao");
-    const priority = pickAllowed(input.priority, workItemPriorities, "medium");
+    const { title, description, type, priority, autoCreateServiceOrder } = parsed.data;
+
     const db = getDb();
     const [workItem] = await db
       .insert(workItems)
       .values({
         title,
-        description: input.description,
-        type,
-        priority,
+        description,
+        type: type as unknown as typeof workItems.$inferInsert.type,
+        priority: priority as unknown as typeof workItems.$inferInsert.priority,
         status: "open",
         payload: {
           createdByKernelAction: true,
@@ -88,7 +81,7 @@ export const createWorkItemKernelAction: ActionDefinition<CreateWorkItemInput, {
           eventType: "work_item.created",
           entityType: "work_item",
           entityId: workItem.id,
-          payload: { title: workItem.title, type, priority, autoCreateServiceOrder: input.autoCreateServiceOrder ?? false },
+          payload: { title: workItem.title, type, priority, autoCreateServiceOrder },
         },
       ],
     };
@@ -121,15 +114,16 @@ export const transitionWorkItemKernelAction: ActionDefinition<
   }),
   emits: ["work_item.transitioned"],
   async handler(input) {
-    const workItemId = String(input.workItemId ?? "").trim();
-    if (!workItemId) {
+    const parsed = TransitionWorkItemInputSchema.safeParse(input);
+    if (!parsed.success) {
       return {
         success: false,
         error: { code: "VALIDATION_ERROR", message: "workItemId e obrigatório." },
       };
     }
 
-    const status = pickAllowed(input.status, workItemStatuses, "triaged");
+    const { workItemId, status, note } = parsed.data;
+
     const db = getDb();
     const [previous] = await db
       .select({
@@ -148,7 +142,7 @@ export const transitionWorkItemKernelAction: ActionDefinition<
 
     const [updated] = await db
       .update(workItems)
-      .set({ status, updatedAt: new Date() })
+      .set({ status: status as unknown as typeof workItems.$inferInsert.status, updatedAt: new Date() })
       .where(eq(workItems.id, previous.id))
       .returning({
         id: workItems.id,
@@ -169,11 +163,10 @@ export const transitionWorkItemKernelAction: ActionDefinition<
             from: previous.status,
             to: updated.status,
             assetId: previous.assetId,
-            note: input.note,
+            note: note,
           },
         },
       ],
     };
   },
 };
-

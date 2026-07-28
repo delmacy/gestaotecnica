@@ -1,16 +1,18 @@
-import { assets } from "@/db/schema";
-import { workItems } from "@/db/schema";
 import { desc, eq, count } from "drizzle-orm";
 import { getDb, getRuntimeDb } from "@/db";
+import { assets, workItems } from "@/db/legacy/schema";
 import { workspaces } from "@/db/runtime/schema/workspace";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { getWorkspaceWorkItemTypeOptions } from "@/platform/workspaces/catalogs";
 import type { WorkItemTypeValue } from "./constants";
+import type { WorkItem } from "./contracts/work-item.schema";
 
-export async function getWorkItems() {
-  const db = getRuntimeDb();
+type WorkItemWithAsset = WorkItem & { assetCode: string | null; assetName: string | null };
 
-  return db
+export async function getWorkItems(): Promise<WorkItemWithAsset[]> {
+  const db = getDb(); // Using getDb for workItems since it's legacy
+
+  const results = await db
     .select({
       id: workItems.id,
       title: workItems.title,
@@ -21,17 +23,23 @@ export async function getWorkItems() {
       requesterName: workItems.requesterName,
       requesterContact: workItems.requesterContact,
       assetId: workItems.assetId,
+      assignedTeamId: workItems.assignedTeamId,
+      createdById: workItems.createdById,
+      payload: workItems.payload,
+      createdAt: workItems.createdAt,
+      updatedAt: workItems.updatedAt,
       assetCode: assets.code,
       assetName: assets.name,
-      createdAt: workItems.createdAt,
     })
     .from(workItems)
     .leftJoin(assets, eq(workItems.assetId, assets.id))
     .orderBy(desc(workItems.createdAt))
     .limit(50);
+
+  return results as unknown as WorkItemWithAsset[];
 }
 
-export async function getWorkItemById(id: string) {
+export async function getWorkItemById(id: string): Promise<WorkItemWithAsset | null> {
   const db = getDb();
 
   const [workItem] = await db
@@ -45,17 +53,20 @@ export async function getWorkItemById(id: string) {
       requesterName: workItems.requesterName,
       requesterContact: workItems.requesterContact,
       assetId: workItems.assetId,
-      assetCode: assets.code,
-      assetName: assets.name,
+      assignedTeamId: workItems.assignedTeamId,
+      createdById: workItems.createdById,
+      payload: workItems.payload,
       createdAt: workItems.createdAt,
       updatedAt: workItems.updatedAt,
+      assetCode: assets.code,
+      assetName: assets.name,
     })
     .from(workItems)
     .leftJoin(assets, eq(workItems.assetId, assets.id))
     .where(eq(workItems.id, id))
     .limit(1);
 
-  return workItem ?? null;
+  return (workItem as unknown as WorkItemWithAsset) ?? null;
 }
 
 export async function getWorkItemEvents(id: string) {

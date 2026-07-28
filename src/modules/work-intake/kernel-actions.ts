@@ -12,7 +12,7 @@ import {
   CreateIntakeInputSchema,
 } from "./contracts/intake.schema";
 
-export const captureIntakeKernelAction: ActionDefinition<any, any> = {
+export const captureIntakeKernelAction: ActionDefinition<unknown, unknown> = {
   key: "work_intake.capture",
   moduleKey: "work-intake",
   description: "Captura uma nova solicitação de entrada.",
@@ -79,7 +79,7 @@ export const captureIntakeKernelAction: ActionDefinition<any, any> = {
   },
 };
 
-export const transitionIntakeKernelAction: ActionDefinition<any, any> = {
+export const transitionIntakeKernelAction: ActionDefinition<unknown, unknown> = {
   key: "work_intake.transition",
   moduleKey: "work-intake",
   description: "Transiciona o estado de uma solicitação de entrada.",

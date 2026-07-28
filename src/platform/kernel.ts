@@ -63,6 +63,11 @@ import {
   createTeamKernelAction,
   createTechnicianKernelAction,
 } from "@/modules/workforce/kernel-actions";
+import { workIntakeManifest } from "@/modules/work-intake/manifest";
+import {
+  captureIntakeKernelAction,
+  transitionIntakeKernelAction,
+} from "@/modules/work-intake/kernel-actions";
 import { globalSearchManifest } from "@/modules/global-search/manifest";
 import { globalSearchKernelAction } from "@/modules/global-search/kernel-actions";
 import { dashboardManifest } from "@/modules/dashboard/manifest";
@@ -125,6 +130,7 @@ export function initializePlatformKernel() {
   registerModule(shiftsManifest);
   registerModule(evidencesManifest);
   registerModule(approvalsManifest);
+  registerModule(workIntakeManifest);
 
   registerDefaultEvents();
 
@@ -175,6 +181,8 @@ export function initializePlatformKernel() {
   registerAction(deleteFlowKernelAction);
   registerAction(saveViewDefinitionKernelAction);
   registerAction(getViewDefinitionKernelAction);
+  registerAction(captureIntakeKernelAction);
+  registerAction(transitionIntakeKernelAction);
 
   registerFlow(new ServiceOrderCompletedNotificationFlow());
   registerFlow(new WorkItemAutoServiceOrderFlow());

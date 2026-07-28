@@ -40,6 +40,8 @@
     "db:seed:launch-alpha:clean": "npx tsx src/scripts/launch-alpha/clean.ts",
     "db:seed:workflow-seed": "npx tsx src/scripts/workflow-seed/seed.ts",
     "db:seed:workflow-seed:clean": "npx tsx src/scripts/workflow-seed/clean.ts",
+    "db:seed:work-intake": "npx tsx src/scripts/work-intake/seed.ts",
+    "db:seed:work-intake:clean": "npx tsx src/scripts/work-intake/clean.ts",
     "test:golden-e2e": "npx tsx --test tests/integration/golden-cycle.test.ts",
     "db:preflight": "npx tsx src/scripts/db/preflight-env-binding.ts",
     "db:verify-ci": "npx tsx src/scripts/db/verify-schema-ci.ts",

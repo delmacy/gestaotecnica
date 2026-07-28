@@ -62,12 +62,12 @@ test("Work Status API Route - POST", async (t) => {
       body: JSON.stringify({ moduleKey: "test-module" })
     });
 
-    const response = await POST(req);
+    const response = await POST(req) as { data: { status: string }, options: { status: number } };
 
     assert.ok(resolveWorkspaceContextCalled);
     assert.ok(resolveWorkStatusCalled);
 
-    const data = (response as any).data;
+    const data = response.data;
     assert.equal(data.status, "demo");
     assert.equal((passedWorkspaceContext as Record<string,unknown>).environmentMode, "demo");
     assert.equal((passedOriginContext as Record<string,unknown>).isDemo, true);
@@ -114,10 +114,10 @@ test("Work Status API Route - POST", async (t) => {
       body: JSON.stringify({ workId: "test-work" })
     });
 
-    const response = await POST(req);
+    const response = await POST(req) as { data: { error: string }, options: { status: number } };
 
-    assert.equal((response as any).options.status, 400);
-    assert.equal((response as any).data.error, "Missing required fields: moduleKey");
+    assert.equal(response.options.status, 400);
+    assert.equal(response.data.error, "Missing required fields: moduleKey");
     assert.equal(resolveWorkStatusCalled, false);
   });
 
@@ -128,10 +128,10 @@ test("Work Status API Route - POST", async (t) => {
       body: "invalid json"
     });
 
-    const response = await POST(req);
+    const response = await POST(req) as { data: { error: string }, options: { status: number } };
 
-    assert.equal((response as any).options.status, 400);
-    assert.equal((response as any).data.error, "Invalid JSON body");
+    assert.equal(response.options.status, 400);
+    assert.equal(response.data.error, "Invalid JSON body");
     assert.equal(resolveWorkStatusCalled, false);
   });
 });

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IntakeForm } from "@/modules/work-intake/components/IntakeForm";
+import { IntakeCaptureForm } from "@/modules/work-intake/components/IntakeCaptureForm";
 import { IntakeTable } from "@/modules/work-intake/components/IntakeTable";
 import { getIntakeRequests } from "@/modules/work-intake/queries";
 
@@ -42,7 +42,7 @@ export default async function WorkIntakePage() {
         </div>
 
         <aside>
-          <IntakeForm />
+          <IntakeCaptureForm />
         </aside>
       </section>
     </main>

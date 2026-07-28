@@ -12,7 +12,6 @@ import {
   workItemStatuses,
 } from "./constants";
 import { getWorkItemTypeOptions } from "./queries";
-import { resolveWorkStatusViaApi } from "@/components/builder/shared/actions/handle-work-status";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -76,16 +75,7 @@ export async function createWorkItem(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/work-items");
-
-  // Determine if it was created successfully
-  const resolution = await resolveWorkStatusViaApi({
-    workId: workItem.id,
-    moduleKey: "work-items",
-    isWorkEmpty: !workItem.id,
-    returnPath: "/work-items"
-  });
-
-  redirect(resolution.destination);
+  redirect(`/work-items/${workItem.id}`);
 }
 
 export async function updateWorkItemStatus(formData: FormData) {

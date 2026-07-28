@@ -69,6 +69,7 @@ const navGroups: NavGroup[] = [
     mode: "workspace",
     items: [
       { href: "/operations", label: "Operações", description: "Painel de execução", icon: Activity },
+      { href: "/work-intake", label: "Work Intake", description: "Captura e triagem", icon: ListChecks },
       { href: "/work-items", label: "Demandas", description: "Entrada e triagem", icon: ListChecks },
       { href: "/service-orders", label: "Ordens", description: "OS e execução", icon: ClipboardList },
       { href: "/planning", label: "Planejamento", description: "Carteira operacional", icon: Network },

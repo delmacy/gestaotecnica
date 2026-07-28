@@ -44,7 +44,7 @@ export default async function WorkItemsPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {summary.map((item: any) => (
+            {summary.map((item: { label: string; value: number }) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}

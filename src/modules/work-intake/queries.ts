@@ -21,21 +21,32 @@ export async function getIntakeRequests(filters?: { status?: string }): Promise<
     .orderBy(desc(processCandidates.createdAt))
     .limit(50);
 
-  return results.map((row: any) => {
-    const proposed = (row.proposedDefinition as Record<string, any>) || {};
+  return results.map((row: unknown) => {
+    const r = row as {
+      id: string;
+      workspaceId: string;
+      name: string;
+      description: string | null;
+      status: string;
+      origin: string;
+      proposedDefinition: unknown;
+      createdAt: Date;
+      updatedAt: Date;
+    };
+    const proposed = (r.proposedDefinition as Record<string, unknown>) || {};
     return {
-      id: row.id,
-      workspaceId: row.workspaceId,
-      title: row.name,
-      description: row.description ?? undefined,
-      status: row.status as any,
-      source: row.origin as any,
-      category: proposed.category,
-      priority: proposed.priority,
-      requester: proposed.requester,
-      metadata: proposed.metadata || {},
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
+      id: r.id,
+      workspaceId: r.workspaceId,
+      title: r.name,
+      description: r.description ?? undefined,
+      status: r.status as IntakeRequest["status"],
+      source: r.origin as IntakeRequest["source"],
+      category: proposed.category as string,
+      priority: proposed.priority as IntakeRequest["priority"],
+      requester: proposed.requester as IntakeRequest["requester"],
+      metadata: (proposed.metadata as Record<string, unknown>) || {},
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
     };
   });
 }
@@ -57,19 +68,29 @@ export async function getIntakeRequestById(id: string): Promise<IntakeRequest | 
 
   if (!row) return null;
 
-  const r = row as any;
-  const proposed = (r.proposedDefinition as Record<string, any>) || {};
+  const r = row as {
+    id: string;
+    workspaceId: string;
+    name: string;
+    description: string | null;
+    status: string;
+    origin: string;
+    proposedDefinition: unknown;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  const proposed = (r.proposedDefinition as Record<string, unknown>) || {};
   return {
     id: r.id,
     workspaceId: r.workspaceId,
     title: r.name,
     description: r.description ?? undefined,
-    status: r.status as any,
-    source: r.origin as any,
-    category: proposed.category,
-    priority: proposed.priority,
-    requester: proposed.requester,
-    metadata: proposed.metadata || {},
+    status: r.status as IntakeRequest["status"],
+    source: r.origin as IntakeRequest["source"],
+    category: proposed.category as string,
+    priority: proposed.priority as IntakeRequest["priority"],
+    requester: proposed.requester as IntakeRequest["requester"],
+    metadata: (proposed.metadata as Record<string, unknown>) || {},
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
   };
@@ -95,5 +116,5 @@ export async function getIntakeHistory(id: string): Promise<IntakeHistoryEvent[]
     )
     .orderBy(desc(eventLogs.createdAt));
 
-  return results as any[];
+  return results as unknown as IntakeHistoryEvent[];
 }

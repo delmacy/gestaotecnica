@@ -1,4 +1,4 @@
-import { transitionIntakeAction } from "../actions";
+import { IntakeTransitionForm } from "./IntakeTransitionForm";
 import type { IntakeRequest, IntakeHistoryEvent } from "../contracts/intake.schema";
 
 export function IntakeDetail({
@@ -82,37 +82,7 @@ export function IntakeDetail({
       <aside className="space-y-6">
         <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
           <h3 className="mb-4 font-semibold text-[#111510]">Ações de Transição</h3>
-          <form action={transitionIntakeAction} className="space-y-4">
-            <input type="hidden" name="id" value={request.id} />
-            <label className="block">
-              <span className="text-xs font-medium uppercase text-[#6e7a66]">Mudar Estado para</span>
-              <select
-                className="mt-1 h-10 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
-                name="status"
-                defaultValue={request.status}
-              >
-                <option value="new">Novo (new)</option>
-                <option value="triage">Em Triagem (triage)</option>
-                <option value="qualified">Qualificado (qualified)</option>
-                <option value="converted">Convertido (converted)</option>
-                <option value="closed">Encerrado (closed)</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="text-xs font-medium uppercase text-[#6e7a66]">Motivo/Nota</span>
-              <textarea
-                className="mt-1 min-h-20 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm outline-none focus:border-[#6b7d5d]"
-                name="reason"
-                placeholder="Opcional"
-              />
-            </label>
-            <button
-              className="h-10 w-full border border-[#1f2a1c] bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]"
-              type="submit"
-            >
-              Confirmar Transição
-            </button>
-          </form>
+          <IntakeTransitionForm requestId={request.id ?? ""} currentStatus={request.status ?? "new"} />
         </div>
       </aside>
     </div>

@@ -27,6 +27,7 @@ const platformActions = [
 
 const workspaceActions = [
   { href: "/operations", label: "Operações do workspace", detail: "Fila ativa do cliente", icon: Activity },
+  { href: "/work-intake", label: "Work Intake", detail: "Captura e triagem", icon: ListChecks },
   { href: "/work-items", label: "Demandas", detail: "Entrada e triagem", icon: ListChecks },
   { href: "/service-orders", label: "Ordens de serviço", detail: "Execução técnica", icon: ClipboardList },
   { href: "/maintenance-plans", label: "Manutenção", detail: "Planos preventivos", icon: Wrench },

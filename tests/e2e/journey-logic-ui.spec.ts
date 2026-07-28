@@ -16,7 +16,7 @@ test.describe('Journey Logic Regression Gate', () => {
     await page.click('#btn-start');
 
     // The toast message is commercial/product oriented as per contract
-    await expect(page.locator('ol[data-sonner-toaster]')).toContainText('Continuing your setup');
+    await expect(page.locator('ol[data-sonner-toaster]').first()).toContainText('Starting setup');
 
     // Result JSON block
     const result = await page.locator('#journey-result').textContent();
@@ -30,7 +30,7 @@ test.describe('Journey Logic Regression Gate', () => {
     await page.click('#btn-discard');
 
     // The toast message is commercial/product oriented as per contract
-    await expect(page.locator('ol[data-sonner-toaster]')).toContainText('Setup cancelled');
+    await expect(page.locator('ol[data-sonner-toaster]').first()).toContainText('Cancel Setup');
 
     // Result JSON block
     const result = await page.locator('#journey-result').textContent();

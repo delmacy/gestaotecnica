@@ -59,7 +59,7 @@ export function useJourneyLogic(args: UseJourneyLogicArgs) {
       }
 
       // Show commercial message if provided
-      if (resolution.message) {
+      if (resolution.label) {
         toast.success(resolution.label, {
           description: resolution.message,
         });

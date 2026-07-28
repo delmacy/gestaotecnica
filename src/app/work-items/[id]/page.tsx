@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getWorkItemEvents,
-  getWorkItemById,
-} from "@/modules/work-items/queries";
-import { WorkItemEventTimeline } from "@/modules/work-items/event-timeline";
 import { WorkItemStatusForm } from "@/modules/work-items/status-form";
+import {
+  getWorkItemById,
+  getWorkItemEvents,
+} from "@/modules/work-items/queries";
 import { CreateServiceOrderFromWorkItemForm } from "@/modules/service-orders/create-from-work-item-form";
 import { WorkItemServiceOrdersList } from "@/modules/service-orders/service-orders-list";
 import {
@@ -25,6 +24,7 @@ import {
 import { ActionBar } from "@/components/action-bar";
 import { getAvailableActionsForEntity } from "@/platform/views";
 import { resolveWorkspaceContext } from "@/platform/workspace";
+import { WorkItemEventTimeline } from "@/modules/work-items/event-timeline";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,8 @@ type WorkItemDetailPageProps = {
   }>;
 };
 
-function formatDate(date: Date) {
+function formatDate(date?: Date) {
+  if (!date) return "-";
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "short",
     timeStyle: "short",
@@ -45,6 +46,9 @@ export default async function WorkItemDetailPage({
   params,
 }: WorkItemDetailPageProps) {
   const { id } = await params;
+
+  await resolveWorkspaceContext({ source: "ui" });
+
   const [
     workItem,
     events,
@@ -79,7 +83,7 @@ export default async function WorkItemDetailPage({
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="font-mono text-xs uppercase text-[#65705f]">
-                Demanda
+                {getWorkItemTypeLabel(workItem.type)}
               </p>
               <h1 className="mt-2 max-w-4xl text-4xl font-semibold text-[#111510]">
                 {workItem.title}
@@ -91,7 +95,7 @@ export default async function WorkItemDetailPage({
             <div className="flex flex-col gap-2 items-end">
               <ActionBar actions={availableActions} entityId={workItem.id} path={`/work-items/${workItem.id}`} />
               <Link
-              className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
+                className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
                 href="/work-items"
               >
                 Voltar para WorkItems
@@ -176,12 +180,12 @@ export default async function WorkItemDetailPage({
         </div>
 
         <aside className="space-y-6">
-          <CreateServiceOrderFromWorkItemForm
-            serviceOrderTypes={serviceOrderTypeOptions}
-            workItemId={workItem.id}
-          />
           <WorkItemStatusForm
             currentStatus={workItem.status}
+            workItemId={workItem.id}
+          />
+          <CreateServiceOrderFromWorkItemForm
+            serviceOrderTypes={serviceOrderTypeOptions}
             workItemId={workItem.id}
           />
         </aside>

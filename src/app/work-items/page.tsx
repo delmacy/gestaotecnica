@@ -44,7 +44,7 @@ export default async function WorkItemsPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {summary.map((item: any) => (
+            {summary.map((item: { label: string; value: number }) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}
@@ -69,7 +69,20 @@ export default async function WorkItemsPage() {
               Listagem das ultimas 50 demandas criadas no sistema.
             </p>
           </div>
-          <WorkItemsTable workItems={workItems} />
+          <WorkItemsTable workItems={workItems.map(wi => ({
+            id: wi.id,
+            title: wi.title,
+            description: wi.description ?? null,
+            type: wi.type,
+            status: wi.status,
+            priority: wi.priority,
+            requesterName: wi.requesterName ?? null,
+            requesterContact: wi.requesterContact ?? null,
+            assetId: wi.assetId ?? null,
+            assetCode: wi.assetCode ?? null,
+            assetName: wi.assetName ?? null,
+            createdAt: wi.createdAt ?? new Date()
+          }))} />
         </div>
 
         <aside>

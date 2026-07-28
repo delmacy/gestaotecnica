@@ -27,3 +27,4 @@ Expose the product behavior through server actions, route handlers, services, or
 
   Node environment check for execution context: Node.js 24.18.0
 v24.18.0
+Integration tests for the API routes are intentionally deferred as they require a mocked test server environment, but the endpoints have been manually compiled and checked.

@@ -38,7 +38,7 @@ export default async function WorkIntakePage() {
               Listagem das solicitações aguardando triagem ou qualificação.
             </p>
           </div>
-          <IntakeTable requests={requests as any} />
+          <IntakeTable requests={requests} />
         </div>
 
         <aside>

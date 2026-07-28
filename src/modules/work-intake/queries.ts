@@ -21,7 +21,7 @@ export async function getIntakeRequests(filters?: { status?: string }): Promise<
     .orderBy(desc(processCandidates.createdAt))
     .limit(50);
 
-  return results.map((row: unknown) => {
+  return results.map((row: unknown): IntakeRequest => {
     const r = row as {
       id: string;
       workspaceId: string;

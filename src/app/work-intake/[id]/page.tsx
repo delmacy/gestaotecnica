@@ -42,7 +42,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
-        <IntakeDetail request={request as any} history={history} />
+        <IntakeDetail request={request} history={history} />
       </section>
     </main>
   );

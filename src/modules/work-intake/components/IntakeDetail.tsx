@@ -62,8 +62,8 @@ export function IntakeDetail({
                         <p className="text-sm text-[#273025]">
                           <span className="font-bold">{event.eventType}</span>
                         </p>
-                        {!!(event.payload as any)?.reason && (
-                          <p className="mt-1 text-xs text-[#6e7a66]">Motivo: {String((event.payload as any).reason)}</p>
+                        {!!(event.payload as Record<string, unknown>)?.reason && (
+                          <p className="mt-1 text-xs text-[#6e7a66]">Motivo: {String((event.payload as Record<string, unknown>).reason)}</p>
                         )}
                       </div>
                       <div className="whitespace-nowrap text-right text-xs text-[#6e7a66]">

@@ -14,26 +14,25 @@ v24.18.0
 - **Route:** `/work-intake`
 - **Component:** `IntakeCaptureForm`
 - **Button:** "Capturar Solicitação" (submit button)
+- **Expected Redirect:** `/work-intake/[id]`
 
-## Persistence object, domain object, contract, use case/API path touched
-- **Persistence object:** The underlying data relies on the `process_candidates` table in PostgreSQL.
-- **Contract/API:** The E2E tests target the full stack Next.js app running locally.
+## Layers already complete (from prior UX-NAV-03 tasks)
+- **Database:** `intakeRequests` table (UX-NAV-03-001)
+- **Domain:** state machine rules (UX-NAV-03-002)
+- **Contracts:** `CreateIntakeInput` / `TransitionIntakeInput` schemas (UX-NAV-03-003)
+- **Use case/API:** server action + `/api/work-intake` route (UX-NAV-03-004)
+- **UI:** form + detail pages (UX-NAV-03-005/006)
+- **Audit:** `work_intake.write` scope on kernel actions (UX-NAV-03-007)
 
-## User Journey
-- The user navigates to `/work-intake`.
-- They fill out the form for capturing an intake request (Title, Category, Priority, Description, Name, Contact, Department).
-- They click "Capturar Solicitação".
-- Expected next: They are redirected to `/work-intake/[id]` where they view the details.
+## Precise blocker
+Three registration calls are required in `src/platform/kernel.ts`:
+- `registerModule(workIntakeManifest)`
+- `registerAction(captureIntakeKernelAction)`
+- `registerAction(transitionIntakeKernelAction)`
 
-## Real-data proof or precise blocker
-**BLOCKER:**
-To complete this task fully, I needed to register the module in `src/platform/kernel.ts`. However, based on the OpenCode Governor clarification, `src/platform/kernel.ts` is strictly out of the allowed scope. The allowed scope only includes:
-- src/app/**
-- src/components/**
-- src/server/**
-- src/services/**
-- src/lib/**
-- tests/**
-- docs/**
+## Why blocked
+`src/platform/**` is explicitly outside the allowed scope for this task (`src/app/**`, `src/components/**`, `src/server/**`, `src/services/**`, `src/lib/**`, `tests/**`, `docs/**`).
+The kernel registration gap correctly belonged to tasks UX-NAV-03-002 (core-domain) or UX-NAV-03-004 (usecase-api), which should have registered the actions when defining the kernel-action boundary. Because this task cannot edit `kernel.ts`, the E2E binding is completely blocked.
 
-Without modifying `src/platform/kernel.ts` (which is located in `src/platform/`), the server action `runAction("work_intake.capture", ...)` throws an error because the module and kernel actions are not registered with the platform kernel. The e2e test captures this by timing out during the redirect, because the server action silently fails underneath or fails to resolve the action key, preventing the creation of the record and the subsequent redirect to the details page. A follow-up task is required to register the `workIntakeManifest`, `captureIntakeKernelAction`, and `transitionIntakeKernelAction` in the core platform kernel by a human or an agent with permissions to modify `src/platform/kernel.ts`.
+## Unblock path
+A follow-up task is needed — "Register work-intake module and kernel actions in platform kernel" — which requires a scope that includes the `src/platform/kernel.ts` file.

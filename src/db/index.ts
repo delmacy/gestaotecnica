@@ -33,10 +33,10 @@ const fullSchema = {
 let platformClient: postgres.Sql | null = null;
 let runtimeClient: postgres.Sql | null = null;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let platformDbInstance: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let runtimeDbInstance: any = null;
+
+let platformDbInstance: unknown = null;
+
+let runtimeDbInstance: unknown = null;
 
 function getIsolatedTestDatabaseUrl() {
   return process.env.AGENT_WORK_TEST_DATABASE_URL;

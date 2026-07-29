@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EventReceiptSchema } from "@/platform/events/event-types";
 
 export const WorkStateSchema = z.enum([
   "empty",
@@ -24,7 +25,12 @@ export const WorkStatusResolutionSchema = z.object({
   /**
    * A commercial/product oriented message for the user.
    */
-  message: z.string().optional()
+  message: z.string().optional(),
+
+  /**
+   * Evidence receipt of the operation.
+   */
+  receipt: EventReceiptSchema.optional()
 });
 
 export type WorkStatusResolution = z.infer<typeof WorkStatusResolutionSchema>;

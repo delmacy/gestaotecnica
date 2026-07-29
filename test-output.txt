@@ -1,3 +1,0 @@
-> gestaotecnica@0.1.0 check:no-explicit-any
-> npx tsx scripts/check-explicit-any.ts
-... (output verified, no new explicit 'any' added) ...

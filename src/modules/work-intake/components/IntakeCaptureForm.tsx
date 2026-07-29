@@ -1,18 +1,10 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
-import { useWorkStatus } from "@/components/builder/shared/hooks/useWorkStatus";
+import { useActionState } from "react";
 import { captureIntakeAction } from "../actions";
 
 export function IntakeCaptureForm() {
   const [state, formAction, isPending] = useActionState(captureIntakeAction, { error: "" });
-  const { resolveWorkStatus, isLoading: isStatusLoading } = useWorkStatus({ moduleKey: "work-intake" });
-
-  useEffect(() => {
-    if (state?.success && state?.workId) {
-       resolveWorkStatus(state.workId);
-    }
-  }, [state, resolveWorkStatus]);
 
   return (
     <form action={formAction} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
@@ -36,7 +28,7 @@ export function IntakeCaptureForm() {
             name="title"
             placeholder="Resumo da solicitação"
             required
-            disabled={isPending || isStatusLoading}
+            disabled={isPending}
           />
         </label>
 
@@ -48,7 +40,7 @@ export function IntakeCaptureForm() {
               name="category"
               placeholder="Ex: Infra, Software, Processo"
               required
-              disabled={isPending || isStatusLoading}
+              disabled={isPending}
             />
           </label>
 
@@ -58,7 +50,7 @@ export function IntakeCaptureForm() {
               className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d] disabled:opacity-50"
               defaultValue="medium"
               name="priority"
-              disabled={isPending || isStatusLoading}
+              disabled={isPending}
             >
               <option value="low">Baixa</option>
               <option value="medium">Média</option>
@@ -74,7 +66,7 @@ export function IntakeCaptureForm() {
             className="mt-1 min-h-24 w-full resize-y border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm leading-6 outline-none focus:border-[#6b7d5d] disabled:opacity-50"
             name="description"
             placeholder="Detalhes adicionais..."
-            disabled={isPending || isStatusLoading}
+            disabled={isPending}
           />
         </label>
 
@@ -90,7 +82,7 @@ export function IntakeCaptureForm() {
                 name="requesterName"
                 placeholder="Quem solicita?"
                 required
-                disabled={isPending || isStatusLoading}
+                disabled={isPending}
               />
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -100,7 +92,7 @@ export function IntakeCaptureForm() {
                   className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d] disabled:opacity-50"
                   name="requesterContact"
                   placeholder="Email ou telefone"
-                  disabled={isPending || isStatusLoading}
+                  disabled={isPending}
                 />
               </label>
               <label className="block">
@@ -109,7 +101,7 @@ export function IntakeCaptureForm() {
                   className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d] disabled:opacity-50"
                   name="requesterDepartment"
                   placeholder="Setor"
-                  disabled={isPending || isStatusLoading}
+                  disabled={isPending}
                 />
               </label>
             </div>
@@ -119,9 +111,9 @@ export function IntakeCaptureForm() {
         <button
           className="mt-2 h-11 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d] disabled:opacity-50 disabled:cursor-not-allowed"
           type="submit"
-          disabled={isPending || isStatusLoading}
+          disabled={isPending}
         >
-          {isPending || isStatusLoading ? "Capturando..." : "Capturar Solicitação"}
+          {isPending ? "Capturando..." : "Capturar Solicitação"}
         </button>
       </div>
     </form>

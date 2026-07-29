@@ -1,8 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
-
+import { redirect } from "next/navigation";
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 
@@ -33,8 +32,7 @@ export async function captureIntakeAction(prevState: unknown, formData: FormData
     const { id } = result.data as { id: string };
 
     revalidatePath("/work-intake");
-    return { success: true, workId: id, error: "" };
-
+    redirect(`/work-intake/${id}`);
   } catch (error: unknown) {
     if ((error as Error).message === "NEXT_REDIRECT") {
       throw error;

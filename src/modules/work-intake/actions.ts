@@ -3,9 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { runAction } from "@/platform/actions";
+import { initializePlatformKernel } from "@/platform/kernel";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 
 export async function captureIntakeAction(prevState: unknown, formData: FormData) {
+  initializePlatformKernel();
   try {
     const context = await resolveWorkspaceContext({ source: "ui" });
 
@@ -42,6 +44,7 @@ export async function captureIntakeAction(prevState: unknown, formData: FormData
 }
 
 export async function transitionIntakeAction(prevState: unknown, formData: FormData) {
+  initializePlatformKernel();
   try {
     const context = await resolveWorkspaceContext({ source: "ui" });
 

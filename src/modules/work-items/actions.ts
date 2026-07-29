@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
@@ -38,7 +39,8 @@ function readEnum<T extends string>(
   return allowedValues.some((item) => item.value === value) ? (value as T) : fallback;
 }
 
-export async function createWorkItem(formData: FormData) {
+export async function createWorkItem(prevState: unknown, formData: FormData) {
+  try {
   const title = readRequiredText(formData, "title");
   const description = readOptionalText(formData, "description");
   const workItemTypes = await getWorkItemTypeOptions();
@@ -68,14 +70,20 @@ export async function createWorkItem(formData: FormData) {
   );
 
   if (!result.success) {
-    throw new Error(result.error?.message ?? "Falha ao criar demanda.");
+    return { error: result.error?.message ?? "Falha ao criar demanda." };
   }
 
   const workItem = result.data as { id: string };
 
   revalidatePath("/");
   revalidatePath("/work-items");
-  redirect(`/work-items/${workItem.id}`);
+  return { success: true, workId: workItem.id, error: "" };
+} catch (error: unknown) {
+  if ((error as Error).message === "NEXT_REDIRECT") {
+    throw error;
+  }
+  return { error: error instanceof Error ? error.message : "Erro inesperado ao criar." };
+}
 }
 
 export async function updateWorkItemStatus(formData: FormData) {

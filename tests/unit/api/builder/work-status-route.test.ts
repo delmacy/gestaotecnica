@@ -28,6 +28,14 @@ const routeModule = proxyquire("../../../../src/app/api/builder/work-status/rout
       };
     },
   },
+  "@/platform/events/event-log-service": {
+    emitEvent: async (input: unknown) => {
+      return { ...(input as object), id: "mock-event-id", correlationId: "mock-correlation" };
+    },
+    createReceipt: () => {
+      return { eventId: "mock-event-id", processedAt: "2023-10-10T00:00:00Z", status: "success" };
+    }
+  },
   "@/platform/builder/contracts/work-status/resolve-work-status": {
     resolveWorkStatus: (args: Record<string, unknown>) => {
       resolveWorkStatusCalled = true;
@@ -67,8 +75,11 @@ test("Work Status API Route - POST", async (t) => {
     assert.ok(resolveWorkspaceContextCalled);
     assert.ok(resolveWorkStatusCalled);
 
-    const data = response.data;
+    const data = response.data as Record<string, unknown>;
     assert.equal(data.status, "demo");
+    const receipt = data.receipt as Record<string, unknown>;
+    assert.equal(receipt.eventId, "mock-event-id");
+    assert.equal(receipt.status, "success");
     assert.equal((passedWorkspaceContext as Record<string,unknown>).environmentMode, "demo");
     assert.equal((passedOriginContext as Record<string,unknown>).isDemo, true);
     assert.equal((passedOriginContext as Record<string,unknown>).isSynthetic, false);

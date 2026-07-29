@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import { resolveWorkStatus } from "@/platform/builder/contracts/work-status/resolve-work-status";
+import { emitEvent, createReceipt } from "@/platform/events/event-log-service";
 
 export async function POST(req: Request) {
   try {
@@ -44,6 +45,20 @@ export async function POST(req: Request) {
         returnLabel: returnLabel || null
       }
     });
+
+    try {
+      const event = await emitEvent({
+        eventType: "work_status.resolved",
+        entityType: "work_status",
+        entityId: workId || moduleKey,
+        payload: { status: resolution.status, destination: resolution.destination }
+      }, { ...workspaceContext, environmentMode });
+
+      resolution.receipt = createReceipt(event, "success");
+    } catch (auditError) {
+      console.error("Failed to emit audit event for work-status:", auditError);
+      // We don't fail the primary action, but we lack a receipt.
+    }
 
     return NextResponse.json(resolution);
   } catch (error) {

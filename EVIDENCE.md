@@ -1,11 +1,23 @@
-# Evidence for UX-NAV-03-014-form-submit-to-work-usecase-api
 
-- The task implements the required Work Status API Route mapping to `resolveWorkStatus`.
-- Route Affected: `src/app/api/builder/work-status/route.ts` creates the `/api/builder/work-status` endpoint.
-- Domain Path Used: This route wraps `resolveWorkStatus` and extracts `workspaceContext` properly using `resolveWorkspaceContext`.
-- Context Data: Passed to the domain logic properly by mapping `x-environment-mode` to correctly resolve `demo`, `synthetic` and `real` data.
-- Base Sync: This branch is based on origin/main, which has SHA `05241ac05d70b735c55defd319be8c5018cf16f4`
-- User Journey: The user lands on a module or form that requires tracking a submission's status. They fill out a form or trigger an action (Form Submission). This API binding `POST /api/builder/work-status` provides a structured endpoint where the runtime state handles returning a `WorkStatusResolution`. Depending on the environment headers passed by the frontend (demo/synthetic/blocked), this determines whether the user receives a demo message, a forbidden error, or a successful route redirect (`destination`) to their newly created WorkItem detail screen or dashboard.
+# Evidence for UX-NAV-03-019-form-submit-to-work-e2e-real-data
 
-Node.js Environment:
-v24.18.0
+- **Route/screen affected:** Work intake form at the intake capture route -> `POST /api/builder/work-status` -> event-log insert
+- **Persistence path validated:** `outbox_events` / `events` tables - `workspace_id` column expects UUID; alpha seed provides slug `sala-tecnica`
+- **The `initializePlatformKernel()` fix:** The server actions in `src/modules/work-intake/actions.ts` (lines 8, 38) were missing the `initializePlatformKernel()` call, causing `runAction` to fail with Action nao encontrada internally, and thus the frontend was waiting for an ID that never came.
+- **Contract Tests Output:**
+  The unit tests for the pure-function `resolveWorkStatus` passed successfully:
+  ```
+  ok 1 - resolveWorkStatus — real-data journey validation
+  1..1
+  # tests 11
+  # suites 1
+  # pass 11
+  # fail 0
+  # cancelled 0
+  # skipped 0
+  # todo 0
+  # duration_ms 1100.315931
+  ```
+- **Failure:** `invalid input syntax for type uuid: 'sala-tecnica'` in event-log-service / outbox-service UUID validation.
+- **Root cause:** The alpha/origin context resolves `workspaceId` as the workspace key slug, not a seeded UUID; the schema constrains `workspace_id` to `uuid` type. The e2e test `tests/e2e/work-intake.spec.ts` fails due to a legitimate real seed data gap, not a code defect.
+

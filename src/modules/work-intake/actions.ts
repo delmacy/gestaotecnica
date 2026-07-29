@@ -32,7 +32,7 @@ export async function captureIntakeAction(prevState: unknown, formData: FormData
     const { id } = result.data as { id: string };
 
     revalidatePath("/work-intake");
-    redirect(`/work-intake/${id}`);
+    return { id };
   } catch (error: unknown) {
     if ((error as Error).message === "NEXT_REDIRECT") {
       throw error;

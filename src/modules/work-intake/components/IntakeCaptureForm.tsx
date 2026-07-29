@@ -9,8 +9,8 @@ export function IntakeCaptureForm() {
   const { resolveWorkStatus, isResolving } = useWorkStatus();
 
   useEffect(() => {
-    if (state && 'id' in state && state.id) {
-      resolveWorkStatus({ workId: state.id as string, moduleKey: 'work-intake' }).catch(console.error);
+    if (state && typeof state === 'object' && 'id' in state && typeof state.id === 'string') {
+      resolveWorkStatus({ workId: state.id, moduleKey: 'work-intake' }).catch(console.error);
     }
   }, [state, resolveWorkStatus]);
 

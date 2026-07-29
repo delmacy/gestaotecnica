@@ -12,6 +12,7 @@ import * as storageSchema from "./runtime/schema/storage";
 import * as documentsSchema from "./runtime/schema/documents";
 import * as traceabilitySchema from "./runtime/schema/traceability";
 import * as assetsSchema from "./runtime/schema/assets";
+import * as governanceSchema from "./runtime/schema/governance";
 
 const fullSchema = {
   ...legacySchema,
@@ -26,6 +27,7 @@ const fullSchema = {
   ...documentsSchema,
   ...traceabilitySchema,
   ...assetsSchema,
+  ...governanceSchema,
 };
 
 let platformClient: postgres.Sql | null = null;

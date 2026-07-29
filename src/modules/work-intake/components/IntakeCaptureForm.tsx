@@ -1,10 +1,37 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { captureIntakeAction } from "../actions";
+import { useWorkStatus } from "@/components/builder/shared/hooks/useWorkStatus";
+
+type CaptureActionState = {
+  error?: string;
+  success?: boolean;
+  workId?: string;
+};
 
 export function IntakeCaptureForm() {
-  const [state, formAction, isPending] = useActionState(captureIntakeAction, { error: "" });
+  const [state, formAction, isPending] = useActionState(captureIntakeAction, { error: "" } as CaptureActionState);
+
+  const { resolveStatus, isResolving } = useWorkStatus({ moduleKey: "work-intake" });
+
+  useEffect(() => {
+    let active = true;
+
+    if (state && state.success && state.workId) {
+      // Small timeout to allow form re-enable if action succeeded
+      // But only run resolveStatus once
+      const t = setTimeout(() => {
+         if (active) resolveStatus({ workId: state.workId! });
+      }, 0);
+      return () => {
+         active = false;
+         clearTimeout(t);
+      };
+    }
+  }, [state.success, state.workId, resolveStatus]);
+
+  const disabled = isPending || isResolving;
 
   return (
     <form action={formAction} className="border border-[#d7dccf] bg-white p-5 shadow-sm">
@@ -28,7 +55,7 @@ export function IntakeCaptureForm() {
             name="title"
             placeholder="Resumo da solicitação"
             required
-            disabled={isPending}
+            disabled={disabled}
           />
         </label>
 
@@ -40,7 +67,7 @@ export function IntakeCaptureForm() {
               name="category"
               placeholder="Ex: Infra, Software, Processo"
               required
-              disabled={isPending}
+              disabled={disabled}
             />
           </label>
 
@@ -50,7 +77,7 @@ export function IntakeCaptureForm() {
               className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d] disabled:opacity-50"
               defaultValue="medium"
               name="priority"
-              disabled={isPending}
+              disabled={disabled}
             >
               <option value="low">Baixa</option>
               <option value="medium">Média</option>
@@ -66,7 +93,7 @@ export function IntakeCaptureForm() {
             className="mt-1 min-h-24 w-full resize-y border border-[#c8d0bf] bg-[#fbfcf8] px-3 py-2 text-sm leading-6 outline-none focus:border-[#6b7d5d] disabled:opacity-50"
             name="description"
             placeholder="Detalhes adicionais..."
-            disabled={isPending}
+            disabled={disabled}
           />
         </label>
 
@@ -82,7 +109,7 @@ export function IntakeCaptureForm() {
                 name="requesterName"
                 placeholder="Quem solicita?"
                 required
-                disabled={isPending}
+                disabled={disabled}
               />
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -92,7 +119,7 @@ export function IntakeCaptureForm() {
                   className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d] disabled:opacity-50"
                   name="requesterContact"
                   placeholder="Email ou telefone"
-                  disabled={isPending}
+                  disabled={disabled}
                 />
               </label>
               <label className="block">
@@ -101,7 +128,7 @@ export function IntakeCaptureForm() {
                   className="mt-1 h-11 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d] disabled:opacity-50"
                   name="requesterDepartment"
                   placeholder="Setor"
-                  disabled={isPending}
+                  disabled={disabled}
                 />
               </label>
             </div>
@@ -111,9 +138,9 @@ export function IntakeCaptureForm() {
         <button
           className="mt-2 h-11 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d] disabled:opacity-50 disabled:cursor-not-allowed"
           type="submit"
-          disabled={isPending}
+          disabled={disabled}
         >
-          {isPending ? "Capturando..." : "Capturar Solicitação"}
+          {disabled ? "Capturando..." : "Capturar Solicitação"}
         </button>
       </div>
     </form>

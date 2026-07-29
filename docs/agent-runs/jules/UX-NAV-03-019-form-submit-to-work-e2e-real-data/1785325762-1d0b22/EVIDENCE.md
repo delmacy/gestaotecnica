@@ -20,4 +20,3 @@
   ```
 - **Failure:** `invalid input syntax for type uuid: 'sala-tecnica'` in event-log-service / outbox-service UUID validation.
 - **Root cause:** The alpha/origin context resolves `workspaceId` as the workspace key slug, not a seeded UUID; the schema constrains `workspace_id` to `uuid` type. The e2e test `tests/e2e/work-intake.spec.ts` fails due to a legitimate real seed data gap, not a code defect.
-

@@ -1,11 +1,26 @@
-# Evidence for UX-NAV-03-014-form-submit-to-work-usecase-api
+# Product Proof: Attachments and timeline show proof of work - Contracts and DTOs
 
-- The task implements the required Work Status API Route mapping to `resolveWorkStatus`.
-- Route Affected: `src/app/api/builder/work-status/route.ts` creates the `/api/builder/work-status` endpoint.
-- Domain Path Used: This route wraps `resolveWorkStatus` and extracts `workspaceContext` properly using `resolveWorkspaceContext`.
-- Context Data: Passed to the domain logic properly by mapping `x-environment-mode` to correctly resolve `demo`, `synthetic` and `real` data.
-- Base Sync: This branch is based on origin/main, which has SHA `05241ac05d70b735c55defd319be8c5018cf16f4`
-- User Journey: The user lands on a module or form that requires tracking a submission's status. They fill out a form or trigger an action (Form Submission). This API binding `POST /api/builder/work-status` provides a structured endpoint where the runtime state handles returning a `WorkStatusResolution`. Depending on the environment headers passed by the frontend (demo/synthetic/blocked), this determines whether the user receives a demo message, a forbidden error, or a successful route redirect (`destination`) to their newly created WorkItem detail screen or dashboard.
+## Affected Routes/Screens/UI
+- **Route:** `/evidences` (Evidences list page), `/service-orders/[id]` (Service Order details view), `/work-items/[id]` (Work Item details view).
+- **Component:** `EvidencesTable` (`src/modules/evidences/evidences-table.tsx`), `ServiceOrderEventTimeline` (`src/modules/service-orders/event-timeline.tsx`), `WorkItemEventTimeline` (`src/modules/work-items/event-timeline.tsx`).
 
-Node.js Environment:
-v24.18.0
+## Touched Objects and Evidence
+- **Contracts Created:**
+  - `EvidenceSchema` (`src/modules/evidences/contracts/evidences-contract.ts`) for strongly typed evidence records.
+  - `ServiceOrderEventSchema` (`src/modules/service-orders/contracts/service-order-event-contract.ts`) for typed service order timeline events.
+- **Components Updated:**
+  - `src/modules/evidences/evidences-table.tsx`: Replaced untyped `any` map with strongly typed `Evidence` DTO.
+  - `src/app/evidences/page.tsx`: Fixed explicit `any` in summary mapping.
+  - `src/modules/service-orders/event-timeline.tsx`: Extracted inline type definition to use explicit `ServiceOrderEvent` contract.
+
+## User Journey
+The user accesses the list of technical documents and proofs by navigating to the `/evidences` route. They can view, filter, and inspect registered evidences associated with service orders or work items. For a specific service order (e.g. `/service-orders/[id]`) or work item (e.g. `/work-items/[id]`), users can consult the history and timeline of events. The updated contracts guarantee that the frontend correctly interprets real data (such as mimeType, URLs, timestamps) natively supported by persistence, preventing synthetic/mock substitutions for real data and ensuring a reliable audit trail. Next, they could click to open a file url or go to the related service order/work item.
+
+## Real Data Proof
+- Extracted domain schemas to replace explicit `any` types that obfuscate the data shape.
+- `npx tsc --noEmit` and `npm run check:no-explicit-any` execute successfully on the updated files without throwing `any`-related warnings.
+- Types correspond identically to database query results emitted from `getEvidences()` and stored timeline event logs.
+
+## Repository State Verification
+- **Base Branch SHA:** `931af32ecb3e1a33d3dd3eec9ce1565bd035af03` (Context branch `agent-runs/jules/ux-nav-03-033-attachment-timeline-proof-contracts-1785446255-a994c0` tracking main)
+- **Node.js Version:** `v24.18.1`

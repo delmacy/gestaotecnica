@@ -1,22 +1,5 @@
-import { evidences } from "@/db/schema";
 import Link from "next/link";
-
-type EvidenceRow = {
-  id: string;
-  title: string;
-  description: string | null;
-  fileUrl: string | null;
-  mimeType: string | null;
-  createdAt: Date;
-  serviceOrderId: string | null;
-  serviceOrderCode: string | null;
-  serviceOrderTitle: string | null;
-  workItemId: string | null;
-  workItemTitle: string | null;
-  assetId: string | null;
-  assetCode: string | null;
-  assetName: string | null;
-};
+import { Evidence } from "./contracts/evidences-contract";
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -25,7 +8,7 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-export function EvidencesTable({ evidences }: { evidences: EvidenceRow[] }) {
+export function EvidencesTable({ evidences }: { evidences: Evidence[] }) {
   if (evidences.length === 0) {
     return (
       <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
@@ -41,7 +24,7 @@ export function EvidencesTable({ evidences }: { evidences: EvidenceRow[] }) {
 
   return (
     <div className="space-y-3">
-      {evidences.map((evidence: any) => (
+      {evidences.map((evidence: Evidence) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={evidence.id}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>

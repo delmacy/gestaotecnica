@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
+import { getDb, type DbClient } from "@/db";
 import { authAccounts, authSessions, users } from "@/db/legacy/schema";
 import {
   createSessionToken,
@@ -122,8 +122,7 @@ export async function setupFirstAdmin(prevState: SetupState, formData: FormData)
       };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await db.transaction(async (tx: any) => { // explicit-any-ok
+    const result = await db.transaction(async (tx: DbClient) => {
       const [user] = await tx
         .insert(users)
         .values({ name, email, status: "active", accessProfile: "builder" })

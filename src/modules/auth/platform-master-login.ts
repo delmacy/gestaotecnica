@@ -1,4 +1,4 @@
-import { getDb } from "@/db";
+import { getDb, type DbClient } from "@/db";
 import { authAccounts, users } from "@/db/legacy/schema";
 import { hashPassword } from "./crypto";
 
@@ -7,8 +7,7 @@ export async function ensurePlatformMasterAccount(email: string, password: strin
   const name = process.env.PLATFORM_ADMIN_NAME?.trim() || "Platform Admin";
   const passwordData = hashPassword(password);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userId = await db.transaction(async (tx: any) => { // explicit-any-ok
+  const userId = await db.transaction(async (tx: DbClient) => {
     const [user] = await tx
       .insert(users)
       .values({

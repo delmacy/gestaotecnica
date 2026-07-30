@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { serviceOrders } from "@/db/schema";
+import { approvalDecisions } from "@/db/runtime/schema/governance";
 import type { ActionDefinition } from "@/platform/actions";
 import {
   actionObjectSchema,
@@ -180,6 +181,18 @@ export const decideApprovalKernelAction: ActionDefinition<
           id: serviceOrders.id,
           status: serviceOrders.status,
         });
+
+      await db.insert(approvalDecisions).values({
+        workspaceId: context.workspaceId,
+        subjectType: "service_order",
+        subjectId: previous.id,
+        subjectVersion: previous.status,
+        decision: input.decision ?? "unknown",
+        actorType: context.actor?.type ?? "system",
+        actorId: context.actor?.id ?? "system",
+        justification: input.note,
+        decidedAt: decisionResult.updatedAt,
+      });
 
       return {
         success: true,

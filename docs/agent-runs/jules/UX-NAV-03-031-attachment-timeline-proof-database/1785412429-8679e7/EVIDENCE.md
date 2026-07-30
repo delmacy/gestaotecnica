@@ -29,8 +29,8 @@ This stage implemented the database/persistence foundation for "Attachments and 
 3. On this screen, they will see the populated "Historico" (Timeline) showing the exact events of creation and status changes, and the "Anexos" section showing the proof of work (e.g., "Foto do equipamento falho" linking to the asset).
 4. Users can return via the "Voltar para WorkItems" button.
 
-### Real-data Proof
-The execution of the seed scripts demonstrates the successful baseline creation:
+### Synthetic Fixture Validation
+The execution of the seed scripts demonstrates the successful baseline creation of synthetic seed data (including "example.com" placeholders). This validates that the persistence layer can physically store and link attachments and events to work items.
 
 ```
 $ ALLOW_SEED=true npx tsx src/db/seeds/work-items/seed.ts
@@ -46,3 +46,8 @@ Starting seed for Work Items
 [Seed] Created Events for work item: 6d1fbaee-9d9c-439f-8f90-8c07910734f1, 6cfe7730-363a-4a9a-a2b9-d7109c761ce0
 Seed finished for Work Items
 ```
+
+### Presentation States Verification
+- **Synthetic Data State:** Shown above; explicitly labeled seed data populated for testing the timeline and attachments components locally without external real dependencies.
+- **Empty State:** Distinctly handled by the components `EntityCollaboration` and `WorkItemEventTimeline` displaying "Nenhum evento registrado" and "Nenhum anexo registrado" when no records exist for a genuine work item.
+- **Real-Data Blocker:** Real, multi-tenant persistence data is completely blocked in local environments due to the absence of active user generated payload traffic; this stage intentionally bounds its proof to verified seeded fixtures in the database layer. No fake runtime interactions were substituted as real data.

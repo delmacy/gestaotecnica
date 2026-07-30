@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import { getCurrentUser } from "@/modules/auth/session";
+import { initializePlatformKernel } from "@/platform/kernel";
+
+initializePlatformKernel();
 
 type ActionReceipt = {
   action: "request" | "approve" | "reject";

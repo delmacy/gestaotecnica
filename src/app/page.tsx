@@ -8,6 +8,7 @@ import {
   Bot,
   BriefcaseBusiness,
   ClipboardList,
+  Code2,
   FileCheck2,
   ListChecks,
   Network,
@@ -19,6 +20,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const platformActions = [
+  { href: "/builder", label: "Abrir Builder", detail: "Construir organizações, workspaces e fluxos", icon: Code2 },
   { href: "/admin/organizations", label: "Selecionar workspace", detail: "Cliente/tenant ativo", icon: BriefcaseBusiness },
   { href: "/skills", label: "Capabilities globais", detail: "Disponíveis para qualquer cliente", icon: Bot },
   { href: "/workspace-config", label: "Instalar capabilities", detail: "Somente no workspace atual", icon: SlidersHorizontal },

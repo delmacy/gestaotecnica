@@ -1,6 +1,7 @@
 "use client";
 
-import { Search, UserCircle, Bell, HelpCircle, Building2 } from "lucide-react";
+import { Search, UserCircle, Bell, HelpCircle, Building2, Home } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 import type { WorkspaceContext } from "@/platform/workspace";
 import { resolvePrimaryAction } from "@/platform/builder/contracts/primary-action/resolve-primary-action";
@@ -36,6 +37,15 @@ export function Topbar({
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
       <div className="flex flex-1 items-center gap-4">
         {mobileNavigation}
+
+        <Link
+          href="/"
+          title="Voltar ao Command Center"
+          aria-label="Voltar ao Command Center"
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <Home className="size-4" />
+        </Link>
 
         {/* Workspace Switcher */}
         <div className="hidden md:flex items-center">

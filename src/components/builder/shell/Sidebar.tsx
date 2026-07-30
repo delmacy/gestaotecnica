@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
-import { Building2, Layers3 } from "lucide-react";
+import { Building2, Home, Layers3 } from "lucide-react";
 
 export function Sidebar({
   modules,
@@ -52,6 +52,11 @@ export function Sidebar({
               Platform Builder
             </h3>
             <ul className="space-y-1">
+              <li>
+                <Link href="/" className="flex items-center gap-3 rounded-md px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+                  <Home className="size-4" /> Command Center
+                </Link>
+              </li>
               <li>
                 <Link href="/admin/organizations" className="flex items-center gap-3 rounded-md px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
                   <Building2 className="size-4" /> Organizações

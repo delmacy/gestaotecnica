@@ -31,10 +31,19 @@ export function WorkspaceSwitcher({ context, className }: WorkspaceSwitcherProps
   const router = useRouter();
 
   const fetchWorkspaces = React.useCallback(async () => {
+    if (!context.organizationId) {
+      setError("Selecione uma organização antes de escolher um workspace.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/builder/navigation/workspace-switching?userId=${context.actor.id || "anonymous"}`);
+      const params = new URLSearchParams({
+        organizationId: context.organizationId,
+        userId: context.actor.id || "anonymous",
+      });
+      const res = await fetch(`/api/builder/navigation/workspace-switching?${params.toString()}`);
       if (!res.ok) {
         throw new Error("Failed to fetch workspaces");
       }
@@ -46,16 +55,21 @@ export function WorkspaceSwitcher({ context, className }: WorkspaceSwitcherProps
     } finally {
       setLoading(false);
     }
-  }, [context.actor.id]);
+  }, [context.actor.id, context.organizationId]);
 
-  React.useEffect(() => {
-    if (open && workspaces.length === 0 && !loading && !error) {
-      fetchWorkspaces();
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (nextOpen && workspaces.length === 0 && !loading) {
+      void fetchWorkspaces();
     }
-  }, [open, workspaces.length, loading, error, fetchWorkspaces]);
+  };
 
   const handleSwitch = async (workspace: WorkspaceInfo) => {
     if (workspace.workspaceId === context.workspaceId) return;
+    if (!context.organizationId) {
+      toast.error("Selecione uma organização antes de escolher um workspace.");
+      return;
+    }
 
     try {
       setSwitching(workspace.workspaceId);
@@ -65,6 +79,7 @@ export function WorkspaceSwitcher({ context, className }: WorkspaceSwitcherProps
         body: JSON.stringify({
           currentWorkspaceId: context.workspaceId || "sys",
           targetWorkspaceId: workspace.workspaceId,
+          organizationId: context.organizationId,
           userId: context.actor.id || "anonymous",
         }),
       });
@@ -76,8 +91,8 @@ export function WorkspaceSwitcher({ context, className }: WorkspaceSwitcherProps
       const data: WorkspaceSwitchingResponse = await res.json();
 
       if (data.status === "success" && data.redirectUrl) {
-        document.cookie = `x-workspace-id=${workspace.workspaceId}; path=/`;
         router.push(data.redirectUrl);
+        router.refresh();
       } else {
         toast.error("Access Denied", {
           description: data.message || "You do not have access to this workspace.",
@@ -97,7 +112,7 @@ export function WorkspaceSwitcher({ context, className }: WorkspaceSwitcherProps
   const currentWorkspaceName = workspaces.find((w) => w.workspaceId === context.workspaceId)?.name || context.workspaceId || "System Workspace";
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"

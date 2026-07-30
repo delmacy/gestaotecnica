@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { workspaces } from "@/db/runtime/schema/workspace";
 
@@ -14,7 +14,11 @@ export async function resolveWorkspaceSwitching(request: WorkspaceSwitchingReque
   const [targetWorkspace] = await db
     .select({ id: workspaces.id })
     .from(workspaces)
-    .where(eq(workspaces.id, request.targetWorkspaceId))
+    .where(and(
+      eq(workspaces.id, request.targetWorkspaceId),
+      eq(workspaces.organizationId, request.organizationId),
+      eq(workspaces.status, "active"),
+    ))
     .limit(1);
 
   if (!targetWorkspace) {
@@ -32,10 +36,13 @@ export async function resolveWorkspaceList(request: WorkspaceListRequest): Promi
       id: workspaces.id,
       name: workspaces.name,
       status: workspaces.status,
-      adaptationKey: workspaces.adaptationKey
+      adaptationKey: workspaces.adaptationKey,
     })
     .from(workspaces)
-    .where(eq(workspaces.status, 'active'));
+    .where(and(
+      eq(workspaces.organizationId, request.organizationId),
+      eq(workspaces.status, "active"),
+    ));
 
   const mappedWorkspaces: WorkspaceInfo[] = results.map((ws: typeof workspaces.$inferSelect) => ({
     workspaceId: ws.id,

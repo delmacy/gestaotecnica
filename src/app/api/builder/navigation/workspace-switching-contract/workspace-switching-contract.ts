@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const WorkspaceSwitchingRequestSchema = z.object({
   currentWorkspaceId: z.string().min(1),
   targetWorkspaceId: z.string().min(1),
+  organizationId: z.string().min(1),
   userId: z.string().min(1),
 });
 
@@ -17,6 +18,7 @@ export const WorkspaceSwitchingResponseSchema = z.object({
 export type WorkspaceSwitchingResponse = z.infer<typeof WorkspaceSwitchingResponseSchema>;
 
 export const WorkspaceListRequestSchema = z.object({
+  organizationId: z.string().min(1),
   userId: z.string().min(1),
 });
 

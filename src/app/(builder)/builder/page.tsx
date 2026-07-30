@@ -17,7 +17,10 @@ export default async function Page({
   const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
   const selectedWorkspaceId = cookieStore.get("x-workspace-id")?.value;
   const selectedOrganizationId = params.organizationId ?? cookieStore.get("x-organization-id")?.value;
-  const context = await resolveSelectedWorkspaceContext({ workspaceId: selectedWorkspaceId, source: "ui" });
+  const resolvedContext = await resolveSelectedWorkspaceContext({ workspaceId: selectedWorkspaceId, source: "ui" });
+  const context = selectedOrganizationId && resolvedContext?.organizationId === selectedOrganizationId
+    ? resolvedContext
+    : null;
 
   if (!context) {
     if (selectedOrganizationId) {

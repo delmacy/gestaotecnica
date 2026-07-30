@@ -15,8 +15,13 @@ export async function POST(req: Request) {
     }
 
     const resolution = await resolveWorkspaceSwitching(result.data);
-    return NextResponse.json(resolution);
-  } catch (error) {
+    const response = NextResponse.json(resolution);
+    if (resolution.status === "success") {
+      response.cookies.set("x-organization-id", result.data.organizationId, { path: "/", sameSite: "lax" });
+      response.cookies.set("x-workspace-id", result.data.targetWorkspaceId, { path: "/", sameSite: "lax" });
+    }
+    return response;
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -28,8 +33,9 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId') ?? 'anonymous';
+    const organizationId = searchParams.get('organizationId');
 
-    const requestPayload = { userId };
+    const requestPayload = { userId, organizationId };
     const result = WorkspaceListRequestSchema.safeParse(requestPayload);
 
     if (!result.success) {
@@ -41,7 +47,7 @@ export async function GET(req: Request) {
 
     const resolution = await resolveWorkspaceList(result.data);
     return NextResponse.json(resolution);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

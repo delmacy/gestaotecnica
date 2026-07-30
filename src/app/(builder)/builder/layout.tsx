@@ -18,12 +18,16 @@ export default async function BuilderLayout({
 }) {
   await requireAccessProfile(["builder"]);
   const cookieStore = await cookies();
+  const selectedOrganizationId = cookieStore.get("x-organization-id")?.value;
   const environmentMode = cookieStore.get("x-environment-mode")?.value as "synthetic" | "demo" | "real" | undefined;
-  const context = await resolveSelectedWorkspaceContext({
+  const resolvedContext = await resolveSelectedWorkspaceContext({
     workspaceId: cookieStore.get("x-workspace-id")?.value,
     source: "ui",
     ...(environmentMode ? { environmentMode } : {})
   });
+  const context = selectedOrganizationId && resolvedContext?.organizationId === selectedOrganizationId
+    ? resolvedContext
+    : null;
   const inventory = context ? resolveNavigationInventory(context) : null;
 
   return (

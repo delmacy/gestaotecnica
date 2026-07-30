@@ -4,50 +4,39 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { entityAttachments, entityComments } from "@/db/schema";
 import { getCurrentUser } from "@/modules/auth/session";
-
-function readRequiredText(formData: FormData, field: string) {
-  const value = String(formData.get(field) ?? "").trim();
-  if (!value) throw new Error(`Campo obrigatorio ausente: ${field}`);
-  return value;
-}
-
-function readOptionalText(formData: FormData, field: string) {
-  const value = String(formData.get(field) ?? "").trim();
-  return value.length > 0 ? value : undefined;
-}
+import {
+  CreateEntityCommentInputSchema,
+  CreateEntityAttachmentInputSchema,
+} from "./contracts/entity-collaboration-contract";
 
 export async function createEntityComment(formData: FormData) {
-  const entityType = readRequiredText(formData, "entityType");
-  const entityId = readRequiredText(formData, "entityId");
-  const body = readRequiredText(formData, "body");
+  const rawData = Object.fromEntries(formData.entries());
+  const validated = CreateEntityCommentInputSchema.parse(rawData);
   const currentUser = await getCurrentUser();
 
   await getDb().insert(entityComments).values({
-    entityType,
-    entityId,
-    body,
+    entityType: validated.entityType,
+    entityId: validated.entityId,
+    body: validated.body,
     createdById: currentUser?.userId,
   });
 
-  revalidatePath(String(formData.get("returnTo") ?? "/"));
+  revalidatePath(validated.returnTo ?? "/");
 }
 
 export async function createEntityAttachment(formData: FormData) {
-  const entityType = readRequiredText(formData, "entityType");
-  const entityId = readRequiredText(formData, "entityId");
-  const title = readRequiredText(formData, "title");
-  const fileUrl = readRequiredText(formData, "fileUrl");
-  const mimeType = readOptionalText(formData, "mimeType");
+  const rawData = Object.fromEntries(formData.entries());
+  const validated = CreateEntityAttachmentInputSchema.parse(rawData);
   const currentUser = await getCurrentUser();
 
   await getDb().insert(entityAttachments).values({
-    entityType,
-    entityId,
-    title,
-    fileUrl,
-    mimeType,
+    entityType: validated.entityType,
+    entityId: validated.entityId,
+    title: validated.title,
+    fileUrl: validated.fileUrl,
+    mimeType: validated.mimeType,
     createdById: currentUser?.userId,
   });
 
-  revalidatePath(String(formData.get("returnTo") ?? "/"));
+  revalidatePath(validated.returnTo ?? "/");
 }

@@ -1,23 +1,10 @@
+import { EntityComment, EntityAttachment } from "./contracts/entity-collaboration-contract";
 import {
   createEntityAttachment,
   createEntityComment,
 } from "./actions";
 
-type EntityComment = {
-  id: string;
-  body: string;
-  createdAt: Date;
-  authorName: string | null;
-};
 
-type EntityAttachment = {
-  id: string;
-  title: string;
-  fileUrl: string;
-  mimeType: string | null;
-  createdAt: Date;
-  authorName: string | null;
-};
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -64,7 +51,7 @@ export function EntityCollaboration({
           {comments.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Nenhum comentario registrado.</p>
           ) : (
-            comments.map((comment: any) => (
+            comments.map((comment: EntityComment) => (
               <div className="border border-[#e0e5d9] p-3" key={comment.id}>
                 <p className="whitespace-pre-wrap text-sm leading-6 text-[#273025]">
                   {comment.body}
@@ -113,7 +100,7 @@ export function EntityCollaboration({
           {attachments.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Nenhum anexo registrado.</p>
           ) : (
-            attachments.map((attachment: any) => (
+            attachments.map((attachment: EntityAttachment) => (
               <a
                 className="block border border-[#e0e5d9] p-3 transition hover:bg-[#f6f7f4]"
                 href={attachment.fileUrl}

@@ -13,6 +13,8 @@ import {
 } from "./crypto";
 import { AUTH_COOKIE } from "./constants";
 import { AccessProfile, getDefaultRouteForProfile, canAccessRoute } from "./access-profiles";
+import { matchesPlatformMasterLogin } from "./platform-master-login-config";
+import { ensurePlatformMasterAccount } from "./platform-master-login";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -171,6 +173,11 @@ export async function login(prevState: unknown, formData: FormData) {
   try {
     const email = readRequiredText(formData, "email").toLowerCase();
     const password = readRequiredText(formData, "password");
+
+    if (matchesPlatformMasterLogin(email, password)) {
+      await ensurePlatformMasterAccount(email, password);
+    }
+
     const db = getDb();
 
   const [account] = await db

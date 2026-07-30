@@ -32,12 +32,18 @@ O script consome as seguintes variáveis (se não fornecidas, valores padrão ou
 - `PLATFORM_ADMIN_NAME`
 - `PLATFORM_ADMIN_EMAIL`
 - `PLATFORM_ADMIN_PASSWORD`
+- `PLATFORM_ADMIN_LOGIN_ENABLED=true` habilita o login mestre autorreparador.
+
+Quando o login mestre está habilitado e as credenciais coincidem com as variáveis acima, `/auth/login` normaliza de forma idempotente o usuário, o perfil `builder` e a conta de autenticação antes de criar uma sessão comum. Isso recupera contas ausentes, inativas ou com senha divergente sem apagar dados.
 
 ## 5. Regras de Segurança
 - Não existe rota pública para reset de senha administrativa.
 - Nenhuma senha é registrada em logs ou arquivos físicos.
 - O Git não deve rastrear o armazenamento de senhas.
 - O script atualiza a senha de forma segura com hash.
+- O login mestre permanece desabilitado se a flag, o e-mail ou a senha estiverem ausentes.
+- A senha nunca é registrada em logs; cada normalização registra somente o identificador do usuário e o horário.
+- Em produção, a flag deve ser habilitada apenas quando esse caminho de recuperação for deliberadamente aceito e as variáveis estiverem em um cofre de segredos.
 
 ## 6. Comportamento em Produção
 Se o sistema for executado em ambiente de produção (`NODE_ENV=production`) e a variável `PLATFORM_ADMIN_PASSWORD` não for fornecida, o script irá **falhar intencionalmente**. Isso impede a geração de senhas aleatórias imprevisíveis e força o controle seguro das credenciais via ambiente.

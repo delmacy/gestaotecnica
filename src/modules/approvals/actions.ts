@@ -43,7 +43,7 @@ export async function submitServiceOrderForReview(prevState: unknown, formData: 
     revalidatePath("/service-orders");
     revalidatePath(`/service-orders/${id}`);
 
-    return { id: result.receipt?.id || id, status: "success" };
+    return { id, status: "success" };
   } catch (error) {
     if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;
     return { error: error instanceof Error ? error.message : "Erro inesperado." };
@@ -75,7 +75,7 @@ export async function approveServiceOrder(prevState: unknown, formData: FormData
     revalidatePath("/service-orders");
     revalidatePath(`/service-orders/${id}`);
 
-    return { id: result.receipt?.id || id, status: "success" };
+    return { id, status: "success" };
   } catch (error) {
     if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;
     return { error: error instanceof Error ? error.message : "Erro inesperado." };
@@ -107,7 +107,7 @@ export async function returnServiceOrderForExecution(prevState: unknown, formDat
     revalidatePath("/service-orders");
     revalidatePath(`/service-orders/${id}`);
 
-    return { id: result.receipt?.id || id, status: "success" };
+    return { id, status: "success" };
   } catch (error) {
     if (error instanceof Error && error.message === 'NEXT_REDIRECT') throw error;
     return { error: error instanceof Error ? error.message : "Erro inesperado." };

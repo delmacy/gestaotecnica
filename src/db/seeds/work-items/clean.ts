@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { usersTable } from "../../runtime/schema/identity";
 import { organizations, workspaces } from "../../runtime/schema/workspace";
 import { modules, capabilities, moduleCapabilities } from "../../platform/schema/registry";
-import { workspaceModuleConfigs, workItems, users as legacyUsers } from "../../legacy/schema";
+import { workspaceModuleConfigs, workItems, entityAttachments, users as legacyUsers } from "../../legacy/schema";
 import { WORK_ITEMS_SEED } from "./constants";
 
 export async function cleanWorkItems(
@@ -17,6 +17,19 @@ export async function cleanWorkItems(
   let workspaceId: string | null = null;
   if (existingWorkspaces.length > 0) {
       workspaceId = existingWorkspaces[0].id;
+  }
+
+  console.log(`[Clean] Fetching Seeded Work Items to clean related records`);
+  const items = await dbLegacy.select({ id: workItems.id }).from(workItems).where(eq(workItems.title, WORK_ITEMS_SEED.item.title));
+
+  if (items.length > 0) {
+    const workItemId = items[0].id;
+    console.log(`[Clean] Deleting Entity Attachments for Work Item: ${workItemId}`);
+    await dbLegacy.delete(entityAttachments).where(eq(entityAttachments.entityId, workItemId));
+
+    console.log(`[Clean] Deleting Events for Work Item: ${workItemId}`);
+    const { events } = await import("../../runtime/schema/workflow");
+    await dbRuntime.delete(events).where(eq(events.entityId, workItemId));
   }
 
   console.log(`[Clean] Deleting Work Items (seeded)`);

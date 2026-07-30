@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { usersTable } from "../../runtime/schema/identity";
 import { organizations, workspaces } from "../../runtime/schema/workspace";
 import { modules, capabilities, moduleCapabilities } from "../../platform/schema/registry";
-import { workspaceModuleConfigs, workItems, users as legacyUsers } from "../../legacy/schema";
+import { workspaceModuleConfigs, workItems, users as legacyUsers, entityAttachments } from "../../legacy/schema";
 import { WORK_ITEMS_SEED } from "./constants";
 
 export async function seedWorkItems(
@@ -126,6 +126,7 @@ export async function seedWorkItems(
   const existingItems = await dbLegacy.select().from(workItems)
     .where(eq(workItems.title, WORK_ITEMS_SEED.item.title));
 
+  let workItemId: string;
   if (existingItems.length === 0) {
       const [item] = await dbLegacy.insert(workItems).values({
           title: WORK_ITEMS_SEED.item.title,
@@ -138,9 +139,62 @@ export async function seedWorkItems(
           createdById: userId,
           payload: { seed: true }
       }).returning({ id: workItems.id });
-      console.log(`[Seed] Created Work Item: ${item.id}`);
+      workItemId = item.id;
+      console.log(`[Seed] Created Work Item: ${workItemId}`);
   } else {
-      console.log(`[Seed] Work Item already exists: ${existingItems[0].id}`);
+      workItemId = existingItems[0].id;
+      console.log(`[Seed] Work Item already exists: ${workItemId}`);
+  }
+
+  // 7. Entity Attachments
+  const existingAttachments = await dbLegacy.select().from(entityAttachments)
+    .where(eq(entityAttachments.entityId, workItemId));
+
+  if (existingAttachments.length === 0) {
+    const [attachment] = await dbLegacy.insert(entityAttachments).values({
+        entityType: "work_item",
+        entityId: workItemId,
+        title: "Foto do equipamento falho",
+        fileUrl: "https://example.com/foto-equipamento-1.jpg",
+        mimeType: "image/jpeg",
+        createdById: userId,
+    }).returning({ id: entityAttachments.id });
+    console.log(`[Seed] Created Entity Attachment: ${attachment.id}`);
+  } else {
+    console.log(`[Seed] Entity Attachment already exists for work item: ${workItemId}`);
+  }
+
+  // 8. Events
+  const { events } = await import("../../runtime/schema/workflow");
+  const existingEvents = await dbRuntime.select().from(events)
+    .where(eq(events.entityId, workItemId));
+
+  if (existingEvents.length === 0) {
+    const [event1] = await dbRuntime.insert(events).values({
+        workspaceId,
+        eventType: "work_item.created",
+        entityType: "work_item",
+        entityId: workItemId,
+        actorType: "user",
+        actorId: userId,
+        source: "seed",
+        payload: { note: "Equipamento reportado quebrado" },
+    }).returning({ id: events.id });
+
+    const [event2] = await dbRuntime.insert(events).values({
+        workspaceId,
+        eventType: "work_item.status_changed",
+        entityType: "work_item",
+        entityId: workItemId,
+        actorType: "user",
+        actorId: userId,
+        source: "seed",
+        payload: { from: "triaged", to: "open", note: "Analisado pela equipe técnica" },
+    }).returning({ id: events.id });
+
+    console.log(`[Seed] Created Events for work item: ${event1.id}, ${event2.id}`);
+  } else {
+    console.log(`[Seed] Events already exist for work item: ${workItemId}`);
   }
 
   console.log(`Seed finished for Work Items`);

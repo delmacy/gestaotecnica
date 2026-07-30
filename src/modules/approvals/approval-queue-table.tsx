@@ -3,23 +3,11 @@ import {
   getServiceOrderPriorityLabel,
   getServiceOrderStatusLabel,
 } from "@/modules/service-orders/constants";
+import type { ApprovalQueueItem } from "./contracts";
 import {
   approveServiceOrder,
   returnServiceOrderForExecution,
 } from "./actions";
-
-type ApprovalQueueRow = {
-  id: string;
-  code: string;
-  title: string;
-  objective: string | null;
-  status: string;
-  priority: string;
-  completedAt: Date | null;
-  assetId: string | null;
-  assetCode: string | null;
-  assetName: string | null;
-};
 
 function formatDate(date: Date | null) {
   if (!date) return "Nao informado";
@@ -30,7 +18,7 @@ function formatDate(date: Date | null) {
   }).format(date);
 }
 
-export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
+export function ApprovalQueueTable({ items }: { items: ApprovalQueueItem[] }) {
   if (items.length === 0) {
     return (
       <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
@@ -46,7 +34,7 @@ export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
 
   return (
     <div className="space-y-4">
-      {items.map((item: any) => (
+      {items.map((item) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={item.id}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>

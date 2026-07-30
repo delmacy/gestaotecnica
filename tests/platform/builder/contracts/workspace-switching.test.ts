@@ -9,7 +9,7 @@ describe('Workspace Switching Contract', () => {
         (global as unknown as { mockDbResult: unknown[] }).mockDbResult = [{ id: 'ws-2' }];
         const response = await resolveWorkspaceSwitching({ currentWorkspaceId: 'ws-1', targetWorkspaceId: 'ws-2', organizationId: 'org-1', userId: 'user-1' });
         assert.strictEqual(response.status, 'success');
-        assert.strictEqual(response.redirectUrl, '/builder');
+        assert.strictEqual(response.redirectUrl, '/builder?organizationId=org-1&workspaceId=ws-2');
     });
 
     it('should forbid switching to unauthorized workspace', async () => {

@@ -21,6 +21,7 @@ export async function resolveSelectedWorkspaceContext(
     .select({
       id: workspaces.id,
       key: workspaces.key,
+      name: workspaces.name,
       organizationId: workspaces.organizationId,
       adaptationKey: workspaces.adaptationKey,
     })
@@ -38,6 +39,7 @@ export async function resolveSelectedWorkspaceContext(
   return {
     workspaceId: workspace.id,
     workspaceKey: workspace.key,
+    workspaceName: workspace.name,
     organizationId: workspace.organizationId ?? undefined,
     adaptationKey: workspace.adaptationKey ?? undefined,
     actor: input.actor ?? { type: "system" },

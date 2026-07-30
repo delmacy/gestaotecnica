@@ -109,7 +109,9 @@ export function WorkspaceSwitcher({ context, className }: WorkspaceSwitcherProps
     }
   };
 
-  const currentWorkspaceName = workspaces.find((w) => w.workspaceId === context.workspaceId)?.name || context.workspaceId || "System Workspace";
+  const currentWorkspaceName = workspaces.find((w) => w.workspaceId === context.workspaceId)?.name
+    || context.workspaceName
+    || context.workspaceKey;
 
   return (
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>

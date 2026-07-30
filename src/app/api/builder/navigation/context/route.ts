@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
     const breadcrumbs = resolveBreadcrumbInventory(context, { pathname });
     const primaryAction = resolvePrimaryAction(context, { moduleKey, routeContext: "list" });
 
-    // Explicit answers for the navigation context
     const navigationContext = {
       cameFrom: breadcrumbs.length > 1 ? breadcrumbs.slice(0, -1).map(b => b.href).filter(Boolean) : ["/builder"],
       doHere: viewState.state === "empty"
@@ -38,7 +37,7 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json(payload, { status: 200 });
-  } catch (error: unknown) {
+  } catch {
     const errorEnvelope = createPlatformError(
       {
         code: "PLATFORM.API.INTERNAL_ERROR",
@@ -51,4 +50,11 @@ export async function GET(request: NextRequest) {
     );
     return NextResponse.json(errorEnvelope, { status: 500 });
   }
+}
+
+export async function DELETE() {
+  const response = NextResponse.json({ status: "success" });
+  response.cookies.set("x-organization-id", "", { path: "/", maxAge: 0, sameSite: "lax" });
+  response.cookies.set("x-workspace-id", "", { path: "/", maxAge: 0, sameSite: "lax" });
+  return response;
 }

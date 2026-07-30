@@ -1,11 +1,11 @@
 "use client";
 
-import { Search, UserCircle, Bell, HelpCircle } from "lucide-react";
+import { Search, UserCircle, Bell, HelpCircle, Building2 } from "lucide-react";
 import React from "react";
 import type { WorkspaceContext } from "@/platform/workspace";
 import { resolvePrimaryAction } from "@/platform/builder/contracts/primary-action/resolve-primary-action";
 import { PrimaryAction } from "@/components/builder/shared/PrimaryAction";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 
 
@@ -17,6 +17,13 @@ export function Topbar({
   context: WorkspaceContext | null;
 }) {
   const pathname = usePathname() || "";
+  const router = useRouter();
+
+  async function returnToOrganizations() {
+    await fetch("/api/builder/navigation/context", { method: "DELETE" });
+    router.push("/builder");
+    router.refresh();
+  }
 
   // Extract moduleKey directly from pathname as Topbar does not receive inventory.
   // E.g. /builder/registry/new -> registry
@@ -32,7 +39,19 @@ export function Topbar({
 
         {/* Workspace Switcher */}
         <div className="hidden md:flex items-center">
-          {context ? <WorkspaceSwitcher context={context} /> : <span className="text-sm font-medium">Platform Builder</span>}
+          {context ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={returnToOrganizations}
+                className="inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium hover:bg-muted"
+              >
+                <Building2 className="size-4" />
+                Organizações
+              </button>
+              <WorkspaceSwitcher context={context} />
+            </div>
+          ) : <span className="text-sm font-medium">Platform Builder</span>}
         </div>
 
         {/* Search Placeholder */}

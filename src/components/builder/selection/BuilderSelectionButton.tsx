@@ -23,7 +23,10 @@ export function BuilderSelectionButton({
     } else {
       document.cookie = "x-workspace-id=; path=/; max-age=0; samesite=lax";
     }
-    router.push(workspaceId ? destination : `/builder?organizationId=${organizationId}`);
+    const builderDestination = workspaceId
+      ? `/builder?organizationId=${organizationId}&workspaceId=${workspaceId}`
+      : `/builder?organizationId=${organizationId}`;
+    router.push(destination === "/builder" ? builderDestination : destination);
     router.refresh();
   }
 

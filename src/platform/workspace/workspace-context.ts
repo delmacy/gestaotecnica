@@ -5,6 +5,7 @@ export type ExecutionSource = "ui" | "integration" | "automation" | "system";
 export type WorkspaceContext = {
   workspaceId: string;
   workspaceKey: string;
+  workspaceName?: string;
   organizationId?: string;
   adaptationKey?: string;
   actor: {

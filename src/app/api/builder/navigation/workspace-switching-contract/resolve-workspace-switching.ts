@@ -25,7 +25,10 @@ export async function resolveWorkspaceSwitching(request: WorkspaceSwitchingReque
     return { status: 'not-found', message: 'Workspace not found.' };
   }
 
-  return { status: 'success', redirectUrl: `/builder` };
+  return {
+    status: "success",
+    redirectUrl: `/builder?organizationId=${request.organizationId}&workspaceId=${request.targetWorkspaceId}`,
+  };
 }
 
 export async function resolveWorkspaceList(request: WorkspaceListRequest): Promise<WorkspaceListResponse> {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { Building2, Layers3, Blocks } from "lucide-react";
 import { getIcon } from "@/components/builder/shell/shell-data";
 import { BuilderSelectionButton } from "@/components/builder/selection/BuilderSelectionButton";
@@ -12,10 +13,17 @@ import { resolveSelectedWorkspaceContext } from "@/platform/workspace";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ organizationId?: string }>;
+  searchParams: Promise<{ organizationId?: string; workspaceId?: string }>;
 }) {
   const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
-  const selectedWorkspaceId = cookieStore.get("x-workspace-id")?.value;
+  const cookieWorkspaceId = cookieStore.get("x-workspace-id")?.value;
+  const cookieOrganizationId = cookieStore.get("x-organization-id")?.value;
+  if (!params.organizationId && cookieOrganizationId) {
+    const workspaceParam = cookieWorkspaceId ? `&workspaceId=${cookieWorkspaceId}` : "";
+    redirect(`/builder?organizationId=${cookieOrganizationId}${workspaceParam}`);
+  }
+
+  const selectedWorkspaceId = params.workspaceId;
   const selectedOrganizationId = params.organizationId ?? cookieStore.get("x-organization-id")?.value;
   const resolvedContext = await resolveSelectedWorkspaceContext({ workspaceId: selectedWorkspaceId, source: "ui" });
   const context = selectedOrganizationId && resolvedContext?.organizationId === selectedOrganizationId

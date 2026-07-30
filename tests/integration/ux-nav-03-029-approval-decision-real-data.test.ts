@@ -3,7 +3,7 @@ import test, { after } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { getRuntimeDb, closeDatabaseConnections } from "../../src/db";
-import { serviceOrders } from "../../src/db/schema";
+import { serviceOrders, users } from "../../src/db/schema";
 import { eq } from "drizzle-orm";
 import { getApprovalQueue, getApprovalSummary } from "../../src/modules/approvals/queries";
 import { resolveApprovalDecision } from "../../src/modules/approvals/approval-workflow-domain";
@@ -15,15 +15,25 @@ import {
 
 const db = getRuntimeDb();
 const testServiceOrderId = randomUUID();
+const testUserId = randomUUID();
 const testCode = `SO-E2E-029-${randomUUID().slice(0, 8)}`;
 
 after(async () => {
   await db.delete(serviceOrders).where(eq(serviceOrders.id, testServiceOrderId));
+  await db.delete(users).where(eq(users.id, testUserId));
+  await new Promise((resolve) => setTimeout(resolve, 50));
   await closeDatabaseConnections();
 });
 
 test("UX-NAV-03-029: Real-data journey validation for approval decision", async (t) => {
   await t.test("inserts a waiting_review service order for real-data validation", async () => {
+    await db.insert(users).values({
+      id: testUserId,
+      name: "Approver E2E 029",
+      email: `approver-029-${randomUUID()}@example.com`,
+      status: "active",
+      accessProfile: "operador"
+    });
     await db.insert(serviceOrders).values({
       id: testServiceOrderId,
       code: testCode,
@@ -76,7 +86,7 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
     const context: WorkspaceContext = {
       workspaceId: "test-ws-029",
       workspaceKey: "test-ws-key-029",
-      actor: { type: "user", id: "approver-e2e-029" },
+      actor: { type: "user", id: testUserId },
       source: "integration-test",
       environmentMode: "real",
       enabledModules: ["approvals", "service-orders"],
@@ -88,7 +98,7 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
 
     assert.equal(result.status, "approved");
     assert.ok(result.approvedAt instanceof Date, "approvedAt must be a Date");
-    assert.equal(result.approvedById, "approver-e2e-029", "approvedById must match the acting user");
+    assert.equal(result.approvedById, testUserId, "approvedById must match the acting user");
     assert.ok(result.updatedAt instanceof Date, "updatedAt must be a Date");
   });
 
@@ -96,7 +106,7 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
     const context: WorkspaceContext = {
       workspaceId: "test-ws-029",
       workspaceKey: "test-ws-key-029",
-      actor: { type: "user", id: "reviewer-e2e-029" },
+      actor: { type: "user", id: testUserId },
       source: "integration-test",
       environmentMode: "real",
       enabledModules: ["approvals", "service-orders"],
@@ -115,7 +125,7 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
     const context: WorkspaceContext = {
       workspaceId: "test-ws-029",
       workspaceKey: "test-ws-key-029",
-      actor: { type: "user", id: "approver-e2e-029" },
+      actor: { type: "user", id: testUserId },
       source: "integration-test",
       environmentMode: "real",
       enabledModules: ["approvals", "service-orders"],
@@ -143,7 +153,7 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
 
     assert.equal(updated.status, "approved");
     assert.ok(updated.approvedAt instanceof Date, "approvedAt must be persisted");
-    assert.equal(updated.approvedById, "approver-e2e-029");
+    assert.equal(updated.approvedById, testUserId);
 
     const queueAfterApproval = await getApprovalQueue();
     const stillInQueue = queueAfterApproval.find((item) => item.id === testServiceOrderId);

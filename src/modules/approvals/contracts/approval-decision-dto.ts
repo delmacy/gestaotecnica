@@ -33,27 +33,4 @@ export const ApprovalDecisionInputSchema = z.object({
 
 export type ApprovalDecisionInput = z.infer<typeof ApprovalDecisionInputSchema>;
 
-export const ApprovalDecisionResultSchema = z.object({
-  id: z.string(),
-  status: z.string(),
-}).strict();
 
-export type ApprovalDecisionResult = z.infer<typeof ApprovalDecisionResultSchema>;
-
-export const ApprovalQueueViewStateSchema = z.enum([
-  "empty",
-  "data",
-  "blocked",
-  "demo",
-]);
-
-export type ApprovalQueueViewState = z.infer<typeof ApprovalQueueViewStateSchema>;
-
-export const ApprovalQueuePageDTOSchema = z.object({
-  state: ApprovalQueueViewStateSchema,
-  items: z.array(ApprovalQueueItemSchema),
-  summary: z.array(ApprovalSummaryItemSchema),
-  stateMessage: z.string().optional(),
-}).strict();
-
-export type ApprovalQueuePageDTO = z.infer<typeof ApprovalQueuePageDTOSchema>;

@@ -1,9 +1,4 @@
-type WorkItemEvent = {
-  id: string;
-  eventType: string;
-  payload: unknown;
-  occurredAt: Date;
-};
+import { WorkItemEvent } from "./contracts/work-item-event-contract";
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -41,7 +36,7 @@ export function WorkItemEventTimeline({ events }: { events: WorkItemEvent[] }) {
     <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold text-[#111510]">Historico</h2>
       <ol className="mt-5 space-y-4">
-        {events.map((event: any) => (
+        {events.map((event: WorkItemEvent) => (
           <li className="border-l border-[#b9c6ac] pl-4" key={event.id}>
             <p className="font-mono text-xs text-[#6e7a66]">
               {formatDate(event.occurredAt)}

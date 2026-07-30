@@ -53,4 +53,3 @@ verify_output*.txt
 playwright-report/
 test-results/
 dev_server.log
-docs/agent-runs/jules/

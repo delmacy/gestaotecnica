@@ -57,11 +57,14 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
 
   await t.test("getApprovalQueue returns the waiting_review service order, readable by /approvals page", async () => {
     const queue = await getApprovalQueue();
-    const found = queue.find((item) => item.id === testServiceOrderId);
+    const found = queue.find((item: unknown) => {
+      const i = item as { id: string };
+      return i.id === testServiceOrderId;
+    });
 
     assert.ok(found, "Service order should appear in the approval queue consumed by GET /approvals");
-    assert.equal(found.code, testCode);
-    assert.equal(found.status, "waiting_review");
+    assert.equal((found as { code: string }).code, testCode);
+    assert.equal((found as { status: string }).status, "waiting_review");
 
     const parsed = ApprovalQueueItemSchema.safeParse(found);
     assert.ok(parsed.success, "Queue item must conform to the ApprovalQueueItem contract");
@@ -74,10 +77,13 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
     const parsed = ApprovalSummaryItemSchema.array().safeParse(summary);
     assert.ok(parsed.success, "Summary items must conform to the ApprovalSummaryItem contract");
 
-    const emRevisao = summary.find((item) => item.label === "Em revisao");
+    const emRevisao = summary.find((item: unknown) => {
+      const i = item as { label: string };
+      return i.label === "Em revisao";
+    });
     assert.ok(emRevisao, "Summary must include an 'Em revisao' card");
     assert.ok(
-      emRevisao.value >= 1,
+      (emRevisao as { value: number }).value >= 1,
       "Summary must reflect at least 1 waiting_review OS (the one inserted by this test)"
     );
   });
@@ -87,7 +93,7 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
       workspaceId: "test-ws-029",
       workspaceKey: "test-ws-key-029",
       actor: { type: "user", id: testUserId },
-      source: "integration-test",
+      source: "integration",
       environmentMode: "real",
       enabledModules: ["approvals", "service-orders"],
       scopes: ["*"],
@@ -107,7 +113,7 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
       workspaceId: "test-ws-029",
       workspaceKey: "test-ws-key-029",
       actor: { type: "user", id: testUserId },
-      source: "integration-test",
+      source: "integration",
       environmentMode: "real",
       enabledModules: ["approvals", "service-orders"],
       scopes: ["*"],
@@ -126,7 +132,7 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
       workspaceId: "test-ws-029",
       workspaceKey: "test-ws-key-029",
       actor: { type: "user", id: testUserId },
-      source: "integration-test",
+      source: "integration",
       environmentMode: "real",
       enabledModules: ["approvals", "service-orders"],
       scopes: ["*"],
@@ -156,7 +162,10 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
     assert.equal(updated.approvedById, testUserId);
 
     const queueAfterApproval = await getApprovalQueue();
-    const stillInQueue = queueAfterApproval.find((item) => item.id === testServiceOrderId);
+    const stillInQueue = queueAfterApproval.find((item: unknown) => {
+      const i = item as { id: string };
+      return i.id === testServiceOrderId;
+    });
     assert.equal(
       stillInQueue,
       undefined,
@@ -192,7 +201,7 @@ test("UX-NAV-03-029: Real-data journey validation for approval decision", async 
       workspaceId: "test-ws-029",
       workspaceKey: "test-ws-key-029",
       actor: { type: "system" },
-      source: "integration-test",
+      source: "integration",
       environmentMode: "real",
       enabledModules: ["approvals", "service-orders"],
       scopes: ["*"],

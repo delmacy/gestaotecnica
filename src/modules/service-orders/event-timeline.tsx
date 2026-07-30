@@ -1,4 +1,9 @@
-import { ServiceOrderEvent } from "./contracts/service-order-event-contract";
+type ServiceOrderEvent = {
+  id: string;
+  eventType: string;
+  payload: unknown;
+  occurredAt: Date;
+};
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("pt-BR", {

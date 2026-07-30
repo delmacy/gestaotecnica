@@ -8,6 +8,7 @@ import {
   stringProperty,
   uuidProperty,
 } from "@/platform/actions/schema-presets";
+import { resolveApprovalDecision } from "./approval-workflow-domain";
 
 type RequestApprovalInput = {
   serviceOrderId?: string;
@@ -138,6 +139,14 @@ export const decideApprovalKernelAction: ActionDefinition<
       };
     }
 
+    const decision = String(input.decision ?? "").trim();
+    if (!decision) {
+      return {
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "decision e obrigatório." },
+      };
+    }
+
     const db = getDb();
     const [previous] = await db
       .select({
@@ -155,42 +164,51 @@ export const decideApprovalKernelAction: ActionDefinition<
       return { success: false, error: { code: "NOT_FOUND", message: "OS não encontrada." } };
     }
 
-    const status = input.decision === "approve" ? "approved" : "open";
-    const approvedById = input.decision === "approve" && context.actor.type === "user" ? context.actor.id : undefined;
+    try {
+      const decisionResult = resolveApprovalDecision(previous.status, decision, context);
 
-    const [updated] = await db
-      .update(serviceOrders)
-      .set({
-        status,
-        approvedAt: input.decision === "approve" ? new Date() : undefined,
-        approvedById,
-        updatedAt: new Date(),
-      })
-      .where(eq(serviceOrders.id, previous.id))
-      .returning({
-        id: serviceOrders.id,
-        status: serviceOrders.status,
-      });
+      const [updated] = await db
+        .update(serviceOrders)
+        .set({
+          status: decisionResult.status,
+          approvedAt: decisionResult.approvedAt,
+          approvedById: decisionResult.approvedById,
+          updatedAt: decisionResult.updatedAt,
+        })
+        .where(eq(serviceOrders.id, previous.id))
+        .returning({
+          id: serviceOrders.id,
+          status: serviceOrders.status,
+        });
 
-    return {
-      success: true,
-      data: updated,
-      events: [
-        {
-          eventType: "approval.decided",
-          entityType: "service_order",
-          entityId: updated.id,
-          payload: {
-            code: previous.code,
-            decision: input.decision,
-            statusFrom: previous.status,
-            statusTo: updated.status,
-            note: input.note,
-            workItemId: previous.workItemId,
-            assetId: previous.assetId,
+      return {
+        success: true,
+        data: updated,
+        events: [
+          {
+            eventType: "approval.decided",
+            entityType: "service_order",
+            entityId: updated.id,
+            payload: {
+              code: previous.code,
+              decision: input.decision,
+              statusFrom: previous.status,
+              statusTo: updated.status,
+              note: input.note,
+              workItemId: previous.workItemId,
+              assetId: previous.assetId,
+            },
           },
-        },
-      ],
-    };
+        ],
+      };
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === "ApprovalWorkflowError") {
+        return {
+          success: false,
+          error: { code: (error as Error & { code: string }).code, message: error.message },
+        };
+      }
+      throw error;
+    }
   },
 };

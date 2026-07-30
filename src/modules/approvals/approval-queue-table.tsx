@@ -3,23 +3,8 @@ import {
   getServiceOrderPriorityLabel,
   getServiceOrderStatusLabel,
 } from "@/modules/service-orders/constants";
-import {
-  approveServiceOrder,
-  returnServiceOrderForExecution,
-} from "./actions";
-
-type ApprovalQueueRow = {
-  id: string;
-  code: string;
-  title: string;
-  objective: string | null;
-  status: string;
-  priority: string;
-  completedAt: Date | null;
-  assetId: string | null;
-  assetCode: string | null;
-  assetName: string | null;
-};
+import type { ApprovalQueueItem } from "./contracts";
+import { ApproveServiceOrderForm, ReturnServiceOrderForm } from "./components/ApprovalForms";
 
 function formatDate(date: Date | null) {
   if (!date) return "Nao informado";
@@ -30,7 +15,7 @@ function formatDate(date: Date | null) {
   }).format(date);
 }
 
-export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
+export function ApprovalQueueTable({ items }: { items: ApprovalQueueItem[] }) {
   if (items.length === 0) {
     return (
       <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
@@ -46,7 +31,7 @@ export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
 
   return (
     <div className="space-y-4">
-      {items.map((item: any) => (
+      {items.map((item) => (
         <article className="border border-[#d7dccf] bg-white p-5 shadow-sm" key={item.id}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -91,36 +76,8 @@ export function ApprovalQueueTable({ items }: { items: ApprovalQueueRow[] }) {
           </div>
 
           <div className="mt-5 grid gap-3 lg:grid-cols-2">
-            <form action={approveServiceOrder} className="space-y-3">
-              <input name="id" type="hidden" value={item.id} />
-              <input
-                className="h-10 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
-                name="note"
-                placeholder="Nota de aprovacao"
-              />
-              <button
-                className="h-10 w-full bg-[#1f2a1c] px-4 text-sm font-semibold text-white transition hover:bg-[#31402d]"
-                type="submit"
-              >
-                Aprovar OS
-              </button>
-            </form>
-
-            <form action={returnServiceOrderForExecution} className="space-y-3">
-              <input name="id" type="hidden" value={item.id} />
-              <input
-                className="h-10 w-full border border-[#c8d0bf] bg-[#fbfcf8] px-3 text-sm outline-none focus:border-[#6b7d5d]"
-                name="note"
-                placeholder="Motivo do retorno"
-                required
-              />
-              <button
-                className="h-10 w-full border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] transition hover:bg-[#f1f3ed]"
-                type="submit"
-              >
-                Retornar para execucao
-              </button>
-            </form>
+            <ApproveServiceOrderForm id={item.id} />
+            <ReturnServiceOrderForm id={item.id} />
           </div>
         </article>
       ))}

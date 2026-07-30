@@ -8,6 +8,8 @@ import { getDb, getRuntimeDb } from "@/db";
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import { startWorkflowInstanceForTarget } from "@/platform/workflows/runtime";
+import { initializePlatformKernel } from "@/platform/kernel";
+
 import {
 
   evidences,
@@ -35,6 +37,8 @@ import {
   serviceOrderTaskStatuses,
 } from "./constants";
 import { getServiceOrderTypeOptions } from "./queries";
+
+initializePlatformKernel();
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();

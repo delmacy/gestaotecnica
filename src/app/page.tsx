@@ -8,6 +8,7 @@ import {
   Bot,
   BriefcaseBusiness,
   ClipboardList,
+  CheckSquare,
   Code2,
   FileCheck2,
   ListChecks,
@@ -32,6 +33,7 @@ const workspaceActions = [
   { href: "/work-intake", label: "Work Intake", detail: "Captura e triagem", icon: ListChecks },
   { href: "/work-items", label: "Demandas", detail: "Entrada e triagem", icon: ListChecks },
   { href: "/service-orders", label: "Ordens de serviço", detail: "Execução técnica", icon: ClipboardList },
+  { href: "/approvals", label: "Revisão Técnica", detail: "Aprovação de OS", icon: CheckSquare },
   { href: "/maintenance-plans", label: "Manutenção", detail: "Planos preventivos", icon: Wrench },
 ];
 

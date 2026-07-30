@@ -4,15 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
+import { Building2, Layers3 } from "lucide-react";
 
 export function Sidebar({
   modules,
   futureModules,
-  className
+  className,
+  hasWorkspace,
 }: {
   modules: BuilderModule[];
   futureModules: BuilderModule[];
   className?: string
+  hasWorkspace?: boolean;
 }) {
   const pathname = usePathname();
   const activeModule = getActiveBuilderSection(pathname, modules);
@@ -43,6 +46,25 @@ export function Sidebar({
       </div>
 
       <nav className="flex-1 p-4 space-y-6">
+        {!hasWorkspace ? (
+          <div>
+            <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Platform Builder
+            </h3>
+            <ul className="space-y-1">
+              <li>
+                <Link href="/admin/organizations" className="flex items-center gap-3 rounded-md px-2 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+                  <Building2 className="size-4" /> Organizações
+                </Link>
+              </li>
+              <li>
+                <Link href="/builder" className="flex items-center gap-3 rounded-md bg-primary px-2 py-2 text-sm font-medium text-primary-foreground">
+                  <Layers3 className="size-4" /> Selecionar workspace
+                </Link>
+              </li>
+            </ul>
+          </div>
+        ) : null}
         {taxonomyGroups.map((group) => {
           const groupModules = modules.filter((m) => group.hrefs.includes(m.href));
 
@@ -91,7 +113,7 @@ export function Sidebar({
           );
         })}
 
-        <div>
+        {hasWorkspace ? <div>
           <h3 className="mb-2 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Future Modules
           </h3>
@@ -115,7 +137,7 @@ export function Sidebar({
               );
             })}
           </ul>
-        </div>
+        </div> : null}
       </nav>
     </aside>
   );

@@ -31,6 +31,8 @@ import {
   Wrench,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { AccessProfile } from "@/modules/auth/access-profiles";
+import { getVisibleNavigationModes, resolveNavigationLevel } from "@/modules/navigation/navigation-policy";
 
 const RAW_LAYOUT_PREFIXES = ["/auth", "/builder", "/api-docs", "/blocked", "/admin"];
 
@@ -44,7 +46,7 @@ type NavItem = {
 type NavGroup = {
   label: string;
   description: string;
-  mode: "platform" | "workspace" | "workspaceGovernance";
+  mode: "platform" | "organization" | "workspaceBuilder" | "workspace" | "workspaceGovernance";
   items: NavItem[];
 };
 
@@ -61,6 +63,24 @@ const navGroups: NavGroup[] = [
       { href: "/admin/users", label: "Usuários", description: "Acessos e papéis", icon: Users },
       { href: "/admin/gateway/receipts", label: "Agent Gateway", description: "Recibos e auditoria", icon: Network },
       { href: "/admin", label: "Admin", description: "Controles da plataforma", icon: ShieldCheck },
+    ],
+  },
+  {
+    label: "Organização selecionada",
+    description: "Selecione o ambiente que será construído ou administrado.",
+    mode: "organization",
+    items: [
+      { href: "/admin/organizations", label: "Workspaces", description: "Selecionar ambiente", icon: BriefcaseBusiness },
+    ],
+  },
+  {
+    label: "Construção do workspace",
+    description: "Sistemas e fluxos instalados no workspace selecionado.",
+    mode: "workspaceBuilder",
+    items: [
+      { href: "/builder", label: "Builder IDE", description: "Modelar sistemas e fluxos", icon: Code2 },
+      { href: "/workspace-config", label: "Sistemas instalados", description: "Capabilities do workspace", icon: SlidersHorizontal },
+      { href: "/admin/workflows", label: "Workflows", description: "Definições publicadas", icon: GitBranch },
     ],
   },
   {
@@ -104,6 +124,20 @@ const modeMeta = {
     description: "Gerencie tenants, usuários e capabilities globais.",
     icon: PanelsTopLeft,
   },
+  organization: {
+    label: "Organização selecionada",
+    eyebrow: "Organization Builder",
+    title: "Seleção de workspace",
+    description: "Escolha o workspace antes de acessar sistemas e fluxos.",
+    icon: BriefcaseBusiness,
+  },
+  workspaceBuilder: {
+    label: "Workspace selecionado",
+    eyebrow: "Workflow Builder",
+    title: "Construção do workspace",
+    description: "Modele somente os sistemas instalados neste workspace.",
+    icon: Code2,
+  },
   workspace: {
     label: "Workspace selecionado",
     eyebrow: "Runtime",
@@ -129,13 +163,22 @@ function shouldUseRawLayout(pathname: string) {
   return RAW_LAYOUT_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
-function getActiveGroup(pathname: string) {
-  return navGroups.find((group) => group.items.some((item) => isActivePath(pathname, item.href))) ?? navGroups[0];
+function getActiveGroup(pathname: string, groups: NavGroup[]) {
+  return groups.find((group) => group.items.some((item) => isActivePath(pathname, item.href))) ?? groups[0];
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  navigationContext,
+}: {
+  children: React.ReactNode;
+  navigationContext: { profile: AccessProfile; organizationId?: string; workspaceId?: string };
+}) {
   const pathname = usePathname() || "/";
-  const activeGroup = getActiveGroup(pathname);
+  const level = resolveNavigationLevel(navigationContext.profile, navigationContext);
+  const visibleModes: readonly string[] = getVisibleNavigationModes(level);
+  const visibleGroups = navGroups.filter((group) => visibleModes.includes(group.mode));
+  const activeGroup = getActiveGroup(pathname, visibleGroups);
   const activeItem = activeGroup.items.find((item) => isActivePath(pathname, item.href));
   const activeMode = modeMeta[activeGroup.mode];
   const ActiveModeIcon = activeMode.icon;
@@ -174,7 +217,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-            {navGroups.map((group) => (
+            {visibleGroups.map((group) => (
               <section key={group.label} className="space-y-1">
                 <div className="px-3 pb-1">
                   <h2 className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -235,7 +278,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="flex gap-2 overflow-x-auto border-t border-border/60 px-4 py-2 lg:hidden">
-              {navGroups.flatMap((group) => group.items).map((item) => {
+              {visibleGroups.flatMap((group) => group.items).map((item) => {
                 const active = isActivePath(pathname, item.href);
                 return (
                   <Link

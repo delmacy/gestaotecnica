@@ -14,7 +14,13 @@ export function proxy(request: NextRequest) {
   // requireCurrentUser() and requireAccessProfile().
   const hasSession = Boolean(request.cookies.get(AUTH_COOKIE)?.value);
 
-  if (hasSession) return NextResponse.next();
+  if (hasSession) {
+    const isWorkspaceBuilderRoute = pathname.startsWith("/builder/");
+    if (isWorkspaceBuilderRoute && !request.cookies.get("x-workspace-id")?.value) {
+      return NextResponse.redirect(new URL("/builder", request.url));
+    }
+    return NextResponse.next();
+  }
 
   const loginUrl = new URL("/auth/login", request.url);
   loginUrl.searchParams.set("next", pathname);

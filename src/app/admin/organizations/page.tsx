@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { requireAccessProfile } from "@/modules/auth/authorization";
 
 export const dynamic = "force-dynamic";
 
@@ -26,12 +27,16 @@ type OrganizationListItem = {
 };
 
 export default async function OrganizationsPage() {
-  const organizations = await getOrganizationsOverview();
+  const [user, organizations] = await Promise.all([
+    requireAccessProfile(["builder", "admin"]),
+    getOrganizationsOverview(),
+  ]);
+  const canCreateOrganization = user.accessProfile === "builder";
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-        <section className="rounded-md border bg-card p-5">
+        {canCreateOrganization ? <section className="rounded-md border bg-card p-5">
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
               <Plus className="size-5" />
@@ -60,7 +65,7 @@ export default async function OrganizationsPage() {
               Criar organização
             </Button>
           </form>
-        </section>
+        </section> : null}
 
         <section className="space-y-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">

@@ -6,11 +6,11 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { ChevronRight, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { BuilderModule, getActiveBuilderSection } from "./shell-utils";
+import { BuilderModule } from "./shell-utils";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import type { WorkspaceContext } from "@/platform/workspace";
 import type { resolveNavigationInventory } from "@/platform/builder/contracts/navigation-inventory";
-import { resolveBreadcrumbInventory, type BreadcrumbNode } from "@/platform/builder/contracts/breadcrumb/breadcrumb-inventory";
+import { resolveBreadcrumbInventory } from "@/platform/builder/contracts/breadcrumb/breadcrumb-inventory";
 import { getIcon } from "./shell-data";
 import Link from "next/link";
 
@@ -20,10 +20,10 @@ export function BuilderShell({
   inventory
 }: {
   children: React.ReactNode;
-  context: WorkspaceContext;
-  inventory: ReturnType<typeof resolveNavigationInventory>;
+  context: WorkspaceContext | null;
+  inventory: ReturnType<typeof resolveNavigationInventory> | null;
 }) {
-  const modules: BuilderModule[] = inventory.modules.map((m) => ({
+  const modules: BuilderModule[] = (inventory?.modules ?? []).map((m) => ({
     ...m,
     icon: getIcon(m.iconName)
   }));
@@ -45,7 +45,8 @@ export function BuilderShell({
           <SheetDescription className="sr-only">Access modules and future features</SheetDescription>
           <Sidebar
             modules={modules}
-            futureModules={inventory.futureModules.map((m) => ({ ...m, icon: getIcon(m.iconName) }))}
+            futureModules={(inventory?.futureModules ?? []).map((m) => ({ ...m, icon: getIcon(m.iconName) }))}
+            hasWorkspace={Boolean(context)}
             className="flex border-none w-full md:flex"
           />
         </SheetContent>
@@ -59,11 +60,12 @@ export function BuilderShell({
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           modules={modules}
-          futureModules={inventory.futureModules.map((m) => ({ ...m, icon: getIcon(m.iconName) }))}
+          futureModules={(inventory?.futureModules ?? []).map((m) => ({ ...m, icon: getIcon(m.iconName) }))}
+          hasWorkspace={Boolean(context)}
         />
         <main className="flex-1 overflow-y-auto bg-muted/10 relative">
 
-          <BreadcrumbHeader context={context} />
+          {context ? <BreadcrumbHeader context={context} /> : null}
 
           <div className="p-6">
             {children}

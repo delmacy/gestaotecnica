@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, ChevronRight, UserCircle, Bell, HelpCircle } from "lucide-react";
+import { Search, UserCircle, Bell, HelpCircle } from "lucide-react";
 import React from "react";
 import type { WorkspaceContext } from "@/platform/workspace";
 import { resolvePrimaryAction } from "@/platform/builder/contracts/primary-action/resolve-primary-action";
@@ -14,7 +14,7 @@ export function Topbar({
   context
 }: {
   mobileNavigation?: React.ReactNode;
-  context: WorkspaceContext;
+  context: WorkspaceContext | null;
 }) {
   const pathname = usePathname() || "";
 
@@ -23,7 +23,7 @@ export function Topbar({
   const match = pathname.match(/^\/builder\/([^/]+)/);
   const activeModuleKey = match ? match[1] : undefined;
 
-  const intent = activeModuleKey ? resolvePrimaryAction(context, { moduleKey: activeModuleKey, routeContext: "topbar" }) : undefined;
+  const intent = context && activeModuleKey ? resolvePrimaryAction(context, { moduleKey: activeModuleKey, routeContext: "topbar" }) : undefined;
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 lg:px-6">
@@ -32,7 +32,7 @@ export function Topbar({
 
         {/* Workspace Switcher */}
         <div className="hidden md:flex items-center">
-          <WorkspaceSwitcher context={context} />
+          {context ? <WorkspaceSwitcher context={context} /> : <span className="text-sm font-medium">Platform Builder</span>}
         </div>
 
         {/* Search Placeholder */}
@@ -51,7 +51,7 @@ export function Topbar({
       </div>
 
       {/* Synthetic/Demo Mode Badge */}
-      {(context.environmentMode === "demo" || context.environmentMode === "synthetic") && (
+      {context && (context.environmentMode === "demo" || context.environmentMode === "synthetic") && (
         <div className="hidden sm:flex items-center bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-orange-200 dark:border-orange-800">
           <span className="relative flex h-2 w-2 mr-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
@@ -79,8 +79,8 @@ export function Topbar({
         <div className="flex items-center gap-2 pl-2">
           <UserCircle className="h-6 w-6 text-muted-foreground" />
           <div className="hidden lg:block text-right">
-            <div className="text-sm font-medium leading-none">{context.actor.name || "Unknown User"}</div>
-            <div className="text-xs text-muted-foreground mt-1 capitalize">{context.actor.type.replace('_', ' ')}</div>
+            <div className="text-sm font-medium leading-none">{context?.actor.name || "System Builder"}</div>
+            <div className="text-xs text-muted-foreground mt-1 capitalize">{context ? context.actor.type.replace('_', ' ') : "platform"}</div>
           </div>
         </div>
       </div>

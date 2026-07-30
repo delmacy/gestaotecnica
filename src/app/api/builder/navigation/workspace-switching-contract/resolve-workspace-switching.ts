@@ -37,14 +37,6 @@ export async function resolveWorkspaceList(request: WorkspaceListRequest): Promi
     .from(workspaces)
     .where(eq(workspaces.status, 'active'));
 
-  if (results.length === 0) {
-    const dummyWorkspaces: WorkspaceInfo[] = [
-        { workspaceId: 'ws-1', name: 'Primary Operations', role: 'workspace_admin', isDemo: false, isSynthetic: false },
-        { workspaceId: 'ws-2', name: 'Beta Features', role: 'workspace_member', isDemo: false, isSynthetic: true },
-    ];
-    return { workspaces: dummyWorkspaces };
-  }
-
   const mappedWorkspaces: WorkspaceInfo[] = results.map((ws: typeof workspaces.$inferSelect) => ({
     workspaceId: ws.id,
     name: ws.name,

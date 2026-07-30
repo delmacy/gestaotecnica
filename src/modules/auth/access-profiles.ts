@@ -5,6 +5,7 @@ export function getDefaultRouteForProfile(profile: AccessProfile): string {
     case "builder":
       return "/builder";
     case "admin":
+      return "/admin/organizations";
     case "operador":
       return "/operations";
     default:
@@ -48,7 +49,8 @@ export function canAccessRoute(profile: AccessProfile, pathname: string): boolea
   }
 
   if (profile === "admin") {
-    return isAdminRoute || isOperatorRoute;
+    const isOrganizationRoute = pathname === "/admin/organizations" || pathname.startsWith("/admin/organizations/");
+    return isOrganizationRoute || isAdminRoute || isOperatorRoute;
   }
 
   if (profile === "operador") {

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { BuilderSelectionButton } from "@/components/builder/selection/BuilderSelectionButton";
+import { requireAccessProfile } from "@/modules/auth/authorization";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,7 @@ export default async function OrganizationWorkspacesPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const user = await requireAccessProfile(["builder", "admin"]);
   const { id } = await params;
   const panel = await getOrganizationWorkspacePanel(id);
 
@@ -157,12 +160,14 @@ export default async function OrganizationWorkspacesPage({
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <Button asChild variant="outline">
-                          <Link href="/workspace-config">Capabilities</Link>
-                        </Button>
-                        <Button asChild variant="outline">
-                          <Link href="/operations">Operar</Link>
-                        </Button>
+                        {user.accessProfile === "builder" ? (
+                          <BuilderSelectionButton organizationId={organization.id} workspaceId={workspace.id}>
+                            Construir
+                          </BuilderSelectionButton>
+                        ) : null}
+                        <BuilderSelectionButton organizationId={organization.id} workspaceId={workspace.id} destination="/operations">
+                          Operar
+                        </BuilderSelectionButton>
                       </div>
                     </CardContent>
                   </Card>

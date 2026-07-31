@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { LayoutDashboard, Settings, FileText, Blocks, ArrowRight, FormInput, Workflow, PlayCircle } from 'lucide-react';
+import { LayoutDashboard, Settings, FileText, Blocks, ArrowRight, FormInput, Workflow, PlayCircle, Image } from 'lucide-react';
 
 interface WorkspaceHomeProps {
   workspaceKey: string;
@@ -111,12 +111,27 @@ export function WorkspaceHome({ workspaceKey }: WorkspaceHomeProps) {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <PlayCircle className="w-8 h-8 text-primary mb-2" />
-            <CardTitle>Execution</CardTitle>
-            <CardDescription>Track and manage work item execution</CardDescription>
+            <CardTitle>Linha do Tempo</CardTitle>
+            <CardDescription>Acompanhe eventos, alterações e o histórico de execução dos itens de trabalho.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full" variant="outline">
               <Link href={`/${workspaceKey}/timeline`} className="flex justify-between items-center">
+                Acessar <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <Image className="w-8 h-8 text-primary mb-2" />
+            <CardTitle>Evidências</CardTitle>
+            <CardDescription>Biblioteca de comprovantes, fotos e registros conectados a ordens, demandas e ativos.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full" variant="outline">
+              <Link href="/evidences" className="flex justify-between items-center">
                 Acessar <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>

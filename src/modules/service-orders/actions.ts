@@ -11,7 +11,6 @@ import { startWorkflowInstanceForTarget } from "@/platform/workflows/runtime";
 import { initializePlatformKernel } from "@/platform/kernel";
 
 import {
-
   evidences,
   serviceOrderAssignments,
   serviceOrders,
@@ -85,7 +84,9 @@ function readEnum<T extends string>(
   fallback: T,
 ) {
   const value = String(formData.get(field) ?? fallback);
-  return allowedValues.some((item) => item.value === value) ? (value as T) : fallback;
+  return allowedValues.some((item) => item.value === value)
+    ? (value as T)
+    : fallback;
 }
 
 async function readServiceOrderType(formData: FormData) {
@@ -358,7 +359,8 @@ export async function assignTechnicianToServiceOrder(formData: FormData) {
       assignedAt: serviceOrderAssignments.assignedAt,
     });
 
-  const statusTo = serviceOrder.status === "open" ? "assigned" : serviceOrder.status;
+  const statusTo =
+    serviceOrder.status === "open" ? "assigned" : serviceOrder.status;
 
   if (statusTo !== serviceOrder.status) {
     await db
@@ -541,82 +543,96 @@ export async function createServiceOrderTimeEntry(formData: FormData) {
   redirect(`/service-orders/${serviceOrder.id}`);
 }
 
-export async function createServiceOrderEvidence(formData: FormData) {
-  const serviceOrderId = readRequiredText(formData, "serviceOrderId");
-  const title = readRequiredText(formData, "title");
-  const description = readOptionalText(formData, "description");
-  const fileUrl = readOptionalText(formData, "fileUrl");
-  const mimeType = readOptionalText(formData, "mimeType");
-  const db = getDb();
+export async function createServiceOrderEvidence(
+  prevState: unknown,
+  formData: FormData,
+) {
+  try {
+    const serviceOrderId = readRequiredText(formData, "serviceOrderId");
+    const title = readRequiredText(formData, "title");
+    const description = readOptionalText(formData, "description");
+    const fileUrl = readOptionalText(formData, "fileUrl");
+    const mimeType = readOptionalText(formData, "mimeType");
+    const db = getDb();
 
-  const [serviceOrder] = await db
-    .select({
-      id: serviceOrders.id,
-      code: serviceOrders.code,
-      workItemId: serviceOrders.workItemId,
-      assetId: serviceOrders.assetId,
-    })
-    .from(serviceOrders)
-    .where(eq(serviceOrders.id, serviceOrderId))
-    .limit(1);
+    const [serviceOrder] = await db
+      .select({
+        id: serviceOrders.id,
+        code: serviceOrders.code,
+        workItemId: serviceOrders.workItemId,
+        assetId: serviceOrders.assetId,
+      })
+      .from(serviceOrders)
+      .where(eq(serviceOrders.id, serviceOrderId))
+      .limit(1);
 
-  if (!serviceOrder) {
-    throw new Error("OS nao encontrada.");
-  }
+    if (!serviceOrder) {
+      throw new Error("OS nao encontrada.");
+    }
 
-  const [evidence] = await db
-    .insert(evidences)
-    .values({
+    const [evidence] = await db
+      .insert(evidences)
+      .values({
+        serviceOrderId: serviceOrder.id,
+        workItemId: serviceOrder.workItemId,
+        assetId: serviceOrder.assetId,
+        title,
+        description,
+        fileUrl,
+        mimeType,
+      })
+      .returning({
+        id: evidences.id,
+        title: evidences.title,
+        description: evidences.description,
+        fileUrl: evidences.fileUrl,
+        mimeType: evidences.mimeType,
+      });
+
+    await db.insert(eventLogs).values({
+      eventType: "service_order.evidence_added",
+      entityType: "service_order",
+      entityId: serviceOrder.id,
       serviceOrderId: serviceOrder.id,
       workItemId: serviceOrder.workItemId,
       assetId: serviceOrder.assetId,
-      title,
-      description,
-      fileUrl,
-      mimeType,
-    })
-    .returning({
-      id: evidences.id,
-      title: evidences.title,
-      description: evidences.description,
-      fileUrl: evidences.fileUrl,
-      mimeType: evidences.mimeType,
+      payload: {
+        code: serviceOrder.code,
+        evidenceId: evidence.id,
+        title: evidence.title,
+        description: evidence.description,
+        fileUrl: evidence.fileUrl,
+        mimeType: evidence.mimeType,
+      },
     });
 
-  await db.insert(eventLogs).values({
-    eventType: "service_order.evidence_added",
-    entityType: "service_order",
-    entityId: serviceOrder.id,
-    serviceOrderId: serviceOrder.id,
-    workItemId: serviceOrder.workItemId,
-    assetId: serviceOrder.assetId,
-    payload: {
-      code: serviceOrder.code,
-      evidenceId: evidence.id,
-      title: evidence.title,
-      description: evidence.description,
-      fileUrl: evidence.fileUrl,
-      mimeType: evidence.mimeType,
-    },
-  });
-
-  revalidatePath("/");
-  revalidatePath("/service-orders");
-  revalidatePath(`/service-orders/${serviceOrder.id}`);
-  if (serviceOrder.workItemId) {
-    revalidatePath(`/work-items/${serviceOrder.workItemId}`);
+    revalidatePath("/");
+    revalidatePath("/service-orders");
+    revalidatePath(`/service-orders/${serviceOrder.id}`);
+    if (serviceOrder.workItemId) {
+      revalidatePath(`/work-items/${serviceOrder.workItemId}`);
+    }
+    if (serviceOrder.assetId) {
+      revalidatePath(`/assets/${serviceOrder.assetId}`);
+    }
+    return { id: evidence.id, status: "success" };
+  } catch (error) {
+    if (error instanceof Error && error.message === "NEXT_REDIRECT")
+      throw error;
+    return {
+      error: error instanceof Error ? error.message : "Erro inesperado.",
+    };
   }
-  if (serviceOrder.assetId) {
-    revalidatePath(`/assets/${serviceOrder.assetId}`);
-  }
-  redirect(`/service-orders/${serviceOrder.id}`);
 }
 
 export async function createServiceOrderStage(formData: FormData) {
   const serviceOrderId = readRequiredText(formData, "serviceOrderId");
   const title = readRequiredText(formData, "title");
   const notes = readOptionalText(formData, "notes");
-  const positionValue = Number.parseInt(String(formData.get("position") ?? "0"), 10);
+  const positionValue = Number.parseInt(
+    String(formData.get("position") ?? "0"),
+    10,
+  );
   const position = Number.isNaN(positionValue) ? 0 : positionValue;
   const db = getDb();
 
@@ -678,7 +694,10 @@ export async function updateServiceOrderStageStatus(formData: FormData) {
       code: serviceOrders.code,
     })
     .from(serviceOrderStages)
-    .innerJoin(serviceOrders, eq(serviceOrderStages.serviceOrderId, serviceOrders.id))
+    .innerJoin(
+      serviceOrders,
+      eq(serviceOrderStages.serviceOrderId, serviceOrders.id),
+    )
     .where(eq(serviceOrderStages.id, id))
     .limit(1);
 
@@ -720,7 +739,10 @@ export async function createServiceOrderTask(formData: FormData) {
   const title = readRequiredText(formData, "title");
   const description = readOptionalText(formData, "description");
   const stageId = readOptionalText(formData, "stageId");
-  const assignedTechnicianProfileId = readOptionalText(formData, "assignedTechnicianProfileId");
+  const assignedTechnicianProfileId = readOptionalText(
+    formData,
+    "assignedTechnicianProfileId",
+  );
   const dueAt = readOptionalDate(formData, "dueAt");
   const db = getDb();
 
@@ -789,7 +811,10 @@ export async function updateServiceOrderTaskStatus(formData: FormData) {
       code: serviceOrders.code,
     })
     .from(serviceOrderTasks)
-    .innerJoin(serviceOrders, eq(serviceOrderTasks.serviceOrderId, serviceOrders.id))
+    .innerJoin(
+      serviceOrders,
+      eq(serviceOrderTasks.serviceOrderId, serviceOrders.id),
+    )
     .where(eq(serviceOrderTasks.id, id))
     .limit(1);
 
@@ -835,8 +860,12 @@ export async function createServiceOrderTarget(formData: FormData) {
   );
   const title = readRequiredText(formData, "title");
   const notes = readOptionalText(formData, "notes");
-  const assetId = targetType === "asset" ? readOptionalText(formData, "assetId") : undefined;
-  const workItemId = targetType === "work_item" ? readOptionalText(formData, "workItemId") : undefined;
+  const assetId =
+    targetType === "asset" ? readOptionalText(formData, "assetId") : undefined;
+  const workItemId =
+    targetType === "work_item"
+      ? readOptionalText(formData, "workItemId")
+      : undefined;
   const targetId = assetId ?? workItemId;
   const db = getDb();
 

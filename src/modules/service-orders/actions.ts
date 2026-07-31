@@ -541,75 +541,93 @@ export async function createServiceOrderTimeEntry(formData: FormData) {
   redirect(`/service-orders/${serviceOrder.id}`);
 }
 
-export async function createServiceOrderEvidence(formData: FormData) {
-  const serviceOrderId = readRequiredText(formData, "serviceOrderId");
-  const title = readRequiredText(formData, "title");
-  const description = readOptionalText(formData, "description");
-  const fileUrl = readOptionalText(formData, "fileUrl");
-  const mimeType = readOptionalText(formData, "mimeType");
-  const db = getDb();
+export async function createServiceOrderEvidence(
+  prevState: unknown,
+  formData: FormData,
+) {
+  try {
+    const serviceOrderId = readRequiredText(formData, "serviceOrderId");
+    const title = readRequiredText(formData, "title");
+    const description = readOptionalText(formData, "description");
+    const fileUrl = readOptionalText(formData, "fileUrl");
+    const mimeType = readOptionalText(formData, "mimeType");
+    const db = getDb();
 
-  const [serviceOrder] = await db
-    .select({
-      id: serviceOrders.id,
-      code: serviceOrders.code,
-      workItemId: serviceOrders.workItemId,
-      assetId: serviceOrders.assetId,
-    })
-    .from(serviceOrders)
-    .where(eq(serviceOrders.id, serviceOrderId))
-    .limit(1);
+    const [serviceOrder] = await db
+      .select({
+        id: serviceOrders.id,
+        code: serviceOrders.code,
+        workItemId: serviceOrders.workItemId,
+        assetId: serviceOrders.assetId,
+      })
+      .from(serviceOrders)
+      .where(eq(serviceOrders.id, serviceOrderId))
+      .limit(1);
 
-  if (!serviceOrder) {
-    throw new Error("OS nao encontrada.");
-  }
+    if (!serviceOrder) {
+      return {
+        error: "Ordem de servico nao encontrada. Recarregue a pagina e tente novamente.",
+      };
+    }
 
-  const [evidence] = await db
-    .insert(evidences)
-    .values({
+    const [evidence] = await db
+      .insert(evidences)
+      .values({
+        serviceOrderId: serviceOrder.id,
+        workItemId: serviceOrder.workItemId,
+        assetId: serviceOrder.assetId,
+        title,
+        description,
+        fileUrl,
+        mimeType,
+      })
+      .returning({
+        id: evidences.id,
+        title: evidences.title,
+        description: evidences.description,
+        fileUrl: evidences.fileUrl,
+        mimeType: evidences.mimeType,
+      });
+
+    await db.insert(eventLogs).values({
+      eventType: "service_order.evidence_added",
+      entityType: "service_order",
+      entityId: serviceOrder.id,
       serviceOrderId: serviceOrder.id,
       workItemId: serviceOrder.workItemId,
       assetId: serviceOrder.assetId,
-      title,
-      description,
-      fileUrl,
-      mimeType,
-    })
-    .returning({
-      id: evidences.id,
-      title: evidences.title,
-      description: evidences.description,
-      fileUrl: evidences.fileUrl,
-      mimeType: evidences.mimeType,
+      payload: {
+        code: serviceOrder.code,
+        evidenceId: evidence.id,
+        title: evidence.title,
+        description: evidence.description,
+        fileUrl: evidence.fileUrl,
+        mimeType: evidence.mimeType,
+      },
     });
 
-  await db.insert(eventLogs).values({
-    eventType: "service_order.evidence_added",
-    entityType: "service_order",
-    entityId: serviceOrder.id,
-    serviceOrderId: serviceOrder.id,
-    workItemId: serviceOrder.workItemId,
-    assetId: serviceOrder.assetId,
-    payload: {
-      code: serviceOrder.code,
-      evidenceId: evidence.id,
-      title: evidence.title,
-      description: evidence.description,
-      fileUrl: evidence.fileUrl,
-      mimeType: evidence.mimeType,
-    },
-  });
+    revalidatePath("/");
+    revalidatePath("/service-orders");
+    revalidatePath(`/service-orders/${serviceOrder.id}`);
+    if (serviceOrder.workItemId) {
+      revalidatePath(`/work-items/${serviceOrder.workItemId}`);
+    }
+    if (serviceOrder.assetId) {
+      revalidatePath(`/assets/${serviceOrder.assetId}`);
+    }
 
-  revalidatePath("/");
-  revalidatePath("/service-orders");
-  revalidatePath(`/service-orders/${serviceOrder.id}`);
-  if (serviceOrder.workItemId) {
-    revalidatePath(`/work-items/${serviceOrder.workItemId}`);
+    redirect(`/service-orders/${serviceOrder.id}`);
+  } catch (error) {
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") throw error;
+    return {
+      error:
+        error instanceof Error && error.message.startsWith("Campo obrigatorio ausente")
+          ? "Preencha os campos obrigatorios para registrar a evidencia."
+          : error instanceof Error && error.message
+            ? error.message
+            : "Nao foi possivel registrar a evidencia. Tente novamente.",
+    };
   }
-  if (serviceOrder.assetId) {
-    revalidatePath(`/assets/${serviceOrder.assetId}`);
-  }
-  redirect(`/service-orders/${serviceOrder.id}`);
 }
 
 export async function createServiceOrderStage(formData: FormData) {

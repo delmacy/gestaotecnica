@@ -24,6 +24,44 @@ function payloadText(payload: unknown) {
   return parts.length > 0 ? parts.join(" | ") : null;
 }
 
+function EvidenceAttachment({ payload }: { payload: unknown }) {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const data = payload as Record<string, unknown>;
+  const title = typeof data.title === "string" ? data.title : null;
+  const mimeType = typeof data.mimeType === "string" ? data.mimeType : null;
+  const fileUrl = typeof data.fileUrl === "string" ? data.fileUrl : null;
+
+  if (!title && !fileUrl) {
+    return null;
+  }
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-3">
+      {title ? (
+        <span className="text-sm font-medium text-[#182017]">{title}</span>
+      ) : null}
+      {mimeType ? (
+        <span className="border border-[#b9c6ac] px-2 py-0.5 font-mono text-xs text-[#506247]">
+          {mimeType}
+        </span>
+      ) : null}
+      {fileUrl ? (
+        <a
+          className="text-sm font-semibold text-[#273025] underline-offset-4 hover:underline"
+          href={fileUrl}
+          rel="noreferrer"
+          target="_blank"
+        >
+          Abrir evidencia
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
 export function ServiceOrderEventTimeline({
   events,
 }: {
@@ -54,6 +92,7 @@ export function ServiceOrderEventTimeline({
                 {payloadText(event.payload)}
               </p>
             ) : null}
+            <EvidenceAttachment payload={event.payload} />
           </li>
         ))}
       </ol>

@@ -1,11 +1,18 @@
-# Evidence for UX-NAV-03-014-form-submit-to-work-usecase-api
+# UX-NAV-03-035-attachment-timeline-proof-ui-navigation - UI navigation surface
 
-- The task implements the required Work Status API Route mapping to `resolveWorkStatus`.
-- Route Affected: `src/app/api/builder/work-status/route.ts` creates the `/api/builder/work-status` endpoint.
-- Domain Path Used: This route wraps `resolveWorkStatus` and extracts `workspaceContext` properly using `resolveWorkspaceContext`.
-- Context Data: Passed to the domain logic properly by mapping `x-environment-mode` to correctly resolve `demo`, `synthetic` and `real` data.
-- Base Sync: This branch is based on origin/main, which has SHA `05241ac05d70b735c55defd319be8c5018cf16f4`
-- User Journey: The user lands on a module or form that requires tracking a submission's status. They fill out a form or trigger an action (Form Submission). This API binding `POST /api/builder/work-status` provides a structured endpoint where the runtime state handles returning a `WorkStatusResolution`. Depending on the environment headers passed by the frontend (demo/synthetic/blocked), this determines whether the user receives a demo message, a forbidden error, or a successful route redirect (`destination`) to their newly created WorkItem detail screen or dashboard.
+## Required Product Proof
 
-Node.js Environment:
-v24.18.0
+- **Route/screen affected:** `/evidences` (sidebar and workspace home links added), `/[workspaceKey]/timeline` (timeline landing page created to show proof of work).
+- **Persistence/domain touchpoint:** `evidences` table and `event_logs` records connected to timeline display via `WorkItemEventTimeline` and `EntityCollaboration`.
+- **User Journey:**
+  - The user reaches the Timeline page by clicking the "Linha do Tempo" card on the Workspace Home.
+  - The user sees what the timeline is used for and can navigate deeper into "Demandas", "Ordens de Serviço", or "Evidências".
+  - The user can return via breadcrumbs or the explicit "Voltar ao workspace" button.
+- **Data proof:** Checked via type checks (no explicit any introduced) and `npm run build`.
+
+## Validation
+
+- Tested with Node.js 24.18.1.
+- `npx tsx scripts/check-explicit-any.ts` run clean.
+- Code builds and exports without regressions.
+- Known E2E test failures are pre-existing issues unrelated to this feature's scope (`tests/e2e/auth-admin-smoke.spec.ts` connectivity and isolated UX-NAV-01 journey failures). Unit tests pass clean.

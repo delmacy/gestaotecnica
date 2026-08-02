@@ -1,11 +1,25 @@
-# Evidence for UX-NAV-03-014-form-submit-to-work-usecase-api
+# UX-NAV-03-042 - Core Domain Model Completion
 
-- The task implements the required Work Status API Route mapping to `resolveWorkStatus`.
-- Route Affected: `src/app/api/builder/work-status/route.ts` creates the `/api/builder/work-status` endpoint.
-- Domain Path Used: This route wraps `resolveWorkStatus` and extracts `workspaceContext` properly using `resolveWorkspaceContext`.
-- Context Data: Passed to the domain logic properly by mapping `x-environment-mode` to correctly resolve `demo`, `synthetic` and `real` data.
-- Base Sync: This branch is based on origin/main, which has SHA `05241ac05d70b735c55defd319be8c5018cf16f4`
-- User Journey: The user lands on a module or form that requires tracking a submission's status. They fill out a form or trigger an action (Form Submission). This API binding `POST /api/builder/work-status` provides a structured endpoint where the runtime state handles returning a `WorkStatusResolution`. Depending on the environment headers passed by the frontend (demo/synthetic/blocked), this determines whether the user receives a demo message, a forbidden error, or a successful route redirect (`destination`) to their newly created WorkItem detail screen or dashboard.
+## Required Product Proof
 
-Node.js Environment:
-v24.18.0
+- **Affected Route/Screen:** `/admin/queues`
+- **Database/Persistence Objects Touched:**
+  - `workspaceQueues` (legacy/schema.ts)
+  - `queueItems` (legacy/schema.ts)
+  - `slaPolicies` (legacy/schema.ts)
+- **Domain Object/Contract Affected:** New contracts have been introduced in `src/modules/queues/contracts/` to securely model the aforementioned legacy database schema properties natively within the domain.
+  - `WorkspaceQueue` (workspace-queue.ts)
+  - `QueueItem` (queue-item.ts)
+  - `SlaPolicy` (sla-policy.ts)
+- **Use Case / API Path:** The Next.js server actions responsible for creating queue entries and SLAs (`createQueueItem`, `createSlaPolicy` inside `src/modules/queues/actions.ts`) were hardened using these contracts and the robust `zod` parsers `CreateQueueItemSchema.safeParse` and `CreateSlaPolicySchema.safeParse`. The explicit `FormData` string extraction mechanism has been entirely replaced.
+- **Validation Evidence:** Replaced all `any` types in `src/app/admin/queues/page.tsx` with actual domain definitions derived from the aforementioned contracts (`WorkspaceQueue`, `QueueItem`/`ProjectedQueueItem`, `SlaPolicy`).
+
+## Journey Explanation
+- **How the user reaches the screen:** Navigating to `/admin/queues`.
+- **What they do:** An operator will evaluate recent queue items via the "Itens recentes" panel, view SLA policy limitations, or register new SLA rules via the "Nova politica SLA" form, all strictly isolated by `ensureActiveWorkspaceConfig()`.
+- **Where they go next:** Upon interaction, form events hit server actions that now validate cleanly via the new core domain schemas before performing database inserts.
+- **How they return:** A "Voltar" link mapped to `/admin` guarantees a safe exit strategy.
+
+## Environment Details
+- Node Version: v24.18.1
+- Base SHA: 77788c8fcd40b7bebdf39b74abba2656984f9a3a

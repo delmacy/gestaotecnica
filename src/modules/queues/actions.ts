@@ -5,6 +5,11 @@ import { getDb } from "@/db";
 import { workspaces } from "@/db/runtime/schema/workspace";
 import { queueItems, slaPolicies } from "@/db/schema";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
+import { z } from "zod";
+import { CreateQueueItemSchema } from "./contracts/queue-item";
+import { CreateSlaPolicySchema } from "./contracts/sla-policy";
+
+
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -18,22 +23,29 @@ function readOptionalNumber(formData: FormData, field: string, fallback: number)
 }
 
 export async function createQueueItem(formData: FormData) {
-  await getDb().insert(queueItems).values({
-    queueId: readRequiredText(formData, "queueId"),
-    entityType: readRequiredText(formData, "entityType"),
-    entityId: readRequiredText(formData, "entityId"),
-    status: "open",
-    priority: "medium",
-  });
+  const data = Object.fromEntries(formData.entries());
+  const parsed = CreateQueueItemSchema.safeParse(data);
+
+  if (!parsed.success) {
+    return { error: "Invalid form data" };
+  }
+
+  await getDb().insert(queueItems).values(parsed.data);
 
   revalidatePath("/admin/queues");
+  return { success: true };
 }
 
 export async function createSlaPolicy(formData: FormData) {
   const workspace = await ensureActiveWorkspaceConfig();
-  const key = readRequiredText(formData, "key");
-  const label = readRequiredText(formData, "label");
-  const targetEntityType = readRequiredText(formData, "targetEntityType");
+  const data = Object.fromEntries(formData.entries());
+  const parsed = CreateSlaPolicySchema.safeParse(data);
+
+  if (!parsed.success) {
+    return { error: "Invalid form data" };
+  }
+
+  const { key, label, targetEntityType, responseMinutes, resolutionMinutes } = parsed.data;
 
   await getDb()
     .insert(slaPolicies)
@@ -42,20 +54,21 @@ export async function createSlaPolicy(formData: FormData) {
       key,
       label,
       targetEntityType,
-      responseMinutes: readOptionalNumber(formData, "responseMinutes", 240),
-      resolutionMinutes: readOptionalNumber(formData, "resolutionMinutes", 1440),
+      responseMinutes,
+      resolutionMinutes,
     })
     .onConflictDoUpdate({
       target: [slaPolicies.workspaceId, slaPolicies.key],
       set: {
         label,
         targetEntityType,
-        responseMinutes: readOptionalNumber(formData, "responseMinutes", 240),
-        resolutionMinutes: readOptionalNumber(formData, "resolutionMinutes", 1440),
+        responseMinutes,
+        resolutionMinutes,
         isActive: true,
         updatedAt: new Date(),
       },
     });
 
   revalidatePath("/admin/queues");
+  return { success: true };
 }

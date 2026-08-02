@@ -4,7 +4,10 @@ import { getQueueAdminData } from "@/modules/queues/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { WorkspaceQueue, QueueItem, SlaPolicy } from "@/modules/queues/contracts";
 
+
+type ProjectedQueueItem = Pick<QueueItem, "id" | "entityType" | "entityId" | "status" | "priority" | "dueAt" | "createdAt"> & { queueLabel: string; assigneeName: string | null };
 export const dynamic = "force-dynamic";
 
 export default async function AdminQueuesPage() {
@@ -22,7 +25,7 @@ export default async function AdminQueuesPage() {
             Itens abertos: {openItems}
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {queues.map((queue: any) => (
+            {queues.map((queue: WorkspaceQueue) => (
               <Card key={queue.id}>
                 <CardContent className="p-4">
                   <p className="font-medium">{queue.label}</p>
@@ -34,7 +37,7 @@ export default async function AdminQueuesPage() {
 
           <h2 className="mt-8 text-xl font-semibold">Itens recentes</h2>
           <div className="mt-3 space-y-3">
-            {items.map((item: any) => (
+            {items.map((item: ProjectedQueueItem) => (
               <Card key={item.id}>
                 <CardContent className="p-4">
                   <p className="font-medium">{item.queueLabel}</p>
@@ -83,7 +86,7 @@ export default async function AdminQueuesPage() {
               <CardTitle>Politicas</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {policies.map((policy: any) => (
+              {policies.map((policy: SlaPolicy) => (
                 <div className="border p-3" key={policy.id}>
                   <p className="font-medium">{policy.label}</p>
                   <p className="text-sm text-muted-foreground">

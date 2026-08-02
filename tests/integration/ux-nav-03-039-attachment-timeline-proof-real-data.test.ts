@@ -206,7 +206,7 @@ test("UX-NAV-03-039: Real-data journey validation for attachments and timeline p
 
     const timeline = await getWorkItemEvents(workItemId);
     assert.equal(
-      timeline.some((event: unknown) => (event as Record<string, unknown>).eventType === "work_item.observed"),
+      timeline.some((event) => event.eventType === "work_item.observed"),
       false,
       "Control event for another entity must not leak into this work item timeline"
     );
@@ -236,7 +236,7 @@ test("UX-NAV-03-039: Real-data journey validation for attachments and timeline p
     });
 
     const attachments = await getEntityAttachments("work_item", workItemId);
-    const second = attachments.find((attachment: unknown) => (attachment as Record<string, unknown>).title === secondAttachmentTitle);
+    const second = attachments.find((attachment) => attachment.title === secondAttachmentTitle);
     assert.ok(second, "Inserted attachment must be readable by the 'Anexos' panel read path");
     assert.equal(second.fileUrl, secondAttachmentUrl);
   });

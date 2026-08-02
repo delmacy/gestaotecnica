@@ -15,7 +15,7 @@ export const QueueItemSchema = z.object({
   priority: PrioritySchema,
   assignedToId: z.string().uuid().nullable().optional(),
   dueAt: z.date().nullable().optional(),
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -31,7 +31,7 @@ export const CreateQueueItemSchema = QueueItemSchema.pick({
   priority: PrioritySchema.default("medium"),
   assignedToId: z.string().uuid().optional(),
   dueAt: z.date().optional(),
-  payload: z.record(z.unknown()).default({}),
+  payload: z.record(z.string(), z.unknown()).default({}),
 });
 
 export type CreateQueueItemDTO = z.infer<typeof CreateQueueItemSchema>;

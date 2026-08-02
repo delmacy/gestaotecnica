@@ -8,7 +8,7 @@ export const WorkspaceQueueSchema = z.object({
   description: z.string().nullable().optional(),
   isActive: z.boolean(),
   sortOrder: z.number().int(),
-  config: z.record(z.unknown()),
+  config: z.record(z.string(), z.unknown()),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

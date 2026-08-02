@@ -27,14 +27,13 @@ export async function createQueueItem(formData: FormData) {
   const parsed = CreateQueueItemSchema.safeParse(data);
 
   if (!parsed.success) {
-    return { error: "Invalid form data" };
+    throw new Error("Invalid form data");
   }
 
   await getDb().insert(queueItems).values(parsed.data);
 
   revalidatePath("/admin/queues");
-  return { success: true };
-}
+  }
 
 export async function createSlaPolicy(formData: FormData) {
   const workspace = await ensureActiveWorkspaceConfig();
@@ -42,7 +41,7 @@ export async function createSlaPolicy(formData: FormData) {
   const parsed = CreateSlaPolicySchema.safeParse(data);
 
   if (!parsed.success) {
-    return { error: "Invalid form data" };
+    throw new Error("Invalid form data");
   }
 
   const { key, label, targetEntityType, responseMinutes, resolutionMinutes } = parsed.data;
@@ -70,5 +69,4 @@ export async function createSlaPolicy(formData: FormData) {
     });
 
   revalidatePath("/admin/queues");
-  return { success: true };
-}
+  }

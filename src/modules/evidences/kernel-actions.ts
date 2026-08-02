@@ -78,10 +78,12 @@ export const attachEvidenceKernelAction: ActionDefinition<
           entityId: evidence.id,
           payload: {
             title,
+            description: input.description,
             serviceOrderId: input.serviceOrderId,
             workItemId: input.workItemId,
             assetId: input.assetId,
             fileUrl: input.fileUrl,
+            mimeType: input.mimeType,
           },
         },
       ],

@@ -41,7 +41,7 @@ export const attachEvidenceKernelAction: ActionDefinition<
     id: uuidProperty("Identificador da evidência."),
     title: stringProperty("Título da evidência."),
   }),
-  emits: ["evidence.attached"],
+  emits: ["evidence.created"],
   async handler(input) {
     const title = String(input.title ?? "").trim();
     if (!title) {
@@ -73,15 +73,17 @@ export const attachEvidenceKernelAction: ActionDefinition<
       data: evidence,
       events: [
         {
-          eventType: "evidence.attached",
+          eventType: "evidence.created",
           entityType: "evidence",
           entityId: evidence.id,
           payload: {
             title,
+            description: input.description,
             serviceOrderId: input.serviceOrderId,
             workItemId: input.workItemId,
             assetId: input.assetId,
             fileUrl: input.fileUrl,
+            mimeType: input.mimeType,
           },
         },
       ],

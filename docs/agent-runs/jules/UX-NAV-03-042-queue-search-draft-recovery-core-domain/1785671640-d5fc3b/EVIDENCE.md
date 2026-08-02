@@ -12,7 +12,7 @@
   - `QueueItem` (queue-item.ts)
   - `SlaPolicy` (sla-policy.ts)
 - **Use Case / API Path:** The Next.js server actions responsible for creating queue entries and SLAs (`createQueueItem`, `createSlaPolicy` inside `src/modules/queues/actions.ts`) were hardened using these contracts and the robust `zod` parsers `CreateQueueItemSchema.safeParse` and `CreateSlaPolicySchema.safeParse`. The explicit `FormData` string extraction mechanism has been entirely replaced.
-- **Validation Evidence:** Replaced all `any` types in `src/app/admin/queues/page.tsx` with actual domain definitions derived from the aforementioned contracts (`WorkspaceQueue`, `QueueItem`/`ProjectedQueueItem`, `SlaPolicy`).
+- **Validation Evidence:** The server actions in `src/modules/queues/actions.ts` now rely on these contracts for payload parsing and structural assurance.
 
 ## Journey Explanation
 - **How the user reaches the screen:** Navigating to `/admin/queues`.

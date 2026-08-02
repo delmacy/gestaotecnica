@@ -5,6 +5,6 @@ export const evidencesManifest: ModuleManifest = {
   key: "evidences",
   name: "Evidences",
   actions: ["evidences.attach"],
-  events: ["evidence.attached"],
+  events: ["evidence.created"],
   views: ["evidences.list"],
 };

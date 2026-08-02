@@ -82,7 +82,7 @@ export async function createEvidence(prevState: unknown, formData: FormData) {
       revalidatePath(`/assets/${assetId}`);
     }
 
-    return { id: evidence.id, status: "success" };
+    return { id: evidence.id, serviceOrderId, workItemId, assetId, status: "success" };
   } catch (error) {
     if (error instanceof Error && error.message === "NEXT_REDIRECT")
       throw error;

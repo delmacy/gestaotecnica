@@ -1,13 +1,10 @@
 "use server";
 import { serviceOrders } from "@/db/schema";
-
-import { evidences } from "@/db/schema";
-
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { getDb, getRuntimeDb } from "@/db";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
+import { getDb } from "@/db";
+import { runAction } from "@/platform/actions";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
@@ -33,8 +30,8 @@ export async function createEvidence(prevState: unknown, formData: FormData) {
     const serviceOrderId = readOptionalText(formData, "serviceOrderId");
     let workItemId = readOptionalText(formData, "workItemId");
     let assetId = readOptionalText(formData, "assetId");
-    const db = getRuntimeDb();
 
+    const db = getDb();
     if (serviceOrderId) {
       const [serviceOrder] = await db
         .select({
@@ -51,9 +48,10 @@ export async function createEvidence(prevState: unknown, formData: FormData) {
       }
     }
 
-    const [evidence] = await db
-      .insert(evidences)
-      .values({
+    const context = await resolveWorkspaceContext({ source: "ui" });
+    const result = await runAction(
+      "evidences.attach",
+      {
         title,
         description,
         fileUrl,
@@ -61,40 +59,27 @@ export async function createEvidence(prevState: unknown, formData: FormData) {
         serviceOrderId,
         workItemId,
         assetId,
-      })
-      .returning({
-        id: evidences.id,
-        title: evidences.title,
-        serviceOrderId: evidences.serviceOrderId,
-        workItemId: evidences.workItemId,
-        assetId: evidences.assetId,
-      });
-
-    await db.insert(eventLogs).values({
-      eventType: "evidence.created",
-      entityType: "evidence",
-      entityId: evidence.id,
-      serviceOrderId: evidence.serviceOrderId,
-      workItemId: evidence.workItemId,
-      assetId: evidence.assetId,
-      payload: {
-        title: evidence.title,
-        fileUrl,
-        mimeType,
       },
-    });
+      context
+    );
+
+    if (!result.success) {
+      throw new Error(result.error?.message ?? "Falha ao anexar evidencia.");
+    }
+
+    const evidence = result.data as { id: string };
 
     revalidatePath("/");
     revalidatePath("/evidences");
     revalidatePath("/events");
-    if (evidence.serviceOrderId) {
-      revalidatePath(`/service-orders/${evidence.serviceOrderId}`);
+    if (serviceOrderId) {
+      revalidatePath(`/service-orders/${serviceOrderId}`);
     }
-    if (evidence.workItemId) {
-      revalidatePath(`/work-items/${evidence.workItemId}`);
+    if (workItemId) {
+      revalidatePath(`/work-items/${workItemId}`);
     }
-    if (evidence.assetId) {
-      revalidatePath(`/assets/${evidence.assetId}`);
+    if (assetId) {
+      revalidatePath(`/assets/${assetId}`);
     }
 
     return { id: evidence.id, status: "success" };

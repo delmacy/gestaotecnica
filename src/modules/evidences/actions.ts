@@ -64,7 +64,7 @@ export async function createEvidence(prevState: unknown, formData: FormData) {
     );
 
     if (!result.success) {
-      throw new Error(result.error?.message ?? "Falha ao anexar evidencia.");
+      return { error: result.error?.message ?? "Falha ao anexar evidencia." };
     }
 
     const evidence = result.data as { id: string };

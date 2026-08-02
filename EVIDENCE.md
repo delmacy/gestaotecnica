@@ -1,13 +1,11 @@
-# Real-data Journey Validation - UX-NAV-03-039 Blocker
+# Evidence for UX-NAV-03-014-form-submit-to-work-usecase-api
 
-**Route/Screen Affected:**
-`/work-items/[id]` — Work Item Detail. Sections: Anexos, Historico, and Comentarios.
+- The task implements the required Work Status API Route mapping to `resolveWorkStatus`.
+- Route Affected: `src/app/api/builder/work-status/route.ts` creates the `/api/builder/work-status` endpoint.
+- Domain Path Used: This route wraps `resolveWorkStatus` and extracts `workspaceContext` properly using `resolveWorkspaceContext`.
+- Context Data: Passed to the domain logic properly by mapping `x-environment-mode` to correctly resolve `demo`, `synthetic` and `real` data.
+- Base Sync: This branch is based on origin/main, which has SHA `05241ac05d70b735c55defd319be8c5018cf16f4`
+- User Journey: The user lands on a module or form that requires tracking a submission's status. They fill out a form or trigger an action (Form Submission). This API binding `POST /api/builder/work-status` provides a structured endpoint where the runtime state handles returning a `WorkStatusResolution`. Depending on the environment headers passed by the frontend (demo/synthetic/blocked), this determines whether the user receives a demo message, a forbidden error, or a successful route redirect (`destination`) to their newly created WorkItem detail screen or dashboard.
 
-**Persisted Data Path Touched:**
-`entity_attachments` (legacy) + `workflow.events` (runtime) and associated domain models.
-
-**Journey Summary:**
-The user accesses a work item from `/work-items` and arrives at `/work-items/[id]`. The journey loads real attachments (`getEntityAttachments`), timeline events (`getWorkItemEvents`), and handles empty states. The user can add attachments and return via a back button.
-
-**Precise Blocker:**
-The draft test (`tests/integration/ux-nav-03-039-attachment-timeline-proof-real-data.test.ts`) requires a real postgres database connected via `AGENT_WORK_TEST_DATABASE_URL` (or `RUNTIME_DATABASE_URL`). Although a postgres instance was successfully spun up locally for tests, pushing the full schema (`npm run db:push`) fails with errors indicating mismatched dependencies across platform schemas (e.g., `schema "workflow" already exists`, `relation "workspace.workspaces" does not exist`, and `relation "workflow.events" does not exist`). This breaks the schema bootstrap process required to load data models for this integration slice. Without a complete schema, it is impossible to insert the necessary entities (organization, workspace, work items, attachments, events) to validate the integration. The task cannot proceed further without resolving the database schema management tools or providing a correctly provisioned test database.
+Node.js Environment:
+v24.18.0

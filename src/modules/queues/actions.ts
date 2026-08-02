@@ -10,7 +10,6 @@ import { CreateQueueItemSchema } from "./contracts/queue-item";
 import { CreateSlaPolicySchema } from "./contracts/sla-policy";
 
 
-
 function readRequiredText(formData: FormData, field: string) {
   const value = String(formData.get(field) ?? "").trim();
   if (!value) throw new Error(`Campo obrigatorio ausente: ${field}`);
@@ -30,10 +29,15 @@ export async function createQueueItem(formData: FormData) {
     throw new Error("Invalid form data");
   }
 
-  await getDb().insert(queueItems).values(parsed.data);
+  // Enforce server-side defaults to prevent over-posting
+  await getDb().insert(queueItems).values({
+    ...parsed.data,
+    status: "open",
+    priority: "medium",
+  });
 
   revalidatePath("/admin/queues");
-  }
+}
 
 export async function createSlaPolicy(formData: FormData) {
   const workspace = await ensureActiveWorkspaceConfig();
@@ -69,4 +73,4 @@ export async function createSlaPolicy(formData: FormData) {
     });
 
   revalidatePath("/admin/queues");
-  }
+}

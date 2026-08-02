@@ -1,18 +1,17 @@
-# feat: UX-NAV-02-039 Blocked/fallback paths journey validation
+This PR finalizes the `UX-NAV-03-039-attachment-timeline-proof-e2e-real-data` vertical slice validation task by evaluating the OpenCode worker draft.
 
-Base SHA: a2a52624e923b0529b25868ed4e06aed38e77eae
+### Base Sync
+Base SHA: `9e4e67ce51d96385b011d0bdf774fc3914ebf2be`
 
-Validation test suite passing outcome:
-```
-Running 3 tests using 2 workers
+### Task Outcome
 
-[1/3] [chromium] › tests/e2e/ux-nav-02/ux-nav-02-039-blocked-fallback-paths.spec.ts:11:9 › UX-NAV-02-039 Blocked Fallback Paths › should resolve forbidden_workspace fallback
-[2/3] [chromium] › tests/e2e/ux-nav-02/ux-nav-02-039-blocked-fallback-paths.spec.ts:29:9 › UX-NAV-02-039 Blocked Fallback Paths › should resolve demo mode restriction without redirect
-[3/3] [chromium] › tests/e2e/ux-nav-02/ux-nav-02-039-blocked-fallback-paths.spec.ts:44:9 › UX-NAV-02-039 Blocked Fallback Paths › should navigate to fallback path when Execute Navigation is clicked
-  3 passed (4.2s)
-```
+**Draft Evaluated:**
+- The worker drafted a thorough integration test in `tests/integration/ux-nav-03-039-attachment-timeline-proof-real-data.test.ts`.
+- The test correctly sets up the database records (Organization, Workspace, Work Items, Entity Attachments, and Workflow Events) mirroring the required path.
+- The contract validations assert the newest-first timeline ordering and isolated workspace contexts accurately.
 
-Evidence execution details:
-Please find the user journey evidence recorded in `docs/agent-runs/jules/UX-NAV-02-039-blocked-fallback-paths-e2e/1785136906-b25104/EVIDENCE.md`
+**Outcome:**
+The integration test depends heavily on the `AGENT_WORK_TEST_DATABASE_URL` (or equivalent test postgres instance) for persisting and reading the slice endpoints (`getEntityAttachments`, `getWorkItemEvents`). While running `npm run db:push` in the local testing sandbox, fatal database connection and schema dependency errors occur (`PostgresError: relation "workspace.workspaces" does not exist`, `schema "workflow" already exists`). Without a fully bootstrapped database layer, the tests fail immediately with connection timeouts or missing relation errors.
 
-**Blocker Note**: Other tests fail with 'database system is in recovery mode' — a known environment constraint, not caused by this change.
+**Blocker Recorded:**
+As per the requirement to "Record real-data proof or a precise blocker instead of substituting fake demo success", we have safely halted and generated an `EVIDENCE.md` document indicating this structural blocker in the DB bootstrapping logic for this specific slice.

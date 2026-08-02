@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
 import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
+import { getCurrentUser } from "@/modules/auth/session";
 import { startWorkflowInstanceForTarget } from "@/platform/workflows/runtime";
 import { initializePlatformKernel } from "@/platform/kernel";
 
@@ -555,6 +556,13 @@ export async function createServiceOrderEvidence(
     const mimeType = readOptionalText(formData, "mimeType");
     const db = getDb();
 
+    const user = await getCurrentUser();
+    if (!user) {
+      return { error: "Sessão expirada. Faça login novamente." };
+    }
+
+    const context = await resolveWorkspaceContext({ source: "ui" });
+
     const [serviceOrder] = await db
       .select({
         id: serviceOrders.id,
@@ -580,6 +588,7 @@ export async function createServiceOrderEvidence(
         description,
         fileUrl,
         mimeType,
+        createdById: user.userId,
       })
       .returning({
         id: evidences.id,
@@ -593,6 +602,11 @@ export async function createServiceOrderEvidence(
       eventType: "service_order.evidence_added",
       entityType: "service_order",
       entityId: serviceOrder.id,
+      workspaceId: context.workspaceId,
+      actorType: "user",
+      actorId: user.userId,
+      source: "ui",
+      correlationId: context.correlationId,
       serviceOrderId: serviceOrder.id,
       workItemId: serviceOrder.workItemId,
       assetId: serviceOrder.assetId,
@@ -615,7 +629,19 @@ export async function createServiceOrderEvidence(
     if (serviceOrder.assetId) {
       revalidatePath(`/assets/${serviceOrder.assetId}`);
     }
-    return { id: evidence.id, status: "success" };
+    return {
+      id: evidence.id,
+      status: "success",
+      receipt: {
+        action: "service_order.evidence_added",
+        serviceOrderId: serviceOrder.id,
+        evidenceId: evidence.id,
+        status: "success",
+        workspaceId: context.workspaceId,
+        correlationId: context.correlationId,
+        recordedAt: new Date().toISOString(),
+      },
+    };
   } catch (error) {
     if (error instanceof Error && error.message === "NEXT_REDIRECT")
       throw error;

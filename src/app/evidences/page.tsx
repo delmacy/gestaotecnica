@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { EvidenceForm } from "@/modules/evidences/evidence-form";
 import { EvidencesTable } from "@/modules/evidences/evidences-table";
+import { EvidenceSummary } from "@/modules/evidences/contracts/evidences-contract";
 import {
   getEvidenceLinkOptions,
   getEvidenceSummary,
@@ -42,7 +43,7 @@ export default async function EvidencesPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            {summary.map((item: any) => (
+            {summary.map((item: EvidenceSummary) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}

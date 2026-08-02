@@ -1,8 +1,13 @@
 import { count, desc, eq, isNotNull } from "drizzle-orm";
 import { getDb } from "@/db";
 import { assets, evidences, serviceOrders, workItems } from "@/db/schema";
+import {
+  Evidence,
+  EvidenceLinkOptions,
+  EvidenceSummary,
+} from "./contracts/evidences-contract";
 
-export async function getEvidences() {
+export async function getEvidences(): Promise<Evidence[]> {
   const db = getDb();
 
   return db
@@ -30,7 +35,7 @@ export async function getEvidences() {
     .limit(100);
 }
 
-export async function getEvidenceSummary() {
+export async function getEvidenceSummary(): Promise<EvidenceSummary[]> {
   const db = getDb();
 
   const [totalRow] = await db.select({ value: count() }).from(evidences);
@@ -50,7 +55,7 @@ export async function getEvidenceSummary() {
   ];
 }
 
-export async function getEvidenceLinkOptions() {
+export async function getEvidenceLinkOptions(): Promise<EvidenceLinkOptions> {
   const db = getDb();
   const [serviceOrderRows, workItemRows, assetRows] = await Promise.all([
     db

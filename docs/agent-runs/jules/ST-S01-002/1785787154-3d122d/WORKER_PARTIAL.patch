@@ -1,0 +1,744 @@
+diff --git a/src/app/admin/organizations/page.tsx b/src/app/admin/organizations/page.tsx
+index bf17985..f9c47a6 100644
+--- a/src/app/admin/organizations/page.tsx
++++ b/src/app/admin/organizations/page.tsx
+@@ -1,7 +1,8 @@
+ import Link from "next/link";
+-import { Building2, Plus, Workflow } from "lucide-react";
+-import { createOrganization } from "@/modules/admin/actions";
++import { Building2, Link2, Plus, Server, Workflow } from "lucide-react";
++import { createOrganization, registerSystemTradingWorkspaceAction } from "@/modules/admin/actions";
+ import { getOrganizationsOverview } from "@/modules/admin/queries";
++import { getSystemTradingWorkspaceRegistration } from "@/platform/workspaces/system-trading";
+ import { Badge } from "@/components/ui/badge";
+ import { Button } from "@/components/ui/button";
+ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+@@ -26,11 +27,104 @@ type OrganizationListItem = {
+ };
+ 
+ export default async function OrganizationsPage() {
+-  const organizations = await getOrganizationsOverview();
++  const [organizations, systemTrading] = await Promise.all([
++    getOrganizationsOverview(),
++    getSystemTradingWorkspaceRegistration(),
++  ]);
+ 
+   return (
+     <div className="px-4 py-6 sm:px-6 lg:px-8">
+-      <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[0.85fr_1.15fr]">
++      <div className="mx-auto flex max-w-7xl flex-col gap-6">
++        <section className="rounded-md border bg-card p-5">
++          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
++            <div className="flex min-w-0 items-start gap-3">
++              <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
++                <Server className="size-5" />
++              </div>
++              <div className="min-w-0">
++                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
++                  Registro da plataforma
++                </p>
++                <h2 className="text-xl font-semibold tracking-tight">System Trading</h2>
++                <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
++                  Workspace registrado no System Builder com metadados de repositório e o módulo
++                  Trading Lab instalado.
++                </p>
++              </div>
++            </div>
++            <form action={registerSystemTradingWorkspaceAction}>
++              <Button type="submit" variant="outline">
++                <Plus className="size-4" />
++                Registrar workspace
++              </Button>
++            </form>
++          </div>
++
++          {systemTrading ? (
++            <div className="mt-4 grid gap-3 sm:grid-cols-3">
++              <Card>
++                <CardHeader className="pb-2">
++                  <CardTitle className="text-sm text-muted-foreground">Workspace</CardTitle>
++                </CardHeader>
++                <CardContent>
++                  <p className="text-sm font-semibold">{systemTrading.workspaceName}</p>
++                  <p className="mt-1 text-xs text-muted-foreground">{systemTrading.workspaceKey}</p>
++                  <p className="mt-1 text-xs text-muted-foreground">
++                    Blueprint: {systemTrading.adaptationKey ?? "não definido"}
++                  </p>
++                </CardContent>
++              </Card>
++              <Card>
++                <CardHeader className="pb-2">
++                  <CardTitle className="text-sm text-muted-foreground">Repositório</CardTitle>
++                </CardHeader>
++                <CardContent>
++                  {systemTrading.repository ? (
++                    <>
++                      <p className="flex items-center gap-2 text-sm font-semibold">
++                        <Link2 className="size-4 text-primary" />
++                        {systemTrading.repository.owner}/{systemTrading.repository.name}
++                      </p>
++                      <p className="mt-1 truncate text-xs text-muted-foreground">
++                        {systemTrading.repository.url}
++                      </p>
++                      <p className="mt-1 text-xs text-muted-foreground">
++                        Branch: {systemTrading.repository.branch}
++                      </p>
++                    </>
++                  ) : (
++                    <p className="text-sm text-muted-foreground">
++                      Sem metadados de repositório registrados.
++                    </p>
++                  )}
++                </CardContent>
++              </Card>
++              <Card>
++                <CardHeader className="pb-2">
++                  <CardTitle className="text-sm text-muted-foreground">Módulos instalados</CardTitle>
++                </CardHeader>
++                <CardContent>
++                  <div className="flex items-center justify-between gap-3">
++                    <span className="text-sm font-semibold">Trading Lab</span>
++                    <Badge variant={systemTrading.tradingLabInstalled ? "default" : "outline"}>
++                      {systemTrading.tradingLabInstalled ? "Instalado" : "Não instalado"}
++                    </Badge>
++                  </div>
++                  <p className="mt-2 text-xs text-muted-foreground">
++                    {systemTrading.modules.length} módulo(s) instalado(s)
++                  </p>
++                </CardContent>
++              </Card>
++            </div>
++          ) : (
++            <p className="mt-4 text-sm text-muted-foreground">
++              O workspace System Trading ainda não foi registrado. Clique em “Registrar workspace”
++              para criá-lo com metadados de repositório e Trading Lab instalado.
++            </p>
++          )}
++        </section>
++
++        <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+         <section className="rounded-md border bg-card p-5">
+           <div className="flex items-center gap-3">
+             <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+@@ -115,6 +209,7 @@ export default async function OrganizationsPage() {
+             </div>
+           )}
+         </section>
++        </section>
+       </div>
+     </div>
+   );
+diff --git a/src/modules/admin/actions.ts b/src/modules/admin/actions.ts
+index 027bdca..e36b78f 100644
+--- a/src/modules/admin/actions.ts
++++ b/src/modules/admin/actions.ts
+@@ -13,6 +13,7 @@ import {
+   workflowTemplates,
+ } from "@/db/schema";
+ import { organizations, workspaces } from "@/db/runtime/schema/workspace";
++import { registerSystemTradingWorkspace } from "@/platform/workspaces/system-trading";
+ import { hashPassword } from "@/modules/auth/crypto";
+ 
+ function readRequiredText(formData: FormData, field: string) {
+@@ -143,6 +144,11 @@ export async function createWorkspaceForOrganization(formData: FormData) {
+   revalidatePath(`/admin/organizations/${organizationId}`);
+ }
+ 
++export async function registerSystemTradingWorkspaceAction() {
++  await registerSystemTradingWorkspace();
++  revalidatePath("/admin/organizations");
++}
++
+ export async function toggleWorkspaceModule(formData: FormData) {
+   const id = readRequiredText(formData, "id");
+   const isEnabled = formData.get("isEnabled") === "on";
+diff --git a/src/platform/workspaces/system-trading/constants.ts b/src/platform/workspaces/system-trading/constants.ts
+new file mode 100644
+index 0000000..870c55f
+--- /dev/null
++++ b/src/platform/workspaces/system-trading/constants.ts
+@@ -0,0 +1,39 @@
++export const SYSTEM_TRADING = {
++  organization: {
++    key: "system-trading",
++    name: "System Trading",
++  },
++  workspace: {
++    key: "system-trading",
++    name: "System Trading",
++    adaptationKey: "system-trading",
++    repository: {
++      owner: "delmacy",
++      name: "gestaotecnica",
++      url: "https://github.com/delmacy/gestaotecnica",
++      branch: "main",
++    },
++  },
++  tradingLab: {
++    moduleKey: "trading-lab",
++    name: "Trading Lab",
++    description:
++      "Operação de trading executada sobre o System Builder: ordens, posições, execuções e resultados auditáveis.",
++    layer: "module",
++    status: "implemented",
++    sortOrder: 0,
++  },
++} as const;
++
++export type SystemTradingRepositoryMetadata =
++  typeof SYSTEM_TRADING.workspace.repository;
++
++export const SYSTEM_TRADING_WORKSPACE_KEY = SYSTEM_TRADING.workspace.key;
++
++export const SYSTEM_TRADING_TRADING_LAB_MODULE_KEY =
++  SYSTEM_TRADING.tradingLab.moduleKey;
++
++export const SYSTEM_TRADING_REGISTRATION_EVENT = "workspace.registered";
++
++export const SYSTEM_TRADING_REGISTRATION_IDEMPOTENCY_KEY =
++  "system-trading-workspace-registration";
+diff --git a/src/platform/workspaces/system-trading/index.ts b/src/platform/workspaces/system-trading/index.ts
+new file mode 100644
+index 0000000..84102b2
+--- /dev/null
++++ b/src/platform/workspaces/system-trading/index.ts
+@@ -0,0 +1,3 @@
++export * from "./constants";
++export * from "./registration";
++export * from "./queries";
+diff --git a/src/platform/workspaces/system-trading/queries.ts b/src/platform/workspaces/system-trading/queries.ts
+new file mode 100644
+index 0000000..18b9a08
+--- /dev/null
++++ b/src/platform/workspaces/system-trading/queries.ts
+@@ -0,0 +1,108 @@
++import { eq } from "drizzle-orm";
++import { getDb, type DbClient } from "@/db";
++import { workspaces } from "@/db/runtime/schema/workspace";
++import { workspaceModuleConfigs } from "@/db/schema";
++import {
++  SYSTEM_TRADING_TRADING_LAB_MODULE_KEY,
++  SYSTEM_TRADING_WORKSPACE_KEY,
++  type SystemTradingRepositoryMetadata,
++} from "./constants";
++
++export type SystemTradingModuleRow = {
++  moduleKey: string;
++  name: string;
++  description: string | null;
++  layer: string;
++  status: string;
++  isEnabled: boolean;
++};
++
++export type SystemTradingWorkspaceRegistration = {
++  workspaceId: string;
++  workspaceKey: string;
++  workspaceName: string;
++  status: string;
++  adaptationKey: string | null;
++  repository: SystemTradingRepositoryMetadata | null;
++  tradingLabInstalled: boolean;
++  modules: SystemTradingModuleRow[];
++};
++
++function readRepositoryMetadata(metadata: unknown): SystemTradingRepositoryMetadata | null {
++  if (!metadata || typeof metadata !== "object") return null;
++  const repository = (metadata as { repository?: unknown }).repository;
++  if (!repository || typeof repository !== "object") return null;
++  const candidate = repository as {
++    owner?: unknown;
++    name?: unknown;
++    url?: unknown;
++    branch?: unknown;
++  };
++  if (
++    typeof candidate.owner !== "string" ||
++    typeof candidate.name !== "string" ||
++    typeof candidate.url !== "string" ||
++    typeof candidate.branch !== "string"
++  ) {
++    return null;
++  }
++  return {
++    owner: candidate.owner,
++    name: candidate.name,
++    url: candidate.url,
++    branch: candidate.branch,
++  };
++}
++
++/**
++ * Reads the registered System Trading workspace back from persistence,
++ * including repository metadata and installed modules (Trading Lab).
++ * Returns null when the workspace has not been registered yet.
++ */
++export async function getSystemTradingWorkspaceRegistration(
++  db: DbClient = getDb(),
++): Promise<SystemTradingWorkspaceRegistration | null> {
++  const [workspace] = await db
++    .select({
++      id: workspaces.id,
++      key: workspaces.key,
++      name: workspaces.name,
++      status: workspaces.status,
++      adaptationKey: workspaces.adaptationKey,
++      metadata: workspaces.metadata,
++    })
++    .from(workspaces)
++    .where(eq(workspaces.key, SYSTEM_TRADING_WORKSPACE_KEY))
++    .limit(1);
++
++  if (!workspace) return null;
++
++  const moduleRows = await db
++    .select({
++      moduleKey: workspaceModuleConfigs.moduleKey,
++      name: workspaceModuleConfigs.name,
++      description: workspaceModuleConfigs.description,
++      layer: workspaceModuleConfigs.layer,
++      status: workspaceModuleConfigs.status,
++      isEnabled: workspaceModuleConfigs.isEnabled,
++    })
++    .from(workspaceModuleConfigs)
++    .where(eq(workspaceModuleConfigs.workspaceId, workspace.id));
++
++  const repository = readRepositoryMetadata(workspace.metadata);
++
++  return {
++    workspaceId: workspace.id,
++    workspaceKey: workspace.key,
++    workspaceName: workspace.name,
++    status: workspace.status,
++    adaptationKey: workspace.adaptationKey,
++    repository,
++    tradingLabInstalled: moduleRows.some(
++      (module) =>
++        module.moduleKey === SYSTEM_TRADING_TRADING_LAB_MODULE_KEY &&
++        module.isEnabled,
++    ),
++    modules: moduleRows,
++  };
++}
+diff --git a/src/platform/workspaces/system-trading/registration.ts b/src/platform/workspaces/system-trading/registration.ts
+new file mode 100644
+index 0000000..399ce51
+--- /dev/null
++++ b/src/platform/workspaces/system-trading/registration.ts
+@@ -0,0 +1,129 @@
++import { getDb, type DbClient } from "@/db";
++import { workspaces, organizations } from "@/db/runtime/schema/workspace";
++import { events } from "@/db/runtime/schema/workflow";
++import { workspaceModuleConfigs } from "@/db/schema";
++import {
++  SYSTEM_TRADING,
++  SYSTEM_TRADING_REGISTRATION_EVENT,
++  SYSTEM_TRADING_REGISTRATION_IDEMPOTENCY_KEY,
++  type SystemTradingRepositoryMetadata,
++} from "./constants";
++
++export type SystemTradingRegistrationResult = {
++  organizationId: string;
++  workspaceId: string;
++  workspaceKey: string;
++  workspaceName: string;
++  adaptationKey: string;
++  repository: SystemTradingRepositoryMetadata;
++  tradingLabModuleKey: string;
++};
++
++/**
++ * Registers the System Trading workspace in System Builder.
++ *
++ * Idempotent upsert: organization, workspace (with repository metadata),
++ * the Trading Lab module installation and an immutable audit event are all
++ * persisted and can be read back via getSystemTradingWorkspaceRegistration.
++ */
++export async function registerSystemTradingWorkspace(
++  db: DbClient = getDb(),
++): Promise<SystemTradingRegistrationResult> {
++  const [organization] = await db
++    .insert(organizations)
++    .values({
++      key: SYSTEM_TRADING.organization.key,
++      name: SYSTEM_TRADING.organization.name,
++      status: "active",
++    })
++    .onConflictDoUpdate({
++      target: organizations.key,
++      set: {
++        name: SYSTEM_TRADING.organization.name,
++        status: "active",
++        updatedAt: new Date(),
++      },
++    })
++    .returning({ id: organizations.id });
++
++  const repository = SYSTEM_TRADING.workspace.repository;
++
++  const [workspace] = await db
++    .insert(workspaces)
++    .values({
++      organizationId: organization.id,
++      key: SYSTEM_TRADING.workspace.key,
++      name: SYSTEM_TRADING.workspace.name,
++      status: "active",
++      adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
++      metadata: { repository },
++    })
++    .onConflictDoUpdate({
++      target: workspaces.key,
++      set: {
++        organizationId: organization.id,
++        name: SYSTEM_TRADING.workspace.name,
++        status: "active",
++        adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
++        metadata: { repository },
++        updatedAt: new Date(),
++      },
++    })
++    .returning({ id: workspaces.id });
++
++  await db
++    .insert(workspaceModuleConfigs)
++    .values({
++      workspaceId: workspace.id,
++      moduleKey: SYSTEM_TRADING.tradingLab.moduleKey,
++      name: SYSTEM_TRADING.tradingLab.name,
++      description: SYSTEM_TRADING.tradingLab.description,
++      layer: SYSTEM_TRADING.tradingLab.layer,
++      status: SYSTEM_TRADING.tradingLab.status,
++      isEnabled: true,
++      sortOrder: SYSTEM_TRADING.tradingLab.sortOrder,
++    })
++    .onConflictDoUpdate({
++      target: [
++        workspaceModuleConfigs.workspaceId,
++        workspaceModuleConfigs.moduleKey,
++      ],
++      set: {
++        name: SYSTEM_TRADING.tradingLab.name,
++        description: SYSTEM_TRADING.tradingLab.description,
++        layer: SYSTEM_TRADING.tradingLab.layer,
++        status: SYSTEM_TRADING.tradingLab.status,
++        isEnabled: true,
++        updatedAt: new Date(),
++      },
++    });
++
++  await db
++    .insert(events)
++    .values({
++      workspaceId: workspace.id,
++      eventType: SYSTEM_TRADING_REGISTRATION_EVENT,
++      entityType: "workspace",
++      entityId: workspace.id,
++      actorType: "system",
++      source: "system-trading-registration",
++      idempotencyKey: SYSTEM_TRADING_REGISTRATION_IDEMPOTENCY_KEY,
++      payload: {
++        workspaceKey: SYSTEM_TRADING.workspace.key,
++        workspaceName: SYSTEM_TRADING.workspace.name,
++        repository,
++        moduleKey: SYSTEM_TRADING.tradingLab.moduleKey,
++      },
++    })
++    .onConflictDoNothing();
++
++  return {
++    organizationId: organization.id,
++    workspaceId: workspace.id,
++    workspaceKey: SYSTEM_TRADING.workspace.key,
++    workspaceName: SYSTEM_TRADING.workspace.name,
++    adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
++    repository,
++    tradingLabModuleKey: SYSTEM_TRADING.tradingLab.moduleKey,
++  };
++}
+diff --git a/tests/unit/system-trading-queries.test.ts b/tests/unit/system-trading-queries.test.ts
+new file mode 100644
+index 0000000..89aec88
+--- /dev/null
++++ b/tests/unit/system-trading-queries.test.ts
+@@ -0,0 +1,145 @@
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import proxyquire from "proxyquire";
++import { workspaces } from "../../src/db/runtime/schema/workspace";
++import { workspaceModuleConfigs } from "../../src/db/schema";
++import {
++  SYSTEM_TRADING,
++  SYSTEM_TRADING_TRADING_LAB_MODULE_KEY,
++} from "../../src/platform/workspaces/system-trading/constants";
++
++type WorkspaceRow = {
++  id: string;
++  key: string;
++  name: string;
++  status: string;
++  adaptationKey: string | null;
++  metadata: unknown;
++};
++
++type ModuleRow = {
++  moduleKey: string;
++  name: string;
++  description: string | null;
++  layer: string;
++  status: string;
++  isEnabled: boolean;
++};
++
++function createQueryMockDb(
++  workspaceRows: WorkspaceRow[],
++  moduleRows: ModuleRow[],
++) {
++  return {
++    select() {
++      return {
++        from(table: unknown) {
++          if (table === workspaces) {
++            return {
++              where() {
++                return {
++                  limit() {
++                    return workspaceRows;
++                  },
++                };
++              },
++            };
++          }
++          if (table === workspaceModuleConfigs) {
++            return {
++              where() {
++                return Promise.resolve(moduleRows);
++              },
++            };
++          }
++          throw new Error("unexpected table in query");
++        },
++      };
++    },
++  };
++}
++
++const registeredWorkspaceRow: WorkspaceRow = {
++  id: "workspace-1",
++  key: SYSTEM_TRADING.workspace.key,
++  name: SYSTEM_TRADING.workspace.name,
++  status: "active",
++  adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
++  metadata: { repository: SYSTEM_TRADING.workspace.repository },
++};
++
++const tradingLabRow: ModuleRow = {
++  moduleKey: SYSTEM_TRADING_TRADING_LAB_MODULE_KEY,
++  name: SYSTEM_TRADING.tradingLab.name,
++  description: SYSTEM_TRADING.tradingLab.description,
++  layer: SYSTEM_TRADING.tradingLab.layer,
++  status: SYSTEM_TRADING.tradingLab.status,
++  isEnabled: true,
++};
++
++const { getSystemTradingWorkspaceRegistration } = proxyquire(
++  "../../src/platform/workspaces/system-trading/queries",
++  {
++    "@/db": {
++      getDb() {
++        throw new Error("getDb should not be called when db is injected");
++      },
++    },
++  },
++);
++
++test("getSystemTradingWorkspaceRegistration", async (t) => {
++  await t.test(
++    "reads back the registered workspace with repository metadata and Trading Lab installed",
++    async () => {
++      const mockDb = createQueryMockDb([registeredWorkspaceRow], [tradingLabRow]);
++
++      const registration = await getSystemTradingWorkspaceRegistration(mockDb as never);
++
++      assert.ok(registration, "registration should exist");
++      assert.equal(registration?.workspaceKey, SYSTEM_TRADING.workspace.key);
++      assert.equal(registration?.workspaceName, SYSTEM_TRADING.workspace.name);
++      assert.deepEqual(registration?.repository, SYSTEM_TRADING.workspace.repository);
++      assert.equal(registration?.tradingLabInstalled, true);
++      assert.equal(registration?.modules.length, 1);
++    },
++  );
++
++  await t.test("reports Trading Lab as not installed when the module is disabled", async () => {
++    const mockDb = createQueryMockDb(
++      [registeredWorkspaceRow],
++      [{ ...tradingLabRow, isEnabled: false }],
++    );
++
++    const registration = await getSystemTradingWorkspaceRegistration(mockDb as never);
++
++    assert.ok(registration);
++    assert.equal(registration?.tradingLabInstalled, false);
++  });
++
++  await t.test("returns null when the workspace has not been registered", async () => {
++    const mockDb = createQueryMockDb([], []);
++
++    const registration = await getSystemTradingWorkspaceRegistration(mockDb as never);
++
++    assert.equal(registration, null);
++  });
++
++  await t.test("returns null repository metadata when workspace metadata is malformed", async () => {
++    const mockDb = createQueryMockDb(
++      [
++        {
++          ...registeredWorkspaceRow,
++          metadata: { repository: { owner: "delmacy" } },
++        },
++      ],
++      [tradingLabRow],
++    );
++
++    const registration = await getSystemTradingWorkspaceRegistration(mockDb as never);
++
++    assert.ok(registration);
++    assert.equal(registration?.repository, null);
++    assert.equal(registration?.tradingLabInstalled, true);
++  });
++});
+diff --git a/tests/unit/system-trading-registration.test.ts b/tests/unit/system-trading-registration.test.ts
+new file mode 100644
+index 0000000..246609b
+--- /dev/null
++++ b/tests/unit/system-trading-registration.test.ts
+@@ -0,0 +1,130 @@
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import proxyquire from "proxyquire";
++import {
++  SYSTEM_TRADING,
++  SYSTEM_TRADING_REGISTRATION_EVENT,
++  SYSTEM_TRADING_TRADING_LAB_MODULE_KEY,
++  SYSTEM_TRADING_WORKSPACE_KEY,
++} from "../../src/platform/workspaces/system-trading/constants";
++
++type InsertCall = {
++  values: Record<string, unknown>;
++  usedOnConflictDoUpdate: boolean;
++  usedOnConflictDoNothing: boolean;
++};
++
++function createMockDb(options: { failOnReturnIndex?: number } = {}) {
++  const insertCalls: InsertCall[] = [];
++  let returnIndex = 0;
++
++  const chain = {
++    values(values: Record<string, unknown>) {
++      insertCalls.push({
++        values,
++        usedOnConflictDoUpdate: false,
++        usedOnConflictDoNothing: false,
++      });
++      return chain;
++    },
++    onConflictDoUpdate() {
++      insertCalls[insertCalls.length - 1].usedOnConflictDoUpdate = true;
++      return chain;
++    },
++    onConflictDoNothing() {
++      insertCalls[insertCalls.length - 1].usedOnConflictDoNothing = true;
++      return chain;
++    },
++    returning() {
++      if (
++        options.failOnReturnIndex !== undefined &&
++        returnIndex === options.failOnReturnIndex
++      ) {
++        throw new Error("database failure");
++      }
++      returnIndex += 1;
++      return [{ id: "generated-uuid" }];
++    },
++  };
++
++  return {
++    insert() {
++      return chain;
++    },
++    insertCalls,
++  };
++}
++
++const { registerSystemTradingWorkspace } = proxyquire(
++  "../../src/platform/workspaces/system-trading/registration",
++  {
++    "@/db": {
++      getDb() {
++        throw new Error("getDb should not be called when db is injected");
++      },
++    },
++  },
++);
++
++test("registerSystemTradingWorkspace", async (t) => {
++  await t.test(
++    "registers organization, workspace with repository metadata, Trading Lab and audit event",
++    async () => {
++      const mockDb = createMockDb();
++
++      const result = await registerSystemTradingWorkspace(mockDb as never);
++
++      assert.equal(result.workspaceKey, SYSTEM_TRADING_WORKSPACE_KEY);
++      assert.equal(result.workspaceName, SYSTEM_TRADING.workspace.name);
++      assert.equal(result.adaptationKey, SYSTEM_TRADING.workspace.adaptationKey);
++      assert.equal(result.tradingLabModuleKey, SYSTEM_TRADING_TRADING_LAB_MODULE_KEY);
++      assert.deepEqual(result.repository, SYSTEM_TRADING.workspace.repository);
++
++      assert.equal(mockDb.insertCalls.length, 4, "org, workspace, module config and event");
++
++      const [orgCall, workspaceCall, moduleCall, eventCall] = mockDb.insertCalls;
++
++      assert.equal(orgCall.values.key, SYSTEM_TRADING.organization.key);
++      assert.equal(orgCall.values.name, SYSTEM_TRADING.organization.name);
++      assert.equal(orgCall.usedOnConflictDoUpdate, true);
++
++      assert.equal(workspaceCall.values.key, SYSTEM_TRADING_WORKSPACE_KEY);
++      assert.equal(workspaceCall.values.name, SYSTEM_TRADING.workspace.name);
++      assert.deepEqual(
++        (workspaceCall.values.metadata as { repository: unknown }).repository,
++        SYSTEM_TRADING.workspace.repository,
++      );
++      assert.equal(workspaceCall.usedOnConflictDoUpdate, true);
++
++      assert.equal(moduleCall.values.moduleKey, SYSTEM_TRADING_TRADING_LAB_MODULE_KEY);
++      assert.equal(moduleCall.values.name, SYSTEM_TRADING.tradingLab.name);
++      assert.equal(moduleCall.values.workspaceId, "generated-uuid");
++      assert.equal(moduleCall.values.isEnabled, true);
++      assert.equal(moduleCall.usedOnConflictDoUpdate, true);
++
++      assert.equal(eventCall.values.eventType, SYSTEM_TRADING_REGISTRATION_EVENT);
++      assert.equal(eventCall.values.source, "system-trading-registration");
++      assert.equal(eventCall.values.workspaceId, "generated-uuid");
++      assert.equal(eventCall.usedOnConflictDoNothing, true);
++    },
++  );
++
++  await t.test("is idempotent when run a second time", async () => {
++    const mockDb = createMockDb();
++
++    await registerSystemTradingWorkspace(mockDb as never);
++    const second = await registerSystemTradingWorkspace(mockDb as never);
++
++    assert.equal(second.workspaceKey, SYSTEM_TRADING_WORKSPACE_KEY);
++    assert.equal(second.tradingLabModuleKey, SYSTEM_TRADING_TRADING_LAB_MODULE_KEY);
++  });
++
++  await t.test("rejects when persistence fails", async () => {
++    const mockDb = createMockDb({ failOnReturnIndex: 1 });
++
++    await assert.rejects(
++      registerSystemTradingWorkspace(mockDb as never),
++      /database failure/,
++    );
++  });
++});

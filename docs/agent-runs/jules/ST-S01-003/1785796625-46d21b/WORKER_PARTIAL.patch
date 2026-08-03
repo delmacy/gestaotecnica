@@ -1,0 +1,16 @@
+diff --git a/src/platform/workspaces/module-catalog.ts b/src/platform/workspaces/module-catalog.ts
+index 18f1a48..c3d59a2 100644
+--- a/src/platform/workspaces/module-catalog.ts
++++ b/src/platform/workspaces/module-catalog.ts
+@@ -134,4 +134,11 @@ export const ecosystemModules: WorkspaceModuleConfig[] = [
+     layer: "adaptation",
+     status: "implemented",
+   },
++  {
++    key: "trading-lab",
++    name: "Trading Lab",
++    description: "Operação de trading executada sobre o System Builder: ordens, posições, execuções e resultados auditáveis.",
++    layer: "module",
++    status: "implemented",
++  },
+ ];

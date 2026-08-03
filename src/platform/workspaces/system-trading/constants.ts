@@ -8,10 +8,10 @@ export const SYSTEM_TRADING = {
     name: "System Trading",
     adaptationKey: "system-trading",
     repository: {
-      owner: "delmacy",
-      name: "gestaotecnica",
-      url: "https://github.com/delmacy/gestaotecnica",
-      branch: "main",
+      owner: "delmacy" as string,
+      name: "gestaotecnica" as string,
+      url: "https://github.com/delmacy/gestaotecnica" as string,
+      branch: "main" as string,
     },
   },
   tradingLab: {

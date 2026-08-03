@@ -99,7 +99,7 @@ export async function getSystemTradingWorkspaceRegistration(
     adaptationKey: workspace.adaptationKey,
     repository,
     tradingLabInstalled: moduleRows.some(
-      (module) =>
+      (module: SystemTradingModuleRow) =>
         module.moduleKey === SYSTEM_TRADING_TRADING_LAB_MODULE_KEY &&
         module.isEnabled,
     ),

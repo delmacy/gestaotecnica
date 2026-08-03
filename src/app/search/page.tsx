@@ -22,7 +22,7 @@ function DraftRecoverySection({
 }) {
   if (draftResponse.state === "empty") {
     return (
-      <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+      <section id="drafts" className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
         <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
           <h2 className="text-lg font-semibold text-[#111510]">
             Nenhum rascunho para recuperar
@@ -37,7 +37,7 @@ function DraftRecoverySection({
 
   if (draftResponse.state === "blocked") {
     return (
-      <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+      <section id="drafts" className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
         <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
           <h2 className="text-lg font-semibold text-[#111510]">
             Recuperação de rascunhos indisponível
@@ -52,7 +52,7 @@ function DraftRecoverySection({
 
   if (draftResponse.state === "demo") {
     return (
-      <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+      <section id="drafts" className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
         <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
           <h2 className="text-lg font-semibold text-[#111510]">
             Demonstração — Rascunhos
@@ -67,7 +67,7 @@ function DraftRecoverySection({
 
   if (draftResponse.state === "synthetic") {
     return (
-      <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+      <section id="drafts" className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
         <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
           <h2 className="text-lg font-semibold text-[#111510]">
             Rascunhos — {draftResponse.label}
@@ -81,7 +81,7 @@ function DraftRecoverySection({
   }
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+    <section id="drafts" className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
       <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-[#111510]">Rascunhos Recuperáveis</h2>
         <div className="mt-4 space-y-3">

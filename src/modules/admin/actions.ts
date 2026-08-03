@@ -13,6 +13,7 @@ import {
   workflowTemplates,
 } from "@/db/schema";
 import { organizations, workspaces } from "@/db/runtime/schema/workspace";
+import { registerSystemTradingWorkspace } from "@/platform/workspaces/system-trading";
 import { hashPassword } from "@/modules/auth/crypto";
 
 function readRequiredText(formData: FormData, field: string) {
@@ -141,6 +142,11 @@ export async function createWorkspaceForOrganization(formData: FormData) {
 
   revalidatePath("/admin/organizations");
   revalidatePath(`/admin/organizations/${organizationId}`);
+}
+
+export async function registerSystemTradingWorkspaceAction() {
+  await registerSystemTradingWorkspace();
+  revalidatePath("/admin/organizations");
 }
 
 export async function toggleWorkspaceModule(formData: FormData) {

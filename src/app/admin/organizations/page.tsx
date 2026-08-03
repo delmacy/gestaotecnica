@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Building2, Plus, Workflow } from "lucide-react";
-import { createOrganization } from "@/modules/admin/actions";
+import { Building2, Link2, Plus, Server, Workflow } from "lucide-react";
+import { createOrganization, registerSystemTradingWorkspaceAction } from "@/modules/admin/actions";
 import { getOrganizationsOverview } from "@/modules/admin/queries";
+import { getSystemTradingWorkspaceRegistration } from "@/platform/workspaces/system-trading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,11 +27,104 @@ type OrganizationListItem = {
 };
 
 export default async function OrganizationsPage() {
-  const organizations = await getOrganizationsOverview();
+  const [organizations, systemTrading] = await Promise.all([
+    getOrganizationsOverview(),
+    getSystemTradingWorkspaceRegistration(),
+  ]);
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6">
+        <section className="rounded-md border bg-card p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <Server className="size-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Registro da plataforma
+                </p>
+                <h2 className="text-xl font-semibold tracking-tight">System Trading</h2>
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+                  Workspace registrado no System Builder com metadados de repositório e o módulo
+                  Trading Lab instalado.
+                </p>
+              </div>
+            </div>
+            <form action={registerSystemTradingWorkspaceAction}>
+              <Button type="submit" variant="outline">
+                <Plus className="size-4" />
+                Registrar workspace
+              </Button>
+            </form>
+          </div>
+
+          {systemTrading ? (
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground">Workspace</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm font-semibold">{systemTrading.workspaceName}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{systemTrading.workspaceKey}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Blueprint: {systemTrading.adaptationKey ?? "não definido"}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground">Repositório</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {systemTrading.repository ? (
+                    <>
+                      <p className="flex items-center gap-2 text-sm font-semibold">
+                        <Link2 className="size-4 text-primary" />
+                        {systemTrading.repository.owner}/{systemTrading.repository.name}
+                      </p>
+                      <p className="mt-1 truncate text-xs text-muted-foreground">
+                        {systemTrading.repository.url}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Branch: {systemTrading.repository.branch}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Sem metadados de repositório registrados.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground">Módulos instalados</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-semibold">Trading Lab</span>
+                    <Badge variant={systemTrading.tradingLabInstalled ? "default" : "outline"}>
+                      {systemTrading.tradingLabInstalled ? "Instalado" : "Não instalado"}
+                    </Badge>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {systemTrading.modules.length} módulo(s) instalado(s)
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-muted-foreground">
+              O workspace System Trading ainda não foi registrado. Clique em “Registrar workspace”
+              para criá-lo com metadados de repositório e Trading Lab instalado.
+            </p>
+          )}
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
         <section className="rounded-md border bg-card p-5">
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -114,6 +208,7 @@ export default async function OrganizationsPage() {
               ))}
             </div>
           )}
+        </section>
         </section>
       </div>
     </div>

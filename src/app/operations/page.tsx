@@ -6,6 +6,7 @@ import {
   getOperationsQueues,
   getOperationsSummary,
 } from "@/modules/operations/queries";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -34,12 +35,17 @@ export default async function OperationsPage() {
                 recentes para acompanhamento em tempo real.
               </p>
             </div>
-            <Link
-              className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
-              href="/"
-            >
-              Voltar ao painel
-            </Link>
+            <div className="flex gap-2">
+              <Button asChild variant="outline">
+                <Link href="/search">Busca</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/admin/queues">Filas/SLA</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/">Voltar ao painel</Link>
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">

@@ -1,4 +1,4 @@
-import { asc, count, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { workspaces } from "@/db/runtime/schema/workspace";
 import { queueItems, slaPolicies, workspaceQueues, users } from "@/db/schema";
@@ -44,4 +44,34 @@ export async function getQueueAdminData() {
     .where(eq(queueItems.status, "open"));
 
   return { items, openItems: openItems.value, policies, queues, workspace };
+}
+
+export async function getRecoverableDrafts() {
+  const workspace = await ensureActiveWorkspaceConfig();
+  const db = getDb();
+
+  const drafts = await db
+    .select({
+      id: queueItems.id,
+      entityType: queueItems.entityType,
+      entityId: queueItems.entityId,
+      status: queueItems.status,
+      priority: queueItems.priority,
+      payload: queueItems.payload,
+      createdAt: queueItems.createdAt,
+      updatedAt: queueItems.updatedAt,
+      queueLabel: workspaceQueues.label,
+    })
+    .from(queueItems)
+    .innerJoin(workspaceQueues, eq(queueItems.queueId, workspaceQueues.id))
+    .where(
+      and(
+        eq(workspaceQueues.workspaceId, workspace.id),
+        eq(queueItems.status, "draft"),
+      ),
+    )
+    .orderBy(desc(queueItems.updatedAt))
+    .limit(50);
+
+  return { drafts, workspace };
 }

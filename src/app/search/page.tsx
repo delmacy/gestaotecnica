@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { SearchResults } from "@/modules/global-search/search-results";
 import { searchEverything } from "@/modules/global-search/queries";
+import { getRecoverableDrafts } from "@/modules/queues/queries";
+import { recoverQueueItem } from "@/modules/queues/actions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +13,53 @@ type SearchPageProps = {
     q?: string;
   }>;
 };
+
+function DraftRecoverySection() {
+  return (
+    <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+      <DraftRecoveryList />
+    </section>
+  );
+}
+
+async function DraftRecoveryList() {
+  const { drafts } = await getRecoverableDrafts();
+
+  if (drafts.length === 0) {
+    return (
+      <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+        <h2 className="text-lg font-semibold text-[#111510]">
+          Nenhum rascunho para recuperar
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+          Rascunhos de demandas aparecem aqui quando estiverem em estado de rascunho.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-semibold text-[#111510]">Rascunhos Recuperáveis</h2>
+      <div className="mt-4 space-y-3">
+        {drafts.map((draft) => (
+          <form key={draft.id} action={recoverQueueItem} className="flex items-center justify-between border border-[#e0e5d9] bg-[#fbfcf8] p-4">
+            <div>
+              <p className="font-semibold text-[#182017]">{draft.entityType}</p>
+              <p className="mt-1 text-sm text-[#5b6655]">
+                {draft.queueLabel} | {draft.priority}
+              </p>
+            </div>
+            <Button type="submit" variant="default" size="sm">
+              <input type="hidden" name="id" value={draft.id} />
+              Recuperar
+            </Button>
+          </form>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q = "" } = await searchParams;
@@ -64,6 +115,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
         <SearchResults query={q} results={results} />
       </section>
+
+      <DraftRecoverySection />
     </main>
   );
 }

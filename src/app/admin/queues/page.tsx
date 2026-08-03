@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createSlaPolicy, deleteQueueItem, recoverQueueItem, updateQueueItem } from "@/modules/queues/actions";
 import { getRecoverableDrafts, getQueueAdminData } from "@/modules/queues/queries";
+import { QueueActivityReceipt } from "@/modules/queues/queue-activity-receipt";
+import { requireAccessProfile } from "@/modules/auth/authorization";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,6 +36,7 @@ type QueueAdminPolicy = {
 };
 
 export default async function AdminQueuesPage() {
+  await requireAccessProfile(["builder", "admin"]);
   const { items, openItems, policies, queues } = await getQueueAdminData();
 
   return (
@@ -187,6 +190,8 @@ export default async function AdminQueuesPage() {
           </Card>
 
           <DraftRecoverySection />
+
+          <QueueActivityReceipt />
         </aside>
       </section>
     </main>

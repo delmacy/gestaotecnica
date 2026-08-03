@@ -1,8 +1,10 @@
-import { and, asc, count, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { workspaces } from "@/db/runtime/schema/workspace";
+import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { queueItems, slaPolicies, workspaceQueues, users } from "@/db/schema";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
+import { QueueAuditEventTypes } from "./contracts/queue-audit";
 
 export async function getQueueAdminData() {
   const workspace = await ensureActiveWorkspaceConfig();
@@ -57,7 +59,6 @@ export async function getRecoverableDrafts() {
       entityId: queueItems.entityId,
       status: queueItems.status,
       priority: queueItems.priority,
-      payload: queueItems.payload,
       createdAt: queueItems.createdAt,
       updatedAt: queueItems.updatedAt,
       queueLabel: workspaceQueues.label,
@@ -74,4 +75,31 @@ export async function getRecoverableDrafts() {
     .limit(50);
 
   return { drafts, workspace };
+}
+
+export async function getQueueItemReceipts() {
+  const workspace = await ensureActiveWorkspaceConfig();
+  const db = getDb();
+
+  const events = await db
+    .select({
+      id: eventLogs.id,
+      eventType: eventLogs.eventType,
+      entityType: eventLogs.entityType,
+      entityId: eventLogs.entityId,
+      actorName: users.name,
+      occurredAt: eventLogs.createdAt,
+    })
+    .from(eventLogs)
+    .leftJoin(users, eq(eventLogs.actorId, users.id))
+    .where(
+      and(
+        eq(eventLogs.workspaceId, workspace.id),
+        inArray(eventLogs.eventType, [...QueueAuditEventTypes]),
+      ),
+    )
+    .orderBy(desc(eventLogs.createdAt))
+    .limit(20);
+
+  return { events, workspace };
 }

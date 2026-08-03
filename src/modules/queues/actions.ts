@@ -6,7 +6,8 @@ import { workspaces } from "@/db/runtime/schema/workspace";
 import { queueItems, slaPolicies } from "@/db/schema";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
 import { z } from "zod";
-import { CreateQueueItemSchema } from "./contracts/queue-item";
+import { eq } from "drizzle-orm";
+import { CreateQueueItemSchema, UpdateQueueItemSchema } from "./contracts/queue-item";
 import { CreateSlaPolicySchema } from "./contracts/sla-policy";
 
 
@@ -35,6 +36,46 @@ export async function createQueueItem(formData: FormData) {
     status: "open",
     priority: "medium",
   });
+
+  revalidatePath("/admin/queues");
+}
+
+export async function deleteQueueItem(formData: FormData) {
+  // Discard draft is modeled as hard deletion or cancellation;
+  // without a Delete schema, we can just delete from queueItems.
+  await ensureActiveWorkspaceConfig();
+
+  const id = readRequiredText(formData, "id");
+
+  await getDb()
+    .delete(queueItems)
+    .where(eq(queueItems.id, id));
+
+  revalidatePath("/admin/queues");
+}
+
+export async function updateQueueItem(formData: FormData) {
+  // Preserve workspace context
+  await ensureActiveWorkspaceConfig();
+
+  const id = readRequiredText(formData, "id");
+  const data = Object.fromEntries(formData.entries());
+
+  // Remove id from payload before passing to partial schema validation
+  const { id: _removedId, ...payloadToValidate } = data;
+  const parsed = UpdateQueueItemSchema.safeParse(payloadToValidate);
+
+  if (!parsed.success) {
+    throw new Error("Invalid form data");
+  }
+
+  await getDb()
+    .update(queueItems)
+    .set({
+      ...parsed.data,
+      updatedAt: new Date(),
+    })
+    .where(eq(queueItems.id, id));
 
   revalidatePath("/admin/queues");
 }

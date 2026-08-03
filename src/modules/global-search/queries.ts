@@ -8,20 +8,16 @@ import {
   users,
   workItems,
 } from "@/db/schema";
+import type { GlobalSearchDTO, SearchResultItem } from "./contracts/search-dto";
 
 function pattern(query: string) {
   return `%${query.trim()}%`;
 }
 
-export async function searchEverything(query: string) {
+export async function searchEverything(query: string): Promise<GlobalSearchDTO> {
   const term = query.trim();
   if (term.length < 2) {
-    return {
-      assets: [],
-      serviceOrders: [],
-      technicians: [],
-      workItems: [],
-    };
+    return { state: "empty", message: "Digite pelo menos 2 caracteres." };
   }
 
   const db = getDb();
@@ -113,10 +109,55 @@ export async function searchEverything(query: string) {
         .limit(20),
     ]);
 
+  const workItemsResult: SearchResultItem[] = workItemRows.map((item: { id: string; title: string; status: string; priority: string }) => ({
+    id: item.id,
+    title: item.title,
+    subtitle: `${item.status} — ${item.priority}`,
+    type: "demandas",
+    url: `/work-items/${item.id}`,
+  }));
+
+  const serviceOrdersResult: SearchResultItem[] = serviceOrderRows.map((order: { id: string; title: string; code: string; status: string }) => ({
+    id: order.id,
+    title: order.title,
+    subtitle: `${order.code} — ${order.status}`,
+    type: "os",
+    url: `/service-orders/${order.id}`,
+  }));
+
+  const assetsResult: SearchResultItem[] = assetRows.map((asset: { id: string; name: string; code: string; type: string }) => ({
+    id: asset.id,
+    title: asset.name,
+    subtitle: `${asset.code} — ${asset.type}`,
+    type: "ativos",
+    url: `/assets/${asset.id}`,
+  }));
+
+  const techniciansResult: SearchResultItem[] = technicianRows.map((tech: { id: string; name: string; email: string; specialty: string | null }) => ({
+    id: tech.id,
+    title: tech.name,
+    subtitle: `${tech.email} — ${tech.specialty ?? "Sem especialidade"}`,
+    type: "tecnicos",
+    url: "",
+  }));
+
+  const hasResults =
+    workItemsResult.length > 0 ||
+    serviceOrdersResult.length > 0 ||
+    assetsResult.length > 0 ||
+    techniciansResult.length > 0;
+
+  if (!hasResults) {
+    return { state: "empty", message: "Nenhum resultado encontrado." };
+  }
+
   return {
-    assets: assetRows,
-    serviceOrders: serviceOrderRows,
-    technicians: technicianRows,
-    workItems: workItemRows,
+    state: "real",
+    data: {
+      workItems: workItemsResult,
+      serviceOrders: serviceOrdersResult,
+      assets: assetsResult,
+      technicians: techniciansResult,
+    },
   };
 }

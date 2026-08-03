@@ -4,7 +4,8 @@ import { workspaces } from "@/db/runtime/schema/workspace";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { queueItems, slaPolicies, workspaceQueues, users } from "@/db/schema";
 import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
-import { QueueAuditEventTypes } from "./contracts/queue-audit";
+import { QueueAuditEventTypes, QueueAuditReceiptSchema } from "./contracts/queue-audit";
+import type { DraftRecoveryResponse } from "@/modules/operator-loop/contracts/draft-recovery-dto";
 
 export async function getQueueAdminData() {
   const workspace = await ensureActiveWorkspaceConfig();
@@ -48,18 +49,15 @@ export async function getQueueAdminData() {
   return { items, openItems: openItems.value, policies, queues, workspace };
 }
 
-export async function getRecoverableDrafts() {
+export async function getRecoverableDrafts(): Promise<DraftRecoveryResponse> {
   const workspace = await ensureActiveWorkspaceConfig();
   const db = getDb();
 
-  const drafts = await db
+  const rows = await db
     .select({
       id: queueItems.id,
       entityType: queueItems.entityType,
       entityId: queueItems.entityId,
-      status: queueItems.status,
-      priority: queueItems.priority,
-      createdAt: queueItems.createdAt,
       updatedAt: queueItems.updatedAt,
       queueLabel: workspaceQueues.label,
     })
@@ -74,14 +72,27 @@ export async function getRecoverableDrafts() {
     .orderBy(desc(queueItems.updatedAt))
     .limit(50);
 
-  return { drafts, workspace };
+  if (rows.length === 0) {
+    return { state: "empty" };
+  }
+
+  return {
+    state: "real",
+    drafts: rows.map((row: { id: string; entityType: string; entityId: string; updatedAt: Date; queueLabel: string }) => ({
+      id: row.id,
+      entityType: row.entityType,
+      title: `${row.entityType} — ${row.queueLabel}`,
+      updatedAt: row.updatedAt,
+      recoveryUrl: "/admin/queues",
+    })),
+  };
 }
 
 export async function getQueueItemReceipts() {
   const workspace = await ensureActiveWorkspaceConfig();
   const db = getDb();
 
-  const events = await db
+  const rows = await db
     .select({
       id: eventLogs.id,
       eventType: eventLogs.eventType,
@@ -101,5 +112,25 @@ export async function getQueueItemReceipts() {
     .orderBy(desc(eventLogs.createdAt))
     .limit(20);
 
-  return { events, workspace };
+  if (rows.length === 0) {
+    return QueueAuditReceiptSchema.parse({
+      state: "empty",
+      workspaceId: workspace.id,
+      workspaceName: workspace.name,
+    });
+  }
+
+  return QueueAuditReceiptSchema.parse({
+    state: "real",
+    workspaceId: workspace.id,
+    workspaceName: workspace.name,
+    events: rows.map((row: { id: string; eventType: string; entityType: string; actorName: string | null; occurredAt: Date }) => ({
+      id: row.id,
+      eventType: row.eventType,
+      entityType: row.entityType,
+      actorName: row.actorName,
+      occurredAt: row.occurredAt,
+      payload: {},
+    })),
+  });
 }

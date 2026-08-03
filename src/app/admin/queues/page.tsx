@@ -207,7 +207,7 @@ async function DraftRecoverySection() {
             Nenhum rascunho pendente neste workspace.
           </p>
         ) : (
-          drafts.map((draft) => (
+          drafts.map((draft: { id: string; entityType: string; priority: string; queueLabel: string | null }) => (
             <form key={draft.id} action={recoverQueueItem} className="flex items-center justify-between border border-[#e0e5d9] bg-[#fbfcf8] p-3">
               <div>
                 <p className="font-medium text-sm text-[#182017]">

@@ -42,7 +42,7 @@ async function DraftRecoveryList() {
     <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold text-[#111510]">Rascunhos Recuperáveis</h2>
       <div className="mt-4 space-y-3">
-        {drafts.map((draft) => (
+        {drafts.map((draft: { id: string; entityType: string; priority: string; queueLabel: string | null }) => (
           <form key={draft.id} action={recoverQueueItem} className="flex items-center justify-between border border-[#e0e5d9] bg-[#fbfcf8] p-4">
             <div>
               <p className="font-semibold text-[#182017]">{draft.entityType}</p>

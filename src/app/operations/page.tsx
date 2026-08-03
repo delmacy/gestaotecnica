@@ -49,7 +49,7 @@ export default async function OperationsPage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {summary.map((item: any) => (
+            {summary.map((item: { label: string; value: string | number }) => (
               <div
                 className="border border-[#d7dccf] bg-white p-4 shadow-sm"
                 key={item.label}

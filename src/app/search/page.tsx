@@ -32,6 +32,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </div>
             <Link
               className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
+              href="/admin/queues"
+            >
+              Filas/SLA
+            </Link>
+            <Link
+              className="inline-flex h-10 items-center justify-center border border-[#c8d0bf] bg-white px-4 text-sm font-semibold text-[#273025] shadow-sm transition hover:bg-[#f1f3ed]"
               href="/"
             >
               Voltar ao painel

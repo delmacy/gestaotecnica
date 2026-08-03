@@ -80,6 +80,22 @@ export async function updateQueueItem(formData: FormData) {
   revalidatePath("/admin/queues");
 }
 
+export async function recoverQueueItem(formData: FormData) {
+  await ensureActiveWorkspaceConfig();
+
+  const id = readRequiredText(formData, "id");
+
+  await getDb()
+    .update(queueItems)
+    .set({
+      status: "open",
+      updatedAt: new Date(),
+    })
+    .where(eq(queueItems.id, id));
+
+  revalidatePath("/admin/queues");
+}
+
 export async function createSlaPolicy(formData: FormData) {
   const workspace = await ensureActiveWorkspaceConfig();
   const data = Object.fromEntries(formData.entries());

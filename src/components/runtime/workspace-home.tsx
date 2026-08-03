@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { LayoutDashboard, Settings, FileText, Blocks, ArrowRight, FormInput, Workflow, PlayCircle, Image } from 'lucide-react';
+import { LayoutDashboard, Settings, FileText, Blocks, ArrowRight, FormInput, Workflow, PlayCircle, Image, Search, ListTodo, RotateCcw } from 'lucide-react';
 
 interface WorkspaceHomeProps {
   workspaceKey: string;
@@ -18,6 +18,51 @@ export function WorkspaceHome({ workspaceKey }: WorkspaceHomeProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <Search className="w-8 h-8 text-primary mb-2" />
+            <CardTitle>Busca Global</CardTitle>
+            <CardDescription>Encontre demandas, OS, ativos e tecnicos em uma unica consulta.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link href="/search" className="flex justify-between items-center">
+                Acessar <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <ListTodo className="w-8 h-8 text-primary mb-2" />
+            <CardTitle>Filas e SLA</CardTitle>
+            <CardDescription>Gerencie itens de fila, politicas SLA e recuperacao de rascunhos.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link href="/admin/queues" className="flex justify-between items-center">
+                Acessar <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <RotateCcw className="w-8 h-8 text-primary mb-2" />
+            <CardTitle>Recuperação de Rascunhos</CardTitle>
+            <CardDescription>Recupere rascunhos de demandas pendentes no workspace atual.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full" variant="outline">
+              <Link href="/search#drafts" className="flex justify-between items-center">
+                Acessar <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <FormInput className="w-8 h-8 text-primary mb-2" />
@@ -96,7 +141,7 @@ export function WorkspaceHome({ workspaceKey }: WorkspaceHomeProps) {
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
             <Settings className="w-8 h-8 text-primary mb-2" />
-            <CardTitle>Configurações</CardTitle>
+            <CardTitle>Configuracoes</CardTitle>
             <CardDescription>Gerencie configurações e permissões do workspace.</CardDescription>
           </CardHeader>
           <CardContent>

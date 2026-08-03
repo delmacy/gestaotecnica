@@ -134,4 +134,11 @@ export const ecosystemModules: WorkspaceModuleConfig[] = [
     layer: "adaptation",
     status: "implemented",
   },
+  {
+    key: "trading-lab",
+    name: "Trading Lab",
+    description: "Operação de trading executada sobre o System Builder: ordens, posições, execuções e resultados auditáveis.",
+    layer: "module",
+    status: "implemented",
+  },
 ];

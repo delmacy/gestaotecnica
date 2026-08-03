@@ -199,7 +199,67 @@ export default async function AdminQueuesPage() {
 }
 
 async function DraftRecoverySection() {
-  const { drafts } = await getRecoverableDrafts();
+  const draftResponse = await getRecoverableDrafts();
+
+  if (draftResponse.state === "empty") {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Rascunhos Recuperáveis</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-[#5b6655]">
+            Nenhum rascunho pendente neste workspace.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (draftResponse.state === "blocked") {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Rascunhos Recuperáveis</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-[#5b6655]">
+            {draftResponse.message ?? "Serviço temporariamente indisponível."}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (draftResponse.state === "demo") {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Rascunhos Recuperáveis — Demonstração</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-[#5b6655]">
+            {draftResponse.message ?? "Dados de demonstração."}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (draftResponse.state === "synthetic") {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Rascunhos Recuperáveis — {draftResponse.label}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-[#5b6655]">
+            Dados sintéticos para validação.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -207,28 +267,22 @@ async function DraftRecoverySection() {
         <CardTitle>Rascunhos Recuperáveis</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {drafts.length === 0 ? (
-          <p className="text-sm text-[#5b6655]">
-            Nenhum rascunho pendente neste workspace.
-          </p>
-        ) : (
-          drafts.map((draft: { id: string; entityType: string; priority: string; queueLabel: string | null }) => (
-            <form key={draft.id} action={recoverQueueItem} className="flex items-center justify-between border border-[#e0e5d9] bg-[#fbfcf8] p-3">
-              <div>
-                <p className="font-medium text-sm text-[#182017]">
-                  {draft.entityType}
-                </p>
-                <p className="text-xs text-[#5b6655]">
-                  {draft.queueLabel} | {draft.priority}
-                </p>
-              </div>
-              <Button type="submit" variant="default" size="sm">
-                <input type="hidden" name="id" value={draft.id} />
-                Recuperar
-              </Button>
-            </form>
-          ))
-        )}
+        {draftResponse.drafts.map((draft) => (
+          <form key={draft.id} action={recoverQueueItem} className="flex items-center justify-between border border-[#e0e5d9] bg-[#fbfcf8] p-3">
+            <div>
+              <p className="font-medium text-sm text-[#182017]">
+                {draft.title}
+              </p>
+              <p className="text-xs text-[#5b6655]">
+                {draft.entityType}
+              </p>
+            </div>
+            <Button type="submit" variant="default" size="sm">
+              <input type="hidden" name="id" value={draft.id} />
+              Recuperar
+            </Button>
+          </form>
+        ))}
       </CardContent>
     </Card>
   );

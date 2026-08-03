@@ -6,7 +6,6 @@ import { recoverQueueItem } from "@/modules/queues/actions";
 import { QueueActivityReceipt } from "@/modules/queues/queue-activity-receipt";
 import { requireAccessProfile } from "@/modules/auth/authorization";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -17,70 +16,100 @@ type SearchPageProps = {
 };
 
 function DraftRecoverySection({
-  drafts,
-  workspaceName,
+  draftResponse,
 }: {
-  drafts: Awaited<ReturnType<typeof getRecoverableDrafts>>["drafts"];
-  workspaceName: string;
+  draftResponse: Awaited<ReturnType<typeof getRecoverableDrafts>>;
 }) {
-  return (
-    <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
-      <DraftRecoveryList drafts={drafts} workspaceName={workspaceName} />
-    </section>
-  );
-}
-
-async function DraftRecoveryList({
-  drafts,
-  workspaceName,
-}: {
-  drafts: Awaited<ReturnType<typeof getRecoverableDrafts>>["drafts"];
-  workspaceName: string;
-}) {
-
-  if (drafts.length === 0) {
+  if (draftResponse.state === "empty") {
     return (
-      <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
-        <h2 className="text-lg font-semibold text-[#111510]">
-          Nenhum rascunho para recuperar
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-[#5b6655]">
-          Rascunhos de demandas aparecem aqui quando estiverem em estado de rascunho.
-        </p>
-        <p className="mt-1 text-xs text-[#65705f]">Workspace: {workspaceName}</p>
-      </div>
+      <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+        <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-[#111510]">
+            Nenhum rascunho para recuperar
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+            Rascunhos de demandas aparecem aqui quando estiverem em estado de rascunho.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  if (draftResponse.state === "blocked") {
+    return (
+      <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+        <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-[#111510]">
+            Recuperação de rascunhos indisponível
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+            {draftResponse.message ?? "Serviço temporariamente indisponível."}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  if (draftResponse.state === "demo") {
+    return (
+      <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+        <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-[#111510]">
+            Demonstração — Rascunhos
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+            {draftResponse.message ?? "Dados de demonstração."}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  if (draftResponse.state === "synthetic") {
+    return (
+      <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+        <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-[#111510]">
+            Rascunhos — {draftResponse.label}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+            Dados sintéticos para validação.
+          </p>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold text-[#111510]">Rascunhos Recuperáveis</h2>
-          <p className="mt-1 text-xs text-[#65705f]">Workspace: {workspaceName}</p>
-      <div className="mt-4 space-y-3">
-        {drafts.map((draft: { id: string; entityType: string; priority: string; queueLabel: string | null }) => (
-          <form key={draft.id} action={recoverQueueItem} className="flex items-center justify-between border border-[#e0e5d9] bg-[#fbfcf8] p-4">
-            <div>
-              <p className="font-semibold text-[#182017]">{draft.entityType}</p>
-              <p className="mt-1 text-sm text-[#5b6655]">
-                {draft.queueLabel} | {draft.priority}
-              </p>
-            </div>
-            <Button type="submit" variant="default" size="sm">
-              <input type="hidden" name="id" value={draft.id} />
-              Recuperar
-            </Button>
-          </form>
-        ))}
+    <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+      <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
+        <h2 className="text-lg font-semibold text-[#111510]">Rascunhos Recuperáveis</h2>
+        <div className="mt-4 space-y-3">
+          {draftResponse.drafts.map((draft) => (
+            <form key={draft.id} action={recoverQueueItem} className="flex items-center justify-between border border-[#e0e5d9] bg-[#fbfcf8] p-4">
+              <div>
+                <p className="font-semibold text-[#182017]">{draft.title}</p>
+                <p className="mt-1 text-sm text-[#5b6655]">
+                  {draft.entityType} — atualizado em {new Date(draft.updatedAt).toLocaleDateString("pt-BR")}
+                </p>
+              </div>
+              <Button type="submit" variant="default" size="sm">
+                <input type="hidden" name="id" value={draft.id} />
+                Recuperar
+              </Button>
+            </form>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   await requireAccessProfile(["admin", "operador", "builder"]);
   const { q = "" } = await searchParams;
-  const results = await searchEverything(q);
-  const { drafts, workspace } = await getRecoverableDrafts();
+  const searchResponse = await searchEverything(q);
+  const draftResponse = await getRecoverableDrafts();
 
   return (
     <main className="min-h-screen bg-[#f6f7f4] text-[#1c211b]">
@@ -130,10 +159,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
-        <SearchResults query={q} results={results} />
+        <SearchResults query={q} searchResponse={searchResponse} />
       </section>
 
-      <DraftRecoverySection drafts={drafts} workspaceName={workspace.name} />
+      <DraftRecoverySection draftResponse={draftResponse} />
 
       <section className="mx-auto w-full max-w-7xl px-6 pb-8 lg:px-8">
         <QueueActivityReceipt />

@@ -1,25 +1,12 @@
 import Link from "next/link";
-import {
-  getServiceOrderPriorityLabel,
-  getServiceOrderStatusLabel,
-} from "@/modules/service-orders/constants";
-import {
-  getWorkItemPriorityLabel,
-  getWorkItemStatusLabel,
-} from "@/modules/work-items/constants";
-import { getAssetStatusLabel } from "@/modules/assets/constants";
-import { getTechnicianLevelLabel } from "@/modules/workforce/constants";
-
-type SearchResultsData = Awaited<
-  ReturnType<typeof import("./queries").searchEverything>
->;
+import type { GlobalSearchDTO } from "./contracts/search-dto";
 
 export function SearchResults({
   query,
-  results,
+  searchResponse,
 }: {
   query: string;
-  results: SearchResultsData;
+  searchResponse: GlobalSearchDTO;
 }) {
   if (query.trim().length < 2) {
     return (
@@ -34,24 +21,95 @@ export function SearchResults({
     );
   }
 
+  if (searchResponse.state === "empty") {
+    return (
+      <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+        <h2 className="text-lg font-semibold text-[#111510]">
+          Nenhum resultado encontrado
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+          {searchResponse.message ?? "Tente outros termos de busca."}
+        </p>
+      </div>
+    );
+  }
+
+  if (searchResponse.state === "blocked") {
+    return (
+      <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+        <h2 className="text-lg font-semibold text-[#111510]">
+          Busca indisponível
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+          {searchResponse.message ?? "Serviço temporariamente indisponível."}
+        </p>
+      </div>
+    );
+  }
+
+  if (searchResponse.state === "demo") {
+    return (
+      <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+        <h2 className="text-lg font-semibold text-[#111510]">
+          Demonstração — Busca Global
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+          {searchResponse.message ?? "Dados de demonstração."}
+        </p>
+      </div>
+    );
+  }
+
+  if (searchResponse.state === "synthetic") {
+    return (
+      <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+        <h2 className="text-lg font-semibold text-[#111510]">
+          Busca Global — {searchResponse.label}
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+          Dados sintéticos para validação.
+        </p>
+      </div>
+    );
+  }
+
+  const { data } = searchResponse;
+  const hasResults =
+    data.workItems.length > 0 ||
+    data.serviceOrders.length > 0 ||
+    data.assets.length > 0 ||
+    data.technicians.length > 0;
+
+  if (!hasResults) {
+    return (
+      <div className="border border-[#d7dccf] bg-white p-8 text-center shadow-sm">
+        <h2 className="text-lg font-semibold text-[#111510]">
+          Nenhum resultado encontrado
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+          Tente outros termos de busca.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-[#111510]">Demandas</h2>
         <div className="mt-4 space-y-3">
-          {results.workItems.length === 0 ? (
+          {data.workItems.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Sem demandas encontradas.</p>
           ) : (
-            results.workItems.map((item: any) => (
+            data.workItems.map((item) => (
               <Link
                 className="block border border-[#e0e5d9] bg-[#fbfcf8] p-4 hover:bg-[#f1f3ed]"
-                href={`/work-items/${item.id}`}
+                href={item.url}
                 key={item.id}
               >
                 <p className="font-semibold text-[#182017]">{item.title}</p>
                 <p className="mt-2 text-sm text-[#5b6655]">
-                  {getWorkItemStatusLabel(item.status)} |{" "}
-                  {getWorkItemPriorityLabel(item.priority)}
+                  {item.subtitle}
                 </p>
               </Link>
             ))
@@ -62,20 +120,18 @@ export function SearchResults({
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-[#111510]">OS</h2>
         <div className="mt-4 space-y-3">
-          {results.serviceOrders.length === 0 ? (
+          {data.serviceOrders.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Sem OS encontradas.</p>
           ) : (
-            results.serviceOrders.map((order: any) => (
+            data.serviceOrders.map((order) => (
               <Link
                 className="block border border-[#e0e5d9] bg-[#fbfcf8] p-4 hover:bg-[#f1f3ed]"
-                href={`/service-orders/${order.id}`}
+                href={order.url}
                 key={order.id}
               >
-                <p className="font-mono text-xs text-[#7a8474]">{order.code}</p>
-                <p className="mt-1 font-semibold text-[#182017]">{order.title}</p>
+                <p className="font-semibold text-[#182017]">{order.title}</p>
                 <p className="mt-2 text-sm text-[#5b6655]">
-                  {getServiceOrderStatusLabel(order.status)} |{" "}
-                  {getServiceOrderPriorityLabel(order.priority)}
+                  {order.subtitle}
                 </p>
               </Link>
             ))
@@ -86,19 +142,18 @@ export function SearchResults({
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-[#111510]">Ativos</h2>
         <div className="mt-4 space-y-3">
-          {results.assets.length === 0 ? (
+          {data.assets.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Sem ativos encontrados.</p>
           ) : (
-            results.assets.map((asset: any) => (
+            data.assets.map((asset) => (
               <Link
                 className="block border border-[#e0e5d9] bg-[#fbfcf8] p-4 hover:bg-[#f1f3ed]"
-                href={`/assets/${asset.id}`}
+                href={asset.url}
                 key={asset.id}
               >
-                <p className="font-mono text-xs text-[#7a8474]">{asset.code}</p>
-                <p className="mt-1 font-semibold text-[#182017]">{asset.name}</p>
+                <p className="font-semibold text-[#182017]">{asset.title}</p>
                 <p className="mt-2 text-sm text-[#5b6655]">
-                  {asset.type} | {getAssetStatusLabel(asset.status)}
+                  {asset.subtitle}
                 </p>
               </Link>
             ))
@@ -109,16 +164,14 @@ export function SearchResults({
       <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold text-[#111510]">Tecnicos</h2>
         <div className="mt-4 space-y-3">
-          {results.technicians.length === 0 ? (
+          {data.technicians.length === 0 ? (
             <p className="text-sm text-[#5b6655]">Sem tecnicos encontrados.</p>
           ) : (
-            results.technicians.map((technician: any) => (
+            data.technicians.map((technician) => (
               <div className="border border-[#e0e5d9] bg-[#fbfcf8] p-4" key={technician.id}>
-                <p className="font-semibold text-[#182017]">{technician.name}</p>
-                <p className="mt-1 text-sm text-[#5b6655]">{technician.email}</p>
+                <p className="font-semibold text-[#182017]">{technician.title}</p>
                 <p className="mt-2 text-sm text-[#5b6655]">
-                  {getTechnicianLevelLabel(technician.level)} |{" "}
-                  {technician.teamName ?? "Sem equipe"}
+                  {technician.subtitle}
                 </p>
               </div>
             ))

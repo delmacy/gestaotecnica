@@ -4,6 +4,7 @@ import {
   stringProperty,
 } from "@/platform/actions/schema-presets";
 import { searchEverything } from "./queries";
+import { GlobalSearchDTOSchema } from "./contracts/search-dto";
 
 export const globalSearchKernelAction: ActionDefinition<
   { query: string },
@@ -20,10 +21,14 @@ export const globalSearchKernelAction: ActionDefinition<
     ["query"],
   ),
   handler: async (input) => {
-    const results = await searchEverything(input.query);
+    const dto = await searchEverything(input.query);
+    const parsed = GlobalSearchDTOSchema.safeParse(dto);
+    if (!parsed.success) {
+      return { success: false, error: { code: "DTO_VALIDATION_FAILED", message: "Search result DTO validation failed" } };
+    }
     return {
       success: true,
-      data: results,
+      data: parsed.data,
     };
   },
 };

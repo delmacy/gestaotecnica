@@ -1,0 +1,813 @@
+diff --git a/docs/EVIDENCE.md b/docs/EVIDENCE.md
+index 356c2f3..96e4d84 100644
+--- a/docs/EVIDENCE.md
++++ b/docs/EVIDENCE.md
+@@ -33,3 +33,56 @@ The implementation dynamically parses and presents outcomes depending on applica
+ 
+ - **Unit/Architecture Rules Passed:** Confirmed zero explicit `any` violations (`npm run check:architecture` and `npm run build`).
+ - **E2E Playwright Path Verification:** The UI contract tester `cancel-back-test` mounts the hook `useCancelBack` and successfully executes Playwright suites to cover CANCEL resolution and execution, DISCARD intervention triggering and subsequent interaction routing on dirty forms, and BACK logic against blocked constraints.
++
++---
++
++# UX-NAV-03-047: Queue, search, and draft recovery - Permissions, audit, and receipts
++
++Stage evidence for the operator loop slice (`Queue, search, and draft recovery complete the operator loop`).
++
++## Base SHA and scope
++
++- Base branch: `main`, base SHA `0d2631f760f268ba9aad05b3f1b470ed14f735c1` (synced with `origin/main` before editing).
++- Changed files and why:
++
++| File | Change needed |
++| --- | --- |
++| `src/modules/queues/contracts/queue-audit.ts` (new) | Defines the persisted audit/receipt contract (`QueueAuditEventSchema`, `QueueAuditReceiptSchema` with `real`/`empty`/`blocked` states and the declared event types). |
++| `src/modules/queues/contracts/index.ts` | Exports the new audit contract. |
++| `src/modules/queues/audit-labels.ts` (new) | Commercial/product label mapping for audit event types (no implementation jargon, no secret references). |
++| `src/modules/queues/actions.ts` | Adds `requireCurrentUser()` authorization to every queue server action, scopes every mutation and draft recovery to the selected workspace's queues, and persists immutable audit events (`queue_item.created`, `queue_item.updated`, `queue_item.recovered`, `queue_item.deleted`, `sla_policy.upserted`) with safe payloads; revalidates `/search` on recovery/discard. |
++| `src/modules/queues/queries.ts` | New `getQueueItemReceipts()`: workspace-scoped read of persisted audit events joined to `users` for actor name; removes the raw `payload` column from the draft read path that feeds the UI. |
++| `src/modules/queues/queue-activity-receipt.tsx` (new) | Server component rendering the "Comprovante de atividade" receipt with distinct empty/real states and the selected workspace name. |
++| `src/app/search/page.tsx` | Auth-gates the route (`admin`, `operador`, `builder`), shows the selected workspace name on the draft recovery section, and renders the activity receipt. |
++| `src/app/admin/queues/page.tsx` | Auth-gates the manager route (`builder`, `admin`) and renders the activity receipt. |
++| `tests/unit/queue-audit-contract.test.ts` (new) | Contract tests: real/empty/blocked receipts, rejection of unknown states and invalid event shapes, commercial labels for every declared event type, no secret keywords in labels. |
++| `docs/EVIDENCE.md` | This evidence record. |
++
++## Route / screen / button affected
++
++- `/search` (Busca Global): the "Rascunhos Recuperáveis" section and the new "Comprovante de atividade" panel below it. The "Recuperar" button submits `recoverQueueItem`.
++- `/admin/queues` (Filas/SLA): the queue item management cards (Recuperar/Descartar) and the same "Comprovante de atividade" panel in the aside.
++
++## Persistence / domain / contract path
++
++- **Persistence object:** `queue_items` (draft recovery mutation `status: draft -> open`) and the immutable `events` table (workflow schema) holding the audit trail.
++- **Domain object:** queue audit event/type DTOs in `src/modules/queues/contracts/queue-audit.ts`.
++- **Use case / API path:** server actions in `src/modules/queues/actions.ts` (permission-gated, event-emitting) and the read query `getQueueItemReceipts()` in `src/modules/queues/queries.ts`.
++- **Validation evidence:** every action resolves the selected workspace via `ensureActiveWorkspaceConfig()` and requires an authenticated user via `requireCurrentUser()` before any mutation or audit write. Queue item mutations and draft recovery additionally verify the item's queue belongs to the selected workspace, so a cross-workspace id cannot be mutated or recovered.
++
++## User journey
++
++- **Operator (workspace-scoped, no Builder privilege):** enters `/search`, types a query, reviews results, reaches "Rascunhos Recuperáveis", clicks "Recuperar". The item leaves the draft list, an immutable `queue_item.recovered` event is persisted, and the receipt panel shows "Rascunho recuperado" with actor, timestamp and workspace. Return path: "Voltar ao painel" -> `/`.
++- **Blocked state:** unauthenticated visitors are redirected to `/auth/login`; profiles without access are redirected to `/blocked?role=...`; this is a distinct user-facing outcome.
++- **Empty vs real:** the receipt panel and the draft list render distinct empty messaging when no persisted rows exist; real rows render with their persisted data. No demo/synthetic fallback exists on this read path.
++- **Builder-originated:** the Builder starts at `/builder`, selects the organization and workspace (WorkspaceContext preserved), reaches the manager destination `/admin/queues`, operates queue items and draft recovery, and returns to `/admin` via the navigation card. Builder retains full profile access.
++
++## Commands executed (honest results)
++
++- `git rev-parse --show-toplevel`, `git status --short`: confirmed the forced checkout.
++- `npm run check:no-explicit-any`: attempted; not runnable in the worker checkout because `node_modules` is absent (dependency bootstrap is owned by the supervisor). No explicit `any` was introduced in any new or changed file by manual review.
++- `npm run build`: delegated to the supervisor for the same reason.
++
++## Blocker
++
++None. This stage required no schema migration: the immutable `events` table already exists and is used by adjacent modules; no new columns were needed.
+diff --git a/src/app/admin/queues/page.tsx b/src/app/admin/queues/page.tsx
+index 48e79ab..0f04857 100644
+--- a/src/app/admin/queues/page.tsx
++++ b/src/app/admin/queues/page.tsx
+@@ -1,6 +1,8 @@
+ import Link from "next/link";
+ import { createSlaPolicy, deleteQueueItem, recoverQueueItem, updateQueueItem } from "@/modules/queues/actions";
+ import { getRecoverableDrafts, getQueueAdminData } from "@/modules/queues/queries";
++import { QueueActivityReceipt } from "@/modules/queues/queue-activity-receipt";
++import { requireAccessProfile } from "@/modules/auth/authorization";
+ import { Button } from "@/components/ui/button";
+ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+ import { Input } from "@/components/ui/input";
+@@ -34,6 +36,7 @@ type QueueAdminPolicy = {
+ };
+ 
+ export default async function AdminQueuesPage() {
++  await requireAccessProfile(["builder", "admin"]);
+   const { items, openItems, policies, queues } = await getQueueAdminData();
+ 
+   return (
+@@ -187,6 +190,8 @@ export default async function AdminQueuesPage() {
+           </Card>
+ 
+           <DraftRecoverySection />
++
++          <QueueActivityReceipt />
+         </aside>
+       </section>
+     </main>
+diff --git a/src/app/search/page.tsx b/src/app/search/page.tsx
+index ba54f0c..441a052 100644
+--- a/src/app/search/page.tsx
++++ b/src/app/search/page.tsx
+@@ -3,6 +3,8 @@ import { SearchResults } from "@/modules/global-search/search-results";
+ import { searchEverything } from "@/modules/global-search/queries";
+ import { getRecoverableDrafts } from "@/modules/queues/queries";
+ import { recoverQueueItem } from "@/modules/queues/actions";
++import { QueueActivityReceipt } from "@/modules/queues/queue-activity-receipt";
++import { requireAccessProfile } from "@/modules/auth/authorization";
+ import { Button } from "@/components/ui/button";
+ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+ 
+@@ -14,16 +16,27 @@ type SearchPageProps = {
+   }>;
+ };
+ 
+-function DraftRecoverySection() {
++function DraftRecoverySection({
++  drafts,
++  workspaceName,
++}: {
++  drafts: Awaited<ReturnType<typeof getRecoverableDrafts>>["drafts"];
++  workspaceName: string;
++}) {
+   return (
+     <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
+-      <DraftRecoveryList />
++      <DraftRecoveryList drafts={drafts} workspaceName={workspaceName} />
+     </section>
+   );
+ }
+ 
+-async function DraftRecoveryList() {
+-  const { drafts } = await getRecoverableDrafts();
++async function DraftRecoveryList({
++  drafts,
++  workspaceName,
++}: {
++  drafts: Awaited<ReturnType<typeof getRecoverableDrafts>>["drafts"];
++  workspaceName: string;
++}) {
+ 
+   if (drafts.length === 0) {
+     return (
+@@ -34,6 +47,7 @@ async function DraftRecoveryList() {
+         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
+           Rascunhos de demandas aparecem aqui quando estiverem em estado de rascunho.
+         </p>
++        <p className="mt-1 text-xs text-[#65705f]">Workspace: {workspaceName}</p>
+       </div>
+     );
+   }
+@@ -41,6 +55,7 @@ async function DraftRecoveryList() {
+   return (
+     <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
+           <h2 className="text-lg font-semibold text-[#111510]">Rascunhos Recuperáveis</h2>
++          <p className="mt-1 text-xs text-[#65705f]">Workspace: {workspaceName}</p>
+       <div className="mt-4 space-y-3">
+         {drafts.map((draft: { id: string; entityType: string; priority: string; queueLabel: string | null }) => (
+           <form key={draft.id} action={recoverQueueItem} className="flex items-center justify-between border border-[#e0e5d9] bg-[#fbfcf8] p-4">
+@@ -62,8 +77,10 @@ async function DraftRecoveryList() {
+ }
+ 
+ export default async function SearchPage({ searchParams }: SearchPageProps) {
++  await requireAccessProfile(["admin", "operador", "builder"]);
+   const { q = "" } = await searchParams;
+   const results = await searchEverything(q);
++  const { drafts, workspace } = await getRecoverableDrafts();
+ 
+   return (
+     <main className="min-h-screen bg-[#f6f7f4] text-[#1c211b]">
+@@ -116,7 +133,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
+         <SearchResults query={q} results={results} />
+       </section>
+ 
+-      <DraftRecoverySection />
++      <DraftRecoverySection drafts={drafts} workspaceName={workspace.name} />
++
++      <section className="mx-auto w-full max-w-7xl px-6 pb-8 lg:px-8">
++        <QueueActivityReceipt />
++      </section>
+     </main>
+   );
+ }
+diff --git a/src/modules/queues/actions.ts b/src/modules/queues/actions.ts
+index ea28f9d..55646c5 100644
+--- a/src/modules/queues/actions.ts
++++ b/src/modules/queues/actions.ts
+@@ -3,12 +3,15 @@
+ import { revalidatePath } from "next/cache";
+ import { getDb } from "@/db";
+ import { workspaces } from "@/db/runtime/schema/workspace";
+-import { queueItems, slaPolicies } from "@/db/schema";
++import { events as eventLogs } from "@/db/runtime/schema/workflow";
++import { queueItems, slaPolicies, workspaceQueues } from "@/db/schema";
++import { requireCurrentUser } from "@/modules/auth/authorization";
+ import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
+ import { z } from "zod";
+-import { eq } from "drizzle-orm";
++import { and, eq, inArray } from "drizzle-orm";
+ import { CreateQueueItemSchema, UpdateQueueItemSchema } from "./contracts/queue-item";
+ import { CreateSlaPolicySchema } from "./contracts/sla-policy";
++import type { QueueAuditEventType } from "./contracts/queue-audit";
+ 
+ 
+ function readRequiredText(formData: FormData, field: string) {
+@@ -22,7 +25,63 @@ function readOptionalNumber(formData: FormData, field: string, fallback: number)
+   return Number.isFinite(value) ? value : fallback;
+ }
+ 
++function queueItemScopedToWorkspace(workspaceId: string) {
++  return inArray(
++    queueItems.queueId,
++    getDb()
++      .select({ id: workspaceQueues.id })
++      .from(workspaceQueues)
++      .where(eq(workspaceQueues.workspaceId, workspaceId)),
++  );
++}
++
++async function requireQueueInWorkspace(workspaceId: string, queueId: string) {
++  const [queue] = await getDb()
++    .select({ id: workspaceQueues.id })
++    .from(workspaceQueues)
++    .where(
++      and(
++        eq(workspaceQueues.id, queueId),
++        eq(workspaceQueues.workspaceId, workspaceId),
++      ),
++    )
++    .limit(1);
++
++  if (!queue) {
++    throw new Error("Fila nao pertence ao workspace selecionado.");
++  }
++}
++
++async function recordQueueAuditEvent(
++  eventType: QueueAuditEventType,
++  workspaceId: string,
++  actorId: string,
++  entityType: string,
++  entityId: string | undefined,
++  payload: Record<string, unknown>,
++) {
++  await getDb().insert(eventLogs).values({
++    workspaceId,
++    eventType,
++    entityType,
++    entityId,
++    actorType: "user",
++    actorId,
++    source: "ui",
++    payload: {
++      ...payload,
++      platform: {
++        actorType: "user",
++        actorId,
++        source: "ui",
++      },
++    },
++  });
++}
++
+ export async function createQueueItem(formData: FormData) {
++  const user = await requireCurrentUser();
++  const workspace = await ensureActiveWorkspaceConfig();
+   const data = Object.fromEntries(formData.entries());
+   const parsed = CreateQueueItemSchema.safeParse(data);
+ 
+@@ -30,12 +89,34 @@ export async function createQueueItem(formData: FormData) {
+     throw new Error("Invalid form data");
+   }
+ 
+-  // Enforce server-side defaults to prevent over-posting
+-  await getDb().insert(queueItems).values({
++  await requireQueueInWorkspace(workspace.id, parsed.data.queueId);
++
++  const values = {
+     ...parsed.data,
+     status: "open",
+     priority: "medium",
+-  });
++  };
++
++  // Enforce server-side defaults to prevent over-posting
++  const [row] = await getDb()
++    .insert(queueItems)
++    .values(values)
++    .returning({ id: queueItems.id });
++
++  if (row) {
++    await recordQueueAuditEvent(
++      "queue_item.created",
++      workspace.id,
++      user.userId,
++      parsed.data.entityType,
++      row.id,
++      {
++        entityId: parsed.data.entityId,
++        status: values.status,
++        priority: values.priority,
++      },
++    );
++  }
+ 
+   revalidatePath("/admin/queues");
+ }
+@@ -43,20 +124,57 @@ export async function createQueueItem(formData: FormData) {
+ export async function deleteQueueItem(formData: FormData) {
+   // Discard draft is modeled as hard deletion or cancellation;
+   // without a Delete schema, we can just delete from queueItems.
+-  await ensureActiveWorkspaceConfig();
++  const user = await requireCurrentUser();
++  const workspace = await ensureActiveWorkspaceConfig();
+ 
+   const id = readRequiredText(formData, "id");
+ 
++  const [existing] = await getDb()
++    .select({
++      entityType: queueItems.entityType,
++      entityId: queueItems.entityId,
++      status: queueItems.status,
++    })
++    .from(queueItems)
++    .where(
++      and(
++        eq(queueItems.id, id),
++        queueItemScopedToWorkspace(workspace.id),
++      ),
++    )
++    .limit(1);
++
+   await getDb()
+     .delete(queueItems)
+-    .where(eq(queueItems.id, id));
++    .where(
++      and(
++        eq(queueItems.id, id),
++        queueItemScopedToWorkspace(workspace.id),
++      ),
++    );
++
++  if (existing) {
++    await recordQueueAuditEvent(
++      "queue_item.deleted",
++      workspace.id,
++      user.userId,
++      existing.entityType,
++      id,
++      {
++        entityId: existing.entityId,
++        status: existing.status,
++      },
++    );
++  }
+ 
+   revalidatePath("/admin/queues");
++  revalidatePath("/search");
+ }
+ 
+ export async function updateQueueItem(formData: FormData) {
++  const user = await requireCurrentUser();
+   // Preserve workspace context
+-  await ensureActiveWorkspaceConfig();
++  const workspace = await ensureActiveWorkspaceConfig();
+ 
+   const id = readRequiredText(formData, "id");
+   const data = Object.fromEntries(formData.entries());
+@@ -69,34 +187,108 @@ export async function updateQueueItem(formData: FormData) {
+     throw new Error("Invalid form data");
+   }
+ 
++  const [existing] = await getDb()
++    .select({
++      entityType: queueItems.entityType,
++      entityId: queueItems.entityId,
++      status: queueItems.status,
++    })
++    .from(queueItems)
++    .where(
++      and(
++        eq(queueItems.id, id),
++        queueItemScopedToWorkspace(workspace.id),
++      ),
++    )
++    .limit(1);
++
+   await getDb()
+     .update(queueItems)
+     .set({
+       ...parsed.data,
+       updatedAt: new Date(),
+     })
+-    .where(eq(queueItems.id, id));
++    .where(
++      and(
++        eq(queueItems.id, id),
++        queueItemScopedToWorkspace(workspace.id),
++      ),
++    );
++
++  if (existing) {
++    await recordQueueAuditEvent(
++      "queue_item.updated",
++      workspace.id,
++      user.userId,
++      existing.entityType,
++      id,
++      {
++        entityId: existing.entityId,
++        statusFrom: existing.status,
++        statusTo: parsed.data.status,
++      },
++    );
++  }
+ 
+   revalidatePath("/admin/queues");
++  revalidatePath("/search");
+ }
+ 
+ export async function recoverQueueItem(formData: FormData) {
+-  await ensureActiveWorkspaceConfig();
++  const user = await requireCurrentUser();
++  const workspace = await ensureActiveWorkspaceConfig();
+ 
+   const id = readRequiredText(formData, "id");
+ 
++  const [existing] = await getDb()
++    .select({
++      entityType: queueItems.entityType,
++      entityId: queueItems.entityId,
++      status: queueItems.status,
++    })
++    .from(queueItems)
++    .where(
++      and(
++        eq(queueItems.id, id),
++        queueItemScopedToWorkspace(workspace.id),
++      ),
++    )
++    .limit(1);
++
+   await getDb()
+     .update(queueItems)
+     .set({
+       status: "open",
+       updatedAt: new Date(),
+     })
+-    .where(eq(queueItems.id, id));
++    .where(
++      and(
++        eq(queueItems.id, id),
++        queueItemScopedToWorkspace(workspace.id),
++      ),
++    );
++
++  if (existing) {
++    await recordQueueAuditEvent(
++      "queue_item.recovered",
++      workspace.id,
++      user.userId,
++      existing.entityType,
++      id,
++      {
++        entityId: existing.entityId,
++        statusFrom: existing.status,
++        statusTo: "open",
++      },
++    );
++  }
+ 
+   revalidatePath("/admin/queues");
++  revalidatePath("/search");
+ }
+ 
+ export async function createSlaPolicy(formData: FormData) {
++  const user = await requireCurrentUser();
+   const workspace = await ensureActiveWorkspaceConfig();
+   const data = Object.fromEntries(formData.entries());
+   const parsed = CreateSlaPolicySchema.safeParse(data);
+@@ -129,5 +321,18 @@ export async function createSlaPolicy(formData: FormData) {
+       },
+     });
+ 
++  await recordQueueAuditEvent(
++    "sla_policy.upserted",
++    workspace.id,
++    user.userId,
++    "sla_policy",
++    undefined,
++    {
++      key,
++      label,
++      targetEntityType,
++    },
++  );
++
+   revalidatePath("/admin/queues");
+ }
+diff --git a/src/modules/queues/audit-labels.ts b/src/modules/queues/audit-labels.ts
+new file mode 100644
+index 0000000..2ad1775
+--- /dev/null
++++ b/src/modules/queues/audit-labels.ts
+@@ -0,0 +1,17 @@
++import { QueueAuditEventTypes } from "./contracts/queue-audit";
++
++const EVENT_LABELS: Record<string, string> = {
++  "queue_item.created": "Item adicionado a fila",
++  "queue_item.updated": "Item atualizado na fila",
++  "queue_item.recovered": "Rascunho recuperado",
++  "queue_item.deleted": "Item descartado",
++  "sla_policy.upserted": "Politica de SLA salva",
++};
++
++export function getQueueAuditEventLabel(eventType: string) {
++  return EVENT_LABELS[eventType] ?? "Evento registrado";
++}
++
++export function getQueueAuditEventTypeList() {
++  return [...QueueAuditEventTypes];
++}
+diff --git a/src/modules/queues/contracts/index.ts b/src/modules/queues/contracts/index.ts
+index bc5586c..a8c525c 100644
+--- a/src/modules/queues/contracts/index.ts
++++ b/src/modules/queues/contracts/index.ts
+@@ -1,3 +1,4 @@
+ export * from "./queue-item";
+ export * from "./workspace-queue";
+ export * from "./sla-policy";
++export * from "./queue-audit";
+diff --git a/src/modules/queues/contracts/queue-audit.ts b/src/modules/queues/contracts/queue-audit.ts
+new file mode 100644
+index 0000000..3b81b9e
+--- /dev/null
++++ b/src/modules/queues/contracts/queue-audit.ts
+@@ -0,0 +1,42 @@
++import { z } from "zod";
++
++export const QueueAuditEventTypes = [
++  "queue_item.created",
++  "queue_item.updated",
++  "queue_item.recovered",
++  "queue_item.deleted",
++  "sla_policy.upserted",
++] as const;
++
++export type QueueAuditEventType = (typeof QueueAuditEventTypes)[number];
++
++export const QueueAuditEventSchema = z.object({
++  id: z.string().uuid(),
++  eventType: z.string().min(1),
++  entityType: z.string().min(1),
++  actorName: z.string().nullable(),
++  occurredAt: z.date(),
++  payload: z.record(z.string(), z.unknown()),
++});
++
++export type QueueAuditEvent = z.infer<typeof QueueAuditEventSchema>;
++
++export const QueueAuditReceiptSchema = z.discriminatedUnion("state", [
++  z.object({
++    state: z.literal("real"),
++    workspaceId: z.string().uuid(),
++    workspaceName: z.string(),
++    events: z.array(QueueAuditEventSchema),
++  }),
++  z.object({
++    state: z.literal("empty"),
++    workspaceId: z.string().uuid(),
++    workspaceName: z.string(),
++  }),
++  z.object({
++    state: z.literal("blocked"),
++    message: z.string().optional(),
++  }),
++]);
++
++export type QueueAuditReceipt = z.infer<typeof QueueAuditReceiptSchema>;
+diff --git a/src/modules/queues/queries.ts b/src/modules/queues/queries.ts
+index 5adf20b..4946e2d 100644
+--- a/src/modules/queues/queries.ts
++++ b/src/modules/queues/queries.ts
+@@ -1,8 +1,10 @@
+-import { and, asc, count, desc, eq } from "drizzle-orm";
++import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
+ import { getDb } from "@/db";
+ import { workspaces } from "@/db/runtime/schema/workspace";
++import { events as eventLogs } from "@/db/runtime/schema/workflow";
+ import { queueItems, slaPolicies, workspaceQueues, users } from "@/db/schema";
+ import { ensureActiveWorkspaceConfig } from "@/platform/workspaces/bootstrap";
++import { QueueAuditEventTypes } from "./contracts/queue-audit";
+ 
+ export async function getQueueAdminData() {
+   const workspace = await ensureActiveWorkspaceConfig();
+@@ -57,7 +59,6 @@ export async function getRecoverableDrafts() {
+       entityId: queueItems.entityId,
+       status: queueItems.status,
+       priority: queueItems.priority,
+-      payload: queueItems.payload,
+       createdAt: queueItems.createdAt,
+       updatedAt: queueItems.updatedAt,
+       queueLabel: workspaceQueues.label,
+@@ -75,3 +76,30 @@ export async function getRecoverableDrafts() {
+ 
+   return { drafts, workspace };
+ }
++
++export async function getQueueItemReceipts() {
++  const workspace = await ensureActiveWorkspaceConfig();
++  const db = getDb();
++
++  const events = await db
++    .select({
++      id: eventLogs.id,
++      eventType: eventLogs.eventType,
++      entityType: eventLogs.entityType,
++      entityId: eventLogs.entityId,
++      actorName: users.name,
++      occurredAt: eventLogs.createdAt,
++    })
++    .from(eventLogs)
++    .leftJoin(users, eq(eventLogs.actorId, users.id))
++    .where(
++      and(
++        eq(eventLogs.workspaceId, workspace.id),
++        inArray(eventLogs.eventType, [...QueueAuditEventTypes]),
++      ),
++    )
++    .orderBy(desc(eventLogs.createdAt))
++    .limit(20);
++
++  return { events, workspace };
++}
+diff --git a/src/modules/queues/queue-activity-receipt.tsx b/src/modules/queues/queue-activity-receipt.tsx
+new file mode 100644
+index 0000000..a38c008
+--- /dev/null
++++ b/src/modules/queues/queue-activity-receipt.tsx
+@@ -0,0 +1,54 @@
++import { getQueueItemReceipts } from "./queries";
++import { getQueueAuditEventLabel } from "./audit-labels";
++
++const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
++  dateStyle: "short",
++  timeStyle: "short",
++});
++
++export async function QueueActivityReceipt() {
++  const { events, workspace } = await getQueueItemReceipts();
++
++  return (
++    <section className="border border-[#d7dccf] bg-white p-5 shadow-sm">
++      <div className="flex items-baseline justify-between gap-3">
++        <h2 className="text-lg font-semibold text-[#111510]">
++          Comprovante de atividade
++        </h2>
++        <p className="text-xs text-[#5b6655]">{workspace.name}</p>
++      </div>
++      <p className="mt-1 text-sm leading-6 text-[#5b6655]">
++        Registro imutavel das acoes executadas na fila deste workspace.
++      </p>
++
++      {events.length === 0 ? (
++        <div className="mt-4 border border-[#e0e5d9] bg-[#fbfcf8] p-4">
++          <p className="text-sm text-[#5b6655]">
++            Nenhuma atividade registrada neste workspace ainda.
++          </p>
++        </div>
++      ) : (
++        <ul className="mt-4 space-y-3">
++          {events.map((event) => (
++            <li
++              className="border border-[#e0e5d9] bg-[#fbfcf8] p-3"
++              key={event.id}
++            >
++              <div className="flex items-center justify-between gap-3">
++                <p className="text-sm font-semibold text-[#182017]">
++                  {getQueueAuditEventLabel(event.eventType)}
++                </p>
++                <p className="text-xs text-[#5b6655]">
++                  {dateTimeFormatter.format(event.occurredAt)}
++                </p>
++              </div>
++              <p className="mt-1 text-xs text-[#5b6655]">
++                {event.actorName ?? "Operador"} | {event.entityType}
++              </p>
++            </li>
++          ))}
++        </ul>
++      )}
++    </section>
++  );
++}
+diff --git a/tests/unit/queue-audit-contract.test.ts b/tests/unit/queue-audit-contract.test.ts
+new file mode 100644
+index 0000000..b303fdd
+--- /dev/null
++++ b/tests/unit/queue-audit-contract.test.ts
+@@ -0,0 +1,120 @@
++import { describe, it } from "node:test";
++import assert from "node:assert";
++import {
++  QueueAuditEventSchema,
++  QueueAuditReceiptSchema,
++  QueueAuditEventTypes,
++} from "@/modules/queues/contracts/queue-audit";
++import {
++  getQueueAuditEventLabel,
++  getQueueAuditEventTypeList,
++} from "@/modules/queues/audit-labels";
++
++const EVENT_ID = "123e4567-e89b-12d3-a456-426614174000";
++const WORKSPACE_ID = "123e4567-e89b-12d3-a456-426614174000";
++
++describe("Queue audit contract - permissions, audit, and receipts", () => {
++  it("validates a real audit receipt with a recovered draft event", () => {
++    const payload = {
++      state: "real",
++      workspaceId: WORKSPACE_ID,
++      workspaceName: "Seção Técnica",
++      events: [
++        {
++          id: EVENT_ID,
++          eventType: "queue_item.recovered",
++          entityType: "queue_item",
++          actorName: "João Operador",
++          occurredAt: new Date("2026-08-03T10:00:00Z"),
++          payload: { entityId: EVENT_ID, statusFrom: "draft", statusTo: "open" },
++        },
++      ],
++    };
++    const result = QueueAuditReceiptSchema.safeParse(payload);
++    assert.strictEqual(result.success, true);
++  });
++
++  it("validates an empty audit receipt", () => {
++    const payload = {
++      state: "empty",
++      workspaceId: WORKSPACE_ID,
++      workspaceName: "Seção Técnica",
++    };
++    const result = QueueAuditReceiptSchema.safeParse(payload);
++    assert.strictEqual(result.success, true);
++  });
++
++  it("validates a blocked audit receipt", () => {
++    const payload = { state: "blocked", message: "Acesso restrito" };
++    const result = QueueAuditReceiptSchema.safeParse(payload);
++    assert.strictEqual(result.success, true);
++  });
++
++  it("rejects an unknown receipt state instead of leaking a synthetic fallback", () => {
++    const payload = {
++      state: "synthetic",
++      workspaceId: WORKSPACE_ID,
++      workspaceName: "Seção Técnica",
++      events: [],
++      label: "demo",
++    };
++    const result = QueueAuditReceiptSchema.safeParse(payload);
++    assert.strictEqual(result.success, false);
++  });
++
++  it("rejects an audit event with an invalid entity id", () => {
++    const payload = {
++      id: "not-a-uuid",
++      eventType: "queue_item.recovered",
++      entityType: "queue_item",
++      actorName: "João Operador",
++      occurredAt: new Date("2026-08-03T10:00:00Z"),
++      payload: {},
++    };
++    const result = QueueAuditEventSchema.safeParse(payload);
++    assert.strictEqual(result.success, false);
++  });
++
++  it("accepts a valid audit event even for an unknown event type", () => {
++    const payload = {
++      id: EVENT_ID,
++      eventType: "queue_item.escalated",
++      entityType: "queue_item",
++      actorName: null,
++      occurredAt: new Date("2026-08-03T10:00:00Z"),
++      payload: { reason: "SLA expirado" },
++    };
++    const result = QueueAuditEventSchema.safeParse(payload);
++    assert.strictEqual(result.success, true);
++  });
++
++  it("declares only event types the queue actions persist", () => {
++    const declared = getQueueAuditEventTypeList();
++    assert.deepStrictEqual(declared, [...QueueAuditEventTypes]);
++    for (const eventType of declared) {
++      assert.notStrictEqual(
++        getQueueAuditEventLabel(eventType),
++        "Evento registrado",
++        `Missing commercial label for ${eventType}`,
++      );
++    }
++  });
++
++  it("maps every declared event type to a commercial label without secrets", () => {
++    for (const eventType of QueueAuditEventTypes) {
++      const label = getQueueAuditEventLabel(eventType);
++      assert.ok(label.length > 0);
++      assert.ok(
++        !/password|secret|token|api[_ -]?key/i.test(label),
++        `Label for ${eventType} should not mention secrets`,
++      );
++    }
++  });
++
++  it("falls back safely for unknown event types", () => {
++    assert.strictEqual(
++      getQueueAuditEventLabel("unknown.event"),
++      "Evento registrado",
++    );
++  });
++});

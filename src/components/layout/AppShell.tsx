@@ -61,6 +61,7 @@ const navGroups: NavGroup[] = [
       { href: "/skills", label: "Capabilities globais", description: "Catálogo reutilizável", icon: Bot },
       { href: "/workspace-config", label: "Instalações", description: "Capabilities por workspace", icon: SlidersHorizontal },
       { href: "/admin/users", label: "Usuários", description: "Acessos e papéis", icon: Users },
+      { href: "/admin/queues", label: "Filas/SLA", description: "Gerenciamento de filas e recuperação de rascunhos", icon: ListChecks },
       { href: "/admin/gateway/receipts", label: "Agent Gateway", description: "Recibos e auditoria", icon: Network },
       { href: "/admin", label: "Admin", description: "Controles da plataforma", icon: ShieldCheck },
     ],

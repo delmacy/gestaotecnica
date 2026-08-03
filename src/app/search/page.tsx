@@ -3,6 +3,8 @@ import { SearchResults } from "@/modules/global-search/search-results";
 import { searchEverything } from "@/modules/global-search/queries";
 import { getRecoverableDrafts } from "@/modules/queues/queries";
 import { recoverQueueItem } from "@/modules/queues/actions";
+import { QueueActivityReceipt } from "@/modules/queues/queue-activity-receipt";
+import { requireAccessProfile } from "@/modules/auth/authorization";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -14,16 +16,27 @@ type SearchPageProps = {
   }>;
 };
 
-function DraftRecoverySection() {
+function DraftRecoverySection({
+  drafts,
+  workspaceName,
+}: {
+  drafts: Awaited<ReturnType<typeof getRecoverableDrafts>>["drafts"];
+  workspaceName: string;
+}) {
   return (
     <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-8">
-      <DraftRecoveryList />
+      <DraftRecoveryList drafts={drafts} workspaceName={workspaceName} />
     </section>
   );
 }
 
-async function DraftRecoveryList() {
-  const { drafts } = await getRecoverableDrafts();
+async function DraftRecoveryList({
+  drafts,
+  workspaceName,
+}: {
+  drafts: Awaited<ReturnType<typeof getRecoverableDrafts>>["drafts"];
+  workspaceName: string;
+}) {
 
   if (drafts.length === 0) {
     return (
@@ -34,6 +47,7 @@ async function DraftRecoveryList() {
         <p className="mt-2 text-sm leading-6 text-[#5b6655]">
           Rascunhos de demandas aparecem aqui quando estiverem em estado de rascunho.
         </p>
+        <p className="mt-1 text-xs text-[#65705f]">Workspace: {workspaceName}</p>
       </div>
     );
   }
@@ -41,6 +55,7 @@ async function DraftRecoveryList() {
   return (
     <div className="border border-[#d7dccf] bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold text-[#111510]">Rascunhos Recuperáveis</h2>
+          <p className="mt-1 text-xs text-[#65705f]">Workspace: {workspaceName}</p>
       <div className="mt-4 space-y-3">
         {drafts.map((draft: { id: string; entityType: string; priority: string; queueLabel: string | null }) => (
           <form key={draft.id} action={recoverQueueItem} className="flex items-center justify-between border border-[#e0e5d9] bg-[#fbfcf8] p-4">
@@ -62,8 +77,10 @@ async function DraftRecoveryList() {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
+  await requireAccessProfile(["admin", "operador", "builder"]);
   const { q = "" } = await searchParams;
   const results = await searchEverything(q);
+  const { drafts, workspace } = await getRecoverableDrafts();
 
   return (
     <main className="min-h-screen bg-[#f6f7f4] text-[#1c211b]">
@@ -116,7 +133,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <SearchResults query={q} results={results} />
       </section>
 
-      <DraftRecoverySection />
+      <DraftRecoverySection drafts={drafts} workspaceName={workspace.name} />
+
+      <section className="mx-auto w-full max-w-7xl px-6 pb-8 lg:px-8">
+        <QueueActivityReceipt />
+      </section>
     </main>
   );
 }

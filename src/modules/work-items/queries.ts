@@ -80,6 +80,10 @@ export async function getWorkItemById(id: string): Promise<WorkItemWithAsset | n
 }
 
 export async function getWorkItemEvents(id: string) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+  if (!workspaceId) return [];
+
   const db = getDb();
 
   return db
@@ -90,7 +94,7 @@ export async function getWorkItemEvents(id: string) {
       occurredAt: eventLogs.createdAt,
     })
     .from(eventLogs)
-    .where(eq(eventLogs.entityId, id))
+    .where(and(eq(eventLogs.entityId, id), eq(eventLogs.workspaceId, workspaceId)))
     .orderBy(desc(eventLogs.createdAt));
 }
 

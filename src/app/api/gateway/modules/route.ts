@@ -5,7 +5,7 @@ import { gatewayModules } from "@/platform/integrations/module-registry";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const authError = validateGatewayRequest(request);
+  const authError = await validateGatewayRequest(request);
   if (authError) return authError;
 
   return NextResponse.json({

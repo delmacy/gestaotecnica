@@ -68,7 +68,7 @@ const { registerSystemTradingWorkspace } = proxyquire(
 
 test("registerSystemTradingWorkspace", async (t) => {
   await t.test(
-    "registers organization, workspace with repository metadata, Trading Lab and audit event",
+    "registers organization, workspace with repository and environment metadata, Trading Lab and audit event",
     async () => {
       const mockDb = createMockDb();
 
@@ -79,6 +79,7 @@ test("registerSystemTradingWorkspace", async (t) => {
       assert.equal(result.adaptationKey, SYSTEM_TRADING.workspace.adaptationKey);
       assert.equal(result.tradingLabModuleKey, SYSTEM_TRADING_TRADING_LAB_MODULE_KEY);
       assert.deepEqual(result.repository, SYSTEM_TRADING.workspace.repository);
+      assert.deepEqual(result.environment, SYSTEM_TRADING.workspace.environment);
 
       assert.equal(mockDb.insertCalls.length, 4, "org, workspace, module config and event");
 
@@ -94,6 +95,10 @@ test("registerSystemTradingWorkspace", async (t) => {
         (workspaceCall.values.metadata as { repository: unknown }).repository,
         SYSTEM_TRADING.workspace.repository,
       );
+      assert.deepEqual(
+        (workspaceCall.values.metadata as { environment: unknown }).environment,
+        SYSTEM_TRADING.workspace.environment,
+      );
       assert.equal(workspaceCall.usedOnConflictDoUpdate, true);
 
       assert.equal(moduleCall.values.moduleKey, SYSTEM_TRADING_TRADING_LAB_MODULE_KEY);
@@ -105,6 +110,10 @@ test("registerSystemTradingWorkspace", async (t) => {
       assert.equal(eventCall.values.eventType, SYSTEM_TRADING_REGISTRATION_EVENT);
       assert.equal(eventCall.values.source, "system-trading-registration");
       assert.equal(eventCall.values.workspaceId, "generated-uuid");
+      assert.deepEqual(
+        (eventCall.values.payload as { environment: unknown }).environment,
+        SYSTEM_TRADING.workspace.environment,
+      );
       assert.equal(eventCall.usedOnConflictDoNothing, true);
     },
   );

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Building2, Link2, Plus, Server, Workflow } from "lucide-react";
+import { Building2, Cloud, Link2, Plus, Server, Workflow } from "lucide-react";
 import { createOrganization, registerSystemTradingWorkspaceAction } from "@/modules/admin/actions";
 import { getOrganizationsOverview } from "@/modules/admin/queries";
 import { getSystemTradingWorkspaceRegistration } from "@/platform/workspaces/system-trading";
@@ -47,8 +47,8 @@ export default async function OrganizationsPage() {
                 </p>
                 <h2 className="text-xl font-semibold tracking-tight">System Trading</h2>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-                  Workspace registrado no System Builder com metadados de repositório e o módulo
-                  Trading Lab instalado.
+                  Workspace registrado no System Builder com metadados de repositório e ambiente e
+                  o módulo Trading Lab instalado.
                 </p>
               </div>
             </div>
@@ -61,7 +61,7 @@ export default async function OrganizationsPage() {
           </div>
 
           {systemTrading ? (
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm text-muted-foreground">Workspace</CardTitle>
@@ -101,6 +101,34 @@ export default async function OrganizationsPage() {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground">Ambiente</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {systemTrading.environment ? (
+                    <>
+                      <p className="flex items-center gap-2 text-sm font-semibold">
+                        <Cloud className="size-4 text-primary" />
+                        {systemTrading.environment.label}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Stage: {systemTrading.environment.stage}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Runtime: {systemTrading.environment.runtime}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Database: {systemTrading.environment.database}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Sem metadados de ambiente registrados.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
                   <CardTitle className="text-sm text-muted-foreground">Módulos instalados</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -119,7 +147,7 @@ export default async function OrganizationsPage() {
           ) : (
             <p className="mt-4 text-sm text-muted-foreground">
               O workspace System Trading ainda não foi registrado. Clique em “Registrar workspace”
-              para criá-lo com metadados de repositório e Trading Lab instalado.
+              para criá-lo com metadados de repositório e ambiente e Trading Lab instalado.
             </p>
           )}
         </section>

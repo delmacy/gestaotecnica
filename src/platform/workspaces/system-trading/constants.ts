@@ -13,6 +13,12 @@ export const SYSTEM_TRADING = {
       url: "https://github.com/delmacy/gestaotecnica" as string,
       branch: "main" as string,
     },
+    environment: {
+      stage: "production" as string,
+      label: "Produção" as string,
+      runtime: "system-builder" as string,
+      database: "tec_db" as string,
+    },
   },
   tradingLab: {
     moduleKey: "trading-lab",
@@ -27,6 +33,9 @@ export const SYSTEM_TRADING = {
 
 export type SystemTradingRepositoryMetadata =
   typeof SYSTEM_TRADING.workspace.repository;
+
+export type SystemTradingEnvironmentMetadata =
+  typeof SYSTEM_TRADING.workspace.environment;
 
 export const SYSTEM_TRADING_WORKSPACE_KEY = SYSTEM_TRADING.workspace.key;
 

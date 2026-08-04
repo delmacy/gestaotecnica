@@ -65,7 +65,10 @@ const registeredWorkspaceRow: WorkspaceRow = {
   name: SYSTEM_TRADING.workspace.name,
   status: "active",
   adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
-  metadata: { repository: SYSTEM_TRADING.workspace.repository },
+  metadata: {
+    repository: SYSTEM_TRADING.workspace.repository,
+    environment: SYSTEM_TRADING.workspace.environment,
+  },
 };
 
 const tradingLabRow: ModuleRow = {
@@ -90,7 +93,7 @@ const { getSystemTradingWorkspaceRegistration } = proxyquire(
 
 test("getSystemTradingWorkspaceRegistration", async (t) => {
   await t.test(
-    "reads back the registered workspace with repository metadata and Trading Lab installed",
+    "reads back the registered workspace with repository and environment metadata and Trading Lab installed",
     async () => {
       const mockDb = createQueryMockDb([registeredWorkspaceRow], [tradingLabRow]);
 
@@ -100,6 +103,7 @@ test("getSystemTradingWorkspaceRegistration", async (t) => {
       assert.equal(registration?.workspaceKey, SYSTEM_TRADING.workspace.key);
       assert.equal(registration?.workspaceName, SYSTEM_TRADING.workspace.name);
       assert.deepEqual(registration?.repository, SYSTEM_TRADING.workspace.repository);
+      assert.deepEqual(registration?.environment, SYSTEM_TRADING.workspace.environment);
       assert.equal(registration?.tradingLabInstalled, true);
       assert.equal(registration?.modules.length, 1);
     },
@@ -140,6 +144,29 @@ test("getSystemTradingWorkspaceRegistration", async (t) => {
 
     assert.ok(registration);
     assert.equal(registration?.repository, null);
+    assert.equal(registration?.environment, null);
+    assert.equal(registration?.tradingLabInstalled, true);
+  });
+
+  await t.test("returns null environment metadata when workspace environment is malformed", async () => {
+    const mockDb = createQueryMockDb(
+      [
+        {
+          ...registeredWorkspaceRow,
+          metadata: {
+            repository: SYSTEM_TRADING.workspace.repository,
+            environment: { stage: "production" },
+          },
+        },
+      ],
+      [tradingLabRow],
+    );
+
+    const registration = await getSystemTradingWorkspaceRegistration(mockDb as never);
+
+    assert.ok(registration);
+    assert.deepEqual(registration?.repository, SYSTEM_TRADING.workspace.repository);
+    assert.equal(registration?.environment, null);
     assert.equal(registration?.tradingLabInstalled, true);
   });
 });

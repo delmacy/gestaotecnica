@@ -1,12 +1,12 @@
-# Tasks — Tasker
+# Tasks — Tasker legacy backlog
 
-## Regras
-Cada task usa os campos de TASK_MODEL.md, possui saída verificável e só muda de status com evidência. READY FOR TASKER_EXECUTION significa pronto para execução documental/analítica, não pronto para Dev.
+> Status: `superseded_for_execution`
+>
+> O fluxo canônico de agentes está em `docs/agents/OPERATING_MODEL.md`. Este arquivo permanece como referência histórica do antigo Tasker.
 
-## Próximas tasks
-| ID | Objetivo | Status | Critério para avançar |
-|---|---|---|---|
-| TASKER-001 | Validar fluxo de transição | ready | transições, owner e evidências revisados |
-| TASKER-002 | Executar piloto documental | backlog | PM-PILOT-001 até PM-PILOT-003 concluídas |
-| TASKER-003 | Consolidar dependências do piloto | backlog | gaps convertidos em tasks |
-| DEV-READINESS-001 | Decidir prontidão de implementação | blocked | contratos, UI, governance e testes documentais aprovados |
+| ID | Objetivo | Estado anterior | Estado atual | Destino |
+|---|---|---|---|---|
+| TASKER-001 | Validar fluxo de transição | ready | superseded | state machine de `docs/agents/OPERATING_MODEL.md` |
+| TASKER-002 | Executar piloto documental | backlog | reconciliation_required | fase proprietária do piloto |
+| TASKER-003 | Consolidar dependências do piloto | backlog | reconciliation_required | `TASKS.md` e `PROGRESS.md` da fase |
+| DEV-READINESS-001 | Decidir prontidão de implementação | blocked | superseded | gates do `docs/current/ROADMAP.md` |

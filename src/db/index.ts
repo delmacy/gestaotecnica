@@ -12,6 +12,7 @@ import * as storageSchema from "./runtime/schema/storage";
 import * as documentsSchema from "./runtime/schema/documents";
 import * as traceabilitySchema from "./runtime/schema/traceability";
 import * as assetsSchema from "./runtime/schema/assets";
+import * as builderSchemaModule from "./runtime/schema/builder";
 
 const fullSchema = {
   ...legacySchema,
@@ -26,15 +27,16 @@ const fullSchema = {
   ...documentsSchema,
   ...traceabilitySchema,
   ...assetsSchema,
+  ...builderSchemaModule,
 };
 
 let platformClient: postgres.Sql | null = null;
 let runtimeClient: postgres.Sql | null = null;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let platformDbInstance: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let runtimeDbInstance: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- explicit-any-ok db client singleton boundary shim
+let platformDbInstance: any = null; // explicit-any-ok
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- explicit-any-ok db client singleton boundary shim
+let runtimeDbInstance: any = null; // explicit-any-ok
 
 function getIsolatedTestDatabaseUrl() {
   return process.env.AGENT_WORK_TEST_DATABASE_URL;

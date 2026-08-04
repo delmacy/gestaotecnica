@@ -1,22 +1,11 @@
-# Task Evidence
+# Evidence for UX-NAV-03-014-form-submit-to-work-usecase-api
 
-## Context
-Validation for task ST-S01-004 to verify OpenCode's draft for implementing link repository and environment metadata to the workspace as a real, testable System Trading capability.
+- The task implements the required Work Status API Route mapping to `resolveWorkStatus`.
+- Route Affected: `src/app/api/builder/work-status/route.ts` creates the `/api/builder/work-status` endpoint.
+- Domain Path Used: This route wraps `resolveWorkStatus` and extracts `workspaceContext` properly using `resolveWorkspaceContext`.
+- Context Data: Passed to the domain logic properly by mapping `x-environment-mode` to correctly resolve `demo`, `synthetic` and `real` data.
+- Base Sync: This branch is based on origin/main, which has SHA `05241ac05d70b735c55defd319be8c5018cf16f4`
+- User Journey: The user lands on a module or form that requires tracking a submission's status. They fill out a form or trigger an action (Form Submission). This API binding `POST /api/builder/work-status` provides a structured endpoint where the runtime state handles returning a `WorkStatusResolution`. Depending on the environment headers passed by the frontend (demo/synthetic/blocked), this determines whether the user receives a demo message, a forbidden error, or a successful route redirect (`destination`) to their newly created WorkItem detail screen or dashboard.
 
-## Runtime Information
-- **Base SHA**: `d31d04799fb6c5dc2d144eb9c67dd17f02587e3c`
-- **Node Version**: `v24.19.0`
-
-## Validation Results
-- The OpenCode draft successfully extended the System Trading capability to parse and persist environment metadata (stage, label, runtime, database) alongside the repository metadata.
-- Validation tests have been executed on the draft code, demonstrating full passing coverage.
-- Focused tests passed:
-  - `tests/unit/system-trading-queries.test.ts`
-  - `tests/unit/system-trading-registration.test.ts`
-- Tests proved the idempotent upsert functionality works accurately, reading back `repository` and `environment` metadata during retrieval and rejecting malformed inputs correctly.
-- Affected components:
-  - `src/platform/workspaces/system-trading/constants.ts`
-  - `src/platform/workspaces/system-trading/queries.ts`
-  - `src/platform/workspaces/system-trading/registration.ts`
-
-The drafted capability is robust, valid, and meets all criteria.
+Node.js Environment:
+v24.18.0

@@ -115,7 +115,7 @@ export async function resolveWorkspacePortfolio(
       id: row.organizationId,
       key: row.organizationKey,
       name: row.organizationName,
-      workspaces: [],
+      workspaces: [] as PortfolioWorkspace[],
     };
 
     orgEntry.workspaces.push({

@@ -2,7 +2,7 @@
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
 
 import { and, eq, isNull } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
 import { runAction } from "@/platform/actions";
@@ -191,7 +191,8 @@ export async function createServiceOrderFromWorkItem(formData: FormData) {
     targetId: serviceOrder.id,
   });
 
-  revalidatePath("/");
+  const { workspaceId } = await resolveWorkspaceContext({ source: "ui" });
+  revalidateTag(workspaceId);
   revalidatePath("/work-items");
   revalidatePath(`/work-items/${workItem.id}`);
   revalidatePath("/service-orders");
@@ -208,7 +209,7 @@ export async function updateServiceOrderStatus(formData: FormData) {
   );
   const note = readOptionalText(formData, "note");
 
-  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = await resolveWorkspaceContext({ source: "ui" });
 
   if (status === "completed") {
     const result = await runAction(
@@ -274,7 +275,7 @@ export async function updateServiceOrderStatus(formData: FormData) {
       },
     });
 
-    revalidatePath("/");
+    revalidateTag(workspaceId);
     revalidatePath("/service-orders");
     revalidatePath(`/service-orders/${id}`);
     if (previous.workItemId) {
@@ -408,7 +409,8 @@ export async function assignTechnicianToServiceOrder(formData: FormData) {
     },
   });
 
-  revalidatePath("/");
+  const { workspaceId } = await resolveWorkspaceContext({ source: "ui" });
+  revalidateTag(workspaceId);
   revalidatePath("/workforce");
   revalidatePath("/service-orders");
   revalidatePath(`/service-orders/${serviceOrder.id}`);
@@ -531,7 +533,8 @@ export async function createServiceOrderTimeEntry(formData: FormData) {
     },
   });
 
-  revalidatePath("/");
+  const { workspaceId } = await resolveWorkspaceContext({ source: "ui" });
+  revalidateTag(workspaceId);
   revalidatePath("/service-orders");
   revalidatePath(`/service-orders/${serviceOrder.id}`);
   if (serviceOrder.workItemId) {
@@ -606,7 +609,9 @@ export async function createServiceOrderEvidence(
       },
     });
 
-    revalidatePath("/");
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+    revalidateTag(workspaceId);
     revalidatePath("/service-orders");
     revalidatePath(`/service-orders/${serviceOrder.id}`);
     if (serviceOrder.workItemId) {

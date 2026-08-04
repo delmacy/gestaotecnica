@@ -88,8 +88,17 @@ export async function resolveWorkspaceContext(
     ? enabledModuleRows.map((row) => row.moduleKey)
     : fallbackEnabledModules;
 
+  const resolvedWorkspaceId = workspace?.id ?? workspaceKey;
+
+  try {
+    const { setSessionWorkspaceId } = await import("@/platform/workspace/rls");
+    await setSessionWorkspaceId(resolvedWorkspaceId);
+  } catch {
+    // RLS session config é best-effort; não bloqueia se o banco não suportar
+  }
+
   return {
-    workspaceId: workspace?.id ?? workspaceKey,
+    workspaceId: resolvedWorkspaceId,
     workspaceKey: workspace?.key ?? workspaceKey,
     adaptationKey: workspace?.adaptationKey ?? "secao-tecnica",
     actor: {

@@ -97,19 +97,26 @@ export async function getWorkItemEvents(id: string) {
 export async function getWorkItemSummary() {
   const db = getDb();
 
-  const [totalRow] = await db.select({ value: count() }).from(workItems);
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+  if (!workspaceId) return [];
+
+  const [totalRow] = await db
+    .select({ value: count() })
+    .from(workItems)
+    .where(eq(workItems.workspaceId, workspaceId));
   const [openRow] = await db
     .select({ value: count() })
     .from(workItems)
-    .where(eq(workItems.status, "open"));
+    .where(and(eq(workItems.workspaceId, workspaceId), eq(workItems.status, "open")));
   const [criticalRow] = await db
     .select({ value: count() })
     .from(workItems)
-    .where(eq(workItems.priority, "critical"));
+    .where(and(eq(workItems.workspaceId, workspaceId), eq(workItems.priority, "critical")));
   const [eventsRow] = await db
     .select({ value: count() })
     .from(eventLogs)
-    .where(eq(eventLogs.eventType, "work_item.created"));
+    .where(and(eq(eventLogs.workspaceId, workspaceId), eq(eventLogs.eventType, "work_item.created")));
 
   return [
     { label: "Demandas", value: totalRow.value },

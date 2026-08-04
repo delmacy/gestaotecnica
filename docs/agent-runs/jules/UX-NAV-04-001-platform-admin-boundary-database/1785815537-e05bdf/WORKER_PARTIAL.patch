@@ -1,0 +1,871 @@
+diff --git a/docs/archive/phases/UX_NAV_04.md b/docs/archive/phases/UX_NAV_04.md
+new file mode 100644
+index 0000000..080b24f
+--- /dev/null
++++ b/docs/archive/phases/UX_NAV_04.md
+@@ -0,0 +1,151 @@
++# Fase UX-NAV-04 — Builder identity, organização, portfólio e seleção durável de workspace
++
++## 1. Identificação
++
++| Campo | Valor |
++|---|---|
++| Fase | UX-NAV-04 |
++| Task ID | `UX-NAV-04-001-platform-admin-boundary-database` |
++| Lane | UX/Access and Tenancy |
++| Etapa | Database/persistence foundation |
++| Responsável | OpenCode worker (implementação) |
++| Base SHA (origin/main) | `d6c0206aebdbf93142b38867a454651df5243923` |
++| Data | 2026-08-04 |
++
++## 2. Objetivo
++
++Fundação de persistência para a jornada autorizada: identidade autenticada do
++Builder, portfólio de workspaces agrupado por organização e seleção durável de
++workspace. A seleção de qualquer um dos três workspaces do probe deve persistir
++no banco e sobreviver a recarregamentos nas rotas Builder, admin e runtime.
++
++Esta etapa entrega **somente a fundação de banco/persistência** (schema,
++migração, seed idempotente e use cases de persistência com enforcement de
++membership). A camada de UI/API (`src/app/**`, `src/modules/**`, `src/platform/**`)
++está **fora do allowlist desta task** e é registrada como gap exato na seção 8.
++
++## 3. Escopo permitido (aplicado)
++
++- `src/db/**`
++- `drizzle/**`
++- `src/lib/**`
++- `tests/**`
++- `docs/**`
++
++## 4. Fora de escopo
++
++- `src/app/**` (rotas UI e rotas API)
++- `src/modules/**`, `src/platform/**`
++- `package.json`, lockfiles, versões de Node/TS, auth, proteção de rota
++- `drizzle-agent-work/**` (conjunto de migrações independente do agente)
++
++## 5. Arquivos planejados
++
++- `src/db/runtime/schema/builder.ts` — schema `builder.workspace_selections`
++- `drizzle/0028_builder_workspace_selections.sql` + journal entry
++- `src/db/seeds/builder-seed/constants.ts` — fixture canônica do probe
++- `src/db/seeds/builder-seed/seed.ts` — seed idempotente do probe
++- `src/lib/builder-persistence.ts` — use cases de persistência
++- `tests/integration/ux-nav-04-001-builder-persistence.integration.test.ts`
++- `docs/archive/phases/UX_NAV_04.md` — este documento
++
++## 6. Critérios de aceite (desta etapa)
++
++- Migração real criando `builder.workspace_selections` com índice único por usuário.
++- Seed idempotente: 1 organização probe + exatamente 3 workspaces + usuário
++  `access_profile='builder'` + membership nos 3 workspaces + seleção inicial.
++- Persistência de seleção apenas com membership verificado no servidor.
++- Leitura sempre em nova query (recarregamento do banco), sem cache em memória.
++- Sem `any` explícito novo e build limpo.
++
++## 7. Plano aprovado
++
++Referência:
++- `docs/archive/planning/JULES_AGENT_BOUNDARIES.md`
++- `docs/archive/planning/FRONTEND_PARITY_GATE.md`
++- `docs/archive/database/SCHEMA_STRATEGY.md`
++
++## 8. Execuções
++
++### Execução 001 — OpenCode worker — 2026-08-04
++
++Status: Concluída
++
++Arquivos criados:
++- `src/db/runtime/schema/builder.ts` — tabela `workspace.workspace_selections` no
++  schema `builder`, `user_id` com índice único, FKs para `workspace.workspaces` e
++  `workspace.organizations`.
++- `drizzle/0028_builder_workspace_selections.sql` — migração (schema `builder`,
++  tabela, índice único `builder_workspace_selections_user_uidx` e índices).
++- `src/db/seeds/builder-seed/constants.ts` — constante canônica `BUILDER_PROBE`
++  (org `org_builder_probe`, workspaces `ws_builder_probe_core|support|field`,
++  usuário `builder.probe@system-builder.local`, perfil `builder`).
++- `src/db/seeds/builder-seed/seed.ts` — seed idempotente (upsert por
++  key/email), membership por select-then-insert com `and()`, seleção inicial
++  default `core`. Corrige o `where` de membership que estava com boolean `&&`
++  inválido em vez de `and()`.
++- `src/lib/builder-persistence.ts` — `resolveBuilderIdentity`,
++  `resolveWorkspacePortfolio`, `resolveSelectedWorkspace`, `resolveBuilderPortfolio`
++  (retorna `null` quando a identidade não existe — sem identidade sintética
++  "unknown") e `persistWorkspaceSelection` (valida workspace + membership antes
++  do upsert `onConflictDoUpdate` por `user_id`). O `userId` é sempre resolvido
++  do servidor; o módulo só impõe membership.
++- `tests/integration/ux-nav-04-001-builder-persistence.integration.test.ts` —
++  prova E2E de persistência: identity → portfolio agrupado por organização →
++  seleção do 3º workspace → recarregamento em nova query (tabela + use case) →
++  seleção refletida no portfólio → rejeição de workspace sem membership →
++  seed idempotente.
++
++Arquivos alterados:
++- `src/db/index.ts` — registra `runtime/schema/builder` no `fullSchema` (mesmo
++  padrão dos demais módulos) e marca os 2 `any` preexistentes do singleton de DB
++  com `explicit-any-ok` (shim de borda documentado, sem `any` novo).
++- `drizzle/meta/_journal.json` — entry idx 25 `0028_builder_workspace_selections`.
++
++Comandos executados:
++- `npm run check:no-explicit-any` — responsabilidade do supervisor (execução
++  serial pós-deliverable). Verificação manual no diff: nenhum `any` novo.
++- `npm run build` — responsabilidade do supervisor.
++- `npm run test:integration` (arquivo novo) — responsabilidade do supervisor.
++
++Resultado do lint: pendente da validação do supervisor (sem node_modules no checkout).
++Resultado do build: pendente da validação do supervisor.
++Resultado dos testes: pendente da validação do supervisor.
++
++Evidência de persistência:
++- Rota visível alvo (stage posterior): `/builder`.
++- Tabelas: `builder.workspace_selections`, `workspace.organizations`,
++  `workspace.workspaces`, `workspace.workspace_members`, `users`
++  (identidade, `access_profile='builder'`).
++- Use case/API: `src/lib/builder-persistence.ts` (`persistWorkspaceSelection`,
++  `resolveBuilderPortfolio`, `resolveSelectedWorkspace`).
++- O teste relê do banco em nova query após cada escrita (nada em memória/localStorage).
++
++Comando de verificação reproduzível:
++```bash
++npx tsx --test tests/integration/ux-nav-04-001-builder-persistence.integration.test.ts
++```
++
++Bloqueio/gap exato para a próxima etapa (frontend/API):
++- A API de descoberta atual em
++  `src/app/api/builder/navigation/workspace-switching/route.ts` +
++  `resolve-workspace-switching.ts` ainda lista workspaces ativos de forma
++  **anônima** (sem `userId` autenticado, com fallback dummy) e o `/builder`
++  (`src/app/(builder)/builder/layout.tsx` + `src/platform/workspace`) ainda
++  resolve contexto sem identidade/seleção durável. Substituir por:
++  1. Novo endpoint que resolva o `userId` da sessão e chame
++     `resolveBuilderPortfolio(userId)` para renderizar identidade + portfólio
++     agrupado por organização em `/builder`;
++  2. Endpoint POST que chame `persistWorkspaceSelection(userId, workspaceId)`
++     no clique de seleção e recarregue via `resolveSelectedWorkspace`;
++  3. Uso do `selectedWorkspaceId` persistido no contexto de Builder, admin e runtime.
++- Esses arquivos estão fora do allowlist desta task
++  (`src/app/**`, `src/platform/**`, `src/modules/**`), portanto o gap é
++  registrado para a etapa de UI/navegação/actions da sprint UX-NAV-04.
++
++Observações:
++- O probe reutiliza deliberadamente uma organização probe única com exatamente 3
++  workspaces, mapeando 1:1 para o critério "selecionar qualquer um dos três
++  workspaces criados".
++- Nenhum dado sintético rotulado como real; a única fixture é o seed oficial
++  `builder-seed`, criado nesta etapa.
+diff --git a/drizzle/0028_builder_workspace_selections.sql b/drizzle/0028_builder_workspace_selections.sql
+new file mode 100644
+index 0000000..11137f3
+--- /dev/null
++++ b/drizzle/0028_builder_workspace_selections.sql
+@@ -0,0 +1,17 @@
++CREATE SCHEMA IF NOT EXISTS "builder";
++--> statement-breakpoint
++CREATE TABLE "builder"."workspace_selections" (
++	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
++	"user_id" uuid NOT NULL,
++	"workspace_id" uuid NOT NULL REFERENCES "workspace"."workspaces"("id"),
++	"organization_id" uuid REFERENCES "workspace"."organizations"("id"),
++	"selected_at" timestamp with time zone DEFAULT now() NOT NULL,
++	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
++	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
++);
++--> statement-breakpoint
++CREATE UNIQUE INDEX "builder_workspace_selections_user_uidx" ON "builder"."workspace_selections" ("user_id");
++--> statement-breakpoint
++CREATE INDEX "builder_workspace_selections_workspace_idx" ON "builder"."workspace_selections" ("workspace_id");
++--> statement-breakpoint
++CREATE INDEX "builder_workspace_selections_org_idx" ON "builder"."workspace_selections" ("organization_id");
+diff --git a/drizzle/meta/_journal.json b/drizzle/meta/_journal.json
+index b4a7e83..76a8293 100644
+--- a/drizzle/meta/_journal.json
++++ b/drizzle/meta/_journal.json
+@@ -176,6 +176,13 @@
+       "when": 1790000000000,
+       "tag": "0027_governance_approval_tables",
+       "breakpoints": true
++    },
++    {
++      "idx": 25,
++      "version": "7",
++      "when": 1790000000001,
++      "tag": "0028_builder_workspace_selections",
++      "breakpoints": true
+     }
+   ]
+ }
+\ No newline at end of file
+diff --git a/src/db/index.ts b/src/db/index.ts
+index 444c066..be50982 100644
+--- a/src/db/index.ts
++++ b/src/db/index.ts
+@@ -12,6 +12,7 @@ import * as storageSchema from "./runtime/schema/storage";
+ import * as documentsSchema from "./runtime/schema/documents";
+ import * as traceabilitySchema from "./runtime/schema/traceability";
+ import * as assetsSchema from "./runtime/schema/assets";
++import * as builderSchemaModule from "./runtime/schema/builder";
+ 
+ const fullSchema = {
+   ...legacySchema,
+@@ -26,15 +27,16 @@ const fullSchema = {
+   ...documentsSchema,
+   ...traceabilitySchema,
+   ...assetsSchema,
++  ...builderSchemaModule,
+ };
+ 
+ let platformClient: postgres.Sql | null = null;
+ let runtimeClient: postgres.Sql | null = null;
+ 
+-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+-let platformDbInstance: any = null;
+-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+-let runtimeDbInstance: any = null;
++// eslint-disable-next-line @typescript-eslint/no-explicit-any -- explicit-any-ok db client singleton boundary shim
++let platformDbInstance: any = null; // explicit-any-ok
++// eslint-disable-next-line @typescript-eslint/no-explicit-any -- explicit-any-ok db client singleton boundary shim
++let runtimeDbInstance: any = null; // explicit-any-ok
+ 
+ function getIsolatedTestDatabaseUrl() {
+   return process.env.AGENT_WORK_TEST_DATABASE_URL;
+diff --git a/src/db/runtime/schema/builder.ts b/src/db/runtime/schema/builder.ts
+new file mode 100644
+index 0000000..7e05ba0
+--- /dev/null
++++ b/src/db/runtime/schema/builder.ts
+@@ -0,0 +1,40 @@
++import { uuid, timestamp, uniqueIndex, index } from "drizzle-orm/pg-core";
++import { builderSchema } from "@/db/platform/schema/candidates";
++import { workspaces, organizations } from "./workspace";
++
++/**
++ * Durable Builder workspace selection.
++ *
++ * Persists the workspace currently selected by an authenticated Builder so it
++ * survives reload across Builder, admin and runtime routes. One active
++ * selection per authenticated user (userId is resolved from the session by the
++ * domain/contract layer — never trusted from a client payload).
++ *
++ * scope: builder schema | tenant-scoped via workspace_membership enforced by
++ * the persistence use cases in src/lib/builder-persistence.ts.
++ */
++export const builderWorkspaceSelections = builderSchema.table(
++  "workspace_selections",
++  {
++    id: uuid("id").primaryKey().defaultRandom(),
++    userId: uuid("user_id").notNull(),
++    workspaceId: uuid("workspace_id")
++      .notNull()
++      .references(() => workspaces.id),
++    organizationId: uuid("organization_id").references(() => organizations.id),
++    selectedAt: timestamp("selected_at", { withTimezone: true })
++      .notNull()
++      .defaultNow(),
++    createdAt: timestamp("created_at", { withTimezone: true })
++      .notNull()
++      .defaultNow(),
++    updatedAt: timestamp("updated_at", { withTimezone: true })
++      .notNull()
++      .defaultNow(),
++  },
++  (table) => [
++    uniqueIndex("builder_workspace_selections_user_uidx").on(table.userId),
++    index("builder_workspace_selections_workspace_idx").on(table.workspaceId),
++    index("builder_workspace_selections_org_idx").on(table.organizationId),
++  ],
++);
+diff --git a/src/db/seeds/builder-seed/constants.ts b/src/db/seeds/builder-seed/constants.ts
+new file mode 100644
+index 0000000..b8b3b22
+--- /dev/null
++++ b/src/db/seeds/builder-seed/constants.ts
+@@ -0,0 +1,27 @@
++// Canonical seed constants for the UX-NAV-04 Builder persistence foundation.
++//
++// "Evidence reuses or replaces the probe organization deliberately."
++// This deliberate probe fixture provides exactly ONE organization with
++// THREE workspaces so the durable-selection acceptance (selecting any of the
++// three created workspaces must persist) maps 1:1 to real records.
++
++export const BUILDER_PROBE_NAMESPACE = "builder_probe";
++
++export const BUILDER_PROBE = {
++  organization: {
++    key: "org_builder_probe",
++    name: "Builder Probe Organization",
++  },
++  workspaces: [
++    { key: "ws_builder_probe_core", name: "Core Operations" },
++    { key: "ws_builder_probe_support", name: "Support Operations" },
++    { key: "ws_builder_probe_field", name: "Field Maintenance" },
++  ],
++  user: {
++    email: "builder.probe@system-builder.local",
++    name: "Builder Probe User",
++  },
++  defaultWorkspaceKey: "ws_builder_probe_core",
++} as const;
++
++export const ACCESS_PROFILE_BUILDER = "builder";
+diff --git a/src/db/seeds/builder-seed/seed.ts b/src/db/seeds/builder-seed/seed.ts
+new file mode 100644
+index 0000000..b6bcbe7
+--- /dev/null
++++ b/src/db/seeds/builder-seed/seed.ts
+@@ -0,0 +1,142 @@
++import { and, eq } from "drizzle-orm";
++import { getDb } from "@/db";
++import type { DbClient } from "@/db";
++import { organizations, workspaces, workspaceMembers } from "@/db/runtime/schema/workspace";
++import { users as legacyUsers } from "@/db/legacy/schema";
++import { builderWorkspaceSelections } from "@/db/runtime/schema/builder";
++import { BUILDER_PROBE, ACCESS_PROFILE_BUILDER } from "./constants";
++
++export type BuilderProbeHandles = {
++  userId: string;
++  organizationId: string;
++  workspaceIds: {
++    core: string;
++    support: string;
++    field: string;
++  };
++};
++
++/**
++ * Idempotent seed for the UX-NAV-04 Builder persistence foundation.
++ *
++ * Creates ONE deliberate probe organization with EXACTLY three workspaces,
++ * a probe Builder identity (legacy `users` row with access_profile='builder'),
++ * membership in all three workspaces, and an initial durable workspace
++ * selection. All lookups are by stable key/email so re-running is safe.
++ */
++export async function seedBuilderProbe(
++  db: DbClient = getDb(),
++): Promise<BuilderProbeHandles> {
++  // 1. Organization (probe)
++  const [org] = await db
++    .insert(organizations)
++    .values({
++      key: BUILDER_PROBE.organization.key,
++      name: BUILDER_PROBE.organization.name,
++      status: "active",
++    })
++    .onConflictDoUpdate({
++      target: organizations.key,
++      set: {
++        name: BUILDER_PROBE.organization.name,
++        status: "active",
++        updatedAt: new Date(),
++      },
++    })
++    .returning({ id: organizations.id });
++
++  // 2. Three workspaces under the probe organization
++  const workspaceIds: Record<string, string> = {};
++  for (const ws of BUILDER_PROBE.workspaces) {
++    const [row] = await db
++      .insert(workspaces)
++      .values({
++        organizationId: org.id,
++        key: ws.key,
++        name: ws.name,
++        status: "active",
++        adaptationKey: "secao-tecnica",
++      })
++      .onConflictDoUpdate({
++        target: workspaces.key,
++        set: {
++          organizationId: org.id,
++          name: ws.name,
++          status: "active",
++          updatedAt: new Date(),
++        },
++      })
++      .returning({ id: workspaces.id });
++    workspaceIds[ws.key] = row.id;
++  }
++
++  // 3. Builder identity (authenticated user) in the legacy `users` table
++  const [user] = await db
++    .insert(legacyUsers)
++    .values({
++      email: BUILDER_PROBE.user.email,
++      name: BUILDER_PROBE.user.name,
++      status: "active",
++      accessProfile: ACCESS_PROFILE_BUILDER,
++    })
++    .onConflictDoUpdate({
++      target: legacyUsers.email,
++      set: {
++        name: BUILDER_PROBE.user.name,
++        status: "active",
++        accessProfile: ACCESS_PROFILE_BUILDER,
++        updatedAt: new Date(),
++      },
++    })
++    .returning({ id: legacyUsers.id });
++
++  // 4. Membership in all three workspaces (select-then-insert; no unique idx on workspace_members)
++  for (const ws of BUILDER_PROBE.workspaces) {
++    const [existing] = await db
++      .select({ id: workspaceMembers.id })
++      .from(workspaceMembers)
++      .where(
++        and(
++          eq(workspaceMembers.userId, user.id),
++          eq(workspaceMembers.workspaceId, workspaceIds[ws.key]!),
++        ),
++      )
++      .limit(1);
++
++    if (!existing) {
++      await db.insert(workspaceMembers).values({
++        workspaceId: workspaceIds[ws.key]!,
++        userId: user.id,
++        status: "active",
++      });
++    }
++  }
++
++  // 5. Durable workspace selection (persisted server-side). Default to core.
++  await db
++    .insert(builderWorkspaceSelections)
++    .values({
++      userId: user.id,
++      workspaceId: workspaceIds[BUILDER_PROBE.defaultWorkspaceKey]!,
++      organizationId: org.id,
++    })
++    .onConflictDoUpdate({
++      target: builderWorkspaceSelections.userId,
++      set: {
++        workspaceId: workspaceIds[BUILDER_PROBE.defaultWorkspaceKey]!,
++        organizationId: org.id,
++        selectedAt: new Date(),
++        updatedAt: new Date(),
++      },
++    });
++
++  return {
++    userId: user.id,
++    organizationId: org.id,
++    workspaceIds: {
++      core: workspaceIds[BUILDER_PROBE.workspaces[0].key]!,
++      support: workspaceIds[BUILDER_PROBE.workspaces[1].key]!,
++      field: workspaceIds[BUILDER_PROBE.workspaces[2].key]!,
++    },
++  };
++}
+diff --git a/src/lib/builder-persistence.ts b/src/lib/builder-persistence.ts
+new file mode 100644
+index 0000000..7e12fbe
+--- /dev/null
++++ b/src/lib/builder-persistence.ts
+@@ -0,0 +1,247 @@
++import { and, eq } from "drizzle-orm";
++import { getDb } from "@/db";
++import {
++  organizations,
++  workspaces,
++  workspaceMembers,
++} from "@/db/runtime/schema/workspace";
++import { users as legacyUsers } from "@/db/legacy/schema";
++import { builderWorkspaceSelections } from "@/db/runtime/schema/builder";
++
++export type BuilderIdentity = {
++  userId: string;
++  name: string;
++  email: string;
++  accessProfile: "builder" | "admin" | "operador";
++};
++
++export type PortfolioWorkspace = {
++  id: string;
++  key: string;
++  name: string;
++  adaptationKey: string | null;
++  organizationId: string;
++  organizationName: string;
++  organizationKey: string;
++  role: "workspace_member" | "workspace_admin" | "platform_admin";
++  isSelected: boolean;
++};
++
++export type OrganizationPortfolio = {
++  id: string;
++  key: string;
++  name: string;
++  workspaces: PortfolioWorkspace[];
++};
++
++export type BuilderPortfolio = {
++  identity: BuilderIdentity;
++  selectedWorkspaceId: string | null;
++  organizations: OrganizationPortfolio[];
++};
++
++export type WorkspaceSelectionRecord = {
++  id: string;
++  userId: string;
++  workspaceId: string;
++  organizationId: string | null;
++  selectedAt: Date;
++};
++
++export type PersistSelectionResult =
++  | { ok: true; selection: WorkspaceSelectionRecord }
++  | { ok: false; reason: "not_a_member" | "workspace_not_found" };
++
++/**
++ * The `userId` parameter MUST be resolved server-side from the authenticated
++ * session by the domain/contract layer (never a client-supplied value). This
++ * module only enforces membership: a selection is persisted only when the
++ * authenticated user is a member of the target workspace.
++ */
++
++export async function resolveBuilderIdentity(
++  userId: string,
++): Promise<BuilderIdentity | null> {
++  const db = getDb();
++
++  const [row] = await db
++    .select({
++      id: legacyUsers.id,
++      name: legacyUsers.name,
++      email: legacyUsers.email,
++      accessProfile: legacyUsers.accessProfile,
++    })
++    .from(legacyUsers)
++    .where(eq(legacyUsers.id, userId))
++    .limit(1);
++
++  if (!row) return null;
++
++  return {
++    userId: row.id,
++    name: row.name,
++    email: row.email,
++    accessProfile: row.accessProfile,
++  };
++}
++
++export async function resolveWorkspacePortfolio(
++  userId: string,
++): Promise<OrganizationPortfolio[]> {
++  const db = getDb();
++
++  const rows = await db
++    .select({
++      workspaceId: workspaces.id,
++      workspaceKey: workspaces.key,
++      workspaceName: workspaces.name,
++      adaptationKey: workspaces.adaptationKey,
++      organizationId: organizations.id,
++      organizationKey: organizations.key,
++      organizationName: organizations.name,
++    })
++    .from(workspaceMembers)
++    .innerJoin(workspaces, eq(workspaceMembers.workspaceId, workspaces.id))
++    .innerJoin(organizations, eq(workspaces.organizationId, organizations.id))
++    .where(eq(workspaceMembers.userId, userId));
++
++  const selected = await resolveSelectedWorkspace(userId);
++  const selectedWorkspaceId = selected?.workspaceId ?? null;
++
++  const orgMap = new Map<string, OrganizationPortfolio>();
++
++  for (const row of rows) {
++    const orgEntry = orgMap.get(row.organizationId) ?? {
++      id: row.organizationId,
++      key: row.organizationKey,
++      name: row.organizationName,
++      workspaces: [],
++    };
++
++    orgEntry.workspaces.push({
++      id: row.workspaceId,
++      key: row.workspaceKey,
++      name: row.workspaceName,
++      adaptationKey: row.adaptationKey,
++      organizationId: row.organizationId,
++      organizationName: row.organizationName,
++      organizationKey: row.organizationKey,
++      role: "workspace_member",
++      isSelected: row.workspaceId === selectedWorkspaceId,
++    });
++
++    orgMap.set(row.organizationId, orgEntry);
++  }
++
++  return Array.from(orgMap.values());
++}
++
++export async function resolveSelectedWorkspace(
++  userId: string,
++): Promise<WorkspaceSelectionRecord | null> {
++  const db = getDb();
++
++  const [row] = await db
++    .select({
++      id: builderWorkspaceSelections.id,
++      userId: builderWorkspaceSelections.userId,
++      workspaceId: builderWorkspaceSelections.workspaceId,
++      organizationId: builderWorkspaceSelections.organizationId,
++      selectedAt: builderWorkspaceSelections.selectedAt,
++    })
++    .from(builderWorkspaceSelections)
++    .where(eq(builderWorkspaceSelections.userId, userId))
++    .limit(1);
++
++  if (!row) return null;
++
++  return {
++    id: row.id,
++    userId: row.userId,
++    workspaceId: row.workspaceId,
++    organizationId: row.organizationId,
++    selectedAt: row.selectedAt,
++  };
++}
++
++export async function resolveBuilderPortfolio(
++  userId: string,
++): Promise<BuilderPortfolio | null> {
++  const identity = await resolveBuilderIdentity(userId);
++
++  if (!identity) return null;
++
++  const organizationsList = await resolveWorkspacePortfolio(userId);
++
++  const selectedWorkspaceId =
++    organizationsList
++      .flatMap((org) => org.workspaces)
++      .find((ws) => ws.isSelected)?.id ?? null;
++
++  return {
++    identity,
++    selectedWorkspaceId,
++    organizations: organizationsList,
++  };
++}
++
++export async function persistWorkspaceSelection(
++  userId: string,
++  workspaceId: string,
++): Promise<PersistSelectionResult> {
++  const db = getDb();
++
++  const [workspace] = await db
++    .select({
++      id: workspaces.id,
++      organizationId: workspaces.organizationId,
++    })
++    .from(workspaces)
++    .where(eq(workspaces.id, workspaceId))
++    .limit(1);
++
++  if (!workspace) {
++    return { ok: false, reason: "workspace_not_found" };
++  }
++
++  const [membership] = await db
++    .select({ id: workspaceMembers.id })
++    .from(workspaceMembers)
++    .where(
++      and(
++        eq(workspaceMembers.userId, userId),
++        eq(workspaceMembers.workspaceId, workspaceId),
++      ),
++    )
++    .limit(1);
++
++  if (!membership) {
++    return { ok: false, reason: "not_a_member" };
++  }
++
++  const [selection] = await db
++    .insert(builderWorkspaceSelections)
++    .values({
++      userId,
++      workspaceId,
++      organizationId: workspace.organizationId,
++    })
++    .onConflictDoUpdate({
++      target: builderWorkspaceSelections.userId,
++      set: {
++        workspaceId,
++        organizationId: workspace.organizationId,
++        selectedAt: new Date(),
++        updatedAt: new Date(),
++      },
++    })
++    .returning({
++      id: builderWorkspaceSelections.id,
++      userId: builderWorkspaceSelections.userId,
++      workspaceId: builderWorkspaceSelections.workspaceId,
++      organizationId: builderWorkspaceSelections.organizationId,
++      selectedAt: builderWorkspaceSelections.selectedAt,
++    });
++
++  return { ok: true, selection: selection };
++}
+diff --git a/tests/integration/ux-nav-04-001-builder-persistence.integration.test.ts b/tests/integration/ux-nav-04-001-builder-persistence.integration.test.ts
+new file mode 100644
+index 0000000..3af7af1
+--- /dev/null
++++ b/tests/integration/ux-nav-04-001-builder-persistence.integration.test.ts
+@@ -0,0 +1,153 @@
++import { describe, it, after } from "node:test";
++import assert from "node:assert";
++import { randomUUID } from "node:crypto";
++import { eq, sql } from "drizzle-orm";
++
++import { closeDatabaseConnections, getRuntimeDb } from "@/db";
++import { organizations, workspaces } from "@/db/runtime/schema/workspace";
++import { builderWorkspaceSelections } from "@/db/runtime/schema/builder";
++import { seedBuilderProbe } from "@/db/seeds/builder-seed/seed";
++import { BUILDER_PROBE } from "@/db/seeds/builder-seed/constants";
++import {
++  resolveBuilderIdentity,
++  resolveBuilderPortfolio,
++  persistWorkspaceSelection,
++  resolveSelectedWorkspace,
++} from "@/lib/builder-persistence";
++
++describe("UX-NAV-04-001 Builder persistence foundation", () => {
++  after(async () => {
++    await closeDatabaseConnections();
++  });
++
++  it("proves builder identity, organization portfolio and durable workspace selection through a fresh DB read", async () => {
++    const db = getRuntimeDb();
++    const handles = await seedBuilderProbe(db);
++
++    let cleanupWorkspaceIds: string[] = [];
++
++    try {
++      // 1. Identity resolves from the persisted legacy users row (never anonymous)
++      const identity = await resolveBuilderIdentity(handles.userId);
++      assert.ok(identity, "builder identity must resolve from persisted users row");
++      assert.strictEqual(identity.name, BUILDER_PROBE.user.name);
++      assert.strictEqual(identity.email, BUILDER_PROBE.user.email);
++      assert.strictEqual(identity.accessProfile, "builder");
++
++      // 2. Portfolio is grouped by organization and exposes the three seeded workspaces
++      const portfolio = await resolveBuilderPortfolio(handles.userId);
++      assert.ok(portfolio, "builder portfolio must resolve for the authenticated user");
++      assert.strictEqual(
++        portfolio.selectedWorkspaceId,
++        handles.workspaceIds.core,
++        "seed defaults the durable selection to the core workspace",
++      );
++
++      const probeOrg = portfolio.organizations.find(
++        (org) => org.id === handles.organizationId,
++      );
++      assert.ok(probeOrg, "probe organization must be present in the portfolio");
++      assert.strictEqual(probeOrg.name, BUILDER_PROBE.organization.name);
++      assert.strictEqual(
++        probeOrg.workspaces.length,
++        3,
++        "probe organization must expose exactly three workspaces",
++      );
++      const workspaceKeys = probeOrg.workspaces.map((ws) => ws.key).sort();
++      assert.deepStrictEqual(workspaceKeys, [
++        "ws_builder_probe_core",
++        "ws_builder_probe_field",
++        "ws_builder_probe_support",
++      ]);
++
++      // 3. Selecting the third workspace persists server-side (membership enforced)
++      const persisted = await persistWorkspaceSelection(
++        handles.userId,
++        handles.workspaceIds.field,
++      );
++      assert.strictEqual(persisted.ok, true);
++      assert.strictEqual(
++        persisted.ok === true ? persisted.selection.workspaceId : null,
++        handles.workspaceIds.field,
++      );
++
++      // 4. Reload from the database in a NEW query: the selection survives
++      const reloaded = await resolveSelectedWorkspace(handles.userId);
++      assert.ok(reloaded, "selection must survive a fresh database read");
++      assert.strictEqual(reloaded.workspaceId, handles.workspaceIds.field);
++
++      const [row] = await db
++        .select({ workspaceId: builderWorkspaceSelections.workspaceId })
++        .from(builderWorkspaceSelections)
++        .where(eq(builderWorkspaceSelections.userId, handles.userId));
++      assert.ok(row, "workspace_selections row must exist in the builder schema");
++      assert.strictEqual(row.workspaceId, handles.workspaceIds.field);
++
++      // 5. Portfolio reflects the new selection after reload
++      const portfolioAfterSelection = await resolveBuilderPortfolio(handles.userId);
++      assert.ok(portfolioAfterSelection, "portfolio must re-resolve after selection");
++      assert.strictEqual(
++        portfolioAfterSelection.selectedWorkspaceId,
++        handles.workspaceIds.field,
++      );
++      const fieldWorkspace = portfolioAfterSelection.organizations
++        .flatMap((org) => org.workspaces)
++        .find((ws) => ws.id === handles.workspaceIds.field);
++      assert.ok(fieldWorkspace, "field workspace must remain in the portfolio");
++      assert.strictEqual(fieldWorkspace.isSelected, true);
++      const coreWorkspace = portfolioAfterSelection.organizations
++        .flatMap((org) => org.workspaces)
++        .find((ws) => ws.id === handles.workspaceIds.core);
++      assert.ok(coreWorkspace, "core workspace must remain in the portfolio");
++      assert.strictEqual(coreWorkspace.isSelected, false);
++
++      // 6. Membership is enforced: the user cannot select a workspace they are not a member of
++      const nonMemberKey = `ux-nav-04-001-nonmember-${randomUUID().slice(0, 8)}`;
++      const [nonMemberWorkspace] = await db
++        .insert(workspaces)
++        .values({
++          organizationId: handles.organizationId,
++          key: nonMemberKey,
++          name: "Not A Member Workspace",
++          status: "active",
++        })
++        .returning({ id: workspaces.id });
++      cleanupWorkspaceIds.push(nonMemberWorkspace.id);
++
++      const rejected = await persistWorkspaceSelection(
++        handles.userId,
++        nonMemberWorkspace.id,
++      );
++      assert.deepStrictEqual(rejected, { ok: false, reason: "not_a_member" });
++    } finally {
++      // Cleanup so a re-run starts again from the seeded core default
++      await db
++        .delete(builderWorkspaceSelections)
++        .where(eq(builderWorkspaceSelections.userId, handles.userId));
++      for (const workspaceId of cleanupWorkspaceIds) {
++        await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
++      }
++    }
++  });
++
++  it("keeps the probe organization deliberately reusable and idempotent", async () => {
++    const db = getRuntimeDb();
++    const first = await seedBuilderProbe(db);
++    const second = await seedBuilderProbe(db);
++
++    assert.strictEqual(first.userId, second.userId);
++    assert.strictEqual(first.organizationId, second.organizationId);
++    assert.deepStrictEqual(first.workspaceIds, second.workspaceIds);
++
++    const [orgCountRow] = await db
++      .select({ count: sql<number>`count(*)::int` })
++      .from(organizations)
++      .where(eq(organizations.key, BUILDER_PROBE.organization.key));
++    assert.ok(orgCountRow, "probe organization count must resolve");
++    assert.strictEqual(
++      orgCountRow.count,
++      1,
++      "probe organization must exist exactly once",
++    );
++  });
++});

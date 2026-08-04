@@ -1,7 +1,6 @@
 "use server";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
-
 import { eq } from "drizzle-orm";
+import { createEvent } from "@/platform/events/create-event";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
@@ -98,7 +97,7 @@ export async function updateMaintenancePlanStatus(formData: FormData) {
   const [previous] = await db.select({ id: maintenancePlans.id, title: maintenancePlans.title, status: maintenancePlans.status, assetId: maintenancePlans.assetId }).from(maintenancePlans).where(eq(maintenancePlans.id, id)).limit(1);
   if (!previous) throw new Error("Plano nao encontrado.");
   await db.update(maintenancePlans).set({ status, updatedAt: new Date() }).where(eq(maintenancePlans.id, id));
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "maintenance_plan.status_changed",
     entityType: "maintenance_plan",
     entityId: previous.id,
@@ -132,7 +131,7 @@ export async function createTechnicalProject(formData: FormData) {
     workItemId: technicalProjects.workItemId,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "technical_project.created",
     entityType: "technical_project",
     entityId: project.id,
@@ -154,7 +153,7 @@ export async function updateTechnicalProjectStatus(formData: FormData) {
   const [previous] = await db.select({ id: technicalProjects.id, title: technicalProjects.title, status: technicalProjects.status, assetId: technicalProjects.assetId, workItemId: technicalProjects.workItemId }).from(technicalProjects).where(eq(technicalProjects.id, id)).limit(1);
   if (!previous) throw new Error("Projeto nao encontrado.");
   await db.update(technicalProjects).set({ status, updatedAt: new Date() }).where(eq(technicalProjects.id, id));
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "technical_project.status_changed",
     entityType: "technical_project",
     entityId: previous.id,
@@ -196,7 +195,7 @@ export async function createAcquisitionNeed(formData: FormData) {
     serviceOrderId: acquisitionNeeds.serviceOrderId,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "acquisition_need.created",
     entityType: "acquisition_need",
     entityId: need.id,
@@ -218,7 +217,7 @@ export async function updateAcquisitionNeedStatus(formData: FormData) {
   const [previous] = await db.select({ id: acquisitionNeeds.id, title: acquisitionNeeds.title, status: acquisitionNeeds.status, assetId: acquisitionNeeds.assetId, serviceOrderId: acquisitionNeeds.serviceOrderId }).from(acquisitionNeeds).where(eq(acquisitionNeeds.id, id)).limit(1);
   if (!previous) throw new Error("Necessidade nao encontrada.");
   await db.update(acquisitionNeeds).set({ status, updatedAt: new Date() }).where(eq(acquisitionNeeds.id, id));
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "acquisition_need.status_changed",
     entityType: "acquisition_need",
     entityId: previous.id,

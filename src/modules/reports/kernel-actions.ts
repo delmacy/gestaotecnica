@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { count, eq, and } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   assets,
@@ -49,7 +49,8 @@ export const generateOperationalReportKernelAction: ActionDefinition<
     type: stringProperty("Tipo do relatório."),
   }),
   emits: ["report.generated"],
-  async handler(input) {
+  async handler(input, context) {
+    const workspaceId = context.workspaceId;
     const title =
       String(input.title ?? "").trim() ||
       `Resumo operacional - ${new Intl.DateTimeFormat("pt-BR").format(new Date())}`;
@@ -67,7 +68,7 @@ export const generateOperationalReportKernelAction: ActionDefinition<
       completedOrders,
       approvedOrders,
     ] = await Promise.all([
-      db.select({ value: count() }).from(workItems),
+      db.select({ value: count() }).from(workItems).where(eq(workItems.workspaceId, workspaceId)),
       db.select({ value: count() }).from(assets),
       db.select({ value: count() }).from(timeEntries),
       db.select({ value: count() }).from(shiftLogEntries).where(eq(shiftLogEntries.isPending, true)),

@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
+import { createEvent } from "@/platform/events/create-event";
 import {
   auditStatuses,
   findingSeverities,
@@ -70,7 +70,7 @@ export async function createComplianceAudit(formData: FormData) {
     assetId: complianceAudits.assetId,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "compliance_audit.created",
     entityType: "compliance_audit",
     entityId: audit.id,
@@ -91,7 +91,7 @@ export async function updateComplianceAuditStatus(formData: FormData) {
   const [previous] = await db.select({ id: complianceAudits.id, title: complianceAudits.title, status: complianceAudits.status, assetId: complianceAudits.assetId }).from(complianceAudits).where(eq(complianceAudits.id, id)).limit(1);
   if (!previous) throw new Error("Auditoria nao encontrada.");
   await db.update(complianceAudits).set({ status, updatedAt: new Date() }).where(eq(complianceAudits.id, id));
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "compliance_audit.status_changed",
     entityType: "compliance_audit",
     entityId: previous.id,
@@ -126,7 +126,7 @@ export async function createComplianceFinding(formData: FormData) {
     status: complianceFindings.status,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "compliance_finding.created",
     entityType: "compliance_finding",
     entityId: finding.id,

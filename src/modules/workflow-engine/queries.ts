@@ -1,5 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   workflowInstances,
   workflowTemplates,
@@ -7,6 +8,9 @@ import {
 } from "@/db/schema";
 
 export async function getWorkflowInstances(limit = 80) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+
   const db = getDb();
 
   return db
@@ -23,11 +27,15 @@ export async function getWorkflowInstances(limit = 80) {
     })
     .from(workflowInstances)
     .innerJoin(workflowTemplates, eq(workflowInstances.workflowTemplateId, workflowTemplates.id))
+    .where(eq(workflowInstances.workspaceId, workspaceId))
     .orderBy(desc(workflowInstances.startedAt))
     .limit(limit);
 }
 
 export async function getWorkflowInstancesForTarget(targetType: string, targetId: string) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+
   const db = getDb();
 
   return db
@@ -47,6 +55,7 @@ export async function getWorkflowInstancesForTarget(targetType: string, targetId
       and(
         eq(workflowInstances.targetType, targetType),
         eq(workflowInstances.targetId, targetId),
+        eq(workflowInstances.workspaceId, workspaceId),
       ),
     )
     .orderBy(desc(workflowInstances.startedAt));

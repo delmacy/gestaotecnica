@@ -29,6 +29,10 @@ system-building/orchestration/**/*.log
 system-building/orchestration/**/health.json
 system-building/orchestration/**/state.json
 
+# OpenCode local task runner
+/.opencode/task-runs/
+/.worktrees/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

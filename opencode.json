@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "disabled",
+  "snapshot": true,
+  "autoupdate": "notify",
+  "instructions": [
+    "docs/agents/OPERATING_MODEL.md",
+    "docs/agents/TASK_CONTRACT.md",
+    "docs/agents/EVIDENCE_CONTRACT.md"
+  ],
+  "watcher": {
+    "ignore": [
+      ".git/**",
+      ".next/**",
+      ".opencode/task-runs/**",
+      ".worktrees/**",
+      "node_modules/**",
+      "playwright-report/**",
+      "test-results/**"
+    ]
+  },
+  "permission": {
+    "external_directory": "deny",
+    "question": "deny"
+  }
+}

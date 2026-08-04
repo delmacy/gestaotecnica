@@ -560,7 +560,11 @@ function runFallbackValidation(cwd) {
 }
 
 function startOpenCodeServer(cwd, port, logFd) {
-  const child = spawn(opencodeCommand(), ["serve", "--hostname", "127.0.0.1", "--port", String(port)], {
+  const cmd = process.platform === "win32" ? "cmd.exe" : opencodeCommand();
+  const cmdArgs = process.platform === "win32"
+    ? ["/d", "/s", "/c", opencodeCommand(), "serve", "--hostname", "127.0.0.1", "--port", String(port)]
+    : ["serve", "--hostname", "127.0.0.1", "--port", String(port)];
+  const child = spawn(cmd, cmdArgs, {
     cwd,
     env: process.env,
     detached: false,
@@ -648,7 +652,8 @@ async function writeState(patch) {
 }
 
 function command(executable, args, cwd, options = {}) {
-  const result = spawnSync(executable, args, {
+  const needsShell = process.platform === "win32" && /\.(cmd|bat)$/i.test(executable);
+  const result = spawnSync(needsShell ? "cmd.exe" : executable, needsShell ? ["/d", "/s", "/c", executable, ...args] : args, {
     cwd,
     encoding: options.stdio === "inherit" ? undefined : "utf8",
     stdio: options.stdio ?? "pipe",

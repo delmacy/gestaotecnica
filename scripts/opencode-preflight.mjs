@@ -2,18 +2,19 @@
 import { spawnSync } from "node:child_process";
 import process from "node:process";
 
-const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-const result = spawnSync(
-  npm,
-  ["ci", "--dry-run", "--ignore-scripts", "--no-audit", "--fund=false"],
-  {
-    cwd: process.cwd(),
-    encoding: "utf8",
-    windowsHide: true,
-    timeout: 10 * 60_000,
-    maxBuffer: 20 * 1024 * 1024,
-  },
-);
+const npm = "npm";
+  const result = spawnSync(
+    "npm.cmd",
+    ["ci", "--dry-run", "--ignore-scripts", "--no-audit", "--fund=false"],
+    {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      windowsHide: true,
+      shell: process.platform === "win32",
+      timeout: 10 * 60_000,
+      maxBuffer: 20 * 1024 * 1024,
+    },
+  );
 
 if (result.error) {
   console.error(`[opencode:preflight] Não foi possível executar npm ci --dry-run: ${result.error.message}`);

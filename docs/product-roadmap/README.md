@@ -1,14 +1,18 @@
-# System Builder — Roadmap operacional de 50 tasks
+# Roadmap operacional legado — catálogo SB-S01 a SB-S10
 
-Este diretório é a fonte oficial das próximas tasks do produto. Cada task possui ID estável, tipo, dependências, modo de execução, escopo e critérios de aceite.
+> Status: `reconciliation_required`
+>
+> Este diretório não é mais a fonte global de status ou seleção automática de trabalho. A fonte canônica é `docs/current/` e cada fase executável está em `docs/phases/`.
+>
+> As tasks deste catálogo continuam preservadas até serem classificadas como `migrated`, `superseded` ou `still_active`. Nenhum agente deve executar um ID daqui sem que ele também esteja registrado na pasta de fase proprietária.
 
-## Regra de execução
+Este diretório contém o roadmap histórico de 50 tasks. Cada task possui ID estável, tipo, dependências, modo de execução, escopo e critérios de aceite.
 
-O executor deve receber somente o ID e o caminho da sprint. Exemplo:
+## Regra de execução atual
 
-> Busque a task `SB-S01-T01` em `docs/product-roadmap/sprint-01-backlog-governance/README.md`, cumpra integralmente o contrato da task, publique uma branch e abra um PR isolado.
+O executor recebe o ID e o caminho da task em `docs/phases/<FASE>/TASKS.md`. Caso a task ainda exista somente neste diretório, ela deve primeiro passar pela reconciliação documental.
 
-## Estados permitidos
+## Estados preservados
 
 - `planned`
 - `ready`
@@ -19,20 +23,18 @@ O executor deve receber somente o ID e o caminho da sprint. Exemplo:
 - `merged`
 - `superseded`
 
-## Regras globais
+## Regras históricas ainda válidas
 
-1. Uma task por branch e PR, salvo quando a task declarar explicitamente execução documental sem PR próprio.
-2. Toda branch nasce da `main` atual.
-3. Não misturar arquivos de tasks, módulos ou sprints diferentes.
-4. Não confiar em `workspaceId`, `actorId`, roles ou ownership vindos de input público.
-5. Toda mudança funcional deve incluir testes comportamentais.
-6. Antes do PR: `git diff --name-only origin/main...HEAD`, testes aplicáveis, typecheck, build e architecture check.
-7. Nenhum executor faz merge automático.
-8. Reviews e testes independentes não devem ser executados pelo mesmo agente que produziu a implementação quando houver executor separado disponível.
-9. Tasks paralelas só podem rodar quando não houver dependência e os diretórios permitidos não se sobrepuserem.
-10. Divergência entre descrição e diff real bloqueia aprovação.
+1. Uma task por branch e PR, salvo contrato explícito.
+2. Não misturar arquivos de tasks, módulos ou sprints diferentes.
+3. Não confiar em `workspaceId`, `actorId`, roles ou ownership vindos de input público.
+4. Toda mudança funcional inclui testes comportamentais.
+5. Antes do PR: diff, testes aplicáveis, typecheck, build e architecture check.
+6. Nenhum executor declara validação do próprio trabalho sem evidência independente quando houver reviewer/tester disponível.
+7. Tasks paralelas só rodam sem dependência e sem sobreposição material.
+8. Divergência entre descrição e diff bloqueia aprovação.
 
-## Sprints
+## Catálogo histórico
 
 | Sprint | Tema | Tasks | Dependência principal |
 |---|---|---:|---|
@@ -47,12 +49,12 @@ O executor deve receber somente o ID e o caminho da sprint. Exemplo:
 | 09 | Segurança e observabilidade | 41–45 | Sprint 02–08 |
 | 10 | Deploy e prontidão comercial | 46–50 | Sprint 07–09 |
 
-## Índice rápido
+Consulte `TASK_INDEX.md` apenas para localizar IDs históricos. O status real deve ser verificado na fase canônica.
 
-Consulte `TASK_INDEX.md` para localizar qualquer task por ID, sprint, tipo ou dependência.
+## Trilhas futuras preservadas
 
-## Trilhas futuras
+- `FEDERATED_INSTANCE_SCOPE.md` — federação, instâncias gerenciadas, portabilidade e suporte remoto auditável.
+- `UX_NAVIGATION_EXTENSION_TASKS.md` — UX-NAV-06 e UX-NAV-07.
+- `REAL_DATA_PATH_POST_UX_REMODEL.md` — caminho de dados reais posterior aos gates UX.
 
-- `FEDERATED_INSTANCE_SCOPE.md` projeta a abertura de escopo para instâncias federadas, filhas gerenciadas, operadores delegados, emancipação de clientes, portabilidade por blueprints e suporte remoto auditável. Essa trilha é futura e gated: não deve iniciar antes do caminho de dados reais, UX Navigation, RBAC, auditoria e blueprint packaging estarem maduros.
-- `UX_NAVIGATION_EXTENSION_TASKS.md` adiciona duas sprints seriais de 50 tasks (`UX-NAV-06` e `UX-NAV-07`) para contrato visual de navegação, Capability Marketplace, simulação antes de publicar, Blueprint Diff, Policy Studio, Instance Registry UX, suporte remoto, Data Lineage, Instance Handoff Pack e Exit Readiness.
-- `REAL_DATA_PATH_POST_UX_REMODEL.md` remodela `RD-03` a `RD-06` para dependerem de `UX-NAV-07` e provarem dados reais dentro da experiencia projetada, nao em telas soltas.
+Essas trilhas continuam futuras e gated conforme `docs/current/ROADMAP.md`.

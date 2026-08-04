@@ -1,0 +1,456 @@
+diff --git a/src/app/api/builder/portfolio/route.ts b/src/app/api/builder/portfolio/route.ts
+new file mode 100644
+index 0000000..ef39ac5
+--- /dev/null
++++ b/src/app/api/builder/portfolio/route.ts
+@@ -0,0 +1,74 @@
++import { NextResponse } from "next/server";
++import {
++  resolveBuilderPortfolio,
++  persistWorkspaceSelection,
++} from "@/lib/builder-persistence";
++import { resolveWorkspaceContext } from "@/platform/workspace";
++
++export async function GET() {
++  try {
++    // Resolve workspace context for authentication
++    const workspaceContext = await resolveWorkspaceContext();
++    const userId = workspaceContext.actor.id;
++
++    if (!userId) {
++      return NextResponse.json(
++        { success: false, error: "User not authenticated" },
++        { status: 401 }
++      );
++    }
++
++    // Get the builder portfolio
++    const portfolio = await resolveBuilderPortfolio(userId);
++
++    if (!portfolio) {
++      return NextResponse.json(
++        { success: false, error: "Builder portfolio not found" },
++        { status: 404 }
++      );
++    }
++
++    return NextResponse.json({ success: true, data: portfolio }, { status: 200 });
++  } catch (error) {
++    console.error("Error resolving builder portfolio:", error);
++    return NextResponse.json(
++      { success: false, error: "Internal server error" },
++      { status: 500 }
++    );
++  }
++}
++
++export async function POST(request: Request) {
++  try {
++    // Resolve workspace context for authentication
++    const workspaceContext = await resolveWorkspaceContext();
++    const userId = workspaceContext.actor.id;
++
++    if (!userId) {
++      return NextResponse.json(
++        { success: false, error: "User not authenticated" },
++        { status: 401 }
++      );
++    }
++
++    const body = await request.json();
++    const { workspaceId } = body;
++
++    if (!workspaceId) {
++      return NextResponse.json(
++        { success: false, error: "Workspace ID is required" },
++        { status: 400 }
++      );
++    }
++
++    const result = await persistWorkspaceSelection(userId, workspaceId);
++
++    return NextResponse.json({ success: true, data: result }, { status: 200 });
++  } catch (error) {
++    console.error("Error persisting workspace selection:", error);
++    return NextResponse.json(
++      { success: false, error: "Internal server error" },
++      { status: 500 }
++    );
++  }
++}
+diff --git a/src/components/builder/workspace-portfolio/use-builder-portfolio.ts b/src/components/builder/workspace-portfolio/use-builder-portfolio.ts
+new file mode 100644
+index 0000000..29d4eea
+--- /dev/null
++++ b/src/components/builder/workspace-portfolio/use-builder-portfolio.ts
+@@ -0,0 +1,66 @@
++import React, { useState, useEffect, useCallback } from 'react';
++import { BuilderPortfolioService } from './workspace-portfolio.service';
++import { BuilderIdentity, BuilderPortfolio, OrganizationPortfolio, PortfolioWorkspace } from './workspace-portfolio.types';
++
++interface UseBuilderPortfolioReturn {
++  identity: BuilderIdentity | null;
++  portfolio: BuilderPortfolio | null;
++  isLoading: boolean;
++  error: string | null;
++  refresh: () => Promise<void>;
++  selectWorkspace: (workspaceId: string) => Promise<void>;
++}
++
++export const useBuilderPortfolio = (userId?: string): UseBuilderPortfolioReturn => {
++  const [identity, setIdentity] = useState<BuilderIdentity | null>(null);
++  const [portfolio, setPortfolio] = useState<BuilderPortfolio | null>(null);
++  const [isLoading, setIsLoading] = useState<boolean>(false);
++  const [error, setError] = useState<string | null>(null);
++  const service = new BuilderPortfolioService();
++
++  const fetchPortfolio = useCallback(async () => {
++    try {
++      setIsLoading(true);
++      setError(null);
++
++      if (userId) {
++        const portfolioData = await service.getBuilderPortfolio(userId);
++        setIdentity(portfolioData.identity);
++        setPortfolio(portfolioData);
++      }
++    } catch (err) {
++      setError(err instanceof Error ? err.message : 'Failed to fetch portfolio');
++    } finally {
++      setIsLoading(false);
++    }
++  }, [userId]);
++
++  const selectWorkspace = useCallback(async (workspaceId: string) => {
++    if (!userId) {
++      setError('User not authenticated');
++      return;
++    }
++
++    try {
++      await service.selectWorkspace(userId, workspaceId);
++      await fetchPortfolio();
++    } catch (err) {
++      setError(err instanceof Error ? err.message : 'Failed to select workspace');
++    }
++  }, [userId, fetchPortfolio]);
++
++  useEffect(() => {
++    if (userId) {
++      fetchPortfolio();
++    }
++  }, [userId, fetchPortfolio]);
++
++  return {
++    identity,
++    portfolio,
++    isLoading,
++    error,
++    refresh: fetchPortfolio,
++    selectWorkspace,
++  };
++};
+diff --git a/src/components/builder/workspace-portfolio/workspace-portfolio.component.tsx b/src/components/builder/workspace-portfolio/workspace-portfolio.component.tsx
+new file mode 100644
+index 0000000..d19fb54
+--- /dev/null
++++ b/src/components/builder/workspace-portfolio/workspace-portfolio.component.tsx
+@@ -0,0 +1,190 @@
++import React from 'react';
++import { useBuilderPortfolio } from './use-builder-portfolio';
++import { BuilderPortfolioService } from './workspace-portfolio.service';
++
++interface WorkspacePortfolioProps {
++  className?: string;
++  onWorkspaceSelect?: (workspaceId: string) => void;
++  userId?: string;
++}
++
++export const WorkspacePortfolio: React.FC<WorkspacePortfolioProps> = ({
++  className,
++  onWorkspaceSelect,
++  userId,
++}) => {
++  const { identity, portfolio, isLoading, error, selectWorkspace } = useBuilderPortfolio(userId);
++  const service = new BuilderPortfolioService();
++
++  if (isLoading) {
++    return (
++      <div className={className}>
++        <div className="flex justify-center items-center py-8">
++          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
++        </div>
++      </div>
++    );
++  }
++
++  if (error) {
++    return (
++      <div className={className}>
++        <div className="bg-red-50 border border-red-200 rounded-md p-4">
++          <div className="text-red-800">Error: {error}</div>
++        </div>
++      </div>
++    );
++  }
++
++  if (!portfolio || !identity) {
++    return (
++      <div className={className}>
++        <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
++          <div className="text-gray-600">No portfolio data available</div>
++        </div>
++      </div>
++    );
++  }
++
++  const displayName = service.getDisplayName(identity);
++  const totalWorkspaces = service.getTotalWorkspaceCount(portfolio.organizations);
++  const selectedWorkspace = service.getSelectedWorkspace(portfolio.organizations);
++
++  return (
++    <div className={`space-y-6 ${className || ''}`.trim()}>
++      <header className="bg-white border-b border-gray-200 px-6 py-4">
++        <div className="flex justify-between items-center">
++          <div>
++            <h1 className="text-2xl font-bold text-gray-900">Builder Dashboard</h1>
++            <p className="text-gray-600 mt-1">
++              Welcome, {displayName} - {service.getDisplayName(identity)}
++            </p>
++          </div>
++          <div className="text-right">
++            <div className="text-sm text-gray-500">Total Workspaces</div>
++            <div className="text-xl font-semibold text-blue-600">
++              {totalWorkspaces}
++            </div>
++          </div>
++        </div>
++      </header>
++
++      <main className="px-6 py-8">
++        {selectedWorkspace && (
++          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
++            <div className="flex items-center">
++              <div className="flex-shrink-0">
++                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
++              </div>
++              <div className="ml-3">
++                <p className="text-sm text-blue-700">
++                  <span className="font-medium">Currently Selected:</span>{' '}
++                  {service.formatWorkspaceName(selectedWorkspace)}
++                </p>
++              </div>
++            </div>
++          </div>
++        )}
++
++        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
++          {portfolio.organizations.map((org) => (
++            <OrganizationCard
++              key={org.id}
++              organization={org}
++              onWorkspaceSelect={onWorkspaceSelect}
++              service={service}
++            />
++          ))}
++        </div>
++      </main>
++    </div>
++  );
++};
++
++interface OrganizationCardProps {
++  organization: OrganizationPortfolio;
++  onWorkspaceSelect?: (workspaceId: string) => void;
++  service: BuilderPortfolioService;
++}
++
++const OrganizationCard: React.FC<OrganizationCardProps> = ({
++  organization,
++  onWorkspaceSelect,
++  service,
++}) => {
++  const handleWorkspaceClick = (workspace: PortfolioWorkspace) => {
++    if (onWorkspaceSelect && !workspace.isSelected) {
++      onWorkspaceSelect(workspace.id);
++    }
++  };
++
++  return (
++    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
++      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
++        <h3 className="font-semibold text-gray-900">
++          {service.formatOrganizationName(organization)}
++        </h3>
++        <p className="text-sm text-gray-500 mt-1">
++          {organization.workspaces.length} workspace
++          {organization.workspaces.length !== 1 ? 's' : ''}
++        </p>
++      </div>
++
++      <div className="p-4">
++        <div className="space-y-2">
++          {organization.workspaces.map((workspace) => (
++            <WorkspaceItem
++              key={workspace.id}
++              workspace={workspace}
++              onSelect={handleWorkspaceClick}
++              service={service}
++            />
++          ))}
++        </div>
++      </div>
++    </div>
++  );
++};
++
++interface WorkspaceItemProps {
++  workspace: PortfolioWorkspace;
++  onSelect: (workspace: PortfolioWorkspace) => void;
++  service: BuilderPortfolioService;
++}
++
++const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
++  workspace,
++  onSelect,
++  service,
++}) => {
++  const isSelected = service.isWorkspaceSelected(workspace);
++
++  return (
++    <div
++      className={`p-3 rounded-md border transition-all cursor-pointer ${isSelected
++        ? 'bg-blue-50 border-blue-200 shadow-sm'
++        : 'bg-white border-gray-200 hover:bg-gray-50'
++      }`}
++      onClick={() => onSelect(workspace)}
++    >
++      <div className="flex items-center justify-between">
++        <div className="flex-1">
++          <div className="font-medium text-gray-900">
++            {service.formatWorkspaceName(workspace)}
++          </div>
++          <div className="text-sm text-gray-500 mt-1">
++            Key: {workspace.key}
++          </div>
++        </div>
++
++        {isSelected && (
++          <div className="ml-3">
++            <div className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
++              Selected
++            </div>
++          </div>
++        )}
++      </div>
++    </div>
++  );
++};
+diff --git a/src/components/builder/workspace-portfolio/workspace-portfolio.service.ts b/src/components/builder/workspace-portfolio/workspace-portfolio.service.ts
+new file mode 100644
+index 0000000..af620c8
+--- /dev/null
++++ b/src/components/builder/workspace-portfolio/workspace-portfolio.service.ts
+@@ -0,0 +1,65 @@
++import { BuilderPortfolio, OrganizationPortfolio, PortfolioWorkspace } from './workspace-portfolio.types';
++
++export class BuilderPortfolioService {
++  async getBuilderPortfolio(userId: string): Promise<BuilderPortfolio> {
++    const response = await fetch(`/api/builder/portfolio`, {
++      credentials: 'include',
++      headers: {
++        'Cache-Control': 'no-cache',
++      },
++    });
++
++    if (!response.ok) {
++      throw new Error(`Failed to fetch portfolio: ${response.statusText}`);
++    }
++
++    const result = await response.json();
++    return result.data;
++  }
++
++  async selectWorkspace(userId: string, workspaceId: string): Promise<void> {
++    const response = await fetch(`/api/builder/portfolio`, {
++      method: 'POST',
++      credentials: 'include',
++      headers: {
++        'Content-Type': 'application/json',
++      },
++      body: JSON.stringify({ workspaceId }),
++    });
++
++    if (!response.ok) {
++      throw new Error(`Failed to select workspace: ${response.statusText}`);
++    }
++  }
++
++  getDisplayName(identity: { name: string; email: string; accessProfile: string }): string {
++    return identity.name || identity.email || 'Unknown Builder';
++  }
++
++  formatOrganizationName(org: OrganizationPortfolio): string {
++    return org.name || org.key || 'Unnamed Organization';
++  }
++
++  formatWorkspaceName(workspace: PortfolioWorkspace): string {
++    return workspace.name || workspace.key || 'Unnamed Workspace';
++  }
++
++  isWorkspaceSelected(workspace: PortfolioWorkspace): boolean {
++    return workspace.isSelected || false;
++  }
++
++  getTotalWorkspaceCount(organizations: OrganizationPortfolio[]): number {
++    return organizations.reduce((sum, org) => sum + org.workspaces.length, 0);
++  }
++
++  getSelectedWorkspace(organizations: OrganizationPortfolio[]): PortfolioWorkspace | null {
++    for (const org of organizations) {
++      for (const workspace of org.workspaces) {
++        if (workspace.isSelected) {
++          return workspace;
++        }
++      }
++    }
++    return null;
++  }
++}
+diff --git a/src/components/builder/workspace-portfolio/workspace-portfolio.types.ts b/src/components/builder/workspace-portfolio/workspace-portfolio.types.ts
+new file mode 100644
+index 0000000..f5ce959
+--- /dev/null
++++ b/src/components/builder/workspace-portfolio/workspace-portfolio.types.ts
+@@ -0,0 +1,31 @@
++export interface BuilderIdentity {
++  userId: string;
++  name: string;
++  email: string;
++  accessProfile: "builder" | "admin" | "operador";
++}
++
++export interface PortfolioWorkspace {
++  id: string;
++  key: string;
++  name: string;
++  adaptationKey: string | null;
++  organizationId: string;
++  organizationName: string;
++  organizationKey: string;
++  role: "workspace_member" | "workspace_admin" | "platform_admin";
++  isSelected: boolean;
++}
++
++export interface OrganizationPortfolio {
++  id: string;
++  key: string;
++  name: string;
++  workspaces: PortfolioWorkspace[];
++}
++
++export interface BuilderPortfolio {
++  identity: BuilderIdentity;
++  selectedWorkspaceId: string | null;
++  organizations: OrganizationPortfolio[];
++}

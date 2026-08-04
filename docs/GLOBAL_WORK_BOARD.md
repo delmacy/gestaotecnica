@@ -1,8 +1,12 @@
-# Global Work Board — 50 Fases Modulares
+# Global Work Board — inventário documental legado
 
-Status descreve o estado documental real. done significa documento-base criado; review significa aguardando revisão; ready significa task documental/analítica pronta para execução; nenhum destes status autoriza Jules Dev.
+> Status: `superseded_for_execution`
+>
+> Este board não representa o progresso funcional atual e não libera agentes para implementação. Use `docs/current/STATUS.md`, `docs/current/ROADMAP.md` e `docs/phases/<FASE>/`.
+>
+> A tabela abaixo permanece preservada como inventário da organização documental e das capabilities. Seus estados `done`, `review` e `ready` descrevem somente maturidade documental histórica.
 
-| ID | Módulo | Título | Saída atual esperada | Status | Próximo gate | Agent owner |
+| ID | Módulo | Título | Saída atual esperada | Status legado | Próximo gate legado | Agent owner |
 |---:|---|---|---|---|---|---|
 | 1 | doc | Normalizar documentação | docs/doc/ | done | manutenção pelo Tasker | Jules Doc / especialista |
 | 2 | doc | Referenciar archive | docs/doc/ | done | manutenção pelo Tasker | Jules Doc / especialista |
@@ -56,3 +60,9 @@ Status descreve o estado documental real. done significa documento-base criado; 
 | 50 | integrations | Edge Contracts | docs/integrations/ | review | revisão/piloto | Jules Doc / especialista |
 | 51 | tasker | Validar fluxo de tasks | docs/tasker/ | done | validar transição de estado | Jules Doc |
 | 52 | process_mirroring | Selecionar Piloto | docs/process_mirroring/pilots/ | done | escopo e consentimento | Analista de Processo |
+
+## Uso atual
+
+- Use esta tabela para inventário de domínios e documentação existente.
+- Não use `ready` desta tabela como autorização de desenvolvimento.
+- Materialize qualquer trabalho novo em uma pasta de fase e em um ID de task executável.

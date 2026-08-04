@@ -1,6 +1,7 @@
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
-import { count, desc, eq, inArray } from "drizzle-orm";
+import { count, desc, eq, inArray, and } from "drizzle-orm";
 import { getDb, getRuntimeDb } from "@/db";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   assets,
 
@@ -13,11 +14,17 @@ import {
 } from "@/db/schema";
 
 export async function getOperationsSummary() {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+
   const db = getRuntimeDb();
 
   const [openWorkItems, activeOrders, reviewOrders, pendingEntries, availableTechs] =
     await Promise.all([
-      db.select({ value: count() }).from(workItems).where(eq(workItems.status, "open")),
+      db
+        .select({ value: count() })
+        .from(workItems)
+        .where(and(eq(workItems.workspaceId, workspaceId), eq(workItems.status, "open"))),
       db
         .select({ value: count() })
         .from(serviceOrders)
@@ -46,7 +53,12 @@ export async function getOperationsSummary() {
 }
 
 export async function getOperationsQueues() {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+
   const db = getDb();
+
+  const workItemsWhere = and(eq(workItems.workspaceId, workspaceId), inArray(workItems.status, ["open", "triaged", "blocked"]));
 
   const [criticalWorkItems, activeOrders, pendingShiftEntries, recentEvents] =
     await Promise.all([
@@ -63,7 +75,7 @@ export async function getOperationsQueues() {
         })
         .from(workItems)
         .leftJoin(assets, eq(workItems.assetId, assets.id))
-        .where(inArray(workItems.status, ["open", "triaged", "blocked"]))
+        .where(workItemsWhere)
         .orderBy(desc(workItems.createdAt))
         .limit(8),
       db
@@ -111,6 +123,7 @@ export async function getOperationsQueues() {
         })
         .from(eventLogs)
         .leftJoin(serviceOrders, eq(eventLogs.entityId, serviceOrders.id))
+        .where(eq(eventLogs.workspaceId, workspaceId))
         .orderBy(desc(eventLogs.createdAt))
         .limit(10),
     ]);

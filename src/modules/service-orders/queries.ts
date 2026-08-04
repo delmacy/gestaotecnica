@@ -1,6 +1,7 @@
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, and } from "drizzle-orm";
 import { getDb, getRuntimeDb } from "@/db";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   assets,
 
@@ -76,6 +77,9 @@ export async function getServiceOrderById(id: string) {
 }
 
 export async function getServiceOrderEvents(id: string) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+
   const db = getDb();
 
   return db
@@ -86,7 +90,7 @@ export async function getServiceOrderEvents(id: string) {
       occurredAt: eventLogs.createdAt,
     })
     .from(eventLogs)
-    .where(eq(eventLogs.entityId, id))
+    .where(and(eq(eventLogs.entityId, id), eq(eventLogs.workspaceId, workspaceId)))
     .orderBy(desc(eventLogs.createdAt));
 }
 

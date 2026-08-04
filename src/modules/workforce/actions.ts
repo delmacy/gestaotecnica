@@ -1,7 +1,6 @@
 "use server";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
-
 import { revalidatePath } from "next/cache";
+import { createEvent } from "@/platform/events/create-event";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { getDb, getRuntimeDb } from "@/db";
@@ -199,7 +198,7 @@ export async function createWorkforceAllocation(formData: FormData) {
     })
     .returning();
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "workforce.allocation_created",
     entityType: "workforce_allocation",
     entityId: allocation.id,
@@ -243,7 +242,7 @@ export async function createTechnicianUnavailability(formData: FormData) {
     .set({ isAvailable: false, updatedAt: new Date() })
     .where(eq(technicianProfiles.id, technicianProfileId));
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "technician.unavailability_created",
     entityType: "technician_unavailability",
     entityId: unavailability.id,

@@ -1,10 +1,9 @@
 "use server";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
-
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
+import { createEvent } from "@/platform/events/create-event";
 import {
   automationRunLogs,
   automationRuns,
@@ -65,7 +64,7 @@ export async function createAutomationRule(formData: FormData) {
     status: automationRules.status,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "automation_rule.created",
     entityType: "automation_rule",
     entityId: rule.id,
@@ -96,7 +95,7 @@ export async function updateAutomationRuleStatus(formData: FormData) {
   if (!previous) throw new Error("Automacao nao encontrada.");
 
   await db.update(automationRules).set({ status, updatedAt: new Date() }).where(eq(automationRules.id, id));
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "automation_rule.status_changed",
     entityType: "automation_rule",
     entityId: previous.id,
@@ -195,7 +194,7 @@ export async function runAutomationRuleManually(formData: FormData) {
     .set({ lastRunAt: finishedAt, updatedAt: finishedAt })
     .where(eq(automationRules.id, rule.id));
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "automation_rule.executed",
     entityType: "automation_rule",
     entityId: rule.id,

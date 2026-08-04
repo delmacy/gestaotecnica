@@ -1,5 +1,6 @@
-import { desc, eq, ilike, or } from "drizzle-orm";
+import { and, desc, eq, ilike, or } from "drizzle-orm";
 import { getDb } from "@/db";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   assets,
   serviceOrders,
@@ -15,6 +16,8 @@ function pattern(query: string) {
 }
 
 export async function searchEverything(query: string): Promise<GlobalSearchDTO> {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
   const term = query.trim();
   if (term.length < 2) {
     return { state: "empty", message: "Digite pelo menos 2 caracteres." };
@@ -36,10 +39,13 @@ export async function searchEverything(query: string): Promise<GlobalSearchDTO> 
         })
         .from(workItems)
         .where(
-          or(
-            ilike(workItems.title, like),
-            ilike(workItems.description, like),
-            ilike(workItems.requesterName, like),
+          and(
+            eq(workItems.workspaceId, workspaceId),
+            or(
+              ilike(workItems.title, like),
+              ilike(workItems.description, like),
+              ilike(workItems.requesterName, like),
+            ),
           ),
         )
         .orderBy(desc(workItems.createdAt))

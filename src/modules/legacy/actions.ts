@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
+import { createEvent } from "@/platform/events/create-event";
 import { legacySyncStatuses, type LegacySyncStatusValue } from "./constants";
 
 function readRequiredText(formData: FormData, field: string) {
@@ -74,7 +74,7 @@ export async function createLegacyRecord(formData: FormData) {
       assetId: legacyRecords.assetId,
     });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "legacy.record_created",
     entityType: "legacy_record",
     entityId: record.id,
@@ -125,7 +125,7 @@ export async function updateLegacySyncStatus(formData: FormData) {
     })
     .where(eq(legacyRecords.id, id));
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "legacy.sync_status_changed",
     entityType: "legacy_record",
     entityId: previous.id,

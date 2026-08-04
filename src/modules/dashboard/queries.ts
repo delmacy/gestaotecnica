@@ -1,7 +1,8 @@
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
-import { count } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import type { AnyPgTable } from "drizzle-orm/pg-core";
 import { getDb, getRuntimeDb } from "@/db";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   assets,
 
@@ -32,6 +33,9 @@ async function tableCount(table: AnyPgTable) {
 
 export async function getDashboardSummary(): Promise<DashboardSummary> {
   try {
+    const context = await resolveWorkspaceContext({ source: "ui" });
+    const { workspaceId } = context;
+
     const [
       usersCount,
       teamsCount,
@@ -47,9 +51,13 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
       tableCount(teams),
       tableCount(technicianProfiles),
       tableCount(assets),
-      tableCount(workItems),
+      workspaceId
+        ? (await getDb().select({ value: count() }).from(workItems).where(eq(workItems.workspaceId, workspaceId)))[0].value
+        : tableCount(workItems),
       tableCount(serviceOrders),
-      tableCount(eventLogs),
+      workspaceId
+        ? (await getRuntimeDb().select({ value: count() }).from(eventLogs).where(eq(eventLogs.workspaceId, workspaceId)))[0].value
+        : tableCount(eventLogs),
       tableCount(shifts),
       tableCount(shiftLogEntries),
     ]);

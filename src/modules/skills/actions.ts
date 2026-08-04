@@ -8,7 +8,7 @@ import { skillCatalog } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
+import { createEvent } from "@/platform/events/create-event";
 import {
   skillProficiencies,
   trainingStatuses,
@@ -57,7 +57,7 @@ export async function createSkill(formData: FormData) {
     category: skillCatalog.category,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "skill.created",
     entityType: "skill",
     entityId: skill.id,
@@ -98,7 +98,7 @@ export async function assignTechnicianSkill(formData: FormData) {
     proficiency: technicianSkills.proficiency,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "technician_skill.assigned",
     entityType: "technician_skill",
     entityId: assignment.id,
@@ -144,7 +144,7 @@ export async function createTrainingRecord(formData: FormData) {
     technicianProfileId: trainingRecords.technicianProfileId,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "training_record.created",
     entityType: "training_record",
     entityId: training.id,

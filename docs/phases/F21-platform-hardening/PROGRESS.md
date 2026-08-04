@@ -48,3 +48,5 @@ A fase ainda não atingiu o gate de saída. Falta proteção de banco, prova int
 - PR #996 — `SB-PF-01`;
 - PR #997 — `SB-PF-02`;
 - planejamento legado da F21 em PR documental correspondente.
+
+| SB-CR-09 | migration RLS + helper setSessionWorkspaceId | commit na branch F21/SB-CR-09 | aguardando PR e merge | review |

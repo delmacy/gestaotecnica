@@ -21,6 +21,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Junk directories (non-project copies):
+    "pr903-fix/**",
+    "workspace-menu-fix/**",
+    "system-building/**",
   ]),
 ]);
 

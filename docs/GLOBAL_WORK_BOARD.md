@@ -56,3 +56,4 @@ Status descreve o estado documental real. done significa documento-base criado; 
 | 50 | integrations | Edge Contracts | docs/integrations/ | review | revisão/piloto | Jules Doc / especialista |
 | 51 | tasker | Validar fluxo de tasks | docs/tasker/ | done | validar transição de estado | Jules Doc |
 | 52 | process_mirroring | Selecionar Piloto | docs/process_mirroring/pilots/ | done | escopo e consentimento | Analista de Processo |
+| 53 | platform-hardening | Sprint de Correção do System Builder (Fase 21) | docs/archive/planning/mvp/PHASE_21.md | ready | executar 50 tasks de correção | Jules Dev |

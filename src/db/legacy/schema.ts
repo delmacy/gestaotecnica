@@ -731,6 +731,7 @@ export const workItems = pgTable(
   "work_items",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id").references(() => platformWorkspaces.id),
     title: text("title").notNull(),
     description: text("description"),
     type: workItemTypeEnum("type").notNull().default("solicitacao"),
@@ -746,6 +747,7 @@ export const workItems = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
+    index("work_items_workspace_id_idx").on(table.workspaceId),
     index("work_items_status_idx").on(table.status),
     index("work_items_priority_idx").on(table.priority),
     index("work_items_asset_id_idx").on(table.assetId),

@@ -1,15 +1,20 @@
-import { desc, eq, count } from "drizzle-orm";
+import { desc, eq, and, count } from "drizzle-orm";
 import { getDb, getRuntimeDb } from "@/db";
 import { assets, workItems } from "@/db/legacy/schema";
 import { workspaces } from "@/db/runtime/schema/workspace";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { getWorkspaceWorkItemTypeOptions } from "@/platform/workspaces/catalogs";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import type { WorkItemTypeValue } from "./constants";
 import type { WorkItem } from "./contracts/work-item.schema";
 
 type WorkItemWithAsset = WorkItem & { assetCode: string | null; assetName: string | null };
 
 export async function getWorkItems(): Promise<WorkItemWithAsset[]> {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+  if (!workspaceId) return [];
+
   const db = getDb(); // Using getDb for workItems since it's legacy
 
   const results = await db
@@ -33,6 +38,7 @@ export async function getWorkItems(): Promise<WorkItemWithAsset[]> {
     })
     .from(workItems)
     .leftJoin(assets, eq(workItems.assetId, assets.id))
+    .where(eq(workItems.workspaceId, workspaceId))
     .orderBy(desc(workItems.createdAt))
     .limit(50);
 

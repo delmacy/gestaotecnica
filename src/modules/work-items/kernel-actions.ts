@@ -44,7 +44,7 @@ export const createWorkItemKernelAction: ActionDefinition<CreateWorkItemInput, {
   ),
   outputSchema: idTitleOutputSchema,
   emits: ["work_item.created"],
-  async handler(input) {
+  async handler(input, context) {
     const parsed = CreateWorkItemInputSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -59,6 +59,7 @@ export const createWorkItemKernelAction: ActionDefinition<CreateWorkItemInput, {
     const [workItem] = await db
       .insert(workItems)
       .values({
+        workspaceId: context.workspaceId,
         title,
         description,
         type: type as unknown as typeof workItems.$inferInsert.type,

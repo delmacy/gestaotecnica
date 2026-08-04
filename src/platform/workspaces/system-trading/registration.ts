@@ -6,6 +6,7 @@ import {
   SYSTEM_TRADING,
   SYSTEM_TRADING_REGISTRATION_EVENT,
   SYSTEM_TRADING_REGISTRATION_IDEMPOTENCY_KEY,
+  type SystemTradingEnvironmentMetadata,
   type SystemTradingRepositoryMetadata,
 } from "./constants";
 
@@ -16,15 +17,16 @@ export type SystemTradingRegistrationResult = {
   workspaceName: string;
   adaptationKey: string;
   repository: SystemTradingRepositoryMetadata;
+  environment: SystemTradingEnvironmentMetadata;
   tradingLabModuleKey: string;
 };
 
 /**
  * Registers the System Trading workspace in System Builder.
  *
- * Idempotent upsert: organization, workspace (with repository metadata),
- * the Trading Lab module installation and an immutable audit event are all
- * persisted and can be read back via getSystemTradingWorkspaceRegistration.
+ * Idempotent upsert: organization, workspace (with repository and environment
+ * metadata), the Trading Lab module installation and an immutable audit event
+ * are all persisted and can be read back via getSystemTradingWorkspaceRegistration.
  */
 export async function registerSystemTradingWorkspace(
   db: DbClient = getDb(),
@@ -47,6 +49,7 @@ export async function registerSystemTradingWorkspace(
     .returning({ id: organizations.id });
 
   const repository = SYSTEM_TRADING.workspace.repository;
+  const environment = SYSTEM_TRADING.workspace.environment;
 
   const [workspace] = await db
     .insert(workspaces)
@@ -56,7 +59,7 @@ export async function registerSystemTradingWorkspace(
       name: SYSTEM_TRADING.workspace.name,
       status: "active",
       adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
-      metadata: { repository },
+      metadata: { repository, environment },
     })
     .onConflictDoUpdate({
       target: workspaces.key,
@@ -65,7 +68,7 @@ export async function registerSystemTradingWorkspace(
         name: SYSTEM_TRADING.workspace.name,
         status: "active",
         adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
-        metadata: { repository },
+        metadata: { repository, environment },
         updatedAt: new Date(),
       },
     })
@@ -112,6 +115,7 @@ export async function registerSystemTradingWorkspace(
         workspaceKey: SYSTEM_TRADING.workspace.key,
         workspaceName: SYSTEM_TRADING.workspace.name,
         repository,
+        environment,
         moduleKey: SYSTEM_TRADING.tradingLab.moduleKey,
       },
     })
@@ -124,6 +128,7 @@ export async function registerSystemTradingWorkspace(
     workspaceName: SYSTEM_TRADING.workspace.name,
     adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
     repository,
+    environment,
     tradingLabModuleKey: SYSTEM_TRADING.tradingLab.moduleKey,
   };
 }

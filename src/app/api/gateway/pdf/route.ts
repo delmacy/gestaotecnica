@@ -16,7 +16,7 @@ type PdfRequestBody = {
 };
 
 export async function POST(request: Request) {
-  const authError = validateGatewayRequest(request);
+  const authError = await validateGatewayRequest(request);
   if (authError) return authError;
 
   const body = (await request.json().catch(() => ({}))) as PdfRequestBody;

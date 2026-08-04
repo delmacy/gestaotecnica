@@ -5,7 +5,7 @@ import type { IntegrationCommandRequest } from "@/platform/integrations";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
-  const authResponse = validateGatewayRequest(request);
+  const authResponse = await validateGatewayRequest(request);
   if (authResponse) return authResponse;
 
   initializePlatformKernel();

@@ -14,7 +14,7 @@ type GatewayModuleRouteProps = {
 };
 
 export async function GET(request: Request, { params }: GatewayModuleRouteProps) {
-  const authError = validateGatewayRequest(request);
+  const authError = await validateGatewayRequest(request);
   if (authError) return authError;
 
   const { moduleKey } = await params;

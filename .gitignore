@@ -53,3 +53,8 @@ verify_output*.txt
 playwright-report/
 test-results/
 dev_server.log
+
+# local junk / duplicated repos (must never be committed)
+/pr903-fix/
+/workspace-menu-fix/
+/system-building/

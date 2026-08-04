@@ -1,0 +1,266 @@
+diff --git a/src/app/api/builder/workspace-system-trading/route.ts b/src/app/api/builder/workspace-system-trading/route.ts
+new file mode 100644
+index 0000000..7b96abf
+--- /dev/null
++++ b/src/app/api/builder/workspace-system-trading/route.ts
+@@ -0,0 +1,61 @@
++import { NextResponse } from "next/server";
++import {
++  getSystemTradingWorkspaceRegistration,
++  registerSystemTradingWorkspace,
++} from "@/platform/workspaces/system-trading";
++import { createPlatformError } from "@/platform/errors";
++
++/**
++ * Operator action that proves workspace and capability visibility end to end:
++ * the System Trading workspace is registered (idempotent upsert), then read
++ * back from persistence. The response derives its evidence from comparing the
++ * registration result with the persisted read-back, never from static claims.
++ */
++export async function GET() {
++  try {
++    const registrationResult = await registerSystemTradingWorkspace();
++    const readBackRegistration = await getSystemTradingWorkspaceRegistration();
++
++    const enabledModule = readBackRegistration?.modules.find(
++      (module) => module.isEnabled,
++    );
++
++    const evidence = {
++      persisted: !!readBackRegistration,
++      canBeReadBack: !!readBackRegistration,
++      workspaceKeyMatches:
++        registrationResult.workspaceKey === readBackRegistration?.workspaceKey,
++      tradingLabModuleMatches:
++        registrationResult.tradingLabModuleKey === enabledModule?.moduleKey,
++      repositoryMetadataMatches:
++        JSON.stringify(registrationResult.repository) ===
++        JSON.stringify(readBackRegistration?.repository),
++      environmentMetadataMatches:
++        JSON.stringify(registrationResult.environment) ===
++        JSON.stringify(readBackRegistration?.environment),
++    };
++
++    return NextResponse.json(
++      {
++        registrationResult,
++        readBackRegistration,
++        evidence,
++      },
++      { status: 200 },
++    );
++  } catch (error: unknown) {
++    const errorEnvelope = createPlatformError(
++      {
++        code: "PLATFORM.API.INTERNAL_ERROR",
++        category: "unexpected",
++        severity: "error",
++        message: "Failed to demonstrate workspace visibility",
++        details: {
++          error: error instanceof Error ? error.message : "Unknown error",
++        },
++      },
++      { id: crypto.randomUUID(), timestamp: new Date().toISOString() },
++    );
++    return NextResponse.json(errorEnvelope, { status: 500 });
++  }
++}
+diff --git a/tests/unit/system-trading-visibility-route.test.ts b/tests/unit/system-trading-visibility-route.test.ts
+new file mode 100644
+index 0000000..c286685
+--- /dev/null
++++ b/tests/unit/system-trading-visibility-route.test.ts
+@@ -0,0 +1,193 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import proxyquire from "proxyquire";
++import { SYSTEM_TRADING } from "../../src/platform/workspaces/system-trading/constants";
++
++type RepositoryMetadata = {
++  owner: string;
++  name: string;
++  url: string;
++  branch: string;
++};
++
++type EnvironmentMetadata = {
++  stage: string;
++  label: string;
++  runtime: string;
++  database: string;
++};
++
++type RegistrationResult = {
++  organizationId: string;
++  workspaceId: string;
++  workspaceKey: string;
++  workspaceName: string;
++  adaptationKey: string;
++  repository: RepositoryMetadata;
++  environment: EnvironmentMetadata;
++  tradingLabModuleKey: string;
++};
++
++type ModuleRow = {
++  moduleKey: string;
++  name: string;
++  description: string | null;
++  layer: string;
++  status: string;
++  isEnabled: boolean;
++};
++
++type ReadBackRegistration = {
++  workspaceId: string;
++  workspaceKey: string;
++  workspaceName: string;
++  status: string;
++  adaptationKey: string | null;
++  repository: RepositoryMetadata | null;
++  environment: EnvironmentMetadata | null;
++  tradingLabInstalled: boolean;
++  modules: ModuleRow[];
++};
++
++type RouteResponse = {
++  data: Record<string, unknown>;
++  options: { status: number };
++};
++
++let registerImpl: () => Promise<RegistrationResult>;
++let readImpl: () => Promise<ReadBackRegistration | null>;
++
++const { GET } = proxyquire(
++  "../../src/app/api/builder/workspace-system-trading/route",
++  {
++    "next/server": {
++      NextResponse: {
++        json: (data: unknown, options?: { status: number }) => ({
++          data,
++          options: options || { status: 200 },
++        }),
++      },
++    },
++    "@/platform/workspaces/system-trading": {
++      registerSystemTradingWorkspace: () => registerImpl(),
++      getSystemTradingWorkspaceRegistration: () => readImpl(),
++    },
++    "@/platform/errors": {
++      createPlatformError: (
++        envelope: Record<string, unknown>,
++        meta: { id: string; timestamp: string },
++      ) => ({ ...envelope, ...meta }),
++    },
++  },
++);
++
++function successRegistration(): RegistrationResult {
++  return {
++    organizationId: "org-1",
++    workspaceId: "workspace-1",
++    workspaceKey: SYSTEM_TRADING.workspace.key,
++    workspaceName: SYSTEM_TRADING.workspace.name,
++    adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
++    repository: SYSTEM_TRADING.workspace.repository,
++    environment: SYSTEM_TRADING.workspace.environment,
++    tradingLabModuleKey: SYSTEM_TRADING.tradingLab.moduleKey,
++  };
++}
++
++function successReadBack(): ReadBackRegistration {
++  return {
++    workspaceId: "workspace-1",
++    workspaceKey: SYSTEM_TRADING.workspace.key,
++    workspaceName: SYSTEM_TRADING.workspace.name,
++    status: "active",
++    adaptationKey: SYSTEM_TRADING.workspace.adaptationKey,
++    repository: SYSTEM_TRADING.workspace.repository,
++    environment: SYSTEM_TRADING.workspace.environment,
++    tradingLabInstalled: true,
++    modules: [
++      {
++        moduleKey: SYSTEM_TRADING.tradingLab.moduleKey,
++        name: SYSTEM_TRADING.tradingLab.name,
++        description: SYSTEM_TRADING.tradingLab.description,
++        layer: SYSTEM_TRADING.tradingLab.layer,
++        status: SYSTEM_TRADING.tradingLab.status,
++        isEnabled: true,
++      },
++    ],
++  };
++}
++
++test("GET /api/builder/workspace-system-trading", async (t) => {
++  t.beforeEach(() => {
++    registerImpl = successRegistration;
++    readImpl = successReadBack;
++  });
++
++  await t.test(
++    "proves workspace and capability visibility when registration and read-back match",
++    async () => {
++      const response = (await GET()) as RouteResponse;
++
++      assert.equal(response.options.status, 200);
++
++      const registrationResult = response.data.registrationResult as RegistrationResult;
++      assert.equal(registrationResult.workspaceKey, SYSTEM_TRADING.workspace.key);
++      assert.equal(
++        registrationResult.tradingLabModuleKey,
++        SYSTEM_TRADING.tradingLab.moduleKey,
++      );
++
++      const readBack = response.data.readBackRegistration as ReadBackRegistration;
++      assert.equal(readBack.workspaceKey, SYSTEM_TRADING.workspace.key);
++      assert.equal(readBack.tradingLabInstalled, true);
++      assert.deepEqual(readBack.repository, SYSTEM_TRADING.workspace.repository);
++      assert.deepEqual(readBack.environment, SYSTEM_TRADING.workspace.environment);
++
++      const evidence = response.data.evidence as Record<string, boolean>;
++      assert.equal(evidence.persisted, true);
++      assert.equal(evidence.canBeReadBack, true);
++      assert.equal(evidence.workspaceKeyMatches, true);
++      assert.equal(evidence.tradingLabModuleMatches, true);
++      assert.equal(evidence.repositoryMetadataMatches, true);
++      assert.equal(evidence.environmentMetadataMatches, true);
++    },
++  );
++
++  await t.test("reports mismatches when the read-back diverges from registration", async () => {
++    readImpl = async () => ({
++      ...successReadBack(),
++      repository: {
++        owner: "delmacy",
++        name: "gestaotecnica",
++        url: "https://github.com/delmacy/gestaotecnica",
++        branch: "develop",
++      },
++      modules: [],
++    });
++
++    const response = (await GET()) as RouteResponse;
++
++    const evidence = response.data.evidence as Record<string, boolean>;
++    assert.equal(evidence.repositoryMetadataMatches, false);
++    assert.equal(evidence.tradingLabModuleMatches, false);
++    assert.equal(evidence.environmentMetadataMatches, true);
++  });
++
++  await t.test("returns a platform error envelope when registration fails", async () => {
++    registerImpl = async () => {
++      throw new Error("database unavailable");
++    };
++
++    const response = (await GET()) as RouteResponse;
++
++    assert.equal(response.options.status, 500);
++    assert.equal(
++      (response.data as { code: string }).code,
++      "PLATFORM.API.INTERNAL_ERROR",
++    );
++    assert.ok(
++      (response.data as { id: string }).id,
++      "error envelope should carry an id",
++    );
++  });
++});

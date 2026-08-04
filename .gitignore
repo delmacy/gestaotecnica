@@ -24,6 +24,11 @@
 .DS_Store
 *.pem
 
+# orquestrador
+system-building/orchestration/**/*.log
+system-building/orchestration/**/health.json
+system-building/orchestration/**/state.json
+
 # debug
 npm-debug.log*
 yarn-debug.log*

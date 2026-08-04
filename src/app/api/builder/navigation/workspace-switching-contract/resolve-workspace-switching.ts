@@ -1,57 +1,38 @@
-import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
-import { workspaces } from "@/db/runtime/schema/workspace";
+import { resolveBuilderPortfolio, persistWorkspaceSelection } from "@/lib/builder-persistence";
 
 import { WorkspaceSwitchingRequest, WorkspaceSwitchingResponse, WorkspaceListRequest, WorkspaceListResponse, WorkspaceInfo } from './workspace-switching-contract';
 
 export async function resolveWorkspaceSwitching(request: WorkspaceSwitchingRequest): Promise<WorkspaceSwitchingResponse> {
-  const db = getDb();
+  const result = await persistWorkspaceSelection(request.userId, request.targetWorkspaceId);
 
-  if (request.targetWorkspaceId === 'forbidden-ws') {
+  if (!result.ok) {
+    if (result.reason === "workspace_not_found") {
+      return { status: 'not-found', message: 'Workspace not found.' };
+    }
+    if (result.reason === "not_a_member") {
       return { status: 'forbidden', message: 'Not authorized for this workspace.' };
-  }
-
-  const [targetWorkspace] = await db
-    .select({ id: workspaces.id })
-    .from(workspaces)
-    .where(eq(workspaces.id, request.targetWorkspaceId))
-    .limit(1);
-
-  if (!targetWorkspace) {
-    return { status: 'not-found', message: 'Workspace not found.' };
+    }
   }
 
   return { status: 'success', redirectUrl: `/builder` };
 }
 
 export async function resolveWorkspaceList(request: WorkspaceListRequest): Promise<WorkspaceListResponse> {
-  const db = getDb();
+  const portfolio = await resolveBuilderPortfolio(request.userId);
 
-  const results = await db
-    .select({
-      id: workspaces.id,
-      name: workspaces.name,
-      status: workspaces.status,
-      adaptationKey: workspaces.adaptationKey
-    })
-    .from(workspaces)
-    .where(eq(workspaces.status, 'active'));
-
-  if (results.length === 0) {
-    const dummyWorkspaces: WorkspaceInfo[] = [
-        { workspaceId: 'ws-1', name: 'Primary Operations', role: 'workspace_admin', isDemo: false, isSynthetic: false },
-        { workspaceId: 'ws-2', name: 'Beta Features', role: 'workspace_member', isDemo: false, isSynthetic: true },
-    ];
-    return { workspaces: dummyWorkspaces };
+  if (!portfolio) {
+    return { workspaces: [] };
   }
 
-  const mappedWorkspaces: WorkspaceInfo[] = results.map((ws: typeof workspaces.$inferSelect) => ({
-    workspaceId: ws.id,
-    name: ws.name,
-    role: 'workspace_member',
-    isDemo: ws.adaptationKey === 'demo',
-    isSynthetic: ws.adaptationKey === 'synthetic',
-  }));
+  const mappedWorkspaces: WorkspaceInfo[] = portfolio.organizations.flatMap(org =>
+    org.workspaces.map(ws => ({
+      workspaceId: ws.id,
+      name: ws.name,
+      role: ws.role,
+      isDemo: ws.adaptationKey === 'demo',
+      isSynthetic: ws.adaptationKey === 'synthetic',
+    }))
+  );
 
   return { workspaces: mappedWorkspaces };
 }

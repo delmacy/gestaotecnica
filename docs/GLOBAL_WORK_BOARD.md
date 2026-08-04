@@ -57,3 +57,8 @@ Status descreve o estado documental real. done significa documento-base criado; 
 | 51 | tasker | Validar fluxo de tasks | docs/tasker/ | done | validar transição de estado | Jules Doc |
 | 52 | process_mirroring | Selecionar Piloto | docs/process_mirroring/pilots/ | done | escopo e consentimento | Analista de Processo |
 | 53 | platform-hardening | Sprint de Correção do System Builder (Fase 21) | docs/archive/planning/mvp/PHASE_21.md | ready | executar 50 tasks de correção | Jules Dev |
+| 54 | multi-tenant | Multi-tenant & Workspace Foundation (Fase 22) | docs/archive/planning/mvp/PHASE_22.md | ready | executar 10 tasks de isolamento | Jules Dev |
+| 55 | process-mirroring-engine | Process Mirroring Engine (Fase 23) | docs/archive/planning/mvp/PHASE_22.md | ready | executar 10 tasks de espelhamento | Jules Dev |
+| 56 | capabilities-platform | Universal Capabilities Platform (Fase 24) | docs/archive/planning/mvp/PHASE_22.md | ready | executar 10 tasks de capabilities | Jules Dev |
+| 57 | governance-rbac | Governance, RBAC & Security (Fase 25) | docs/archive/planning/mvp/PHASE_22.md | ready | executar 10 tasks de governança | Jules Dev |
+| 58 | workflow-runtime | Workflow Engine, Runtime & Frontend Parity (Fase 26) | docs/archive/planning/mvp/PHASE_22.md | ready | executar 10 tasks de runtime | Jules Dev |

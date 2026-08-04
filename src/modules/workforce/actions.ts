@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createEvent } from "@/platform/events/create-event";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
@@ -74,6 +74,7 @@ export async function createTeam(formData: FormData) {
   const name = readRequiredText(formData, "name");
   const description = readOptionalText(formData, "description");
   const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
 
   const result = await runAction(
     "workforce.create_team",
@@ -88,7 +89,7 @@ export async function createTeam(formData: FormData) {
     throw new Error(result.error?.message ?? "Falha ao criar equipe.");
   }
 
-  revalidatePath("/");
+  revalidateTag(workspaceId);
   revalidatePath("/workforce");
   redirect("/workforce");
 }
@@ -125,6 +126,7 @@ export async function createTechnician(formData: FormData) {
     });
 
   const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
   const result = await runAction(
     "workforce.create_technician",
     {
@@ -141,7 +143,7 @@ export async function createTechnician(formData: FormData) {
     throw new Error(result.error?.message ?? "Falha ao criar técnico.");
   }
 
-  revalidatePath("/");
+  revalidateTag(workspaceId);
   revalidatePath("/workforce");
   revalidatePath("/service-orders");
   redirect("/workforce");
@@ -207,7 +209,7 @@ export async function createWorkforceAllocation(formData: FormData) {
     payload: allocation,
   });
 
-  revalidatePath("/");
+  revalidateTag(workspaceId);
   revalidatePath("/workforce");
   revalidatePath("/planning");
   if (serviceOrderId) revalidatePath(`/service-orders/${serviceOrderId}`);
@@ -249,7 +251,7 @@ export async function createTechnicianUnavailability(formData: FormData) {
     payload: unavailability,
   });
 
-  revalidatePath("/");
+  revalidateTag(workspaceId);
   revalidatePath("/workforce");
   revalidatePath("/planning");
   redirect("/workforce");

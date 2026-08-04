@@ -46,6 +46,10 @@ export async function getWorkItems(): Promise<WorkItemWithAsset[]> {
 }
 
 export async function getWorkItemById(id: string): Promise<WorkItemWithAsset | null> {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+  if (!workspaceId) return null;
+
   const db = getDb();
 
   const [workItem] = await db
@@ -69,7 +73,7 @@ export async function getWorkItemById(id: string): Promise<WorkItemWithAsset | n
     })
     .from(workItems)
     .leftJoin(assets, eq(workItems.assetId, assets.id))
-    .where(eq(workItems.id, id))
+    .where(and(eq(workItems.id, id), eq(workItems.workspaceId, workspaceId)))
     .limit(1);
 
   return (workItem as unknown as WorkItemWithAsset) ?? null;

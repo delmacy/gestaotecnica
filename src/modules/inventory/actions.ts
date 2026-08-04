@@ -7,7 +7,7 @@ import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
+import { createEvent } from "@/platform/events/create-event";
 import {
   inventoryItemStatuses,
   inventoryMovementTypes,
@@ -77,7 +77,7 @@ export async function createInventoryItem(formData: FormData) {
     status: inventoryItems.status,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "inventory_item.created",
     entityType: "inventory_item",
     entityId: item.id,
@@ -125,7 +125,7 @@ export async function createInventoryMovement(formData: FormData) {
     })
     .where(eq(inventoryItems.id, itemId));
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "inventory_movement.created",
     entityType: "inventory_movement",
     entityId: movement.id,

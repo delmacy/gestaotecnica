@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
+import { createEvent } from "@/platform/events/create-event";
 import {
   contractStatuses,
   supplierStatuses,
@@ -67,7 +67,7 @@ export async function createSupplier(formData: FormData) {
     notes: readOptionalText(formData, "notes"),
   }).returning({ id: suppliers.id, name: suppliers.name, status: suppliers.status });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "supplier.created",
     entityType: "supplier",
     entityId: supplier.id,
@@ -87,7 +87,7 @@ export async function updateSupplierStatus(formData: FormData) {
   const [previous] = await db.select({ id: suppliers.id, name: suppliers.name, status: suppliers.status }).from(suppliers).where(eq(suppliers.id, id)).limit(1);
   if (!previous) throw new Error("Fornecedor nao encontrado.");
   await db.update(suppliers).set({ status, updatedAt: new Date() }).where(eq(suppliers.id, id));
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "supplier.status_changed",
     entityType: "supplier",
     entityId: previous.id,
@@ -121,7 +121,7 @@ export async function createSupplierContract(formData: FormData) {
     status: supplierContracts.status,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "supplier_contract.created",
     entityType: "supplier_contract",
     entityId: contract.id,

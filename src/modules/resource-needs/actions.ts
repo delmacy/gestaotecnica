@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb, getRuntimeDb } from "@/db";
-import { events as eventLogs } from "@/db/runtime/schema/workflow";
+import { createEvent } from "@/platform/events/create-event";
 import {
   priorities,
   resourceNeedStatuses,
@@ -78,7 +78,7 @@ export async function createResourceNeed(formData: FormData) {
     assetId: resourceNeeds.assetId,
   });
 
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "resource_need.created",
     entityType: "resource_need",
     entityId: need.id,
@@ -111,7 +111,7 @@ export async function updateResourceNeedStatus(formData: FormData) {
   if (!previous) throw new Error("Necessidade de recurso nao encontrada.");
 
   await db.update(resourceNeeds).set({ status, updatedAt: new Date() }).where(eq(resourceNeeds.id, id));
-  await db.insert(eventLogs).values({
+  await createEvent({
     eventType: "resource_need.status_changed",
     entityType: "resource_need",
     entityId: previous.id,

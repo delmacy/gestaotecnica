@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { workItems } from "@/db/legacy/schema";
 import type { ActionDefinition } from "@/platform/actions";
@@ -114,7 +114,7 @@ export const transitionWorkItemKernelAction: ActionDefinition<
     status: stringProperty("Status final."),
   }),
   emits: ["work_item.transitioned"],
-  async handler(input) {
+  async handler(input, context) {
     const parsed = TransitionWorkItemInputSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -124,6 +124,10 @@ export const transitionWorkItemKernelAction: ActionDefinition<
     }
 
     const { workItemId, status, note } = parsed.data;
+    const workspaceId = context.workspaceId;
+    if (!workspaceId) {
+      return { success: false, error: { code: "FORBIDDEN", message: "Sem contexto de workspace." } };
+    }
 
     const db = getDb();
     const [previous] = await db
@@ -134,7 +138,7 @@ export const transitionWorkItemKernelAction: ActionDefinition<
         assetId: workItems.assetId,
       })
       .from(workItems)
-      .where(eq(workItems.id, workItemId))
+      .where(and(eq(workItems.id, workItemId), eq(workItems.workspaceId, workspaceId)))
       .limit(1);
 
     if (!previous) {
@@ -144,7 +148,7 @@ export const transitionWorkItemKernelAction: ActionDefinition<
     const [updated] = await db
       .update(workItems)
       .set({ status: status as unknown as typeof workItems.$inferInsert.status, updatedAt: new Date() })
-      .where(eq(workItems.id, previous.id))
+      .where(and(eq(workItems.id, previous.id), eq(workItems.workspaceId, workspaceId)))
       .returning({
         id: workItems.id,
         title: workItems.title,

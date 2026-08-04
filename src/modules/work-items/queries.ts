@@ -1,15 +1,20 @@
-import { desc, eq, count } from "drizzle-orm";
+import { desc, eq, and, count } from "drizzle-orm";
 import { getDb, getRuntimeDb } from "@/db";
 import { assets, workItems } from "@/db/legacy/schema";
 import { workspaces } from "@/db/runtime/schema/workspace";
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { getWorkspaceWorkItemTypeOptions } from "@/platform/workspaces/catalogs";
+import { resolveWorkspaceContext } from "@/platform/workspace";
 import type { WorkItemTypeValue } from "./constants";
 import type { WorkItem } from "./contracts/work-item.schema";
 
 type WorkItemWithAsset = WorkItem & { assetCode: string | null; assetName: string | null };
 
 export async function getWorkItems(): Promise<WorkItemWithAsset[]> {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+  if (!workspaceId) return [];
+
   const db = getDb(); // Using getDb for workItems since it's legacy
 
   const results = await db
@@ -33,6 +38,7 @@ export async function getWorkItems(): Promise<WorkItemWithAsset[]> {
     })
     .from(workItems)
     .leftJoin(assets, eq(workItems.assetId, assets.id))
+    .where(eq(workItems.workspaceId, workspaceId))
     .orderBy(desc(workItems.createdAt))
     .limit(50);
 
@@ -40,6 +46,10 @@ export async function getWorkItems(): Promise<WorkItemWithAsset[]> {
 }
 
 export async function getWorkItemById(id: string): Promise<WorkItemWithAsset | null> {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+  if (!workspaceId) return null;
+
   const db = getDb();
 
   const [workItem] = await db
@@ -63,13 +73,17 @@ export async function getWorkItemById(id: string): Promise<WorkItemWithAsset | n
     })
     .from(workItems)
     .leftJoin(assets, eq(workItems.assetId, assets.id))
-    .where(eq(workItems.id, id))
+    .where(and(eq(workItems.id, id), eq(workItems.workspaceId, workspaceId)))
     .limit(1);
 
   return (workItem as unknown as WorkItemWithAsset) ?? null;
 }
 
 export async function getWorkItemEvents(id: string) {
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+  if (!workspaceId) return [];
+
   const db = getDb();
 
   return db
@@ -80,26 +94,33 @@ export async function getWorkItemEvents(id: string) {
       occurredAt: eventLogs.createdAt,
     })
     .from(eventLogs)
-    .where(eq(eventLogs.entityId, id))
+    .where(and(eq(eventLogs.entityId, id), eq(eventLogs.workspaceId, workspaceId)))
     .orderBy(desc(eventLogs.createdAt));
 }
 
 export async function getWorkItemSummary() {
   const db = getDb();
 
-  const [totalRow] = await db.select({ value: count() }).from(workItems);
+  const context = await resolveWorkspaceContext({ source: "ui" });
+  const { workspaceId } = context;
+  if (!workspaceId) return [];
+
+  const [totalRow] = await db
+    .select({ value: count() })
+    .from(workItems)
+    .where(eq(workItems.workspaceId, workspaceId));
   const [openRow] = await db
     .select({ value: count() })
     .from(workItems)
-    .where(eq(workItems.status, "open"));
+    .where(and(eq(workItems.workspaceId, workspaceId), eq(workItems.status, "open")));
   const [criticalRow] = await db
     .select({ value: count() })
     .from(workItems)
-    .where(eq(workItems.priority, "critical"));
+    .where(and(eq(workItems.workspaceId, workspaceId), eq(workItems.priority, "critical")));
   const [eventsRow] = await db
     .select({ value: count() })
     .from(eventLogs)
-    .where(eq(eventLogs.eventType, "work_item.created"));
+    .where(and(eq(eventLogs.workspaceId, workspaceId), eq(eventLogs.eventType, "work_item.created")));
 
   return [
     { label: "Demandas", value: totalRow.value },

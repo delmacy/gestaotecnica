@@ -14,6 +14,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "check:architecture": "npx tsx scripts/validate-architecture-rules.ts",
     "check:no-explicit-any": "npx tsx scripts/check-explicit-any.ts",
     "check:no-explicit-any:fix": "npx tsx scripts/check-explicit-any.ts --fix",

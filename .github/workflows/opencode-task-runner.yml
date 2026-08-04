@@ -1,0 +1,195 @@
+name: OpenCode Task Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_file:
+        description: Optional file name inside .agent/tasks/ready
+        required: false
+        type: string
+  repository_dispatch:
+    types: [run-next-opencode-task]
+  schedule:
+    - cron: "3,18,33,48 * * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+
+concurrency:
+  group: opencode-production-queue
+  cancel-in-progress: false
+
+jobs:
+  execute-task:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --fund=false
+
+      - name: Stop when an agent PR is already open
+        id: queue_gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          count="$(gh pr list --state open --base main --json headRefName --jq '[.[] | select(.headRefName | startswith("agent/"))] | length')"
+          if [ "$count" -gt 0 ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "An agent PR is already open; queue remains serialized."
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Select next task
+        if: steps.queue_gate.outputs.run == 'true'
+        id: task
+        env:
+          REQUESTED_TASK: ${{ inputs.task_file || '' }}
+        run: |
+          set -euo pipefail
+          if [ -n "$REQUESTED_TASK" ]; then
+            task_file=".agent/tasks/ready/$REQUESTED_TASK"
+          else
+            task_file="$(find .agent/tasks/ready -maxdepth 1 -type f -name '*.md' -print | sort | head -n 1 || true)"
+          fi
+          if [ -z "${task_file:-}" ] || [ ! -f "$task_file" ]; then
+            echo "has_task=false" >> "$GITHUB_OUTPUT"
+            echo "No ready task found."
+            exit 0
+          fi
+          task_name="$(basename "$task_file")"
+          task_id="${task_name%.md}"
+          branch="agent/$task_id"
+          cp "$task_file" /tmp/opencode-task.md
+          {
+            echo "has_task=true"
+            echo "file=$task_file"
+            echo "name=$task_name"
+            echo "id=$task_id"
+            echo "branch=$branch"
+            echo "content<<__TASK__"
+            cat "$task_file"
+            echo
+            echo "__TASK__"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create task branch
+        if: steps.task.outputs.has_task == 'true'
+        run: git switch -c "${{ steps.task.outputs.branch }}"
+
+      - name: Run OpenCode implementation
+        if: steps.task.outputs.has_task == 'true'
+        uses: anomalyco/opencode/github@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          model: ${{ env.OPENCODE_MODEL }}
+          agent: build
+          share: false
+          prompt: |
+            Execute the queued task below in the current working tree.
+
+            ${{ steps.task.outputs.content }}
+
+            Mandatory rules:
+            - Read AGENTS.md and related project documentation before editing.
+            - Use Node.js 24 and preserve the repository architecture.
+            - Do not modify .github/workflows, secrets, deployment configuration, or unrelated files.
+            - Do not commit, push, merge, or open a pull request.
+            - Run relevant tests and leave all changes in the working tree.
+
+      - name: Validate implementation
+        if: steps.task.outputs.has_task == 'true'
+        id: validation
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          {
+            git diff --check
+            npm run lint
+            npm run typecheck
+            npm run check:architecture
+            npm run test:unit
+            npm run test:integration
+            npm run build
+          } 2>&1 | tee validation.log
+
+      - name: Repair validation failures
+        if: steps.task.outputs.has_task == 'true' && steps.validation.outcome == 'failure'
+        uses: anomalyco/opencode/github@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          model: ${{ env.OPENCODE_MODEL }}
+          agent: build
+          share: false
+          prompt: |
+            The implementation failed repository validation.
+            Read validation.log, fix only failures caused by the current task, and preserve test coverage.
+            Do not commit, push, merge, open a pull request, disable tests, or modify workflows.
+
+      - name: Final validation
+        if: steps.task.outputs.has_task == 'true'
+        run: |
+          set -euo pipefail
+          git diff --check
+          npm run lint
+          npm run typecheck
+          npm run check:architecture
+          npm run test:unit
+          npm run test:integration
+          npm run build
+
+      - name: Mark task completed in proposed change
+        if: steps.task.outputs.has_task == 'true'
+        run: |
+          mkdir -p .agent/tasks/completed
+          git mv "${{ steps.task.outputs.file }}" ".agent/tasks/completed/${{ steps.task.outputs.name }}"
+
+      - name: Commit and push task branch
+        if: steps.task.outputs.has_task == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "::error::OpenCode produced no committable changes."
+            exit 1
+          fi
+          git commit -m "feat(${{ steps.task.outputs.id }}): implement queued task"
+          git push --set-upstream origin "${{ steps.task.outputs.branch }}"
+
+      - name: Open pull request and enable auto-merge
+        if: steps.task.outputs.has_task == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pr_url="$(gh pr create --base main --head "${{ steps.task.outputs.branch }}" --title "${{ steps.task.outputs.id }}: automated implementation" --body-file /tmp/opencode-task.md)"
+          gh pr merge "$pr_url" --auto --squash --delete-branch

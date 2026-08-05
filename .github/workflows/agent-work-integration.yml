@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: postgres:15
+        image: postgres:17
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -37,6 +37,9 @@ jobs:
     env:
       NODE_ENV: test
       AGENT_WORK_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/agent_work_test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/agent_work_test
+      PLATFORM_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/agent_work_test
+      RUNTIME_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/agent_work_test
     steps:
       - uses: actions/checkout@v5
         with:

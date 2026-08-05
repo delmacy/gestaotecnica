@@ -57,6 +57,7 @@ export async function createInventoryItem(formData: FormData) {
     quantityOnHand <= minimumQuantity ? "low_stock" : "available",
   );
   const db = getRuntimeDb();
+  const assetId = readOptionalText(formData, "assetId");
 
   const [item] = await db.insert(inventoryItems).values({
     sku,
@@ -68,7 +69,7 @@ export async function createInventoryItem(formData: FormData) {
     unit: readOptionalText(formData, "unit") ?? "un",
     location: readOptionalText(formData, "location"),
     supplierId: readOptionalText(formData, "supplierId"),
-    assetId: readOptionalText(formData, "assetId"),
+    assetId,
     notes: readOptionalText(formData, "notes"),
   }).returning({
     id: inventoryItems.id,
@@ -81,8 +82,7 @@ export async function createInventoryItem(formData: FormData) {
     eventType: "inventory_item.created",
     entityType: "inventory_item",
     entityId: item.id,
-    assetId: readOptionalText(formData, "assetId"),
-    payload: item,
+    payload: { ...item, assetId },
   });
 
   revalidatePath("/");
@@ -100,6 +100,7 @@ export async function createInventoryMovement(formData: FormData) {
     "adjustment",
   );
   const quantity = readInteger(formData, "quantity");
+  const serviceOrderId = readOptionalText(formData, "serviceOrderId");
   const db = getDb();
 
   const delta = movementType === "inbound" || movementType === "release" ? quantity : -quantity;
@@ -107,7 +108,7 @@ export async function createInventoryMovement(formData: FormData) {
     itemId,
     movementType,
     quantity,
-    serviceOrderId: readOptionalText(formData, "serviceOrderId"),
+    serviceOrderId,
     acquisitionNeedId: readOptionalText(formData, "acquisitionNeedId"),
     performedById: readOptionalText(formData, "performedById"),
     notes: readOptionalText(formData, "notes"),
@@ -129,8 +130,7 @@ export async function createInventoryMovement(formData: FormData) {
     eventType: "inventory_movement.created",
     entityType: "inventory_movement",
     entityId: movement.id,
-    serviceOrderId: readOptionalText(formData, "serviceOrderId"),
-    payload: movement,
+    payload: { ...movement, serviceOrderId },
   });
 
   revalidatePath("/");

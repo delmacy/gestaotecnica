@@ -10,54 +10,54 @@ export interface AgentRuntimeConfig {
 
 const FALLBACK_MODELS: Record<ModelTier, string[]> = {
   simple: [
-    "deepseek-v4-flash-free",
-    "ling-3.0-flash-free",
-    "nemotron-3-ultra-free",
-    "mimo-v2.5-free",
-    "north-mini-code-free",
-    "laguna-s-2.1-free",
-    "deepseek-v4-flash",
-    "gemini-3.5-flash-lite",
-    "gpt-5.4-nano",
+    "opencode/deepseek-v4-flash-free",
+    "opencode/ling-3.0-flash-free",
+    "opencode/nemotron-3-ultra-free",
+    "opencode/mimo-v2.5-free",
+    "opencode/north-mini-code-free",
+    "opencode/laguna-s-2.1-free",
+    "opencode/deepseek-v4-flash",
+    "opencode/gemini-3.5-flash-lite",
+    "opencode/gpt-5.4-nano",
   ],
   standard: [
-    "qwen3.6-plus",
-    "qwen3.5-plus",
-    "minimax-m2.5",
-    "minimax-m2.7",
-    "kimi-k2.6",
-    "kimi-k2.5",
-    "deepseek-v4-pro",
-    "gpt-5.4-mini",
-    "gpt-5.3-codex-spark",
-    "claude-haiku-4-5",
-    "gemini-3.1-pro",
-    "gemini-3-flash",
+    "opencode/qwen3.6-plus",
+    "opencode/qwen3.5-plus",
+    "opencode/minimax-m2.5",
+    "opencode/minimax-m2.7",
+    "opencode/kimi-k2.6",
+    "opencode/kimi-k2.5",
+    "opencode/deepseek-v4-pro",
+    "opencode/gpt-5.4-mini",
+    "opencode/gpt-5.3-codex-spark",
+    "opencode/claude-haiku-4-5",
+    "opencode/gemini-3.1-pro",
+    "opencode/gemini-3-flash",
   ],
   advanced: [
-    "claude-sonnet-4",
-    "claude-sonnet-4-5",
-    "claude-sonnet-4-6",
-    "claude-sonnet-5",
-    "claude-opus-4-1",
-    "claude-opus-4-5",
-    "claude-opus-4-6",
-    "claude-opus-4-7",
-    "claude-opus-4-8",
-    "claude-opus-5",
-    "claude-fable-5",
-    "gpt-5.5",
-    "gpt-5.5-pro",
-    "gpt-5.6-sol",
-    "gpt-5.6-terra",
-    "gpt-5.6-luna",
-    "grok-4.5",
-    "kimi-k3",
-    "kimi-k2.7-code",
-    "minimax-m3",
-    "glm-5.2",
-    "glm-5.1",
-    "glm-5",
+    "opencode/claude-sonnet-4",
+    "opencode/claude-sonnet-4-5",
+    "opencode/claude-sonnet-4-6",
+    "opencode/claude-sonnet-5",
+    "opencode/claude-opus-4-1",
+    "opencode/claude-opus-4-5",
+    "opencode/claude-opus-4-6",
+    "opencode/claude-opus-4-7",
+    "opencode/claude-opus-4-8",
+    "opencode/claude-opus-5",
+    "opencode/claude-fable-5",
+    "opencode/gpt-5.5",
+    "opencode/gpt-5.5-pro",
+    "opencode/gpt-5.6-sol",
+    "opencode/gpt-5.6-terra",
+    "opencode/gpt-5.6-luna",
+    "opencode/grok-4.5",
+    "opencode/kimi-k3",
+    "opencode/kimi-k2.7-code",
+    "opencode/minimax-m3",
+    "opencode/glm-5.2",
+    "opencode/glm-5.1",
+    "opencode/glm-5",
   ],
 };
 
@@ -131,20 +131,23 @@ function normalizeTier(raw: string | undefined): ModelTier {
 }
 
 function resolveProvider(model: string): string {
+  if (model.startsWith("opencode/")) return "opencode";
   if (model.includes("/")) {
     const candidate = model.split("/")[0]!.toLowerCase();
-    if (["openai", "anthropic", "google", "deepseek", "minimax", "kimi", "qwen", "ling"].includes(candidate)) {
+    if (["openai", "anthropic", "google", "deepseek", "minimax", "kimi", "qwen", "ling", "glm"].includes(candidate)) {
       return "openrouter";
     }
   }
   if (model.startsWith("gpt-") || model.startsWith("o")) return "openai";
   if (model.startsWith("claude-")) return "anthropic";
   if (model.startsWith("gemini-")) return "google";
-  return "openrouter";
+  return "opencode";
 }
 
 function resolveApiKeyEnvVar(provider: string): string {
   switch (provider) {
+    case "opencode":
+      return "OPEN_CODE_API";
     case "openai":
       return "OPENAI_API_KEY";
     case "anthropic":
@@ -154,7 +157,7 @@ function resolveApiKeyEnvVar(provider: string): string {
     case "openrouter":
       return "OPENROUTER_API_KEY";
     default:
-      return "OPENROUTER_API_KEY";
+      return "OPEN_CODE_API";
   }
 }
 

@@ -13,10 +13,11 @@ import {
 const FAKE_KEY = "test-openrouter-key";
 
 const baseEnv = {
-  OPENCODE_MODEL_SIMPLE: "deepseek/deepseek-chat-v3-0324",
-  OPENCODE_MODEL_STANDARD: "anthropic/claude-sonnet-4-20250514",
-  OPENCODE_MODEL_ADVANCED: "anthropic/claude-opus-4-1-20250414",
-  OPENROUTER_API_KEY: FAKE_KEY,
+  OPENCODE_MODEL_SIMPLE: "opencode/deepseek-v4-flash-free",
+  OPENCODE_MODEL_STANDARD: "opencode/qwen3.6-plus",
+  OPENCODE_MODEL_ADVANCED: "opencode/claude-sonnet-4",
+  OPEN_CODE_API: FAKE_KEY,
+  OPENROUTER_API_KEY: undefined,
   OPENAI_API_KEY: undefined,
   ANTHROPIC_API_KEY: undefined,
   GOOGLE_API_KEY: undefined,

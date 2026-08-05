@@ -197,6 +197,7 @@ jobs:
           model: ${{ steps.task.outputs.model }}
           agent: build
           share: false
+          use_github_token: true
           prompt: |
             Execute exactly one compact task.
             Tier: ${{ steps.task.outputs.tier }}

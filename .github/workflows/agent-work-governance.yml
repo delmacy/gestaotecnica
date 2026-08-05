@@ -1,32 +1,54 @@
 name: Agent Work Governance
+
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
-    paths:
-      - 'src/**'
-      - 'docs/**'
+    branches: [main]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: agent-governance-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   validate-governance:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: '24'
 
-      - name: Validate PR Format
+      - name: Validate agent task
+        if: startsWith(github.head_ref, 'agent/')
         run: |
-          echo "Validating PR body format..."
-          BODY=$(jq -r '.pull_request.body' "$GITHUB_EVENT_PATH")
-          if ! echo "$BODY" | grep -q "Package ID:"; then echo "Missing Package ID in PR Body"; fi
-          if ! echo "$BODY" | grep -q "Base SHA:"; then echo "Missing Base SHA in PR Body"; fi
-          echo "PR Governance checks passed"
+          set -euo pipefail
+          task_id="${GITHUB_HEAD_REF#agent/}"
+          task_file=".agent/tasks/completed/${task_id}.md"
+          test -f "$task_file" || task_file=".agent/tasks/ready/${task_id}.md"
+          test -f "$task_file" || { echo "::error::Missing task file for $task_id"; exit 1; }
+          metadata="$(node scripts/agent/read-task-metadata.mjs "$task_file")"
+          test "$(jq -r '.id' <<<"$metadata")" = "$task_id"
+          test "$(jq -r '.risk' <<<"$metadata")" != "high"
+          node scripts/agent/validate-task-scope.mjs "origin/${{ github.base_ref }}" "$task_id"
 
-      - name: Run CI Gate
+      - name: Validate manual PR description
+        if: startsWith(github.head_ref, 'agent/') == false
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          echo "Running security, tenancy, migration gates..."
-          echo "Gates validated."
+          set -euo pipefail
+          missing=0
+          for heading in "## Objetivo" "## Alterações" "## Validação"; do
+            grep -Fq "$heading" <<<"${PR_BODY:-}" || { echo "::error::Missing heading: $heading"; missing=1; }
+          done
+          test "$missing" -eq 0

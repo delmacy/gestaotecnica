@@ -219,7 +219,14 @@ jobs:
 
             ${{ steps.task.outputs.content }}
 
-            Read AGENTS.md and .agent/policies/model-routing.md. Treat allowed_paths, forbidden_paths, acceptance criteria and non-goals as hard constraints. Do not commit, push, merge, open a PR, modify workflows, schemas, migrations, deployment or secrets.
+            Read AGENTS.md and .agent/policies/model-routing.md. Treat allowed_paths, forbidden_paths, acceptance criteria and non-goals as hard constraints.
+
+            Hard rules:
+            - Do NOT commit, push, merge, open a PR, or modify workflows, schemas, migrations, deployment, or secrets.
+            - Do NOT move or delete the task file (.agent/tasks/ready/*.md). Leave it where it is.
+            - Use ES module imports (import ... from ...) - NEVER use require().
+            - After implementing, run: npm run lint && npm run typecheck. Fix any errors before stopping.
+            - Touch only files within allowed_paths and respect max_files limit.
 
       - name: Diagnostic summary
         if: steps.task.outputs.has_task == 'true' && inputs.diagnostic_only == true

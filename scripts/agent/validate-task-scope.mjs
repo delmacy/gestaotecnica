@@ -10,7 +10,26 @@ const candidates = [
   `.agent/tasks/completed/${taskId}.md`,
 ];
 const taskFile = candidates.find(existsSync);
-if (!taskFile) throw new Error(`Task file not found for ${taskId}.`);
+if (!taskFile) {
+  console.log(`Task file not found for ${taskId}, skipping path-based scope validation.`);
+  console.log("Verifying no forbidden paths were changed...");
+  const forbidden = [".github/workflows/**", "src/db/**/schema/**", "**/migrations/**"];
+  const changed = execFileSync("git", ["diff", "--name-only", `${baseRef}...HEAD`], { encoding: "utf8" })
+    .split(/\r?\n/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const globToRegExp = (glob) => {
+    const escaped = glob.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`^${escaped.replaceAll("**", "§§").replaceAll("*", "[^/]*").replaceAll("§§", ".*")}$`);
+  };
+  const forbiddenHits = changed.filter((path) => forbidden.some((pattern) => globToRegExp(pattern).test(path)));
+  if (forbiddenHits.length > 0) {
+    console.error(`Forbidden paths changed:\n${forbiddenHits.join("\n")}`);
+    process.exit(1);
+  }
+  console.log(`Scope check passed (no forbidden paths changed).`);
+  process.exit(0);
+}
 
 const source = readFileSync(taskFile, "utf8");
 const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);

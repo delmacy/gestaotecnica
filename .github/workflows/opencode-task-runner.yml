@@ -184,6 +184,12 @@ jobs:
         if: steps.task.outputs.has_task == 'true'
         run: git switch -c "${{ steps.task.outputs.branch }}"
 
+      - name: Configure git identity
+        if: steps.task.outputs.has_task == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Run OpenCode
         if: steps.task.outputs.has_task == 'true' && inputs.diagnostic_only != true
         uses: anomalyco/opencode/github@github-v1.2.25

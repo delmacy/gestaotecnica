@@ -1,0 +1,24 @@
+name: Continue OpenCode Queue
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  continue-queue:
+    if: >-
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'agent/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch next task
+        env:
+          GH_TOKEN: ${{ secrets.OPENCODE_AUTOMATION_TOKEN || github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run opencode-task-runner.yml --repo "$GITHUB_REPOSITORY"

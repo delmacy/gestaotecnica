@@ -1,0 +1,89 @@
+name: OpenCode Pull Request Gate
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: opencode-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gestaotecnica_ci
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gestaotecnica_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      PLATFORM_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      RUNTIME_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      AGENT_WORK_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      JWT_SECRET: github-actions-test-secret-not-for-production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Verify dependency lock
+        run: npm ci --prefer-offline --no-audit --fund=false
+
+      - name: Reject agent changes to protected automation paths
+        if: startsWith(github.head_ref, 'agent/')
+        run: |
+          set -euo pipefail
+          protected="$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -E '^(\.github/workflows/|\.github/actions/|vercel\.json$)' || true)"
+          if [ -n "$protected" ]; then
+            echo "::error::Agent pull requests may not alter protected automation files:"
+            echo "$protected"
+            exit 1
+          fi
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Architecture rules
+        run: npm run check:architecture
+
+      - name: Explicit any policy
+        run: npm run check:no-explicit-any
+
+      - name: Database validation
+        run: npm run db:validate
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Integration tests
+        run: npm run test:integration
+
+      - name: Build
+        run: npm run build

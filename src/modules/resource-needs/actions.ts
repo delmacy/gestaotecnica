@@ -82,7 +82,6 @@ export async function createResourceNeed(formData: FormData) {
     eventType: "resource_need.created",
     entityType: "resource_need",
     entityId: need.id,
-    assetId: need.assetId,
     payload: need,
   });
 
@@ -115,8 +114,7 @@ export async function updateResourceNeedStatus(formData: FormData) {
     eventType: "resource_need.status_changed",
     entityType: "resource_need",
     entityId: previous.id,
-    assetId: previous.assetId,
-    payload: { title: previous.title, from: previous.status, to: status },
+    payload: { title: previous.title, assetId: previous.assetId, from: previous.status, to: status },
   });
 
   revalidatePath("/resource-needs");

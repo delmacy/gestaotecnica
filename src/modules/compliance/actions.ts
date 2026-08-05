@@ -74,7 +74,6 @@ export async function createComplianceAudit(formData: FormData) {
     eventType: "compliance_audit.created",
     entityType: "compliance_audit",
     entityId: audit.id,
-    assetId: audit.assetId,
     payload: audit,
   });
 
@@ -95,8 +94,7 @@ export async function updateComplianceAuditStatus(formData: FormData) {
     eventType: "compliance_audit.status_changed",
     entityType: "compliance_audit",
     entityId: previous.id,
-    assetId: previous.assetId,
-    payload: { title: previous.title, from: previous.status, to: status },
+    payload: { title: previous.title, assetId: previous.assetId, from: previous.status, to: status },
   });
   revalidatePath("/compliance");
   revalidatePath("/events");

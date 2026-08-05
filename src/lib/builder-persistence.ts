@@ -111,7 +111,7 @@ export async function resolveWorkspacePortfolio(
   const orgMap = new Map<string, OrganizationPortfolio>();
 
   for (const row of rows) {
-    const orgEntry = orgMap.get(row.organizationId) ?? {
+    const orgEntry: OrganizationPortfolio = orgMap.get(row.organizationId) ?? {
       id: row.organizationId,
       key: row.organizationKey,
       name: row.organizationName,

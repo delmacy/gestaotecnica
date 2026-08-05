@@ -78,9 +78,6 @@ export async function createLegacyRecord(formData: FormData) {
     eventType: "legacy.record_created",
     entityType: "legacy_record",
     entityId: record.id,
-    serviceOrderId: record.serviceOrderId,
-    workItemId: record.workItemId,
-    assetId: record.assetId,
     payload: record,
   });
 
@@ -129,11 +126,11 @@ export async function updateLegacySyncStatus(formData: FormData) {
     eventType: "legacy.sync_status_changed",
     entityType: "legacy_record",
     entityId: previous.id,
-    serviceOrderId: previous.serviceOrderId,
-    workItemId: previous.workItemId,
-    assetId: previous.assetId,
     payload: {
       systemName: previous.systemName,
+      serviceOrderId: previous.serviceOrderId,
+      workItemId: previous.workItemId,
+      assetId: previous.assetId,
       from: previous.syncStatus,
       to: syncStatus,
       note,

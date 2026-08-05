@@ -108,7 +108,6 @@ export async function createTechnician(formData: FormData) {
   );
 
   const db = getRuntimeDb();
-  // Criação de usuário ainda é direta por enquanto, até termos auth kernel actions
   const [user] = await db
     .insert(users)
     .values({
@@ -202,8 +201,6 @@ export async function createWorkforceAllocation(formData: FormData) {
     eventType: "workforce.allocation_created",
     entityType: "workforce_allocation",
     entityId: allocation.id,
-    serviceOrderId: allocation.serviceOrderId,
-    workItemId: allocation.workItemId,
     payload: allocation,
   });
 

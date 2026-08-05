@@ -63,3 +63,5 @@ dev_server.log
 /pr903-fix/
 /workspace-menu-fix/
 /system-building/
+/.opencode/
+/.worktrees/

@@ -81,7 +81,7 @@ const { GET } = proxyquire(
   },
 );
 
-function successRegistration(): RegistrationResult {
+async function successRegistration(): Promise<RegistrationResult> {
   return {
     organizationId: "org-1",
     workspaceId: "workspace-1",
@@ -94,7 +94,7 @@ function successRegistration(): RegistrationResult {
   };
 }
 
-function successReadBack(): ReadBackRegistration {
+async function successReadBack(): Promise<ReadBackRegistration> {
   return {
     workspaceId: "workspace-1",
     workspaceKey: SYSTEM_TRADING.workspace.key,
@@ -155,7 +155,7 @@ test("GET /api/builder/workspace-system-trading", async (t) => {
 
   await t.test("reports mismatches when the read-back diverges from registration", async () => {
     readImpl = async () => ({
-      ...successReadBack(),
+      ...(await successReadBack()),
       repository: {
         owner: "delmacy",
         name: "gestaotecnica",

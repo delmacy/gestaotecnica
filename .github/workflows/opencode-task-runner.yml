@@ -189,6 +189,7 @@ jobs:
         uses: anomalyco/opencode/github@github-v1.2.25
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          OPEN_CODE_API: ${{ secrets.OPEN_CODE_API }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -247,6 +248,7 @@ jobs:
         uses: anomalyco/opencode/github@github-v1.2.25
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          OPEN_CODE_API: ${{ secrets.OPEN_CODE_API }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

@@ -1,15 +1,13 @@
 import { events as eventLogs } from "@/db/runtime/schema/workflow";
 import { getRuntimeDb } from "@/db";
 import { resolveWorkspaceContext } from "@/platform/workspace";
+import { buildEventPayload, CreateEventInputSchema, type CreateEventInput } from "./create-event-contract";
 
-type EventInput = {
-  eventType: string;
-  entityType: string;
-  entityId: string;
-  payload?: Record<string, unknown>;
-};
+type EventInput = CreateEventInput;
 
 export async function createEvent(input: EventInput) {
+  const parsed = CreateEventInputSchema.parse(input);
+
   const context = await resolveWorkspaceContext({ source: "system" });
   const workspaceId = context.workspaceId;
 
@@ -18,10 +16,10 @@ export async function createEvent(input: EventInput) {
   const [event] = await db
     .insert(eventLogs)
     .values({
-      eventType: input.eventType,
-      entityType: input.entityType,
-      entityId: input.entityId,
-      payload: (input.payload ?? {}) as Record<string, unknown>,
+      eventType: parsed.eventType,
+      entityType: parsed.entityType,
+      entityId: parsed.entityId,
+      payload: buildEventPayload(parsed.payload),
       workspaceId,
     })
     .returning({ id: eventLogs.id });

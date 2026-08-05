@@ -26,8 +26,24 @@ jobs:
   execute-task:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gestaotecnica_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gestaotecnica_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL }}
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      PLATFORM_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      RUNTIME_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
     steps:
       - name: Checkout main
         uses: actions/checkout@v5
@@ -59,11 +75,14 @@ jobs:
             echo "run=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Select next task
+      - name: Select and classify next task
         if: steps.queue_gate.outputs.run == 'true'
         id: task
         env:
           REQUESTED_TASK: ${{ inputs.task_file || '' }}
+          SIMPLE_MODEL: ${{ vars.OPENCODE_MODEL_SIMPLE || secrets.OPENCODE_MODEL_SIMPLE }}
+          STANDARD_MODEL: ${{ vars.OPENCODE_MODEL_STANDARD || secrets.OPENCODE_MODEL_STANDARD }}
+          ADVANCED_MODEL: ${{ vars.OPENCODE_MODEL_ADVANCED || secrets.OPENCODE_MODEL_ADVANCED }}
         run: |
           set -euo pipefail
           if [ -n "$REQUESTED_TASK" ]; then
@@ -76,8 +95,30 @@ jobs:
             echo "No ready task found."
             exit 0
           fi
+
+          metadata="$(node scripts/agent/read-task-metadata.mjs "$task_file")"
+          task_id="$(jq -r '.id' <<<"$metadata")"
+          model_tier="$(jq -r '.model_tier' <<<"$metadata")"
+          risk="$(jq -r '.risk' <<<"$metadata")"
+          max_files="$(jq -r '.max_files' <<<"$metadata")"
+
+          case "$model_tier" in
+            simple) model="$SIMPLE_MODEL" ;;
+            standard) model="$STANDARD_MODEL" ;;
+            advanced) model="$ADVANCED_MODEL" ;;
+            *) echo "::error::Unsupported model tier: $model_tier"; exit 1 ;;
+          esac
+
+          if [ -z "$model" ] || [ "$model" = "null" ]; then
+            echo "::error::Repository variable or secret for $model_tier model is not configured."
+            exit 1
+          fi
+          if [ "$risk" = "high" ]; then
+            echo "::error::High-risk tasks require manual execution and cannot enter the automatic queue."
+            exit 1
+          fi
+
           task_name="$(basename "$task_file")"
-          task_id="${task_name%.md}"
           branch="agent/$task_id"
           cp "$task_file" /tmp/opencode-task.md
           {
@@ -86,6 +127,10 @@ jobs:
             echo "name=$task_name"
             echo "id=$task_id"
             echo "branch=$branch"
+            echo "model=$model"
+            echo "model_tier=$model_tier"
+            echo "risk=$risk"
+            echo "max_files=$max_files"
             echo "content<<__TASK__"
             cat "$task_file"
             echo
@@ -105,20 +150,35 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         with:
-          model: ${{ env.OPENCODE_MODEL }}
+          model: ${{ steps.task.outputs.model }}
           agent: build
           share: false
           prompt: |
-            Execute the queued task below in the current working tree.
+            Execute exactly one compact queued task in the current working tree.
+
+            Model tier: ${{ steps.task.outputs.model_tier }}
+            Risk: ${{ steps.task.outputs.risk }}
+            Maximum changed files: ${{ steps.task.outputs.max_files }}
 
             ${{ steps.task.outputs.content }}
 
             Mandatory rules:
-            - Read AGENTS.md and related project documentation before editing.
-            - Use Node.js 24 and preserve the repository architecture.
-            - Do not modify .github/workflows, secrets, deployment configuration, or unrelated files.
+            - Read AGENTS.md, .agent/policies/model-routing.md, and the task contract.
+            - Treat allowed_paths, forbidden_paths, max_files, non-goals, and acceptance criteria as hard constraints.
+            - Do not make architectural decisions not explicitly requested by the task.
+            - Do not modify workflows, secrets, deployment configuration, schemas, or migrations.
             - Do not commit, push, merge, or open a pull request.
-            - Run relevant tests and leave all changes in the working tree.
+            - Run the task validation commands and leave changes in the working tree.
+
+      - name: Enforce task size
+        if: steps.task.outputs.has_task == 'true'
+        run: |
+          set -euo pipefail
+          changed_count="$(git status --porcelain | wc -l | tr -d ' ')"
+          if [ "$changed_count" -gt "${{ steps.task.outputs.max_files }}" ]; then
+            echo "::error::Task changed $changed_count files; maximum is ${{ steps.task.outputs.max_files }}."
+            exit 1
+          fi
 
       - name: Validate implementation
         if: steps.task.outputs.has_task == 'true'
@@ -145,18 +205,21 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         with:
-          model: ${{ env.OPENCODE_MODEL }}
+          model: ${{ steps.task.outputs.model }}
           agent: build
           share: false
           prompt: |
-            The implementation failed repository validation.
-            Read validation.log, fix only failures caused by the current task, and preserve test coverage.
-            Do not commit, push, merge, open a pull request, disable tests, or modify workflows.
+            Repair the current compact task only.
+            Read validation.log and fix failures caused by the current changes.
+            Keep the same allowed paths and maximum of ${{ steps.task.outputs.max_files }} changed files.
+            Do not broaden scope, disable tests, modify workflows, commit, push, merge, or open a pull request.
 
-      - name: Final validation
+      - name: Final validation and size gate
         if: steps.task.outputs.has_task == 'true'
         run: |
           set -euo pipefail
+          changed_count="$(git status --porcelain | wc -l | tr -d ' ')"
+          test "$changed_count" -le "${{ steps.task.outputs.max_files }}"
           git diff --check
           npm run lint
           npm run typecheck
@@ -182,7 +245,7 @@ jobs:
             echo "::error::OpenCode produced no committable changes."
             exit 1
           fi
-          git commit -m "feat(${{ steps.task.outputs.id }}): implement queued task"
+          git commit -m "feat(${{ steps.task.outputs.id }}): implement compact task"
           git push --set-upstream origin "${{ steps.task.outputs.branch }}"
 
       - name: Open pull request and enable auto-merge
@@ -191,5 +254,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          pr_url="$(gh pr create --base main --head "${{ steps.task.outputs.branch }}" --title "${{ steps.task.outputs.id }}: automated implementation" --body-file /tmp/opencode-task.md)"
+          pr_url="$(gh pr create --base main --head "${{ steps.task.outputs.branch }}" --title "${{ steps.task.outputs.id }}: automated compact task" --body-file /tmp/opencode-task.md)"
           gh pr merge "$pr_url" --auto --squash --delete-branch

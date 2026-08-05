@@ -23,8 +23,6 @@ on:
         type: boolean
   repository_dispatch:
     types: [run-next-opencode-task]
-  schedule:
-    - cron: "3,18,33,48 * * * *"
 
 permissions:
   contents: write

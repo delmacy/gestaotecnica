@@ -246,28 +246,22 @@ jobs:
           echo ""
           echo "Diagnostic only mode - model was NOT invoked."
 
-      - name: Task execution summary
+      - name: OpenCode session log
         if: steps.task.outputs.has_task == 'true' && inputs.diagnostic_only != true
         run: |
-          set -euo pipefail
           echo ""
-          echo "=========================================="
-          echo "  OpenCode Task Execution Summary"
-          echo "=========================================="
+          echo "::group::OpenCode Session - Task ${{ steps.task.outputs.id }}"
           echo ""
-          echo "Task ID:    ${{ steps.task.outputs.id }}"
-          echo "Tier:       ${{ steps.task.outputs.tier }}"
-          echo "Risk:       ${{ steps.task.outputs.risk }}"
-          echo "Model:      ${{ steps.task.outputs.model }}"
-          echo "Max files:  ${{ steps.task.outputs.max_files }}"
+          echo "  Task: ${{ steps.task.outputs.id }}"
+          echo "  Tier: ${{ steps.task.outputs.tier }} | Risk: ${{ steps.task.outputs.risk }}"
+          echo "  Model: ${{ steps.task.outputs.model }}"
           echo ""
-          echo "--- Changed files ---"
-          git diff --name-only HEAD~1 HEAD 2>/dev/null || git status --porcelain | awk '{print $2}'
+          echo "  Files changed:"
+          git diff --name-only HEAD~1 HEAD 2>/dev/null | while read -r f; do
+            echo "    + $f"
+          done || git status --porcelain | awk '{print "    "$2}'
           echo ""
-          changed_count="$(git status --porcelain | wc -l | tr -d ' ')"
-          echo "Total changes: $changed_count files"
-          echo "=========================================="
-          echo ""
+          echo "::endgroup::"
 
       - name: Enforce scope and size
         if: steps.task.outputs.has_task == 'true' && inputs.diagnostic_only != true

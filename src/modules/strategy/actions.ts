@@ -8,7 +8,6 @@ import { runAction } from "@/platform/actions";
 import { resolveWorkspaceContext } from "@/platform/workspace";
 import {
   acquisitionNeeds,
-
   maintenancePlans,
   technicalProjects,
 } from "@/db/schema";
@@ -101,8 +100,7 @@ export async function updateMaintenancePlanStatus(formData: FormData) {
     eventType: "maintenance_plan.status_changed",
     entityType: "maintenance_plan",
     entityId: previous.id,
-    assetId: previous.assetId,
-    payload: { title: previous.title, from: previous.status, to: status },
+    payload: { title: previous.title, assetId: previous.assetId, from: previous.status, to: status },
   });
   revalidatePath("/maintenance-plans");
   redirect("/maintenance-plans");
@@ -135,8 +133,6 @@ export async function createTechnicalProject(formData: FormData) {
     eventType: "technical_project.created",
     entityType: "technical_project",
     entityId: project.id,
-    assetId: project.assetId,
-    workItemId: project.workItemId,
     payload: project,
   });
 
@@ -157,9 +153,13 @@ export async function updateTechnicalProjectStatus(formData: FormData) {
     eventType: "technical_project.status_changed",
     entityType: "technical_project",
     entityId: previous.id,
-    assetId: previous.assetId,
-    workItemId: previous.workItemId,
-    payload: { title: previous.title, from: previous.status, to: status },
+    payload: {
+      title: previous.title,
+      assetId: previous.assetId,
+      workItemId: previous.workItemId,
+      from: previous.status,
+      to: status,
+    },
   });
   revalidatePath("/technical-projects");
   redirect("/technical-projects");
@@ -199,8 +199,6 @@ export async function createAcquisitionNeed(formData: FormData) {
     eventType: "acquisition_need.created",
     entityType: "acquisition_need",
     entityId: need.id,
-    assetId: need.assetId,
-    serviceOrderId: need.serviceOrderId,
     payload: need,
   });
 
@@ -221,9 +219,13 @@ export async function updateAcquisitionNeedStatus(formData: FormData) {
     eventType: "acquisition_need.status_changed",
     entityType: "acquisition_need",
     entityId: previous.id,
-    assetId: previous.assetId,
-    serviceOrderId: previous.serviceOrderId,
-    payload: { title: previous.title, from: previous.status, to: status },
+    payload: {
+      title: previous.title,
+      assetId: previous.assetId,
+      serviceOrderId: previous.serviceOrderId,
+      from: previous.status,
+      to: status,
+    },
   });
   revalidatePath("/acquisitions");
   redirect("/acquisitions");

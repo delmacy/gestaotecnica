@@ -1,0 +1,169 @@
+name: AI Factory Task Runner
+
+on:
+  repository_dispatch:
+    types: [ai-run-task]
+  workflow_dispatch:
+    inputs:
+      task_file:
+        description: Ready task path or filename
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ai-factory-task-runner
+  cancel-in-progress: false
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci --prefer-offline --no-audit --fund=false
+
+      - name: Resolve task contract and model
+        id: task
+        env:
+          REQUESTED_TASK: ${{ github.event.client_payload.task_file || inputs.task_file }}
+          SIMPLE_MODEL: ${{ vars.OPENCODE_MODEL_SIMPLE || secrets.OPENCODE_MODEL_SIMPLE }}
+          STANDARD_MODEL: ${{ vars.OPENCODE_MODEL_STANDARD || secrets.OPENCODE_MODEL_STANDARD }}
+          ADVANCED_MODEL: ${{ vars.OPENCODE_MODEL_ADVANCED || secrets.OPENCODE_MODEL_ADVANCED }}
+        run: |
+          set -euo pipefail
+          file="$REQUESTED_TASK"
+          [[ "$file" == .agent/tasks/ready/* ]] || file=".agent/tasks/ready/$file"
+          metadata="$(node scripts/agent/read-task-metadata.mjs "$file")"
+          id="$(jq -r '.id' <<<"$metadata")"
+          tier="$(jq -r '.model_tier' <<<"$metadata")"
+          risk="$(jq -r '.risk' <<<"$metadata")"
+          max_files="$(jq -r '.max_files' <<<"$metadata")"
+          case "$tier" in
+            simple) model="$SIMPLE_MODEL" ;;
+            standard) model="$STANDARD_MODEL" ;;
+            advanced) model="$ADVANCED_MODEL" ;;
+            *) echo "::error::Unsupported tier $tier"; exit 1 ;;
+          esac
+          test -n "$model" || { echo "::error::No model configured for $tier"; exit 1; }
+          test "$risk" != high || { echo "::error::High-risk tasks are manual-only"; exit 1; }
+          cp "$file" /tmp/task.md
+          jq -r '.context_paths[]? // empty' <<<"$metadata" > /tmp/context-paths.txt
+          jq -r '.agent_validation[]? // empty' <<<"$metadata" > /tmp/agent-validation.txt
+          {
+            echo "file=$file"
+            echo "name=$(basename "$file")"
+            echo "id=$id"
+            echo "branch=agent/$id"
+            echo "tier=$tier"
+            echo "risk=$risk"
+            echo "model=$model"
+            echo "max_files=$max_files"
+            echo "context<<EOF"
+            cat /tmp/context-paths.txt
+            echo "EOF"
+            echo "validation<<EOF"
+            cat /tmp/agent-validation.txt
+            echo "EOF"
+            echo "content<<EOF"
+            cat "$file"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Validate provider credential
+        env:
+          MODEL: ${{ steps.task.outputs.model }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          case "$MODEL" in
+            openrouter/*) test -n "$OPENROUTER_API_KEY" ;;
+            openai/*) test -n "$OPENAI_API_KEY" ;;
+            anthropic/*) test -n "$ANTHROPIC_API_KEY" ;;
+            google/*|gemini/*) test -n "$GOOGLE_API_KEY" ;;
+            *) test -n "$OPENROUTER_API_KEY$OPENAI_API_KEY$ANTHROPIC_API_KEY$GOOGLE_API_KEY" ;;
+          esac || { echo "::error::Credential missing for selected model provider"; exit 1; }
+
+      - run: git switch -c "${{ steps.task.outputs.branch }}"
+
+      - name: Execute compact OpenCode task
+        uses: anomalyco/opencode/github@github-v1.2.25
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPEN_CODE_API: ${{ secrets.OPEN_CODE_API }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        with:
+          model: ${{ steps.task.outputs.model }}
+          agent: build
+          share: false
+          use_github_token: true
+          prompt: |
+            Execute one compact task only.
+            Read the task below and inspect context_paths first. Do not perform repository-wide exploration unless indispensable.
+            Context paths:
+            ${{ steps.task.outputs.context }}
+
+            Agent validation commands:
+            ${{ steps.task.outputs.validation }}
+
+            ${{ steps.task.outputs.content }}
+
+            Hard limits:
+            - Touch only allowed_paths and at most ${{ steps.task.outputs.max_files }} implementation files.
+            - Do not modify workflows, schemas, migrations, deployment or secrets.
+            - Do not commit, push, open PRs, move the task file or run repository-wide CI.
+            - Run only agent_validation, then stop. Do not request a repair pass or extended summary.
+
+      - name: Enforce scope and focal validation
+        run: |
+          set -euo pipefail
+          node scripts/agent/validate-task-scope.mjs origin/main "${{ steps.task.outputs.id }}"
+          test "$(git status --porcelain | wc -l | tr -d ' ')" -le "${{ steps.task.outputs.max_files }}"
+          git diff --check
+          while IFS= read -r command; do
+            test -z "$command" || bash -lc "$command"
+          done < /tmp/agent-validation.txt
+
+      - name: Commit, push and open delivery PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p .agent/tasks/completed
+          git mv "${{ steps.task.outputs.file }}" ".agent/tasks/completed/${{ steps.task.outputs.name }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat(${{ steps.task.outputs.id }}): implement sprint deliverable"
+          git push --set-upstream origin "${{ steps.task.outputs.branch }}"
+          gh pr create --base main --head "${{ steps.task.outputs.branch }}" \
+            --title "${{ steps.task.outputs.id }}: automated sprint deliverable" \
+            --body-file /tmp/task.md
+
+      - name: Publish failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-task-${{ steps.task.outputs.id || 'unknown' }}-failure
+          path: |
+            /tmp/task.md
+            /tmp/context-paths.txt
+            /tmp/agent-validation.txt
+          if-no-files-found: ignore

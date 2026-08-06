@@ -1,0 +1,63 @@
+name: AI Factory Queue Manager
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_file:
+        description: Optional ready task filename
+        required: false
+        type: string
+  repository_dispatch:
+    types: [ai-queue-next]
+  pull_request:
+    types: [closed]
+    branches: [main]
+  schedule:
+    - cron: "18 * * * *"
+
+permissions:
+  contents: write
+  pull-requests: read
+  actions: write
+
+concurrency:
+  group: ai-factory-queue
+  cancel-in-progress: false
+
+jobs:
+  select-and-dispatch:
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Block while an agent PR is open
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          count="$(gh pr list --state open --base main --json headRefName --jq '[.[] | select(.headRefName | startswith("agent/"))] | length')"
+          test "$count" -eq 0 && echo "open=false" >> "$GITHUB_OUTPUT" || echo "open=true" >> "$GITHUB_OUTPUT"
+
+      - name: Select next unblocked sprint task
+        if: steps.gate.outputs.open == 'false'
+        id: task
+        env:
+          REQUESTED_TASK: ${{ inputs.task_file || '' }}
+        run: |
+          result="$(node scripts/agent/select-next-task.mjs ${REQUESTED_TASK:+--task=$REQUESTED_TASK})"
+          echo "$result"
+          echo "has_task=$(jq -r '.hasTask' <<<"$result")" >> "$GITHUB_OUTPUT"
+          echo "file=$(jq -r '.file // ""' <<<"$result")" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch isolated task runner
+        if: steps.task.outputs.has_task == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/${{ github.repository }}/dispatches \
+            -f event_type=ai-run-task \
+            -F client_payload="$(jq -nc --arg file '${{ steps.task.outputs.file }}' '{task_file:$file}')"

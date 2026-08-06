@@ -1,12 +1,18 @@
 # Agent sprint lifecycle
 
-A sprint is the delivery boundary above compact OpenCode tasks.
+A sprint is the delivery boundary above compact AI tasks.
 
-## Hierarchy
+## Active architecture
 
-`portfolio -> roadmap -> epic -> sprint -> task`
+The AI Factory is event-driven and modular:
 
-The repository currently automates the sprint and task layers. Epic and roadmap identifiers remain metadata until their registries are introduced.
+1. `AI Factory Queue Manager` finds the active sprint and first unblocked ready task.
+2. `AI Factory Task Runner` executes one compact task with bounded context and focal validation.
+3. `AI Factory PR Validator` performs repository-wide CI without calling AI.
+4. `AI Factory Merge Manager` auto-merges only simple low-risk deliverables; escalated work waits for review.
+5. `Agent Sprint Governor` evaluates closure after merges and proposes a closure PR.
+
+The retired monolithic OpenCode runner and its continuation workflow are no longer active.
 
 ## Task contract
 
@@ -25,11 +31,19 @@ Every task in an active sprint must declare:
 - `ci_validation`
 - `max_files`
 
-Dependencies are declared with `depends_on`. The queue remains serial and must not start a dependent task before its prerequisites are completed.
+Dependencies are declared with `depends_on`. The queue remains serial and does not start a dependent task before every prerequisite appears in `completed`.
 
 ## Execution boundary
 
-The agent performs only the compact implementation and `agent_validation`. Repository-wide validation remains the responsibility of CI. Free or low-cost models must not receive an automatic second repair session by default.
+The task runner receives a selected task; it does not plan the sprint. It supplies `context_paths`, asks for one implementation pass, runs only `agent_validation`, enforces scope, and opens a delivery PR.
+
+Repository-wide lint, typecheck, architecture, database validation, unit tests, integration tests and build belong to the PR validator. Free or low-cost models receive no automatic repair session.
+
+## Merge policy
+
+- `simple + low`: automatic squash merge after the validator succeeds.
+- any other tier or risk: validated PR remains open for human review.
+- `high` risk: task runner rejects automatic execution.
 
 ## Sprint closure
 
@@ -41,15 +55,15 @@ A sprint is eligible for closure only when:
 4. required CI checks were enforced on each merged task;
 5. completion report, metrics and retrospective are generated.
 
-`Agent Sprint Governor` evaluates the active sprint after merges or by manual dispatch. Closure is proposed through a pull request so reports remain reviewable and branch protection remains effective.
+Closure is proposed through a pull request containing deterministic evidence. No AI call is required to close or report the sprint.
 
-## Generated evidence
+## Delivery evidence
 
-The closure pull request contains:
+The sprint closure PR contains:
 
 - `reports/completion-report.md`
 - `reports/metrics.json`
 - `retrospective.md`
 - `sprint.yaml` with `status: closed` and `closed_at`
 
-Findings that are not required by the current task must become backlog items; they must not expand the running task.
+Findings outside the current task become backlog items and must not expand a running task.

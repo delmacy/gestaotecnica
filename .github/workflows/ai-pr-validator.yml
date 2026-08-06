@@ -1,0 +1,63 @@
+name: AI Factory PR Validator
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-pr-validator-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate-deliverable:
+    if: startsWith(github.head_ref, 'agent/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: gestaotecnica_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gestaotecnica_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      PLATFORM_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      RUNTIME_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      AGENT_WORK_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/gestaotecnica_ci
+      JWT_SECRET: github-actions-test-secret-not-for-production
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci --prefer-offline --no-audit --fund=false
+      - name: Enforce task scope
+        run: node scripts/agent/validate-task-scope.mjs origin/main "${GITHUB_HEAD_REF#agent/}"
+      - name: Repository delivery gate
+        run: |
+          set -euo pipefail
+          git diff --check origin/main...HEAD
+          npm run lint
+          npm run typecheck
+          npm run check:architecture -- --strict
+          npm run check:no-explicit-any
+          npm run db:bootstrap
+          npm run db:validate
+          npm run test:unit
+          npm run test:integration
+          npm run build

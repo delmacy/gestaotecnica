@@ -1,0 +1,47 @@
+name: AI Factory Merge Manager
+
+on:
+  workflow_run:
+    workflows: ["AI Factory PR Validator"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  merge-policy:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve validated pull request
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pr_number="$(gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }} --jq '.pull_requests[0].number // empty')"
+          test -n "$pr_number" || exit 0
+          head="$(gh pr view "$pr_number" --json headRefName --jq .headRefName)"
+          [[ "$head" == agent/* ]] || exit 0
+          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
+
+      - name: Read task policy from PR body
+        if: steps.pr.outputs.number != ''
+        id: policy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          body="$(gh pr view '${{ steps.pr.outputs.number }}' --json body --jq .body)"
+          echo "tier=$(sed -n 's/^model_tier:[[:space:]]*//p' <<<"$body" | head -n1)" >> "$GITHUB_OUTPUT"
+          echo "risk=$(sed -n 's/^risk:[[:space:]]*//p' <<<"$body" | head -n1)" >> "$GITHUB_OUTPUT"
+
+      - name: Auto-merge simple low-risk delivery
+        if: steps.pr.outputs.number != '' && steps.policy.outputs.tier == 'simple' && steps.policy.outputs.risk == 'low'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr merge '${{ steps.pr.outputs.number }}' --squash --delete-branch
+
+      - name: Require human review for escalated delivery
+        if: steps.pr.outputs.number != '' && (steps.policy.outputs.tier != 'simple' || steps.policy.outputs.risk != 'low')
+        run: echo "Validated delivery requires human review before merge."

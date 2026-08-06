@@ -3,15 +3,25 @@ id: GT-AGENT-001
 title: Add regression tests for generic event payload associations
 status: ready
 priority: 10
+sprint_id: SPRINT-001
+epic_id: EP-EVENT-PLATFORM
+story_points: 1
+estimated_minutes: 20
 model_tier: simple
 risk: low
+requires_database: false
+context_paths:
+  - src/platform/events/**
+  - tests/unit/**
 allowed_paths:
   - tests/unit/**
   - src/platform/events/**
 forbidden_paths:
   - .github/workflows/**
   - src/db/**/schema/**
-validation:
+agent_validation:
+  - npm run test:unit -- --runInBand
+ci_validation:
   - npm run typecheck
   - npm run test:unit
 max_files: 3

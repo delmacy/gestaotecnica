@@ -6,7 +6,7 @@ on:
     types: [completed]
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
@@ -25,7 +25,6 @@ jobs:
           head="$(gh pr view "$pr_number" --json headRefName --jq .headRefName)"
           [[ "$head" == agent/* ]] || exit 0
           echo "number=$pr_number" >> "$GITHUB_OUTPUT"
-          echo "head=$head" >> "$GITHUB_OUTPUT"
 
       - name: Read task policy from PR body
         if: steps.pr.outputs.number != ''
@@ -34,10 +33,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           body="$(gh pr view '${{ steps.pr.outputs.number }}' --json body --jq .body)"
-          tier="$(sed -n 's/^model_tier:[[:space:]]*//p' <<<"$body" | head -n1)"
-          risk="$(sed -n 's/^risk:[[:space:]]*//p' <<<"$body" | head -n1)"
-          echo "tier=$tier" >> "$GITHUB_OUTPUT"
-          echo "risk=$risk" >> "$GITHUB_OUTPUT"
+          echo "tier=$(sed -n 's/^model_tier:[[:space:]]*//p' <<<"$body" | head -n1)" >> "$GITHUB_OUTPUT"
+          echo "risk=$(sed -n 's/^risk:[[:space:]]*//p' <<<"$body" | head -n1)" >> "$GITHUB_OUTPUT"
 
       - name: Auto-merge simple low-risk delivery
         if: steps.pr.outputs.number != '' && steps.policy.outputs.tier == 'simple' && steps.policy.outputs.risk == 'low'

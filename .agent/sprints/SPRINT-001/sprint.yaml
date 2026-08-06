@@ -1,0 +1,22 @@
+id: SPRINT-001
+title: Stabilize the compact agent factory
+objective: Prove that small OpenCode tasks can be executed, validated and merged with low-cost models.
+status: active
+start_date: 2026-08-06
+target_date: 2026-08-13
+max_parallel_tasks: 1
+owner: system-builder-governor
+exit_criteria:
+  - all_sprint_tasks_completed
+  - no_open_agent_pull_request
+  - required_ci_green
+  - sprint_report_generated
+  - retrospective_generated
+required_checks:
+  - OpenCode Pull Request Gate
+  - Agent Work Governance
+metrics:
+  track_duration: true
+  track_attempts: true
+  track_model: true
+  track_failures: true

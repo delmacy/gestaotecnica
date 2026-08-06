@@ -57,7 +57,10 @@ jobs:
         if: steps.task.outputs.has_task == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          TASK_FILE: ${{ steps.task.outputs.file }}
         run: |
-          gh api repos/${{ github.repository }}/dispatches \
-            -f event_type=ai-run-task \
-            -F client_payload="$(jq -nc --arg file '${{ steps.task.outputs.file }}' '{task_file:$file}')"
+          jq -nc --arg file "$TASK_FILE" \
+            '{event_type:"ai-run-task",client_payload:{task_file:$file}}' |
+          gh api --method POST \
+            "repos/${{ github.repository }}/dispatches" \
+            --input -

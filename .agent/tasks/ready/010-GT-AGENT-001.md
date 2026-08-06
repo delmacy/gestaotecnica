@@ -20,7 +20,7 @@ forbidden_paths:
   - .github/workflows/**
   - src/db/**/schema/**
 agent_validation:
-  - npm run test:unit -- --runInBand
+  - npm run test:unit
 ci_validation:
   - npm run typecheck
   - npm run test:unit

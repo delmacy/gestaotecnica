@@ -1,8 +1,6 @@
 name: AI Factory Task Runner
 
 on:
-  repository_dispatch:
-    types: [ai-run-task]
   workflow_dispatch:
     inputs:
       task_file:
@@ -38,7 +36,7 @@ jobs:
       - name: Resolve task contract and model
         id: task
         env:
-          REQUESTED_TASK: ${{ github.event.client_payload.task_file || inputs.task_file }}
+          REQUESTED_TASK: ${{ inputs.task_file }}
           SIMPLE_MODEL: ${{ vars.OPENCODE_MODEL_SIMPLE || secrets.OPENCODE_MODEL_SIMPLE }}
           STANDARD_MODEL: ${{ vars.OPENCODE_MODEL_STANDARD || secrets.OPENCODE_MODEL_STANDARD }}
           ADVANCED_MODEL: ${{ vars.OPENCODE_MODEL_ADVANCED || secrets.OPENCODE_MODEL_ADVANCED }}

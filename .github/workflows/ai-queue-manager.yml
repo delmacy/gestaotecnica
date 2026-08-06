@@ -59,8 +59,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TASK_FILE: ${{ steps.task.outputs.file }}
         run: |
-          jq -nc --arg file "$TASK_FILE" \
-            '{event_type:"ai-run-task",client_payload:{task_file:$file}}' |
-          gh api --method POST \
-            "repos/${{ github.repository }}/dispatches" \
-            --input -
+          set -euo pipefail
+          echo "Dispatching task: $TASK_FILE"
+          gh workflow run ai-task-runner.yml \
+            --ref main \
+            -f task_file="$TASK_FILE"

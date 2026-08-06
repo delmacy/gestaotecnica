@@ -13,7 +13,7 @@ exit_criteria:
   - sprint_report_generated
   - retrospective_generated
 required_checks:
-  - OpenCode Pull Request Gate
+  - AI Factory PR Validator
   - Agent Work Governance
 metrics:
   track_duration: true

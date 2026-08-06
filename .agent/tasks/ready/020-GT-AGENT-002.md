@@ -3,8 +3,18 @@ id: GT-AGENT-002
 title: Remove eager database initialization from module import
 status: ready
 priority: 20
+sprint_id: SPRINT-001
+epic_id: EP-DATABASE-RUNTIME
+story_points: 2
+estimated_minutes: 35
+depends_on:
+  - GT-AGENT-001
 model_tier: simple
 risk: low
+requires_database: false
+context_paths:
+  - src/db/index.ts
+  - tests/unit/**
 allowed_paths:
   - src/db/index.ts
   - src/**/*.ts
@@ -12,7 +22,9 @@ allowed_paths:
 forbidden_paths:
   - .github/workflows/**
   - src/db/**/schema/**
-validation:
+agent_validation:
+  - npm run typecheck
+ci_validation:
   - npm run typecheck
   - npm run test:unit
   - npm run build
